@@ -46,8 +46,9 @@ function App() {
   const audioContextRef = useRef(null);
 
   // Add audioThreshold state
-  const [audioThreshold, setAudioThreshold] = useState(0.05);
+  const [audioThreshold, setAudioThreshold] = useState(0.02);
   const [silenceLength, setSilenceLength] = useState(0.3);
+  const [speechHangover, setSpeechHangover] = useState(0.2);
 
   // Add segments state
   const [segments, setSegments] = useState([]);
@@ -394,7 +395,8 @@ function App() {
             energyThreshold: audioThreshold,
             minSpeechDuration: 0.1,
             windowSize: 256,
-            minSilenceBetween: silenceLength
+            minSilenceBetween: silenceLength,
+            speechHangover: speechHangover
         });
 
         // Test the logger immediately
@@ -404,7 +406,8 @@ function App() {
 
         addLog('AudioSegmentProcessor initialized', {
             threshold: audioThreshold,
-            silenceLength
+            silenceLength,
+            hangover: speechHangover
         });
     }
   }, []); // Empty dependency array - only run once
@@ -412,14 +415,16 @@ function App() {
   // Add effect to update processor settings when controls change
   useEffect(() => {
     if (audioProcessorRef.current) {
-        audioProcessorRef.current.setThreshold(audioThreshold);
-        audioProcessorRef.current.setSilenceLength(silenceLength);
+        audioProcessorRef.current.options.energyThreshold = audioThreshold;
+        audioProcessorRef.current.options.minSilenceBetween = silenceLength;
+        audioProcessorRef.current.options.speechHangover = speechHangover;
         addLog('Updated processor settings', {
             threshold: audioThreshold,
-            silenceLength
+            silenceLength,
+            hangover: speechHangover
         });
     }
-}, [audioThreshold, silenceLength]);
+}, [audioThreshold, silenceLength, speechHangover]);
 
   // Handle reset button click
   const handleReset = useCallback(() => {
@@ -580,12 +585,8 @@ function App() {
                     onThresholdChange={setAudioThreshold}
                     silenceLength={silenceLength}
                     onSilenceLengthChange={setSilenceLength}
-                    maxSilenceWithinSpeech={maxSilenceWithinSpeech}
-                    onMaxSilenceChange={setMaxSilenceWithinSpeech}
-                    endingSpeechTolerance={endingSpeechTolerance}
-                    onEndingToleranceChange={setEndingSpeechTolerance}
-                    endingEnergyThreshold={endingEnergyThreshold}
-                    onEndingThresholdChange={setEndingEnergyThreshold}
+                    speechHangover={speechHangover}
+                    onHangoverChange={setSpeechHangover}
                 />
                 {status === 'ready' && <div className="relative">
                   <p className="w-full h-[160px] overflow-y-auto overflow-wrap-anywhere border rounded-lg p-2">{text}</p>
