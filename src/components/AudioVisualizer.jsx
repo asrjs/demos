@@ -1,7 +1,15 @@
-import { useRef, useCallback, useEffect } from "react";
+import { useRef, useCallback, useEffect, useState } from "react";
 
-export function AudioVisualizer({ stream, ...props }) {
+export function AudioVisualizer({ 
+    stream, 
+    threshold, 
+    onThresholdChange, 
+    silenceLength,
+    onSilenceLengthChange,
+    className 
+}) {
     const canvasRef = useRef(null);
+    const levelBarRef = useRef(null);
 
     const visualize = useCallback((stream) => {
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -11,7 +19,9 @@ export function AudioVisualizer({ stream, ...props }) {
         source.connect(analyser);
 
         const canvas = canvasRef.current;
+        const levelBar = levelBarRef.current;
         const canvasCtx = canvas.getContext('2d');
+        const levelCtx = levelBar.getContext('2d');
         const bufferLength = analyser.frequencyBinCount;
         const dataArray = new Uint8Array(bufferLength);
 
@@ -19,6 +29,7 @@ export function AudioVisualizer({ stream, ...props }) {
             requestAnimationFrame(drawVisual);
             analyser.getByteTimeDomainData(dataArray);
 
+            // Draw waveform
             canvasCtx.fillStyle = 'rgb(255, 255, 255)';
             canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -27,11 +38,15 @@ export function AudioVisualizer({ stream, ...props }) {
             canvasCtx.beginPath();
 
             const sliceWidth = canvas.width * 1.0 / bufferLength;
-
             let x = 0;
+
+            // Calculate current audio level with adjusted range
+            let sum = 0;
             for (let i = 0; i < bufferLength; ++i) {
                 const v = dataArray[i] / 128.0;
                 const y = v * canvas.height / 2;
+                // Amplify the energy calculation
+                sum += Math.abs(v - 1.0) * 4; // Multiply by 4 to amplify
 
                 if (i === 0) {
                     canvasCtx.moveTo(x, y);
@@ -44,15 +59,30 @@ export function AudioVisualizer({ stream, ...props }) {
 
             canvasCtx.lineTo(canvas.width, canvas.height / 2);
             canvasCtx.stroke();
+
+            // Draw level bar with adjusted range
+            const energy = Math.min(1, (sum / bufferLength) * 2); // Amplify and clamp to 1
+            levelCtx.clearRect(0, 0, levelBar.width, levelBar.height);
+            
+            // Draw threshold line
+            levelCtx.beginPath();
+            levelCtx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
+            levelCtx.moveTo(0, levelBar.height * (1 - threshold));
+            levelCtx.lineTo(levelBar.width, levelBar.height * (1 - threshold));
+            levelCtx.stroke();
+
+            // Draw energy level
+            const barHeight = energy * levelBar.height;
+            levelCtx.fillStyle = energy > threshold ? 'rgb(0, 255, 0)' : 'rgb(200, 200, 200)';
+            levelCtx.fillRect(0, levelBar.height - barHeight, levelBar.width, barHeight);
         };
 
         drawVisual();
 
-        // Return cleanup function
         return () => {
             audioContext.close();
         };
-    }, []);
+    }, [threshold]);
 
     useEffect(() => {
         let cleanup;
@@ -63,6 +93,51 @@ export function AudioVisualizer({ stream, ...props }) {
     }, [visualize, stream]);
 
     return (
-        <canvas {...props} width={720} height={240} ref={canvasRef}></canvas>
+        <div className={className}>
+            <canvas width={720} height={120} ref={canvasRef}></canvas>
+            <div className="absolute top-0 right-0 flex items-center gap-2">
+                {/* Energy threshold control */}
+                <div className="flex flex-col items-center">
+                    <span className="text-xs mb-1">Energy</span>
+                    <div className="w-[30px] h-[120px] flex items-center justify-center">
+                        <input
+                            type="range"
+                            min="0.005"
+                            max="0.2"
+                            step="0.005"
+                            value={threshold}
+                            onChange={(e) => onThresholdChange(parseFloat(e.target.value))}
+                            className="w-[120px] h-[30px] -rotate-90 origin-center"
+                        />
+                    </div>
+                    <span className="text-xs mt-1">{threshold.toFixed(3)}</span>
+                </div>
+
+                {/* Silence length control */}
+                <div className="flex flex-col items-center">
+                    <span className="text-xs mb-1">Silence</span>
+                    <div className="w-[30px] h-[120px] flex items-center justify-center">
+                        <input
+                            type="range"
+                            min="0.1"
+                            max="1.0"
+                            step="0.1"
+                            value={silenceLength}
+                            onChange={(e) => onSilenceLengthChange(parseFloat(e.target.value))}
+                            className="w-[120px] h-[30px] -rotate-90 origin-center"
+                        />
+                    </div>
+                    <span className="text-xs mt-1">{silenceLength.toFixed(1)}s</span>
+                </div>
+
+                {/* Level indicator */}
+                <canvas 
+                    ref={levelBarRef} 
+                    width={30} 
+                    height={120}
+                    className="border-l border-gray-300"
+                />
+            </div>
+        </div>
     );
 }

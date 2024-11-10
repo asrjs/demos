@@ -1,16 +1,20 @@
 import { useRef } from 'react';
+import { BufferVisualizer } from './BufferVisualizer';
+import { SpeechSegmentsDebug } from './SpeechSegmentsDebug';
 
-export function StatsWidget({ chunks, audioContextRef }) {
-    const totalDuration = chunks.reduce((acc, chunk) => acc + chunk.duration, 0);
+export function StatsWidget({ chunks, audioContextRef, segments = [], threshold }) {
+    // Fix duration calculation
+    // Each chunk is 25ms (0.025 seconds) as set in the recorder
+    const totalDuration = chunks.length * 0.025;  // Simple and accurate duration calculation
     const totalSize = chunks.reduce((acc, chunk) => acc + chunk.size, 0);
     const audioPlayerRef = useRef(null);
 
     const handlePlayback = async () => {
         if (!chunks.length) return;
 
-        // Create blob from the original blob chunks
-        const blob = new Blob(chunks.map(chunk => chunk.blob), { 
-            type: 'audio/wav'
+        // Create blob directly from chunks
+        const blob = new Blob(chunks, { 
+            type: 'audio/webm;codecs=opus' 
         });
         const audioUrl = URL.createObjectURL(blob);
         
@@ -23,7 +27,6 @@ export function StatsWidget({ chunks, audioContextRef }) {
             }
         }
 
-        // Clean up URL after playback
         audioPlayerRef.current.onended = () => {
             URL.revokeObjectURL(audioUrl);
         };
@@ -33,11 +36,13 @@ export function StatsWidget({ chunks, audioContextRef }) {
         if (!chunks.length) return;
 
         try {
-            // Create blob from chunks
-            const originalBlob = new Blob(chunks.map(chunk => chunk.blob));
+            // Create blob directly from chunks
+            const blob = new Blob(chunks, { 
+                type: 'audio/webm;codecs=opus' 
+            });
             
             // Convert to audio data
-            const arrayBuffer = await originalBlob.arrayBuffer();
+            const arrayBuffer = await blob.arrayBuffer();
             const audioContext = new AudioContext({ sampleRate: 16000 });
             const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
             
@@ -109,16 +114,93 @@ export function StatsWidget({ chunks, audioContextRef }) {
         }
     }
 
+    // Format time in MM:SS format
+    const formatTime = (seconds) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    };
+
     return (
-        <div className="w-full max-w-[500px] p-4 border rounded-lg mt-4">
+        <div className="w-full p-4 border rounded-lg mt-4">
             <h3 className="font-semibold mb-2">Buffer Statistics</h3>
+            
+            <div className="mb-4 w-full">
+                <BufferVisualizer 
+                    chunks={chunks} 
+                    audioContextRef={audioContextRef}
+                    threshold={threshold}
+                    segments={segments}
+                />
+            </div>
+
             <div className="grid grid-cols-2 gap-2 mb-4">
                 <div>Chunks: {chunks.length}</div>
                 <div>Total Size: {(totalSize / 1024).toFixed(2)} KB</div>
                 <div>Duration: {totalDuration.toFixed(2)}s</div>
-                <div>Sample Rate: {audioContextRef.current?.sampleRate || 'N/A'} Hz</div>
+                <div>Sample Rate: {audioContextRef.current?.sampleRate || 16000} Hz</div>
+                <div>Speech Segments: {segments.filter(s => !s.isSilence).length}</div>
+                <div>Processed: {segments.filter(s => s.isProcessed).length}</div>
+                <div>Avg Segment: {
+                    (segments.filter(s => !s.isSilence)
+                        .reduce((acc, s) => acc + s.getDuration(), 0) 
+                        / segments.filter(s => !s.isSilence).length || 0
+                    ).toFixed(2)}s
+                </div>
+                <div>Last Energy: {
+                    segments[segments.length - 1]?.energy.toFixed(3) || 'N/A'
+                }</div>
             </div>
-            
+
+            {/* Enhanced Timeline visualization */}
+            <div className="w-full mb-4">
+                {/* Timeline bar */}
+                <div className="w-full h-8 bg-gray-100 relative rounded overflow-hidden">
+                    {segments.map((segment, i) => (
+                        <div
+                            key={i}
+                            className={`absolute h-full transition-colors duration-200 ${
+                                segment.isSilence ? 'bg-gray-200' :
+                                segment.isProcessed ? 'bg-green-200 hover:bg-green-300' : 
+                                'bg-yellow-200 hover:bg-yellow-300'
+                            } border-r border-white`}
+                            style={{
+                                left: `${(segment.startTime / totalDuration) * 100}%`,
+                                width: `${(segment.getDuration() / totalDuration) * 100}%`
+                            }}
+                            title={`${formatTime(segment.startTime)} - ${formatTime(segment.endTime)}
+${segment.isProcessed ? segment.transcription : 'Processing...'}
+Energy: ${segment.energy.toFixed(3)}`}
+                        />
+                    ))}
+                </div>
+                
+                {/* Timeline labels */}
+                <div className="w-full flex justify-between text-xs text-gray-500 mt-1">
+                    <span>0:00</span>
+                    <span>{formatTime(totalDuration)}</span>
+                </div>
+
+                {/* Legend */}
+                <div className="flex gap-4 justify-center text-sm mt-2">
+                    <div className="flex items-center">
+                        <div className="w-3 h-3 bg-gray-200 mr-1"></div>
+                        <span>Silence</span>
+                    </div>
+                    <div className="flex items-center">
+                        <div className="w-3 h-3 bg-yellow-200 mr-1"></div>
+                        <span>Processing</span>
+                    </div>
+                    <div className="flex items-center">
+                        <div className="w-3 h-3 bg-green-200 mr-1"></div>
+                        <span>Transcribed</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* Add debug panel after the timeline */}
+            <SpeechSegmentsDebug segments={segments} />
+
             <div className="flex justify-between items-center">
                 <div className="flex gap-2">
                     <button 

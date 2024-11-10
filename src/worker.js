@@ -21,6 +21,12 @@ function debugLog(message, data = null) {
 
 const MAX_NEW_TOKENS = 64;
 
+// Simplify progress logging
+function shouldLogProgress(progress) {
+    // Only log at start (1%) and completion (100%)
+    return progress <= 1 || progress >= 99;
+}
+
 class AutomaticSpeechRecognitionPipeline {
     static model_id = null;
     static tokenizer = null;
@@ -33,42 +39,44 @@ class AutomaticSpeechRecognitionPipeline {
             return Promise.all([this.tokenizer, this.processor, this.model]);
         }
 
-        // this.model_id = 'base-dsntt1-tr';
-        this.model_id = 'small-dsntt1-tr';
+        this.model_id = 'base-dsntt1-tr';
         
-        debugLog('Attempting to load model from:', {
-            modelId: this.model_id,
-            fullPath: `${env.localModelPath}/${this.model_id}`
-        });
+        debugLog('Loading model...');
 
         try {
-            debugLog('Loading tokenizer...');
             this.tokenizer = await AutoTokenizer.from_pretrained(this.model_id, {
-                progress_callback,
+                progress_callback: (progress) => {
+                    if (shouldLogProgress(progress.progress)) {
+                        progress_callback?.(progress);
+                    }
+                },
                 local: true,
             });
             
-            debugLog('Loading processor...');
             this.processor = await AutoProcessor.from_pretrained(this.model_id, {
-                progress_callback,
+                progress_callback: (progress) => {
+                    if (shouldLogProgress(progress.progress)) {
+                        progress_callback?.(progress);
+                    }
+                },
                 local: true,
             });
 
-            debugLog('Loading model...');
             this.model = await WhisperForConditionalGeneration.from_pretrained(this.model_id, {
                 local: true,
                 device: 'webgpu',
-                progress_callback,
+                progress_callback: (progress) => {
+                    if (shouldLogProgress(progress.progress)) {
+                        progress_callback?.(progress);
+                    }
+                },
             });
 
             this.isInitialized = true;
-            debugLog('Model pipeline initialized successfully');
+            debugLog('Model loaded');
             return [this.tokenizer, this.processor, this.model];
         } catch (error) {
-            debugLog('Error loading model:', {
-                error: error.message,
-                stack: error.stack
-            });
+            debugLog('Error:', error.message);
             throw error;
         }
     }
@@ -131,7 +139,7 @@ async function load() {
 }
 
 let processing = false;
-async function generate({ audio, language }) {
+async function generate({ audio, language, segmentId }) {
     if (processing) return;
     processing = true;
 
@@ -173,10 +181,11 @@ async function generate({ audio, language }) {
 
     const outputText = tokenizer.batch_decode(outputs, { skip_special_tokens: true });
 
-    // Send the output back to the main thread
+    // Send the output back to the main thread with segmentId
     self.postMessage({
         status: 'complete',
         output: outputText,
+        segmentId
     });
     processing = false;
 }
