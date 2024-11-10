@@ -6,6 +6,12 @@ export function AudioVisualizer({
     onThresholdChange, 
     silenceLength,
     onSilenceLengthChange,
+    maxSilenceWithinSpeech,
+    onMaxSilenceChange,
+    endingSpeechTolerance,
+    onEndingToleranceChange,
+    endingEnergyThreshold,
+    onEndingThresholdChange,
     className 
 }) {
     const canvasRef = useRef(null);
@@ -113,9 +119,9 @@ export function AudioVisualizer({
                     <span className="text-xs mt-1">{threshold.toFixed(3)}</span>
                 </div>
 
-                {/* Silence length control */}
+                {/* Silence between utterances control */}
                 <div className="flex flex-col items-center">
-                    <span className="text-xs mb-1">Silence</span>
+                    <span className="text-xs mb-1">Gap</span>
                     <div className="w-[30px] h-[120px] flex items-center justify-center">
                         <input
                             type="range"
@@ -128,6 +134,59 @@ export function AudioVisualizer({
                         />
                     </div>
                     <span className="text-xs mt-1">{silenceLength.toFixed(1)}s</span>
+                </div>
+
+                {/* Add new control for maxSilenceWithinSpeech */}
+                <div className="flex flex-col items-center">
+                    <span className="text-xs mb-1">Word Gap</span>
+                    <div className="w-[30px] h-[120px] flex items-center justify-center">
+                        <input
+                            type="range"
+                            min="0.1"
+                            max="0.8"
+                            step="0.1"
+                            value={maxSilenceWithinSpeech}
+                            onChange={(e) => onMaxSilenceChange(parseFloat(e.target.value))}
+                            className="w-[120px] h-[30px] -rotate-90 origin-center"
+                        />
+                    </div>
+                    <span className="text-xs mt-1">{maxSilenceWithinSpeech.toFixed(1)}s</span>
+                </div>
+
+                {/* Add control for ending speech tolerance */}
+                <div className="flex flex-col items-center">
+                    <span className="text-xs mb-1">End Tol</span>
+                    <div className="w-[30px] h-[120px] flex items-center justify-center">
+                        <input
+                            type="range"
+                            min="0.1"
+                            max="1.0"
+                            step="0.1"
+                            value={endingSpeechTolerance}
+                            onChange={(e) => onEndingToleranceChange(parseFloat(e.target.value))}
+                            className="w-[120px] h-[30px] -rotate-90 origin-center"
+                            title="Ending Speech Tolerance"
+                        />
+                    </div>
+                    <span className="text-xs mt-1">{endingSpeechTolerance.toFixed(1)}s</span>
+                </div>
+
+                {/* Add control for ending energy threshold */}
+                <div className="flex flex-col items-center">
+                    <span className="text-xs mb-1">End Thr</span>
+                    <div className="w-[30px] h-[120px] flex items-center justify-center">
+                        <input
+                            type="range"
+                            min="0.1"
+                            max="1.0"
+                            step="0.1"
+                            value={endingEnergyThreshold}
+                            onChange={(e) => onEndingThresholdChange(parseFloat(e.target.value))}
+                            className="w-[120px] h-[30px] -rotate-90 origin-center"
+                            title="Ending Energy Threshold"
+                        />
+                    </div>
+                    <span className="text-xs mt-1">{endingEnergyThreshold.toFixed(1)}</span>
                 </div>
 
                 {/* Level indicator */}

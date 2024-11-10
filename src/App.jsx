@@ -73,6 +73,13 @@ function App() {
   // Change audioBuffer from state to ref
   const audioBufferRef = useRef(null);  // Replace useState with useRef
 
+  // Add state for maxSilenceWithinSpeech
+  const [maxSilenceWithinSpeech, setMaxSilenceWithinSpeech] = useState(0.3);
+
+  // Add new state variables
+  const [endingSpeechTolerance, setEndingSpeechTolerance] = useState(0.4);
+  const [endingEnergyThreshold, setEndingEnergyThreshold] = useState(0.6);
+
   // Initialize AudioManager
   useEffect(() => {
     if (!worker.current || audioManagerRef.current) return;
@@ -513,6 +520,28 @@ function App() {
       }
   }, []);
 
+  // Add effect to update processor settings
+  useEffect(() => {
+    if (audioProcessorRef.current) {
+        audioProcessorRef.current.options.maxSilenceWithinSpeech = maxSilenceWithinSpeech;
+        addLog('Updated max silence within speech', {
+            value: maxSilenceWithinSpeech
+        });
+    }
+}, [maxSilenceWithinSpeech]);
+
+  // Add effect to update processor settings
+  useEffect(() => {
+    if (audioProcessorRef.current) {
+        audioProcessorRef.current.options.endingSpeechTolerance = endingSpeechTolerance;
+        audioProcessorRef.current.options.endingEnergyThreshold = endingEnergyThreshold;
+        addLog('Updated ending speech parameters', {
+            tolerance: endingSpeechTolerance,
+            threshold: endingEnergyThreshold
+        });
+    }
+}, [endingSpeechTolerance, endingEnergyThreshold]);
+
   return (
     IS_WEBGPU_AVAILABLE
       ? (<div className="flex flex-col h-screen w-screen mx-auto justify-start text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-900">
@@ -551,6 +580,12 @@ function App() {
                     onThresholdChange={setAudioThreshold}
                     silenceLength={silenceLength}
                     onSilenceLengthChange={setSilenceLength}
+                    maxSilenceWithinSpeech={maxSilenceWithinSpeech}
+                    onMaxSilenceChange={setMaxSilenceWithinSpeech}
+                    endingSpeechTolerance={endingSpeechTolerance}
+                    onEndingToleranceChange={setEndingSpeechTolerance}
+                    endingEnergyThreshold={endingEnergyThreshold}
+                    onEndingThresholdChange={setEndingEnergyThreshold}
                 />
                 {status === 'ready' && <div className="relative">
                   <p className="w-full h-[160px] overflow-y-auto overflow-wrap-anywhere border rounded-lg p-2">{text}</p>
