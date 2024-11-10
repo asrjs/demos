@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 
 import { AudioVisualizer } from './components/AudioVisualizer';
 import Progress from './components/Progress';
-import { LanguageSelector } from './components/LanguageSelector';
+import { StatsWidget } from './components/StatsWidget';
 
 const IS_WEBGPU_AVAILABLE = !!navigator.gpu;
 
@@ -86,20 +86,17 @@ function App() {
           recorderRef.current?.start();
           break;
 
-        case 'start': {
+        case 'start':
           // Start generation
           setIsProcessing(true);
-
           // Request new data from the recorder
           recorderRef.current?.requestData();
-        }
           break;
 
-        case 'update': {
+        case 'update':
           // Generation update: update the output text.
           const { tps } = e.data;
           setTps(tps);
-        }
           break;
 
         case 'complete':
@@ -136,7 +133,12 @@ function App() {
           }
           recorderRef.current.ondataavailable = (e) => {
             if (e.data.size > 0) {
-              setChunks((prev) => [...prev, e.data]);
+              setChunks((prev) => [...prev, {
+                blob: e.data,
+                size: e.data.size,
+                duration: 0.025, // 25ms chunks
+                timestamp: Date.now()
+              }]);
             } else {
               // Empty chunk received, so we request new data after a short timeout
               setTimeout(() => {
@@ -168,8 +170,10 @@ function App() {
     if (status !== 'ready') return;
 
     if (chunks.length > 0) {
-      // Generate from data
-      const blob = new Blob(chunks, { type: recorderRef.current.mimeType });
+      // Use only the blob parts for transcription
+      const blob = new Blob(chunks.map(chunk => chunk.blob), { 
+        type: recorderRef.current.mimeType 
+      });
 
       const fileReader = new FileReader();
 
@@ -195,7 +199,7 @@ function App() {
         {(
           <div className="h-full overflow-auto scrollbar-thin flex justify-center items-center flex-col relative">
             <div className="flex flex-col items-center mb-1 max-w-[400px] text-center">
-              <img src="logo.png" width="50%" height="auto" className="block"></img>
+              <img src="logo.png" width="30%" height="auto" className="block"></img>
               <h1 className="text-4xl font-bold mb-1">Whisper WebGPU</h1>
               <h2 className="text-xl font-semibold">Real-time in-browser speech recognition</h2>
             </div>
@@ -226,11 +230,18 @@ function App() {
               <div className="w-[500px] p-2">
                 <AudioVisualizer className="w-full rounded-lg" stream={stream} />
                 {status === 'ready' && <div className="relative">
-                  <p className="w-full h-[80px] overflow-y-auto overflow-wrap-anywhere border rounded-lg p-2">{text}</p>
+                  <p className="w-full h-[160px] overflow-y-auto overflow-wrap-anywhere border rounded-lg p-2">{text}</p>
                   {tps && <span className="absolute bottom-0 right-0 px-1">{tps.toFixed(2)} tok/s</span>}
                 </div>}
 
+                {status === 'ready' && 
+                    <StatsWidget 
+                        chunks={chunks} 
+                        audioContextRef={audioContextRef}
+                    />
+                }
               </div>
+
               {status === 'ready' && <div className='relative w-full flex justify-center'>
                 <select 
                   value={language} 
@@ -248,6 +259,7 @@ function App() {
                 }}>Reset</button>
               </div>
               }
+
               {status === 'loading' && (
                 <div className="w-full max-w-[500px] text-left mx-auto p-4">
                   <p className="text-center">{loadingMessage}</p>

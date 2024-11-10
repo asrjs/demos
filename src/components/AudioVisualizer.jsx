@@ -47,12 +47,22 @@ export function AudioVisualizer({ stream, ...props }) {
         };
 
         drawVisual();
+
+        // Return cleanup function
+        return () => {
+            audioContext.close();
+        };
     }, []);
 
     useEffect(() => {
-        stream && visualize(stream);
+        let cleanup;
+        if (stream) {
+            cleanup = visualize(stream);
+        }
+        return () => cleanup && cleanup();
     }, [visualize, stream]);
+
     return (
         <canvas {...props} width={720} height={240} ref={canvasRef}></canvas>
-    )
+    );
 }
