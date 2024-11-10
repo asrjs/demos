@@ -17,7 +17,8 @@ export class AudioSegmentProcessor {
             silenceCounter: 0,
             energyHistory: [],
             currentEnergy: 0,
-            energyAverage: 0
+            energyAverage: 0,
+            lastSegmentEnd: 0
         };
 
         this.debugStats = {
@@ -27,45 +28,92 @@ export class AudioSegmentProcessor {
         };
     }
 
+    log(message, data = null) {
+        if (typeof this.options.logger === 'function') {
+            if (data) {
+                this.options.logger(message, data);
+            } else {
+                this.options.logger(message);
+            }
+        }
+    }
+
     processAudioData(audioData, currentTime) {
+        if (!audioData || !audioData.length) return [];
+
         const segments = [];
+        let maxEnergy = 0;
         
         // Process audio in windows
         for (let i = 0; i < audioData.length; i += this.options.windowSize) {
-            const window = audioData.slice(i, i + this.options.windowSize);
+            const window = audioData.slice(i, Math.min(i + this.options.windowSize, audioData.length));
+            if (!window || window.length === 0) continue;
+
             const energy = this.calculateEnergy(window);
+            maxEnergy = Math.max(maxEnergy, energy);
             const isSpeech = this.isSpeech(energy);
             
-            this.handleStateTransition(isSpeech, i, currentTime + i/this.options.sampleRate, audioData, segments);
+            const timePoint = currentTime + i/this.options.sampleRate;
+            // Only process if we're past the last segment's end time
+            if (timePoint > this.state.lastSegmentEnd) {
+                this.handleStateTransition(isSpeech, i, timePoint, audioData, segments);
+            }
+        }
+
+        // Only log if segments were created
+        if (segments.length > 0) {
+            console.log("📊 Audio processing summary:", {
+                segmentsCreated: segments.length,
+                maxEnergy: maxEnergy.toFixed(5),
+                threshold: this.options.energyThreshold,
+                averageEnergy: this.energyAverage?.toFixed(5) || 0
+            });
         }
 
         return segments;
     }
 
     calculateEnergy(window) {
-        if (window.length === 0) return 0;
-        
-        const energy = Math.sqrt(
-            window.reduce((sum, sample) => sum + sample * sample, 0) / window.length
-        ) * this.options.energyScale;
-        
-        // Update background energy with longer history
-        if (this.energyHistory.length > 50) {
-            this.energyHistory.shift();
+        // Add more robust checks for window data
+        if (!window || !window.length || !Array.isArray(window) && !(window instanceof Float32Array)) {
+            console.log("Invalid window data:", {
+                exists: !!window,
+                type: window ? typeof window : 'undefined',
+                isArray: Array.isArray(window),
+                isFloat32Array: window instanceof Float32Array,
+                length: window?.length
+            });
+            return 0;
         }
-        this.energyHistory.push(energy);
         
-        // Use median for more stable background estimation
-        const sortedEnergies = [...this.energyHistory].sort((a, b) => a - b);
-        this.energyAverage = sortedEnergies[Math.floor(sortedEnergies.length / 2)];
-
-        this.log('Energy calculation', {
-            energy: energy.toFixed(5),
-            average: this.energyAverage.toFixed(5),
-            historyLength: this.energyHistory.length
-        });
-        
-        return energy;
+        try {
+            const energy = Math.sqrt(
+                window.reduce((sum, sample) => sum + sample * sample, 0) / window.length
+            ) * this.options.energyScale;
+            
+            // Update background energy with longer history
+            if (!this.energyHistory) {
+                this.energyHistory = [];
+            }
+            
+            if (this.energyHistory.length > 50) {
+                this.energyHistory.shift();
+            }
+            this.energyHistory.push(energy);
+            
+            // Use median for more stable background estimation
+            const sortedEnergies = [...this.energyHistory].sort((a, b) => a - b);
+            this.energyAverage = sortedEnergies[Math.floor(sortedEnergies.length / 2)];
+            
+            return energy;
+        } catch (error) {
+            console.error("Energy calculation error:", error, {
+                windowData: window?.slice(0, 5),  // Log first 5 samples for debugging
+                windowLength: window?.length,
+                windowType: typeof window
+            });
+            return 0;
+        }
     }
 
     isSpeech(energy) {
@@ -75,51 +123,23 @@ export class AudioSegmentProcessor {
             this.energyAverage * 1.1
         );
         
-        this.log('Speech detection', {
-            energy: energy.toFixed(5),
-            threshold: this.options.energyThreshold.toFixed(5),
-            dynamicThreshold: dynamicThreshold.toFixed(5),
-            background: this.energyAverage.toFixed(5),
-            isSpeech: energy > dynamicThreshold
-        });
-        
         const isSpeech = energy > dynamicThreshold;
-        if (isSpeech) this.debugStats.speechFrames++;
+        if (isSpeech) {
+            this.debugStats.speechFrames++;
+        }
         
         return isSpeech;
     }
 
-    log(message, data = null) {
-        if (data) {
-            this.options.logger(`${message}: ${JSON.stringify(data)}`);
-        } else {
-            this.options.logger(message);
-        }
-    }
-
-    reset() {
-        this.state.inSpeech = false;
-        this.state.speechStart = null;
-        this.state.silenceCounter = 0;
-        this.state.energyHistory = [];
-    }
-
-    setThreshold(threshold) {
-        this.options.energyThreshold = threshold;
-    }
-
-    setSilenceLength(length) {
-        this.options.minSilenceBetween = length;
-        this.log('Updated silence length', length);
-    }
-
     handleStateTransition(isSpeech, position, timePoint, audioData, segments) {
+        this.state.currentEnergy = this.energyHistory[this.energyHistory.length - 1] || 0;
+
         if (!this.state.inSpeech && isSpeech) {
             // Transition: Silence -> Speech
             this.state.inSpeech = true;
             this.state.speechStart = position;
-            this.log('🎤 Speech start detected', {
-                time: timePoint.toFixed(2),
+            this.log('Speech start detected', {
+                timePoint: timePoint.toFixed(2),
                 energy: this.state.currentEnergy.toFixed(5)
             });
 
@@ -128,14 +148,15 @@ export class AudioSegmentProcessor {
             this.state.silenceCounter += this.options.windowSize;
             
             // Check if silence is long enough to end speech
-            if (this.state.silenceCounter > this.options.minSilenceBetween * this.options.sampleRate) {
-                // Create speech segment
+            const silenceThreshold = this.options.minSilenceBetween * this.options.sampleRate;
+            if (this.state.silenceCounter > silenceThreshold) {
                 const speechDuration = (position - this.state.speechStart) / this.options.sampleRate;
                 
                 if (speechDuration >= this.options.minSpeechDuration) {
                     const segment = {
                         startTime: timePoint - speechDuration,
                         endTime: timePoint,
+                        energy: this.state.currentEnergy,
                         audioData: new Float32Array(
                             audioData.slice(
                                 this.state.speechStart,
@@ -144,13 +165,17 @@ export class AudioSegmentProcessor {
                         )
                     };
 
-                    this.log('📢 Speech segment created', {
+                    // Update last segment end time
+                    this.state.lastSegmentEnd = timePoint;
+
+                    this.log('Speech segment created', {
                         start: segment.startTime.toFixed(2),
                         end: segment.endTime.toFixed(2),
                         duration: speechDuration.toFixed(2)
                     });
 
                     segments.push(segment);
+                    this.debugStats.segmentsCreated++;
                 }
 
                 // Reset state
@@ -162,5 +187,26 @@ export class AudioSegmentProcessor {
             // Still in speech, reset silence counter
             this.state.silenceCounter = 0;
         }
+    }
+
+    reset() {
+        this.state = {
+            inSpeech: false,
+            speechStart: null,
+            silenceCounter: 0,
+            energyHistory: [],
+            currentEnergy: 0,
+            energyAverage: 0,
+            lastSegmentEnd: 0
+        };
+    }
+
+    setThreshold(threshold) {
+        this.options.energyThreshold = threshold;
+    }
+
+    setSilenceLength(length) {
+        this.options.minSilenceBetween = length;
+        this.log('Updated silence length', length);
     }
 } 

@@ -70,6 +70,9 @@ function App() {
   // Add debugLogs state
   const [debugLogs, setDebugLogs] = useState([]);
 
+  // Change audioBuffer from state to ref
+  const audioBufferRef = useRef(null);  // Replace useState with useRef
+
   // Initialize AudioManager
   useEffect(() => {
     if (!worker.current || audioManagerRef.current) return;
@@ -233,66 +236,125 @@ function App() {
     }
   }, []); // Empty dependency array - only run once on mount
 
+  // Initialize MediaRecorder when model is ready
   useEffect(() => {
-    if (recorderRef.current) return; // Already set
+    if (status === 'ready' && !recorderRef.current) {
+        addLog('Initializing MediaRecorder - model is ready');
 
-    if (navigator.mediaDevices.getUserMedia) {
-      navigator.mediaDevices.getUserMedia({ audio: true })
-        .then(stream => {
-          setStream(stream);
-          addLog('Got media stream');
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(async stream => {
+                setStream(stream);
+                audioContextRef.current = new AudioContext({ sampleRate: WHISPER_SAMPLING_RATE });
+                
+                // Try to use uncompressed format if supported
+                let mimeType = 'audio/wav';
+                if (!MediaRecorder.isTypeSupported(mimeType)) {
+                    mimeType = 'audio/webm;codecs=pcm';
+                }
+                if (!MediaRecorder.isTypeSupported(mimeType)) {
+                    mimeType = 'audio/webm;codecs=opus';
+                }
 
-          audioContextRef.current = new AudioContext({ sampleRate: WHISPER_SAMPLING_RATE });
-          recorderRef.current = new MediaRecorder(stream, {
-            mimeType: 'audio/webm;codecs=opus',
-            audioBitsPerSecond: 16000,
-            timeslice: 250  // Request data every 250ms
-          });
+                addLog('Using audio format:', { mimeType });
+                
+                recorderRef.current = new MediaRecorder(stream, {
+                    mimeType: mimeType,
+                    audioBitsPerSecond: 16000
+                });
 
-          addLog('Created MediaRecorder');
+                try {
+                    // Load and register the audio worklet
+                    await audioContextRef.current.audioWorklet.addModule('src/audio-processor.js');
+                    
+                    // Create audio worklet node
+                    const source = audioContextRef.current.createMediaStreamSource(stream);
+                    const workletNode = new AudioWorkletNode(audioContextRef.current, 'audio-processor', {
+                        numberOfInputs: 1,
+                        numberOfOutputs: 1,
+                        processorOptions: {
+                            sampleRate: WHISPER_SAMPLING_RATE
+                        }
+                    });
 
-          recorderRef.current.onstart = () => {
-            addLog('MediaRecorder started');
-            setRecording(true);
-            setChunks([]);
-            lastProcessTimeRef.current = 0;
-            setSegments([]);
-            setText('');
-          };
+                    // Handle messages from the audio worklet
+                    workletNode.port.onmessage = (event) => {
+                        if (event.data.type === 'audio_data') {
+                            const inputData = event.data.audioData;
+                            // Store raw PCM data directly in ref
+                            if (!audioBufferRef.current) {
+                                audioBufferRef.current = inputData;
+                            } else {
+                                const newBuffer = new Float32Array(audioBufferRef.current.length + inputData.length);
+                                newBuffer.set(audioBufferRef.current);
+                                newBuffer.set(inputData, audioBufferRef.current.length);
+                                audioBufferRef.current = newBuffer;
+                            }
+                        }
+                    };
 
-          recorderRef.current.ondataavailable = (e) => {
-            if (e.data.size > 0) {
-              setChunks(prev => [...prev, e.data]);
-            }
-          };
+                    // Connect the audio nodes
+                    source.connect(workletNode);
+                    workletNode.connect(audioContextRef.current.destination);
+                    
+                    addLog('Audio worklet setup complete');
+                } catch (error) {
+                    addLog('Failed to setup audio worklet: ' + error.message, 'error');
+                    console.error('Audio worklet setup error:', error);
+                }
 
-          recorderRef.current.onstop = () => {
-            addLog('MediaRecorder stopped');
-            setRecording(false);
-          };
+                // Set up MediaRecorder event handlers
+                recorderRef.current.onstart = () => {
+                    addLog('MediaRecorder started');
+                    setRecording(true);
+                    setChunks([]);
+                    lastProcessTimeRef.current = 0;
+                    setSegments([]);
+                    setText('');
+                };
 
-          // Start recording if model is ready
-          if (status === 'ready') {
-            try {
-              recorderRef.current.start(250);  // Start with timeslice
-              addLog('Started recording on initialization');
-            } catch (error) {
-              addLog(`Failed to start recording: ${error.message}`, 'error');
-            }
-          }
-        })
-        .catch(err => {
-          addLog(`Media access error: ${err.message}`, 'error');
-        });
+                recorderRef.current.ondataavailable = (e) => {
+                    if (e.data.size > 0) {
+                        setChunks(prev => [...prev, e.data]);
+                    }
+                };
+
+                recorderRef.current.onstop = () => {
+                    addLog('MediaRecorder stopped');
+                    setRecording(false);
+                };
+
+                // Start recording immediately
+                try {
+                    recorderRef.current.start(250);
+                    addLog('Started recording');
+                } catch (error) {
+                    addLog(`Failed to start recording: ${error.message}`, 'error');
+                }
+            })
+            .catch(err => {
+                addLog(`Media access error: ${err.message}`, 'error');
+            });
     }
 
     return () => {
-      if (recorderRef.current?.state === 'recording') {
-        recorderRef.current.stop();
-      }
-      recorderRef.current = null;
+        if (recorderRef.current?.state === 'recording') {
+            recorderRef.current.stop();
+        }
+        recorderRef.current = null;
     };
-  }, [status]); // Keep status as dependency
+}, [status]);
+
+  // Separate effect to handle recording state when model becomes ready
+  useEffect(() => {
+    if (status === 'ready' && recorderRef.current && recorderRef.current.state !== 'recording') {
+        try {
+            recorderRef.current.start(250);
+            addLog('Started recording after model loaded');
+        } catch (error) {
+            addLog(`Failed to start recording: ${error.message}`, 'error');
+        }
+    }
+}, [status]); // Only depend on status
 
   // Create addLog callback that uses the ref
   const addLog = useCallback((message, type = 'info') => {
@@ -311,15 +373,46 @@ function App() {
   // Initialize processor once
   useEffect(() => {
     if (!audioProcessorRef.current) {
+        console.log("Creating AudioSegmentProcessor..."); // Direct debug
+
+        // Create a logger function that both console.logs and uses addLog
+        const logger = (message, data) => {
+            console.log("AudioProcessor:", message, data); // Direct debug
+            addLogRef.current?.(message, 'info');
+        };
+
         audioProcessorRef.current = new AudioSegmentProcessor({
-            logger: (...args) => addLogRef.current?.(...args),
+            logger: logger,  // Pass the enhanced logger
             sampleRate: WHISPER_SAMPLING_RATE,
-            energyThreshold: 0.01,
-            minSpeechDuration: 0.1
+            energyThreshold: audioThreshold,
+            minSpeechDuration: 0.1,
+            windowSize: 256,
+            minSilenceBetween: silenceLength
         });
-        addLog('AudioSegmentProcessor initialized');
+
+        // Test the logger immediately
+        audioProcessorRef.current.log('Test message from initialization', {
+            test: 'value'
+        });
+
+        addLog('AudioSegmentProcessor initialized', {
+            threshold: audioThreshold,
+            silenceLength
+        });
     }
   }, []); // Empty dependency array - only run once
+
+  // Add effect to update processor settings when controls change
+  useEffect(() => {
+    if (audioProcessorRef.current) {
+        audioProcessorRef.current.setThreshold(audioThreshold);
+        audioProcessorRef.current.setSilenceLength(silenceLength);
+        addLog('Updated processor settings', {
+            threshold: audioThreshold,
+            silenceLength
+        });
+    }
+}, [audioThreshold, silenceLength]);
 
   // Handle reset button click
   const handleReset = useCallback(() => {
@@ -350,75 +443,75 @@ function App() {
     return () => window.removeEventListener('clearDebugLogs', handleClearLogs);
   }, []);
 
-  const [audioBuffer, setAudioBuffer] = useState(null);
-  const processAudioRef = useRef({
-      lastProcessedTime: 0,
-      isProcessing: false
-  });
-
-  // Process audio chunks periodically
+  // Separate effect for periodic processing
   useEffect(() => {
-      if (status === 'ready' && recording) {
-          const processInterval = setInterval(async () => {
-              if (!chunks.length) return;
+    if (status === 'ready' && recording) {
+        addLog('Starting periodic buffer processing');
+        let processingActive = true;
 
-              try {
-                  // Create audio buffer from chunks
-                  const blob = new Blob(chunks, { type: recorderRef.current.mimeType });
-                  const arrayBuffer = await blob.arrayBuffer();
-                  const buffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
-                  
-                  // Store full buffer for visualization
-                  setAudioBuffer(buffer);
+        const processInterval = setInterval(() => {
+            if (!audioProcessorRef.current || !audioBufferRef.current || !processingActive) {
+                return;
+            }
 
-                  // Get last 15 seconds for processing
-                  const audio = buffer.getChannelData(0);
-                  const windowSamples = 15 * WHISPER_SAMPLING_RATE;
-                  const recentAudio = audio.length > windowSamples 
-                      ? audio.slice(-windowSamples) 
-                      : audio;
+            try {
+                // Get the full audio data from ref
+                const fullAudio = audioBufferRef.current;
+                
+                // Calculate how many samples to keep (last 15 seconds)
+                const samplesFor15Sec = 15 * WHISPER_SAMPLING_RATE;
+                const recentAudio = fullAudio.length > samplesFor15Sec 
+                    ? fullAudio.slice(-samplesFor15Sec) 
+                    : fullAudio;
 
-                  // Process for speech segments
-                  if (!processAudioRef.current.isProcessing) {
-                      const newSegments = audioProcessorRef.current
-                          .processAudioData(recentAudio, processAudioRef.current.lastProcessedTime)
-                          .map(segmentData => new SpeechSegment(segmentData));
+                // Process the recent audio for speech segments
+                const rawSegments = audioProcessorRef.current.processAudioData(
+                    recentAudio,
+                    Math.max(0, (fullAudio.length - recentAudio.length)) / WHISPER_SAMPLING_RATE
+                );
 
-                      if (newSegments.length > 0) {
-                          addLog('Speech segments detected', {
-                              count: newSegments.length,
-                              segments: newSegments.map(s => ({
-                                  start: s.startTime.toFixed(2),
-                                  end: s.endTime.toFixed(2)
-                              }))
-                          });
+                // Convert raw segments to SpeechSegment objects
+                const newSegments = rawSegments.map(seg => new SpeechSegment(seg));
 
-                          setSegments(prev => [...prev, ...newSegments]);
+                if (newSegments.length > 0) {
+                    addLog('Created speech segments', {
+                        count: newSegments.length,
+                        segments: newSegments.map(s => ({
+                            start: s.startTime.toFixed(2),
+                            end: s.endTime.toFixed(2),
+                            duration: s.getDuration().toFixed(2)
+                        }))
+                    });
+                    setSegments(prev => [...prev, ...newSegments]);
+                }
 
-                          // Process first unprocessed segment
-                          const unprocessed = newSegments.find(s => !s.isProcessed);
-                          if (unprocessed) {
-                              processAudioRef.current.isProcessing = true;
-                              worker.current.postMessage({
-                                  type: 'generate',
-                                  data: {
-                                      audio: unprocessed.audioData,
-                                      language,
-                                      segmentId: segments.length + newSegments.indexOf(unprocessed)
-                                  }
-                              });
-                          }
-                      }
-                  }
+            } catch (error) {
+                addLog('Error processing buffer: ' + error.message, 'error');
+                console.error('Processing error:', error);
+            }
+        }, 500);
 
-              } catch (error) {
-                  addLog('Error processing audio: ' + error.message, 'error');
+        return () => {
+            processingActive = false;
+            clearInterval(processInterval);
+        };
+    }
+}, [status, recording]); // Keep minimal dependencies
+
+  // Also verify that chunks are being added
+  useEffect(() => {
+      if (recorderRef.current) {
+          recorderRef.current.ondataavailable = (e) => {
+              console.log("🎵 New audio chunk:", {
+                  size: e.data.size,
+                  type: e.data.type
+              });
+              if (e.data.size > 0) {
+                  setChunks(prev => [...prev, e.data]);
               }
-          }, 500);
-
-          return () => clearInterval(processInterval);
+          };
       }
-  }, [status, recording, chunks]);
+  }, []);
 
   return (
     IS_WEBGPU_AVAILABLE
@@ -435,11 +528,7 @@ function App() {
               {status === null && (<>
                 <p className="max-w-[480px] mb-4">
                   <br />
-                  You are about to load <a href="https://huggingface.co/onnx-community/whisper-base" target="_blank" rel="noreferrer" className="font-medium underline">whisper-base</a>,
-                  a 73 million parameter speech recognition model that is optimized for inference on the web. Once downloaded, the model (~200&nbsp;MB) will be cached and reused when you revisit the page.<br />
-                  <br />
-                  Everything runs directly in your browser using <a href="https://huggingface.co/docs/transformers.js" target="_blank" rel="noreferrer" className="underline">🤗&nbsp;Transformers.js</a> and ONNX Runtime Web,
-                  meaning no data is sent to a server. You can even disconnect from the internet after the model has loaded!
+                  You are about to load <a href="https://huggingface.co/onnx-community/whisper-base" target="_blank" rel="noreferrer" className="font-medium underline">whisper-base</a>
                 </p>
 
                 <button
