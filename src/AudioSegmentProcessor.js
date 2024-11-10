@@ -3,10 +3,11 @@ export class AudioSegmentProcessor {
         this.options = {
             sampleRate: 16000,
             windowSize: 256,
-            minSpeechDuration: 0.1,
-            minSilenceBetween: 0.3,
+            minSpeechDuration: 0.5,
+            minSilenceBetween: 0.8,
             energyThreshold: 0.02,
             energyScale: 2,
+            maxSilenceWithinSpeech: 0.3,
             logger: console.log,
             ...options
         };
@@ -18,7 +19,9 @@ export class AudioSegmentProcessor {
             energyHistory: [],
             currentEnergy: 0,
             energyAverage: 0,
-            lastSegmentEnd: 0
+            lastSegmentEnd: 0,
+            lastSpeechEnd: null,
+            continuingSpeech: false
         };
 
         this.debugStats = {
@@ -135,26 +138,45 @@ export class AudioSegmentProcessor {
         this.state.currentEnergy = this.energyHistory[this.energyHistory.length - 1] || 0;
 
         if (!this.state.inSpeech && isSpeech) {
-            // Transition: Silence -> Speech
+            // Check if this is continuation of previous speech
+            const timeSinceLastSpeech = this.state.lastSpeechEnd ? 
+                timePoint - this.state.lastSpeechEnd : 
+                Infinity;
+
+            if (timeSinceLastSpeech < this.options.maxSilenceWithinSpeech) {
+                // Continue previous speech segment
+                this.state.speechStart = this.state.lastSegmentEnd;
+                this.state.continuingSpeech = true;
+            } else {
+                // Start new speech segment
+                this.state.speechStart = position;
+                this.state.continuingSpeech = false;
+            }
+
             this.state.inSpeech = true;
-            this.state.speechStart = position;
-            this.log('Speech start detected', {
+            this.log('Speech activity detected', {
                 timePoint: timePoint.toFixed(2),
-                energy: this.state.currentEnergy.toFixed(5)
+                continuing: this.state.continuingSpeech
             });
 
         } else if (this.state.inSpeech && !isSpeech) {
             // In speech but detected silence
             this.state.silenceCounter += this.options.windowSize;
+            this.state.lastSpeechEnd = timePoint;
             
-            // Check if silence is long enough to end speech
-            const silenceThreshold = this.options.minSilenceBetween * this.options.sampleRate;
+            // Use different silence thresholds for within-speech and between-speech
+            const silenceThreshold = this.state.continuingSpeech ? 
+                this.options.maxSilenceWithinSpeech * this.options.sampleRate :
+                this.options.minSilenceBetween * this.options.sampleRate;
+
             if (this.state.silenceCounter > silenceThreshold) {
                 const speechDuration = (position - this.state.speechStart) / this.options.sampleRate;
                 
                 if (speechDuration >= this.options.minSpeechDuration) {
                     const segment = {
-                        startTime: timePoint - speechDuration,
+                        startTime: this.state.continuingSpeech ? 
+                            this.state.speechStart / this.options.sampleRate : 
+                            timePoint - speechDuration,
                         endTime: timePoint,
                         energy: this.state.currentEnergy,
                         audioData: new Float32Array(
@@ -165,13 +187,13 @@ export class AudioSegmentProcessor {
                         )
                     };
 
-                    // Update last segment end time
                     this.state.lastSegmentEnd = timePoint;
 
                     this.log('Speech segment created', {
                         start: segment.startTime.toFixed(2),
                         end: segment.endTime.toFixed(2),
-                        duration: speechDuration.toFixed(2)
+                        duration: (segment.endTime - segment.startTime).toFixed(2),
+                        continuing: this.state.continuingSpeech
                     });
 
                     segments.push(segment);
@@ -182,10 +204,12 @@ export class AudioSegmentProcessor {
                 this.state.inSpeech = false;
                 this.state.speechStart = null;
                 this.state.silenceCounter = 0;
+                this.state.continuingSpeech = false;
             }
         } else if (this.state.inSpeech && isSpeech) {
             // Still in speech, reset silence counter
             this.state.silenceCounter = 0;
+            this.state.lastSpeechEnd = timePoint;
         }
     }
 
@@ -197,7 +221,9 @@ export class AudioSegmentProcessor {
             energyHistory: [],
             currentEnergy: 0,
             energyAverage: 0,
-            lastSegmentEnd: 0
+            lastSegmentEnd: 0,
+            lastSpeechEnd: null,
+            continuingSpeech: false
         };
     }
 
