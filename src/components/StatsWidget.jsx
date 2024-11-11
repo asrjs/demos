@@ -1,50 +1,53 @@
 import { useRef } from 'react';
 import { BufferVisualizer } from './BufferVisualizer';
-import { SpeechSegmentsDebug } from './SpeechSegmentsDebug';
 
-export function StatsWidget({ chunks, audioContextRef, segments = [], threshold }) {
-    // Fix duration calculation
-    // Each chunk is 25ms (0.025 seconds) as set in the recorder
-    const totalDuration = chunks.length * 0.025;  // Simple and accurate duration calculation
-    const totalSize = chunks.reduce((acc, chunk) => acc + chunk.size, 0);
+export function StatsWidget({ chunks, audioContextRef, segments = [] }) {
     const audioPlayerRef = useRef(null);
 
     const handlePlayback = async () => {
         if (!chunks.length) return;
 
-        // Create blob directly from chunks
-        const blob = new Blob(chunks, { 
-            type: 'audio/webm;codecs=opus' 
-        });
-        const audioUrl = URL.createObjectURL(blob);
-        
-        if (audioPlayerRef.current) {
-            audioPlayerRef.current.src = audioUrl;
-            try {
-                await audioPlayerRef.current.play();
-            } catch (error) {
-                console.error('Playback failed:', error);
+        try {
+            // Create AudioBuffer from raw PCM data
+            const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
+            const audioBuffer = audioContextRef.current.createBuffer(1, totalLength, audioContextRef.current.sampleRate);
+            const channelData = audioBuffer.getChannelData(0);
+            
+            let offset = 0;
+            for (const chunk of chunks) {
+                channelData.set(chunk, offset);
+                offset += chunk.length;
             }
-        }
 
-        audioPlayerRef.current.onended = () => {
-            URL.revokeObjectURL(audioUrl);
-        };
+            // Convert AudioBuffer to blob
+            const wavBuffer = audioBufferToWav(audioBuffer);
+            const blob = new Blob([wavBuffer], { type: 'audio/wav' });
+            const audioUrl = URL.createObjectURL(blob);
+            
+            if (audioPlayerRef.current) {
+                audioPlayerRef.current.src = audioUrl;
+                await audioPlayerRef.current.play();
+                audioPlayerRef.current.onended = () => URL.revokeObjectURL(audioUrl);
+            }
+        } catch (error) {
+            console.error('Playback failed:', error);
+        }
     };
 
     const handleDownload = async () => {
         if (!chunks.length) return;
 
         try {
-            // Create blob directly from chunks
-            const blob = new Blob(chunks, { 
-                type: 'audio/webm;codecs=opus' 
-            });
+            // Create AudioBuffer directly from PCM data
+            const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
+            const audioBuffer = audioContextRef.current.createBuffer(1, totalLength, audioContextRef.current.sampleRate);
+            const channelData = audioBuffer.getChannelData(0);
             
-            // Convert to audio data
-            const arrayBuffer = await blob.arrayBuffer();
-            const audioContext = new AudioContext({ sampleRate: 16000 });
-            const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+            let offset = 0;
+            for (const chunk of chunks) {
+                channelData.set(chunk, offset);
+                offset += chunk.length;
+            }
             
             // Convert to WAV
             const wavBuffer = audioBufferToWav(audioBuffer);
@@ -62,18 +65,16 @@ export function StatsWidget({ chunks, audioContextRef, segments = [], threshold 
             setTimeout(() => {
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
-                audioContext.close();
             }, 0);
         } catch (error) {
             console.error('Download failed:', error);
         }
     };
 
-    // Function to convert AudioBuffer to WAV format
     function audioBufferToWav(buffer) {
-        const numChannels = 1; // Mono
+        const numChannels = 1;
         const sampleRate = buffer.sampleRate;
-        const format = 1; // PCM
+        const format = 1;
         const bitDepth = 16;
         
         const dataLength = buffer.length * numChannels * (bitDepth / 8);
@@ -81,7 +82,6 @@ export function StatsWidget({ chunks, audioContextRef, segments = [], threshold 
         const arrayBuffer = new ArrayBuffer(bufferLength);
         const view = new DataView(arrayBuffer);
         
-        // WAV header
         writeString(view, 0, 'RIFF');
         view.setUint32(4, 36 + dataLength, true);
         writeString(view, 8, 'WAVE');
@@ -96,7 +96,6 @@ export function StatsWidget({ chunks, audioContextRef, segments = [], threshold 
         writeString(view, 36, 'data');
         view.setUint32(40, dataLength, true);
         
-        // Write audio data
         const channelData = buffer.getChannelData(0);
         let offset = 44;
         for (let i = 0; i < channelData.length; i++) {
@@ -114,13 +113,6 @@ export function StatsWidget({ chunks, audioContextRef, segments = [], threshold 
         }
     }
 
-    // Format time in MM:SS format
-    const formatTime = (seconds) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        return `${mins}:${secs.toString().padStart(2, '0')}`;
-    };
-
     return (
         <div className="w-full p-4 border rounded-lg mt-4">
             <h3 className="font-semibold mb-2">Buffer Statistics</h3>
@@ -129,31 +121,9 @@ export function StatsWidget({ chunks, audioContextRef, segments = [], threshold 
                 <BufferVisualizer 
                     chunks={chunks} 
                     audioContextRef={audioContextRef}
-                    threshold={threshold}
                     segments={segments}
                 />
             </div>
-
-            <div className="grid grid-cols-2 gap-2 mb-4">
-                <div>Chunks: {chunks.length}</div>
-                <div>Total Size: {(totalSize / 1024).toFixed(2)} KB</div>
-                <div>Duration: {totalDuration.toFixed(2)}s</div>
-                <div>Sample Rate: {audioContextRef.current?.sampleRate || 16000} Hz</div>
-                <div>Speech Segments: {segments.filter(s => !s.isSilence).length}</div>
-                <div>Processed: {segments.filter(s => s.isProcessed).length}</div>
-                <div>Avg Segment: {
-                    (segments.filter(s => !s.isSilence)
-                        .reduce((acc, s) => acc + s.getDuration(), 0) 
-                        / segments.filter(s => !s.isSilence).length || 0
-                    ).toFixed(2)}s
-                </div>
-                <div>Last Energy: {
-                    segments[segments.length - 1]?.energy.toFixed(3) || 'N/A'
-                }</div>
-            </div>
-
-            {/* Add debug panel */}
-            <SpeechSegmentsDebug segments={segments} />
 
             <div className="flex justify-between items-center">
                 <div className="flex gap-2">

@@ -12,11 +12,9 @@ class AudioProcessor extends AudioWorkletProcessor {
 
         if (!channel) return true;
 
-        // Add incoming samples to buffer
         for (let i = 0; i < channel.length; i++) {
             this.buffer[this.bufferIndex++] = channel[i];
 
-            // When buffer is full, send it to the main thread
             if (this.bufferIndex >= this.bufferSize) {
                 this.port.postMessage({
                     type: 'audio_data',

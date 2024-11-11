@@ -12,18 +12,10 @@ env.allowLocalModels = true;
 env.allowRemoteModels = false;
 env.localModelPath = '/models';
 
-// Debug logging function
-function debugLog(message, data = null) {
-    const logMessage = data ? `${message}: ${JSON.stringify(data)}` : message;
-    console.log(logMessage);
-    self.postMessage({ status: 'debug', message: logMessage });
-}
-
 const MAX_NEW_TOKENS = 64;
 
 // Simplify progress logging
 function shouldLogProgress(progress) {
-    // Only log at start (1%) and completion (100%)
     return progress <= 1 || progress >= 99;
 }
 
@@ -41,7 +33,7 @@ class AutomaticSpeechRecognitionPipeline {
 
         this.model_id = 'base-dsntt1-tr';
         
-        debugLog('Loading model...');
+        console.log('Loading model...');
 
         try {
             this.tokenizer = await AutoTokenizer.from_pretrained(this.model_id, {
@@ -73,10 +65,10 @@ class AutomaticSpeechRecognitionPipeline {
             });
 
             this.isInitialized = true;
-            debugLog('Model loaded');
+            console.log('Model loaded');
             return [this.tokenizer, this.processor, this.model];
         } catch (error) {
-            debugLog('Error:', error.message);
+            console.error('Error:', error.message);
             throw error;
         }
     }
@@ -86,12 +78,12 @@ let isLoaded = false;
 
 async function load() {
     if (isLoaded) {
-        debugLog('Model already loaded, skipping initialization');
+        console.log('Model already loaded, skipping initialization');
         self.postMessage({ status: 'ready' });
         return;
     }
 
-    debugLog('Starting model load...');
+    console.log('Starting model load...');
     
     self.postMessage({
         status: 'loading',
@@ -100,20 +92,20 @@ async function load() {
 
     try {
         const testPath = `${env.localModelPath}/base-dsntt1-tr/config.json`;
-        debugLog('Attempting to access:', testPath);
+        console.log('Attempting to access:', testPath);
         
         const response = await fetch(testPath);
         if (!response.ok) {
             throw new Error(`Failed to load config.json: ${response.status}`);
         }
-        debugLog('Successfully accessed config.json');
+        console.log('Successfully accessed config.json');
 
         await AutomaticSpeechRecognitionPipeline.getInstance(x => {
-            debugLog('Loading progress:', x);
+            console.log('Loading progress:', x);
             self.postMessage(x);
         });
 
-        debugLog('Model loaded successfully, warming up...');
+        console.log('Model loaded successfully, warming up...');
         
         self.postMessage({
             status: 'loading',
@@ -127,10 +119,10 @@ async function load() {
         });
         
         isLoaded = true;
-        debugLog('Warm-up complete');
+        console.log('Warm-up complete');
         self.postMessage({ status: 'ready' });
     } catch (error) {
-        debugLog('Error in load():', {
+        console.error('Error in load():', {
             error: error.message,
             stack: error.stack
         });
