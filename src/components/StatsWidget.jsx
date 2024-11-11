@@ -152,53 +152,7 @@ export function StatsWidget({ chunks, audioContextRef, segments = [], threshold 
                 }</div>
             </div>
 
-            {/* Enhanced Timeline visualization */}
-            <div className="w-full mb-4">
-                {/* Timeline bar */}
-                <div className="w-full h-8 bg-gray-100 relative rounded overflow-hidden">
-                    {segments.map((segment, i) => (
-                        <div
-                            key={i}
-                            className={`absolute h-full transition-colors duration-200 ${
-                                segment.isSilence ? 'bg-gray-200' :
-                                segment.isProcessed ? 'bg-green-200 hover:bg-green-300' : 
-                                'bg-yellow-200 hover:bg-yellow-300'
-                            } border-r border-white`}
-                            style={{
-                                left: `${(segment.startTime / totalDuration) * 100}%`,
-                                width: `${(segment.getDuration() / totalDuration) * 100}%`
-                            }}
-                            title={`${formatTime(segment.startTime)} - ${formatTime(segment.endTime)}
-${segment.isProcessed ? segment.transcription : 'Processing...'}
-Energy: ${segment.energy.toFixed(3)}`}
-                        />
-                    ))}
-                </div>
-                
-                {/* Timeline labels */}
-                <div className="w-full flex justify-between text-xs text-gray-500 mt-1">
-                    <span>0:00</span>
-                    <span>{formatTime(totalDuration)}</span>
-                </div>
-
-                {/* Legend */}
-                <div className="flex gap-4 justify-center text-sm mt-2">
-                    <div className="flex items-center">
-                        <div className="w-3 h-3 bg-gray-200 mr-1"></div>
-                        <span>Silence</span>
-                    </div>
-                    <div className="flex items-center">
-                        <div className="w-3 h-3 bg-yellow-200 mr-1"></div>
-                        <span>Processing</span>
-                    </div>
-                    <div className="flex items-center">
-                        <div className="w-3 h-3 bg-green-200 mr-1"></div>
-                        <span>Transcribed</span>
-                    </div>
-                </div>
-            </div>
-
-            {/* Add debug panel after the timeline */}
+            {/* Add debug panel */}
             <SpeechSegmentsDebug segments={segments} />
 
             <div className="flex justify-between items-center">
