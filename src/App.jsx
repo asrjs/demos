@@ -460,6 +460,7 @@ function App() {
     if (status === 'ready' && recording) {
         addLog('Starting periodic buffer processing');
         let processingActive = true;
+        let lastProcessedLength = 0;
 
         const processInterval = setInterval(() => {
             if (!audioProcessorRef.current || !audioBufferRef.current || !processingActive) {
@@ -467,35 +468,54 @@ function App() {
             }
 
             try {
-                // Get the full audio data from ref
                 const fullAudio = audioBufferRef.current;
                 
-                // Calculate how many samples to keep (last 15 seconds)
-                const samplesFor15Sec = 15 * WHISPER_SAMPLING_RATE;
-                const recentAudio = fullAudio.length > samplesFor15Sec 
-                    ? fullAudio.slice(-samplesFor15Sec) 
-                    : fullAudio;
+                // Skip if no new audio data
+                if (fullAudio.length === lastProcessedLength) {
+                    return;
+                }
 
-                // Process the recent audio for speech segments
-                const rawSegments = audioProcessorRef.current.processAudioData(
-                    recentAudio,
-                    Math.max(0, (fullAudio.length - recentAudio.length)) / WHISPER_SAMPLING_RATE
+                // Calculate processing window
+                const samplesFor15Sec = 15 * WHISPER_SAMPLING_RATE;
+                
+                // Find start position based on last segment
+                let startPos = 0;
+                if (segments.length > 0) {
+                    const lastSegment = segments[segments.length - 1];
+                    startPos = Math.floor(lastSegment.endTime * WHISPER_SAMPLING_RATE);
+                }
+
+                // Get the relevant portion of audio
+                const audioToProcess = fullAudio.slice(
+                    Math.max(fullAudio.length - samplesFor15Sec, startPos),
+                    fullAudio.length
                 );
 
-                // Convert raw segments to SpeechSegment objects
-                const newSegments = rawSegments.map(seg => new SpeechSegment(seg));
+                if (audioToProcess.length > 0) {
+                    // Process from the last segment's end time
+                    const rawSegments = audioProcessorRef.current.processAudioData(
+                        audioToProcess,
+                        startPos / WHISPER_SAMPLING_RATE
+                    );
 
-                if (newSegments.length > 0) {
-                    addLog('Created speech segments', {
-                        count: newSegments.length,
-                        segments: newSegments.map(s => ({
-                            start: s.startTime.toFixed(2),
-                            end: s.endTime.toFixed(2),
-                            duration: s.getDuration().toFixed(2)
-                        }))
-                    });
-                    setSegments(prev => [...prev, ...newSegments]);
+                    // Convert raw segments to SpeechSegment objects
+                    const newSegments = rawSegments.map(seg => new SpeechSegment(seg));
+
+                    if (newSegments.length > 0) {
+                        addLog('Created speech segments', {
+                            count: newSegments.length,
+                            segments: newSegments.map(s => ({
+                                start: s.startTime.toFixed(2),
+                                end: s.endTime.toFixed(2),
+                                duration: s.getDuration().toFixed(2)
+                            }))
+                        });
+                        setSegments(prev => [...prev, ...newSegments]);
+                    }
                 }
+
+                // Update last processed length
+                lastProcessedLength = fullAudio.length;
 
             } catch (error) {
                 addLog('Error processing buffer: ' + error.message, 'error');
@@ -508,7 +528,7 @@ function App() {
             clearInterval(processInterval);
         };
     }
-}, [status, recording]); // Keep minimal dependencies
+}, [status, recording, segments]); // Add segments to dependencies
 
   // Also verify that chunks are being added
   useEffect(() => {
