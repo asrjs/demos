@@ -32,11 +32,6 @@ export class AudioSegmentProcessor {
     processAudioData(audioData, bufferStartTime) {
         if (!audioData || !audioData.length) return [];
 
-        this.state.totalProcessedSamples = Math.max(
-            this.state.totalProcessedSamples,
-            bufferStartTime * this.options.sampleRate + audioData.length
-        );
-
         const segments = [];
         let maxEnergy = 0;
 
@@ -50,7 +45,9 @@ export class AudioSegmentProcessor {
 
             const absoluteTimePoint = bufferStartTime + (i / this.options.sampleRate);
 
-            this.handleStateTransition(isSpeech, i, absoluteTimePoint, audioData, segments, bufferStartTime);
+            if (absoluteTimePoint >= this.state.lastSegmentEnd) {
+                this.handleStateTransition(isSpeech, i, absoluteTimePoint, audioData, segments);
+            }
         }
 
         if (segments.length > 0) {
@@ -59,7 +56,6 @@ export class AudioSegmentProcessor {
                 maxEnergy: maxEnergy.toFixed(5),
                 threshold: this.options.energyThreshold,
                 averageEnergy: this.state.energyAverage?.toFixed(5) || 0,
-                totalTime: (this.state.totalProcessedSamples / this.options.sampleRate).toFixed(2),
                 bufferStartTime: bufferStartTime.toFixed(2)
             });
         }
@@ -112,18 +108,23 @@ export class AudioSegmentProcessor {
         return isSpeech;
     }
 
-    handleStateTransition(isSpeech, position, absoluteTimePoint, audioData, segments, bufferStartTime) {
+    handleStateTransition(isSpeech, position, absoluteTimePoint, audioData, segments) {
         this.state.currentEnergy = this.energyHistory[this.energyHistory.length - 1] || 0;
 
-        if (!this.state.inSpeech && isSpeech) {
+        const timeSinceLastSpeech = absoluteTimePoint - this.state.lastSegmentEnd;
+        const canStartNewSpeech = !this.state.inSpeech && 
+            (this.state.lastSegmentEnd === 0 || timeSinceLastSpeech >= this.options.minSilenceBetween);
+
+        if (canStartNewSpeech && isSpeech) {
             this.state.inSpeech = true;
             this.state.speechStart = position;
             this.state.speechStartTime = absoluteTimePoint;
             this.state.hangoverFrames = 0;
+            this.state.silenceCounter = 0;
 
             this.log('Speech start detected', {
                 absoluteTime: absoluteTimePoint.toFixed(2),
-                bufferTime: (position / this.options.sampleRate).toFixed(2),
+                timeSinceLastSpeech: timeSinceLastSpeech.toFixed(2),
                 energy: this.state.currentEnergy.toFixed(5),
                 threshold: this.options.energyThreshold.toFixed(5)
             });
@@ -137,26 +138,31 @@ export class AudioSegmentProcessor {
                     const speechDuration = (position - this.state.speechStart) / this.options.sampleRate;
 
                     if (speechDuration >= this.options.minSpeechDuration) {
+                        const segmentStart = this.state.speechStartTime;
+                        const segmentEnd = absoluteTimePoint;
+
+                        const audioStartSample = Math.floor(this.state.speechStart);
+                        const audioEndSample = Math.min(
+                            audioStartSample + Math.floor(speechDuration * this.options.sampleRate),
+                            audioData.length
+                        );
+
                         const segment = {
-                            startTime: this.state.speechStartTime,
-                            endTime: absoluteTimePoint + (this.options.speechHangover / 2),
+                            startTime: segmentStart,
+                            endTime: segmentEnd,
                             energy: this.state.currentEnergy,
                             audioData: new Float32Array(
-                                audioData.slice(
-                                    this.state.speechStart,
-                                    position + this.options.windowSize
-                                )
+                                audioData.slice(audioStartSample, audioEndSample)
                             )
                         };
 
                         segments.push(segment);
+                        this.state.lastSegmentEnd = segmentEnd;
                         this.debugStats.segmentsCreated++;
 
                         this.log('Speech segment created', {
-                            absoluteStart: segment.startTime.toFixed(2),
-                            absoluteEnd: segment.endTime.toFixed(2),
-                            bufferStart: (this.state.speechStart / this.options.sampleRate).toFixed(2),
-                            bufferEnd: (position / this.options.sampleRate).toFixed(2),
+                            absoluteStart: segmentStart.toFixed(2),
+                            absoluteEnd: segmentEnd.toFixed(2),
                             duration: speechDuration.toFixed(2),
                             avgEnergy: this.state.energyAverage.toFixed(5)
                         });
@@ -186,7 +192,7 @@ export class AudioSegmentProcessor {
             energyAverage: 0,
             hangoverFrames: 0,
             peakEnergy: 0,
-            totalProcessedSamples: 0
+            lastSegmentEnd: 0
         };
 
         this.debugStats = {

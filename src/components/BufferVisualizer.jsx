@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useCallback } from "react";
 
 export function BufferVisualizer({ chunks, audioContextRef, segments = [], energyValues }) {
     const canvasRef = useRef(null);
@@ -7,6 +7,30 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], energ
     const UPDATE_INTERVAL = 100;
     const MAX_DURATION = 30;
     const SKIP_POINTS = 16;
+
+    const drawSegments = useCallback((ctx, segments, totalDuration, canvas) => {
+        segments.forEach(segment => {
+            // Calculate relative positions based on total duration
+            const startX = (segment.startTime / totalDuration) * canvas.width;
+            const endX = (segment.endTime / totalDuration) * canvas.width;
+            
+            // Only draw if segment is within view
+            if (startX < canvas.width && endX > 0) {
+                ctx.fillStyle = segment.isProcessed 
+                    ? 'rgba(0, 200, 0, 0.1)'
+                    : 'rgba(0, 100, 200, 0.1)';
+                ctx.fillRect(startX, 0, endX - startX, canvas.height);
+
+                ctx.strokeStyle = 'rgba(0, 100, 200, 0.5)';
+                ctx.beginPath();
+                ctx.moveTo(startX, 0);
+                ctx.lineTo(startX, canvas.height);
+                ctx.moveTo(endX, 0);
+                ctx.lineTo(endX, canvas.height);
+                ctx.stroke();
+            }
+        });
+    }, []);
 
     useEffect(() => {
         const now = Date.now();
@@ -66,37 +90,8 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], energ
             }
             ctx.stroke();
 
-            // Draw segments relative to visible window
-            ctx.lineWidth = 2;
-            segments.forEach(segment => {
-                // Ensure segment times are within 0-30 second window
-                const startX = (Math.max(0, Math.min(30, segment.startTime)) / MAX_DURATION) * canvas.width;
-                const endX = (Math.max(0, Math.min(30, segment.endTime)) / MAX_DURATION) * canvas.width;
-                
-                console.log('Drawing segment:', {
-                    originalStart: segment.startTime,
-                    originalEnd: segment.endTime,
-                    normalizedStart: startX / canvas.width * MAX_DURATION,
-                    normalizedEnd: endX / canvas.width * MAX_DURATION,
-                    startX,
-                    endX
-                });
-                
-                if (startX + (endX - startX) > 0 && startX < canvas.width) {
-                    ctx.fillStyle = segment.isProcessed 
-                        ? 'rgba(0, 200, 0, 0.1)'
-                        : 'rgba(0, 100, 200, 0.1)';
-                    ctx.fillRect(startX, 0, endX - startX, canvas.height);
-
-                    ctx.strokeStyle = 'rgba(0, 100, 200, 0.5)';
-                    ctx.beginPath();
-                    ctx.moveTo(startX, 0);
-                    ctx.lineTo(startX, canvas.height);
-                    ctx.moveTo(endX, 0);
-                    ctx.lineTo(endX, canvas.height);
-                    ctx.stroke();
-                }
-            });
+            // Draw segments
+            drawSegments(ctx, segments, totalDuration, canvas);
 
             // Draw time markers
             ctx.fillStyle = '#666';
@@ -109,7 +104,7 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], energ
         };
 
         processAudioData();
-    }, [chunks, segments]);
+    }, [chunks, segments, drawSegments]);
 
     return (
         <canvas 

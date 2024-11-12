@@ -5,7 +5,8 @@ import Progress from './components/Progress';
 import { StatsWidget } from './components/StatsWidget';
 import { SpeechSegment } from './SpeechSegment';
 import { AudioSegmentProcessor } from './AudioSegmentProcessor';
-import { AudioManager } from './AudioManager';
+import { AudioManager, audioManager } from './AudioManager';
+import { AudioSegmentsWidget } from './components/AudioSegmentsWidget';
 
 const IS_WEBGPU_AVAILABLE = !!navigator.gpu;
 
@@ -23,181 +24,189 @@ const BUFFER_WINDOW = 15;      // Keep last 15 seconds for processing
 
 function App() {
 
-  // Create a reference to the worker object.
+  // Create refs first
   const worker = useRef(null);
-
   const recorderRef = useRef(null);
+  const audioContextRef = useRef(null);
+  const audioProcessorRef = useRef(null);
+  const addLogRef = useRef(null);
+  const transcriptionManagerRef = useRef(null);
+  const audioManagerRef = useRef(null);
+  const audioBufferRef = useRef(null);
+  const lastProcessedTimeRef = useRef(0);
+  const lastProcessTimeRef = useRef(0);
+  const processingIntervalRef = useRef(null);
+  const chunksRef = useRef([]);
 
-  // Model loading and progress
-  const [status, setStatus] = useState(null);
+  // Model and processing state
+  const [status, setStatus] = useState('initialized'); // Change default state
   const [loadingMessage, setLoadingMessage] = useState('');
   const [progressItems, setProgressItems] = useState([]);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [recording, setRecording] = useState(false);
 
-  // Inputs and outputs
+  // Audio parameters state
+  const [audioThreshold, setAudioThreshold] = useState(0.02);
+  const [silenceLength, setSilenceLength] = useState(0.3);
+  const [speechHangover, setSpeechHangover] = useState(0.2);
+  const [energyScale, setEnergyScale] = useState(2.0);
+  const [hysteresisRatio, setHysteresisRatio] = useState(1.2);
+  const [minSpeechDuration, setMinSpeechDuration] = useState(0.1);
+  const [maxSilenceWithinSpeech, setMaxSilenceWithinSpeech] = useState(0.3);
+  const [endingSpeechTolerance, setEndingSpeechTolerance] = useState(0.4);
+  const [endingEnergyThreshold, setEndingEnergyThreshold] = useState(0.6);
+
+  // Audio data state
+  const [chunks, setChunks] = useState([]);
+  const [stream, setStream] = useState(null);
+  const [segments, setSegments] = useState([]);
   const [text, setText] = useState('');
   const [tps, setTps] = useState(null);
   const [language, setLanguage] = useState('tr');
 
-  // Processing
-  const [recording, setRecording] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [chunks, setChunks] = useState([]);
-  const [stream, setStream] = useState(null);
-  const audioContextRef = useRef(null);
-
-  // Add audioThreshold state
-  const [audioThreshold, setAudioThreshold] = useState(0.02);
-  const [silenceLength, setSilenceLength] = useState(0.3);
-  const [speechHangover, setSpeechHangover] = useState(0.2);
-
-  // Add segments state
-  const [segments, setSegments] = useState([]);
-  const lastProcessedTimeRef = useRef(0);
-
-  // Add reference for the last processed time
-  const lastProcessTimeRef = useRef(0);
-  const processingIntervalRef = useRef(null);
-
-  // Initialize refs at the top
-  const audioProcessorRef = useRef(null);
-  const addLogRef = useRef(null);
-
-  // Add TranscriptionManager reference
-  const transcriptionManagerRef = useRef(null);
-
-  // Replace separate refs with AudioManager
-  const audioManagerRef = useRef(null);
-
-  // Change audioBuffer from state to ref
-  const audioBufferRef = useRef(null);  // Replace useState with useRef
-
-  // Add state for maxSilenceWithinSpeech
-  const [maxSilenceWithinSpeech, setMaxSilenceWithinSpeech] = useState(0.3);
-
-  // Add new state variables
-  const [endingSpeechTolerance, setEndingSpeechTolerance] = useState(0.4);
-  const [endingEnergyThreshold, setEndingEnergyThreshold] = useState(0.6);
-
-  // Add a ref for chunks at the top of the component
-  const chunksRef = useRef([]);
-
-  // Update the chunks ref whenever chunks state changes
+  // Initialize AudioManager without audio context
   useEffect(() => {
-    chunksRef.current = chunks;
-  }, [chunks]);
-
-  // Initialize AudioManager
-  useEffect(() => {
-    console.log('Attempting to initialize AudioManager');
+    console.log('Initializing AudioManager');
     
-    // Create AudioSegmentProcessor first
-    const audioProcessor = new AudioSegmentProcessor({
-        logger: addLog,
+    audioManager.initialize({
         sampleRate: WHISPER_SAMPLING_RATE,
-        energyThreshold: audioThreshold,
-        minSpeechDuration: 0.1,
-        minSilenceBetween: silenceLength
+        onSegmentDetected: (segment) => {
+            setSegments(prev => [...prev, segment]);
+        }
+    }).catch(error => {
+        console.error('Failed to initialize AudioManager:', error);
     });
 
-    // Create AudioManager with the processor
-    const audioManager = new AudioManager(worker.current, {
-        sampleRate: WHISPER_SAMPLING_RATE,
-        logger: addLog,
-        audioProcessor: audioProcessor
+    // Set initial parameters
+    audioManager.updateParameters({
+        threshold: audioThreshold,
+        silenceLength,
+        speechHangover,
+        energyScale,
+        hysteresisRatio,
+        minSpeechDuration
     });
-
-    // Add debug logging
-    console.log('AudioProcessor state:', {
-        threshold: audioProcessor.options.energyThreshold,
-        silenceLength: audioProcessor.options.minSilenceBetween,
-        sampleRate: audioProcessor.options.sampleRate
-    });
-
-    audioProcessorRef.current = audioProcessor;
-    audioManagerRef.current = audioManager;
-
-    addLog('AudioManager initialized with processor');
 
     return () => {
-        audioProcessorRef.current = null;
-        audioManagerRef.current = null;
+        audioManager.reset();
     };
-}, [audioThreshold, silenceLength]);
+  }, []); // Run once on mount
 
-  // Update controls
-  useEffect(() => {
-    if (audioManagerRef.current) {
-        audioManagerRef.current.setThreshold(audioThreshold);
-        audioManagerRef.current.setSilenceLength(silenceLength);
+  // Add user interaction handler
+  const handleStartAudio = async () => {
+    try {
+        await audioManager.startAudioContext();
+        
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        setStream(stream);
+        
+        // Load audio worklet module first
+        await audioManager.audioContext.audioWorklet.addModule('src/audio-processor.js');
+        
+        const source = audioManager.audioContext.createMediaStreamSource(stream);
+        const workletNode = new AudioWorkletNode(audioManager.audioContext, 'audio-processor', {
+            numberOfInputs: 1,
+            numberOfOutputs: 1,
+            processorOptions: {
+                sampleRate: WHISPER_SAMPLING_RATE
+            }
+        });
+
+        workletNode.port.onmessage = (event) => {
+            if (event.data.type === 'audio_data') {
+                const chunk = event.data.audioData;
+                const maxValue = Math.max(...Array.from(chunk).map(Math.abs));
+                if (maxValue > 0.1) {
+                    console.log('Significant audio detected:', {
+                        maxValue: maxValue.toFixed(3)
+                    });
+                }
+                setChunks(prev => [...prev, chunk]);
+                audioManager.processNewChunk(chunk);
+            }
+        };
+
+        source.connect(workletNode);
+        workletNode.connect(audioManager.audioContext.destination);
+        setRecording(true);
+
+        // Store references for cleanup
+        audioContextRef.current = audioManager.audioContext;
+
+    } catch (error) {
+        console.error('Failed to start audio:', error);
+        // Add more detailed error information
+        if (error.name === 'NotAllowedError') {
+            console.error('Microphone permission denied');
+        } else if (error.name === 'NotFoundError') {
+            console.error('No microphone found');
+        } else {
+            console.error('Error details:', {
+                name: error.name,
+                message: error.message,
+                stack: error.stack
+            });
+        }
     }
-  }, [audioThreshold, silenceLength]);
+  };
 
   // Process buffer periodically
   useEffect(() => {
     if (status === 'ready' && recording) {
-        console.log('Setting up process interval');
-        let lastProcessTime = 0;
+      console.log('Setting up process interval');
+      let lastProcessTime = 0;
+      
+      const processInterval = setInterval(async () => {
+        const currentTime = Date.now();
+        if (currentTime - lastProcessTime < PROCESS_INTERVAL) {
+          return;
+        }
         
-        const processInterval = setInterval(async () => {
-            const currentTime = Date.now();
-            if (currentTime - lastProcessTime < PROCESS_INTERVAL) {
-                return;
-            }
+        const currentChunks = chunksRef.current;
+        if (!currentChunks.length) return;
+
+        try {
+          // Get the last 30 seconds worth of samples
+          const samplesFor30Sec = 30 * audioContextRef.current.sampleRate;
+          const audioData = new Float32Array(samplesFor30Sec);
+          let writeOffset = audioData.length;
+
+          // Fill buffer from newest to oldest chunks
+          for (let i = currentChunks.length - 1; i >= 0 && writeOffset > 0; i--) {
+            const chunk = currentChunks[i];
+            if (!(chunk instanceof Float32Array)) continue;
+
+            const copySize = Math.min(writeOffset, chunk.length);
+            const startPos = chunk.length - copySize;
             
-            const currentChunks = chunksRef.current;
-            if (!currentChunks.length) return;
+            audioData.set(
+              chunk.slice(startPos, startPos + copySize),
+              writeOffset - copySize
+            );
+            writeOffset -= copySize;
+          }
 
-            try {
-                // Get the last 30 seconds worth of samples
-                const samplesFor30Sec = 30 * audioContextRef.current.sampleRate;
-                
-                // Create audio buffer with exact size
-                const audioData = new Float32Array(samplesFor30Sec);
-                let writeOffset = audioData.length;
+          // Only process if we have significant audio
+          const maxValue = Math.max(...Array.from(audioData.slice(0, 1000)).map(Math.abs));
+          if (maxValue > 0.1) {
+            console.log('Processing high-volume audio:', {
+              maxValue: maxValue.toFixed(3),
+              time: currentTime
+            });
+            
+            // Process using AudioManager
+            await audioManager.processNewChunk(audioData);
+          }
 
-                // Fill buffer from newest to oldest chunks
-                for (let i = currentChunks.length - 1; i >= 0 && writeOffset > 0; i--) {
-                    const chunk = currentChunks[i];
-                    if (!(chunk instanceof Float32Array)) continue;
+          lastProcessTime = currentTime;
+        } catch (error) {
+          console.error('Error in process interval:', error);
+        }
+      }, PROCESS_INTERVAL);
 
-                    const copySize = Math.min(writeOffset, chunk.length);
-                    const startPos = chunk.length - copySize;
-                    
-                    audioData.set(
-                        chunk.slice(startPos, startPos + copySize),
-                        writeOffset - copySize
-                    );
-                    writeOffset -= copySize;
-                }
-
-                // Only process if we have significant audio
-                const maxValue = Math.max(...Array.from(audioData.slice(0, 1000)).map(Math.abs));
-                if (maxValue > 0.1) {
-                    console.log('Processing high-volume audio:', {
-                        maxValue: maxValue.toFixed(3),
-                        time: currentTime
-                    });
-                    
-                    // Process the audio buffer
-                    if (audioManagerRef.current) {
-                        await audioManagerRef.current.processAudioBuffer({
-                            getChannelData: () => audioData,
-                            sampleRate: audioContextRef.current.sampleRate,
-                            length: audioData.length
-                        });
-                    }
-                }
-
-                lastProcessTime = currentTime;
-
-            } catch (error) {
-                console.error('Error in process interval:', error);
-            }
-        }, PROCESS_INTERVAL);
-
-        return () => clearInterval(processInterval);
+      return () => clearInterval(processInterval);
     }
-}, [status, recording]);
+  }, [status, recording]);
 
   // Initialize worker in useEffect
   useEffect(() => {
@@ -590,11 +599,6 @@ function App() {
     }
 }, [endingSpeechTolerance, endingEnergyThreshold]);
 
-  // Add new state for additional parameters
-  const [energyScale, setEnergyScale] = useState(2.0);
-  const [hysteresisRatio, setHysteresisRatio] = useState(1.2);
-  const [minSpeechDuration, setMinSpeechDuration] = useState(0.1);
-
   // Update AudioManager when parameters change
   useEffect(() => {
     if (audioProcessorRef.current) {
@@ -610,104 +614,151 @@ function App() {
     }
   }, [audioThreshold, silenceLength, speechHangover, energyScale, hysteresisRatio, minSpeechDuration]);
 
+  // In App.jsx, replace direct state with AudioManager
+  useEffect(() => {
+    const unsubscribe = audioManager.subscribe((event, data) => {
+        switch(event) {
+            case 'newSegment':
+                setSegments(prev => [...prev, data]);
+                break;
+            case 'bufferUpdated':
+                // Update visualizer etc
+                break;
+        }
+    });
+
+    return () => unsubscribe();
+}, []);
+
+  // Add cleanup effect
+  useEffect(() => {
+    return () => {
+        // Cleanup audio connections
+        if (audioContextRef.current) {
+            audioContextRef.current.close();
+        }
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+    };
+}, [stream]);
+
   return (
-    IS_WEBGPU_AVAILABLE
-      ? (<div className="flex flex-col h-screen w-screen mx-auto justify-start text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-900">
-        <div className="h-full w-full overflow-auto scrollbar-thin flex justify-start items-center flex-col relative pt-4">
-          <div className="flex flex-col items-center mb-1 max-w-[300px] text-center">
-            <img src="logo.png" width="10%" height="auto" className="block"></img>
-            <h1 className="text-xl font-bold mb-1">Whisper WebGPU</h1>
-            <h2 className="text-base font-semibold">Real-time in-browser speech recognition</h2>
-          </div>
+    <div className="flex flex-col h-screen w-screen mx-auto justify-start text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-900">
+      <div className="h-full w-full overflow-auto scrollbar-thin flex justify-start items-center flex-col relative pt-4">
+        {/* Header */}
+        <div className="flex flex-col items-center mb-1 max-w-[300px] text-center">
+          <img src="logo.png" width="10%" height="auto" className="block" />
+          <h1 className="text-xl font-bold mb-1">Whisper WebGPU</h1>
+          <h2 className="text-base font-semibold">Real-time in-browser speech recognition</h2>
+        </div>
 
-          <div className="flex flex-col items-center w-full px-8">
-            {status === null && (
-              <>
-                <p className="max-w-[480px] mb-4">
-                  <br />
-                  You are about to load <a href="https://huggingface.co/onnx-community/whisper-base" target="_blank" rel="noreferrer" className="font-medium underline">whisper-base</a>
-                </p>
+        {/* Control Buttons - Moved to top */}
+        <div className="flex gap-4 mb-4">
+          {!recording && (
+            <button
+              className="border px-4 py-2 rounded-lg bg-blue-400 text-white hover:bg-blue-500"
+              onClick={handleStartAudio}
+            >
+              Start Audio Capture
+            </button>
+          )}
+          
+          {status === 'initialized' && (
+            <button
+              className="border px-4 py-2 rounded-lg bg-blue-400 text-white hover:bg-blue-500 disabled:bg-blue-100 disabled:cursor-not-allowed select-none"
+              onClick={() => {
+                worker.current?.postMessage({ type: 'load' });
+                setStatus('loading');
+              }}
+            >
+              Load Whisper Model
+            </button>
+          )}
+        </div>
 
-                <button
-                  className="border px-4 py-2 rounded-lg bg-blue-400 text-white hover:bg-blue-500 disabled:bg-blue-100 disabled:cursor-not-allowed select-none"
-                  onClick={() => {
-                    worker.current.postMessage({ type: 'load' });
-                    setStatus('loading');
-                  }}
-                  disabled={status !== null}
-                >
-                  Load model
-                </button>
-              </>
-            )}
+        {/* Main content */}
+        <div className="flex flex-col items-center w-full px-8">
+          {/* Audio visualization and controls */}
+          <div className="w-full max-w-[90vw] p-2">
+            <AudioVisualizer 
+              className="w-full rounded-lg" 
+              stream={stream} 
+              threshold={audioThreshold}
+              onThresholdChange={setAudioThreshold}
+              silenceLength={silenceLength}
+              onSilenceLengthChange={setSilenceLength}
+              speechHangover={speechHangover}
+              onHangoverChange={setSpeechHangover}
+              chunks={chunks}
+              audioContextRef={audioContextRef}
+              segments={segments}
+              energyScale={energyScale}
+              onEnergyScaleChange={setEnergyScale}
+              hysteresisRatio={hysteresisRatio}
+              onHysteresisChange={setHysteresisRatio}
+              minSpeechDuration={minSpeechDuration}
+              onMinSpeechDurationChange={setMinSpeechDuration}
+            />
 
-            {status === 'ready' && (
-                <div className="w-full max-w-[90vw] p-2">
-                    <AudioVisualizer 
-                        className="w-full rounded-lg" 
-                        stream={stream} 
-                        threshold={audioThreshold}
-                        onThresholdChange={setAudioThreshold}
-                        silenceLength={silenceLength}
-                        onSilenceLengthChange={setSilenceLength}
-                        speechHangover={speechHangover}
-                        onHangoverChange={setSpeechHangover}
-                        chunks={chunks}
-                        audioContextRef={audioContextRef}
-                        segments={segments}
-                        energyScale={energyScale}
-                        onEnergyScaleChange={setEnergyScale}
-                        hysteresisRatio={hysteresisRatio}
-                        onHysteresisChange={setHysteresisRatio}
-                        minSpeechDuration={minSpeechDuration}
-                        onMinSpeechDurationChange={setMinSpeechDuration}
-                    />
-                    
-                    <div className="relative">
-                        <p className="w-full h-[160px] overflow-y-auto overflow-wrap-anywhere border rounded-lg p-2">{text}</p>
-                        {tps && <span className="absolute bottom-0 right-0 px-1">{tps.toFixed(2)} tok/s</span>}
-                    </div>
-
-                    <StatsWidget 
-                        chunks={chunks} 
-                        audioContextRef={audioContextRef}
-                        segments={segments}
-                        threshold={audioThreshold}
-                    />
-                </div>
-            )}
-
-            {status === 'ready' && (
-                <div className='relative w-full flex justify-center'>
-                    <select 
-                        value={language} 
-                        onChange={(e) => setLanguage(e.target.value)}
-                    >
-                        {LANGUAGES.map(lang => (
-                            <option key={lang.value} value={lang.value}>
-                                {lang.label}
-                            </option>
-                        ))}
-                    </select>
-                    <button className="border rounded-lg px-2 absolute right-2" onClick={handleReset}>
-                        Reset
-                    </button>
-                </div>
-            )}
-
+            {/* Loading progress */}
             {status === 'loading' && (
-                <div className="w-full max-w-[500px] text-left mx-auto p-4">
-                    <p className="text-center">{loadingMessage}</p>
-                    {progressItems.map(({ file, progress, total }, i) => (
-                        <Progress key={i} text={file} percentage={progress} total={total} />
-                    ))}
-                </div>
+              <div className="w-full max-w-[500px] text-left mx-auto p-4">
+                <p className="text-center">{loadingMessage}</p>
+                {progressItems.map(({ file, progress, total }, i) => (
+                  <Progress key={i} text={file} percentage={progress} total={total} />
+                ))}
+              </div>
+            )}
+
+            {/* Transcription output */}
+            {status === 'ready' && (
+              <div className="relative">
+                <p className="w-full h-[160px] overflow-y-auto overflow-wrap-anywhere border rounded-lg p-2">
+                  {text}
+                </p>
+                {tps && <span className="absolute bottom-0 right-0 px-1">{tps.toFixed(2)} tok/s</span>}
+              </div>
+            )}
+
+            <StatsWidget 
+              chunks={chunks} 
+              audioContextRef={audioContextRef}
+              segments={segments}
+              threshold={audioThreshold}
+            />
+
+            {/* Language selection and reset */}
+            {status === 'ready' && (
+              <div className='relative w-full flex justify-center mt-4'>
+                <select 
+                  value={language} 
+                  onChange={(e) => setLanguage(e.target.value)}
+                >
+                  {LANGUAGES.map(lang => (
+                    <option key={lang.value} value={lang.value}>
+                      {lang.label}
+                    </option>
+                  ))}
+                </select>
+                <button 
+                  className="border rounded-lg px-2 absolute right-2" 
+                  onClick={handleReset}
+                >
+                  Reset
+                </button>
+              </div>
             )}
           </div>
         </div>
-      </div>)
-      : (<div className="fixed w-screen h-screen bg-black z-10 bg-opacity-[92%] text-white text-2xl font-semibold flex justify-center items-center text-center">WebGPU is not supported<br />by this browser :&#40;</div>)
-  )
+
+        {/* Speech Segments Widget - Moved to bottom */}
+        <div className="w-full max-w-[90vw] p-2 mt-auto">
+          <AudioSegmentsWidget segments={segments} />
+        </div>
+      </div>
+    </div>
+  );
 }
 
-export default App
+export default App;

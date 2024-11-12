@@ -1,6 +1,17 @@
 import React, { useState } from 'react';
 import { BufferVisualizer } from './BufferVisualizer';
 
+/**
+ * Component for visualizing audio data and controls
+ * @component
+ * @param {Object} props
+ * @param {string} props.className - CSS classes
+ * @param {MediaStream} props.stream - Audio stream
+ * @param {number} props.threshold - Energy threshold
+ * @param {Function} props.onThresholdChange - Threshold change handler
+ * @param {Array<Float32Array>} props.chunks - Audio chunks
+ * @param {Array<Object>} props.segments - Detected segments
+ */
 export function AudioVisualizer({ 
     className, 
     stream, 
