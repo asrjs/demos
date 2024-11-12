@@ -18,7 +18,7 @@ const LANGUAGES = [
     { value: 'en', label: 'English' }
 ];
 
-const PROCESS_INTERVAL = 500;  // Process every 500ms
+const PROCESS_INTERVAL = 250;  // Process every 250ms
 const BUFFER_WINDOW = 15;      // Keep last 15 seconds for processing
 
 function App() {
@@ -136,19 +136,24 @@ function App() {
   useEffect(() => {
     if (status === 'ready' && recording) {
         console.log('Setting up process interval');
+        let lastProcessTime = 0;
         
         const processInterval = setInterval(async () => {
+            const currentTime = Date.now();
+            if (currentTime - lastProcessTime < PROCESS_INTERVAL) {
+                return;
+            }
+            
             const currentChunks = chunksRef.current;
             if (!currentChunks.length) return;
 
             try {
                 // Get the last 30 seconds worth of samples
                 const samplesFor30Sec = 30 * audioContextRef.current.sampleRate;
-                const allSamples = currentChunks.reduce((acc, chunk) => acc + chunk.length, 0);
-
+                
                 // Create audio buffer with exact size
                 const audioData = new Float32Array(samplesFor30Sec);
-                let writeOffset = audioData.length;  // Start from the end
+                let writeOffset = audioData.length;
 
                 // Fill buffer from newest to oldest chunks
                 for (let i = currentChunks.length - 1; i >= 0 && writeOffset > 0; i--) {
@@ -156,9 +161,8 @@ function App() {
                     if (!(chunk instanceof Float32Array)) continue;
 
                     const copySize = Math.min(writeOffset, chunk.length);
-                    const startPos = chunk.length - copySize;  // Take from end of chunk
+                    const startPos = chunk.length - copySize;
                     
-                    // Copy chunk data
                     audioData.set(
                         chunk.slice(startPos, startPos + copySize),
                         writeOffset - copySize
@@ -166,22 +170,25 @@ function App() {
                     writeOffset -= copySize;
                 }
 
-                // Only log significant audio (removed buffer check logs)
+                // Only process if we have significant audio
                 const maxValue = Math.max(...Array.from(audioData.slice(0, 1000)).map(Math.abs));
-                if (maxValue > 0.3) { // Increased threshold to reduce logs
+                if (maxValue > 0.1) {
                     console.log('Processing high-volume audio:', {
-                        maxValue: maxValue.toFixed(3)
+                        maxValue: maxValue.toFixed(3),
+                        time: currentTime
                     });
+                    
+                    // Process the audio buffer
+                    if (audioManagerRef.current) {
+                        await audioManagerRef.current.processAudioBuffer({
+                            getChannelData: () => audioData,
+                            sampleRate: audioContextRef.current.sampleRate,
+                            length: audioData.length
+                        });
+                    }
                 }
 
-                // Process the raw PCM data
-                if (audioManagerRef.current) {
-                    await audioManagerRef.current.processAudioBuffer({
-                        getChannelData: () => audioData,
-                        sampleRate: audioContextRef.current.sampleRate,
-                        length: audioData.length
-                    });
-                }
+                lastProcessTime = currentTime;
 
             } catch (error) {
                 console.error('Error in process interval:', error);
@@ -546,10 +553,14 @@ function App() {
   useEffect(() => {
       if (recorderRef.current) {
           recorderRef.current.ondataavailable = (e) => {
-              console.log("🎵 New audio chunk:", {
-                  size: e.data.size,
-                  type: e.data.type
-              });
+              // Only log if significant audio is detected
+              const chunk = e.data;
+              const maxValue = Math.max(...Array.from(chunk).map(Math.abs));
+              if (maxValue > 0.1) { // Only log louder sounds
+                  console.log('Significant audio detected:', {
+                      maxValue: maxValue.toFixed(3)
+                  });
+              }
               if (e.data.size > 0) {
                   setChunks(prev => [...prev, e.data]);
               }
@@ -578,6 +589,26 @@ function App() {
         });
     }
 }, [endingSpeechTolerance, endingEnergyThreshold]);
+
+  // Add new state for additional parameters
+  const [energyScale, setEnergyScale] = useState(2.0);
+  const [hysteresisRatio, setHysteresisRatio] = useState(1.2);
+  const [minSpeechDuration, setMinSpeechDuration] = useState(0.1);
+
+  // Update AudioManager when parameters change
+  useEffect(() => {
+    if (audioProcessorRef.current) {
+        audioProcessorRef.current.options = {
+            ...audioProcessorRef.current.options,
+            energyThreshold: audioThreshold,
+            minSilenceBetween: silenceLength,
+            speechHangover: speechHangover,
+            energyScale: energyScale,
+            hysteresisRatio: hysteresisRatio,
+            minSpeechDuration: minSpeechDuration
+        };
+    }
+  }, [audioThreshold, silenceLength, speechHangover, energyScale, hysteresisRatio, minSpeechDuration]);
 
   return (
     IS_WEBGPU_AVAILABLE
@@ -610,56 +641,67 @@ function App() {
               </>
             )}
 
-            <div className="w-full max-w-[90vw] p-2">
-              <AudioVisualizer 
-                className="w-full rounded-lg" 
-                stream={stream} 
-                threshold={audioThreshold}
-                onThresholdChange={setAudioThreshold}
-                silenceLength={silenceLength}
-                onSilenceLengthChange={setSilenceLength}
-                speechHangover={speechHangover}
-                onHangoverChange={setSpeechHangover}
-              />
-              {status === 'ready' && <div className="relative">
-                <p className="w-full h-[160px] overflow-y-auto overflow-wrap-anywhere border rounded-lg p-2">{text}</p>
-                {tps && <span className="absolute bottom-0 right-0 px-1">{tps.toFixed(2)} tok/s</span>}
-              </div>}
+            {status === 'ready' && (
+                <div className="w-full max-w-[90vw] p-2">
+                    <AudioVisualizer 
+                        className="w-full rounded-lg" 
+                        stream={stream} 
+                        threshold={audioThreshold}
+                        onThresholdChange={setAudioThreshold}
+                        silenceLength={silenceLength}
+                        onSilenceLengthChange={setSilenceLength}
+                        speechHangover={speechHangover}
+                        onHangoverChange={setSpeechHangover}
+                        chunks={chunks}
+                        audioContextRef={audioContextRef}
+                        segments={segments}
+                        energyScale={energyScale}
+                        onEnergyScaleChange={setEnergyScale}
+                        hysteresisRatio={hysteresisRatio}
+                        onHysteresisChange={setHysteresisRatio}
+                        minSpeechDuration={minSpeechDuration}
+                        onMinSpeechDurationChange={setMinSpeechDuration}
+                    />
+                    
+                    <div className="relative">
+                        <p className="w-full h-[160px] overflow-y-auto overflow-wrap-anywhere border rounded-lg p-2">{text}</p>
+                        {tps && <span className="absolute bottom-0 right-0 px-1">{tps.toFixed(2)} tok/s</span>}
+                    </div>
 
-              {status === 'ready' && 
-                <StatsWidget 
-                  chunks={chunks} 
-                  audioContextRef={audioContextRef}
-                  segments={segments}
-                  threshold={audioThreshold}
-                />
-              }
-            </div>
+                    <StatsWidget 
+                        chunks={chunks} 
+                        audioContextRef={audioContextRef}
+                        segments={segments}
+                        threshold={audioThreshold}
+                    />
+                </div>
+            )}
 
-            {status === 'ready' && <div className='relative w-full flex justify-center'>
-              <select 
-                value={language} 
-                onChange={(e) => setLanguage(e.target.value)}
-              >
-                {LANGUAGES.map(lang => (
-                  <option key={lang.value} value={lang.value}>
-                    {lang.label}
-                  </option>
-                ))}
-              </select>
-              <button className="border rounded-lg px-2 absolute right-2" onClick={handleReset}>
-                Reset
-              </button>
-            </div>
-            }
+            {status === 'ready' && (
+                <div className='relative w-full flex justify-center'>
+                    <select 
+                        value={language} 
+                        onChange={(e) => setLanguage(e.target.value)}
+                    >
+                        {LANGUAGES.map(lang => (
+                            <option key={lang.value} value={lang.value}>
+                                {lang.label}
+                            </option>
+                        ))}
+                    </select>
+                    <button className="border rounded-lg px-2 absolute right-2" onClick={handleReset}>
+                        Reset
+                    </button>
+                </div>
+            )}
 
             {status === 'loading' && (
-              <div className="w-full max-w-[500px] text-left mx-auto p-4">
-                <p className="text-center">{loadingMessage}</p>
-                {progressItems.map(({ file, progress, total }, i) => (
-                  <Progress key={i} text={file} percentage={progress} total={total} />
-                ))}
-              </div>
+                <div className="w-full max-w-[500px] text-left mx-auto p-4">
+                    <p className="text-center">{loadingMessage}</p>
+                    {progressItems.map(({ file, progress, total }, i) => (
+                        <Progress key={i} text={file} percentage={progress} total={total} />
+                    ))}
+                </div>
             )}
           </div>
         </div>

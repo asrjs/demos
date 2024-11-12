@@ -1,6 +1,8 @@
-import { useRef, useCallback, useEffect, useState } from "react";
+import React, { useState } from 'react';
+import { BufferVisualizer } from './BufferVisualizer';
 
 export function AudioVisualizer({ 
+    className, 
     stream, 
     threshold, 
     onThresholdChange,
@@ -8,157 +10,136 @@ export function AudioVisualizer({
     onSilenceLengthChange,
     speechHangover,
     onHangoverChange,
-    className 
+    chunks = [],
+    audioContextRef,
+    segments = [],
+    energyScale,
+    onEnergyScaleChange,
+    hysteresisRatio,
+    onHysteresisChange,
+    minSpeechDuration,
+    onMinSpeechDurationChange
 }) {
-    const canvasRef = useRef(null);
-    const levelBarRef = useRef(null);
-
-    const visualize = useCallback((stream) => {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const source = audioContext.createMediaStreamSource(stream);
-        const analyser = audioContext.createAnalyser();
-        analyser.fftSize = 2048;
-        source.connect(analyser);
-
-        const canvas = canvasRef.current;
-        const levelBar = levelBarRef.current;
-        const canvasCtx = canvas.getContext('2d');
-        const levelCtx = levelBar.getContext('2d');
-        const bufferLength = analyser.frequencyBinCount;
-        const dataArray = new Uint8Array(bufferLength);
-
-        const drawVisual = () => {
-            requestAnimationFrame(drawVisual);
-            analyser.getByteTimeDomainData(dataArray);
-
-            // Draw waveform
-            canvasCtx.fillStyle = 'rgb(255, 255, 255)';
-            canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
-
-            canvasCtx.lineWidth = 2;
-            canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
-            canvasCtx.beginPath();
-
-            const sliceWidth = canvas.width * 1.0 / bufferLength;
-            let x = 0;
-
-            // Calculate current audio level with adjusted range
-            let sum = 0;
-            for (let i = 0; i < bufferLength; ++i) {
-                const v = dataArray[i] / 128.0;
-                const y = v * canvas.height / 2;
-                // Amplify the energy calculation
-                sum += Math.abs(v - 1.0) * 4; // Multiply by 4 to amplify
-
-                if (i === 0) {
-                    canvasCtx.moveTo(x, y);
-                } else {
-                    canvasCtx.lineTo(x, y);
-                }
-
-                x += sliceWidth;
-            }
-
-            canvasCtx.lineTo(canvas.width, canvas.height / 2);
-            canvasCtx.stroke();
-
-            // Draw level bar with adjusted range
-            const energy = Math.min(1, (sum / bufferLength) * 2); // Amplify and clamp to 1
-            levelCtx.clearRect(0, 0, levelBar.width, levelBar.height);
-            
-            // Draw threshold line
-            levelCtx.beginPath();
-            levelCtx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
-            levelCtx.moveTo(0, levelBar.height * (1 - threshold));
-            levelCtx.lineTo(levelBar.width, levelBar.height * (1 - threshold));
-            levelCtx.stroke();
-
-            // Draw energy level
-            const barHeight = energy * levelBar.height;
-            levelCtx.fillStyle = energy > threshold ? 'rgb(0, 255, 0)' : 'rgb(200, 200, 200)';
-            levelCtx.fillRect(0, levelBar.height - barHeight, levelBar.width, barHeight);
-        };
-
-        drawVisual();
-
-        return () => {
-            audioContext.close();
-        };
-    }, [threshold]);
-
-    useEffect(() => {
-        let cleanup;
-        if (stream) {
-            cleanup = visualize(stream);
-        }
-        return () => cleanup && cleanup();
-    }, [visualize, stream]);
+    // Add state for displaying current values
+    const [currentEnergy, setCurrentEnergy] = useState(0);
+    const [averageEnergy, setAverageEnergy] = useState(0);
+    const [peakEnergy, setPeakEnergy] = useState(0);
+    const [rawPeakValue, setRawPeakValue] = useState(0);
 
     return (
         <div className={className}>
-            <canvas width={720} height={120} ref={canvasRef}></canvas>
-            <div className="absolute top-0 right-0 flex items-center gap-2">
-                {/* Energy threshold control */}
-                <div className="flex flex-col items-center">
-                    <span className="text-xs mb-1">Energy</span>
-                    <div className="w-[30px] h-[120px] flex items-center justify-center">
+            {/* Single BufferVisualizer */}
+            <div className="mb-4">
+                <BufferVisualizer 
+                    chunks={chunks}
+                    audioContextRef={audioContextRef}
+                    segments={segments}
+                    onEnergyUpdate={(energy, avg, peak, rawPeak) => {
+                        setCurrentEnergy(energy);
+                        setAverageEnergy(avg);
+                        setPeakEnergy(peak);
+                        setRawPeakValue(rawPeak);
+                    }}
+                />
+            </div>
+            
+            {/* Parameters Panel */}
+            <div className="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                <h3 className="font-semibold mb-2">Speech Detection Parameters</h3>
+                
+                <div className="grid grid-cols-2 gap-4">
+                    {/* Energy Threshold */}
+                    <div className="flex flex-col">
+                        <label className="text-sm">Energy Threshold: {threshold.toFixed(3)}</label>
                         <input
                             type="range"
-                            min="0.005"
-                            max="0.2"
-                            step="0.005"
+                            min="0.001"
+                            max="0.1"
+                            step="0.001"
                             value={threshold}
                             onChange={(e) => onThresholdChange(parseFloat(e.target.value))}
-                            className="w-[120px] h-[30px] -rotate-90 origin-center"
-                            title="Base energy threshold"
+                            className="w-full"
                         />
                     </div>
-                    <span className="text-xs mt-1">{threshold.toFixed(3)}</span>
-                </div>
 
-                {/* Silence between segments control */}
-                <div className="flex flex-col items-center">
-                    <span className="text-xs mb-1">Silence</span>
-                    <div className="w-[30px] h-[120px] flex items-center justify-center">
+                    {/* Energy Scale */}
+                    <div className="flex flex-col">
+                        <label className="text-sm">Energy Scale: {energyScale.toFixed(1)}</label>
+                        <input
+                            type="range"
+                            min="0.1"
+                            max="2.0"
+                            step="0.1"
+                            value={energyScale}
+                            onChange={(e) => onEnergyScaleChange(parseFloat(e.target.value))}
+                            className="w-full"
+                        />
+                    </div>
+
+                    {/* Silence Length */}
+                    <div className="flex flex-col">
+                        <label className="text-sm">Min Silence (s): {silenceLength.toFixed(2)}</label>
                         <input
                             type="range"
                             min="0.1"
                             max="1.0"
-                            step="0.1"
+                            step="0.05"
                             value={silenceLength}
                             onChange={(e) => onSilenceLengthChange(parseFloat(e.target.value))}
-                            className="w-[120px] h-[30px] -rotate-90 origin-center"
-                            title="Minimum silence between segments"
+                            className="w-full"
                         />
                     </div>
-                    <span className="text-xs mt-1">{silenceLength.toFixed(1)}s</span>
-                </div>
 
-                {/* Speech hangover control */}
-                <div className="flex flex-col items-center">
-                    <span className="text-xs mb-1">Hangover</span>
-                    <div className="w-[30px] h-[120px] flex items-center justify-center">
+                    {/* Speech Hangover */}
+                    <div className="flex flex-col">
+                        <label className="text-sm">Speech Hangover (s): {speechHangover.toFixed(2)}</label>
                         <input
                             type="range"
                             min="0.1"
                             max="0.5"
-                            step="0.1"
+                            step="0.05"
                             value={speechHangover}
                             onChange={(e) => onHangoverChange(parseFloat(e.target.value))}
-                            className="w-[120px] h-[30px] -rotate-90 origin-center"
-                            title="Speech hangover period"
+                            className="w-full"
                         />
                     </div>
-                    <span className="text-xs mt-1">{speechHangover.toFixed(1)}s</span>
+
+                    {/* Min Speech Duration */}
+                    <div className="flex flex-col">
+                        <label className="text-sm">Min Speech (s): {minSpeechDuration.toFixed(2)}</label>
+                        <input
+                            type="range"
+                            min="0.05"
+                            max="0.5"
+                            step="0.05"
+                            value={minSpeechDuration}
+                            onChange={(e) => onMinSpeechDurationChange(parseFloat(e.target.value))}
+                            className="w-full"
+                        />
+                    </div>
+
+                    {/* Hysteresis Ratio */}
+                    <div className="flex flex-col">
+                        <label className="text-sm">Hysteresis: {hysteresisRatio.toFixed(2)}</label>
+                        <input
+                            type="range"
+                            min="1.0"
+                            max="2.0"
+                            step="0.1"
+                            value={hysteresisRatio}
+                            onChange={(e) => onHysteresisChange(parseFloat(e.target.value))}
+                            className="w-full"
+                        />
+                    </div>
                 </div>
 
-                {/* Level indicator */}
-                <canvas 
-                    ref={levelBarRef} 
-                    width={30} 
-                    height={120}
-                    className="border-l border-gray-300"
-                />
+                {/* Current Values Display */}
+                <div className="mt-4 text-sm grid grid-cols-4 gap-2">
+                    <div>Current Energy: {currentEnergy.toFixed(4)}</div>
+                    <div>Average Energy: {averageEnergy.toFixed(4)}</div>
+                    <div>Peak Energy: {peakEnergy.toFixed(4)}</div>
+                    <div>Raw Peak: {rawPeakValue.toFixed(4)}</div>
+                </div>
             </div>
         </div>
     );

@@ -1,6 +1,6 @@
 import { useRef, useEffect } from "react";
 
-export function BufferVisualizer({ chunks, audioContextRef, segments = [] }) {
+export function BufferVisualizer({ chunks, audioContextRef, segments = [], onEnergyUpdate }) {
     const canvasRef = useRef(null);
     const lastUpdateRef = useRef(0);
     const lastChunksLengthRef = useRef(0);
@@ -46,8 +46,43 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [] }) {
                 writeOffset -= copySize;
             }
 
-            // Calculate time offset for the visible window
-            const visibleStartTime = Math.max(0, totalDuration - MAX_DURATION);
+            // Calculate energy values
+            let currentEnergy = 0;
+            let sumEnergy = 0;
+            let peakEnergy = 0;
+            let maxAbsValue = 0;
+            const windowSize = 256;
+
+            // First pass - find maximum absolute value
+            for (let i = 0; i < audioData.length; i++) {
+                maxAbsValue = Math.max(maxAbsValue, Math.abs(audioData[i]));
+            }
+
+            // Second pass - calculate energies
+            for (let i = 0; i < audioData.length; i += windowSize) {
+                const window = audioData.slice(i, Math.min(i + windowSize, audioData.length));
+                if (window.length < windowSize) continue;
+
+                // Calculate RMS energy
+                const sum = window.reduce((acc, sample) => acc + sample * sample, 0);
+                const rms = Math.sqrt(sum / window.length);
+                
+                currentEnergy = rms;
+                sumEnergy += rms;
+                peakEnergy = Math.max(peakEnergy, rms);
+            }
+
+            const avgEnergy = sumEnergy / (audioData.length / windowSize);
+
+            // Update energy values through callback with both RMS and peak
+            if (onEnergyUpdate) {
+                onEnergyUpdate(
+                    currentEnergy,
+                    avgEnergy,
+                    peakEnergy,
+                    maxAbsValue
+                );
+            }
 
             // Draw waveform
             ctx.fillStyle = '#f5f5f5';
@@ -105,13 +140,13 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [] }) {
             ctx.font = '10px Arial';
             for (let i = 0; i <= MAX_DURATION; i += 10) {
                 const x = (canvas.width * i) / MAX_DURATION;
-                const time = visibleStartTime + i;
+                const time = totalDuration - MAX_DURATION + i;
                 ctx.fillText(`${time.toFixed(0)}s`, x, canvas.height - 2);
             }
         };
 
         processAudioData();
-    }, [chunks, segments]);
+    }, [chunks, segments, onEnergyUpdate]);
 
     return (
         <canvas 
