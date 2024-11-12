@@ -53,58 +53,96 @@ export class AudioSegmentProcessor {
             return [];
         }
 
-        const samplesFor30Sec = 30 * this.options.sampleRate;
-        
         if (!this.state.processingStartTime) {
             this.state.processingStartTime = 0;
             this.state.totalProcessedSamples = 0;
+            this.state.lastProcessedPosition = 0;
+            this.state.activeSpeechStart = null;
             console.log('Initializing processing at time 0');
         }
 
         this.state.totalProcessedSamples = audioData.length;
         const totalDuration = this.state.totalProcessedSamples / this.options.sampleRate;
 
-        const startSample = Math.max(0, audioData.length - samplesFor30Sec);
-        const processStartTime = startSample / this.options.sampleRate;
-
-        let processableData = audioData;
-        if (audioData.length > samplesFor30Sec) {
-            processableData = audioData.slice(-samplesFor30Sec);
+        const startPosition = this.state.lastProcessedPosition;
+        const endPosition = audioData.length;
+        
+        if (startPosition >= endPosition) {
+            return [];
         }
 
-        if (!this.state.firstAudioDetected) {
-            this.state.firstAudioDetected = true;
-            this.state.actualStartTime = 0;
-        }
+        const newAudioData = audioData.slice(startPosition, endPosition);
+        
+        console.log('Processing new audio data:', {
+            startTime: (startPosition / this.options.sampleRate).toFixed(2),
+            endTime: (endPosition / this.options.sampleRate).toFixed(2),
+            totalDuration: totalDuration.toFixed(2),
+            newDataDuration: (newAudioData.length / this.options.sampleRate).toFixed(2)
+        });
 
         const segments = [];
         const windowSize = this.options.windowSize;
         let position = 0;
+        let significantAudioDetected = false;
 
-        while (position < processableData.length) {
-            const window = processableData.slice(position, 
-                Math.min(position + windowSize, processableData.length));
+        while (position < newAudioData.length) {
+            const window = newAudioData.slice(position, 
+                Math.min(position + windowSize, newAudioData.length));
             if (window.length < windowSize) break;
 
             const energy = this.calculateEnergy(window);
-            const isSpeech = this.isSpeech(energy);
+            const maxAbs = Math.max(...window.map(Math.abs));
             
-            const absoluteTime = processStartTime + (position / this.options.sampleRate);
+            if (maxAbs > 0.1) {
+                significantAudioDetected = true;
+            }
 
-            const absolutePosition = startSample + position;
-            this.handleStateTransition(isSpeech, absolutePosition, absoluteTime, audioData, segments);
-            
+            const isSpeech = this.isSpeech(energy);
+            const absoluteTime = (startPosition + position) / this.options.sampleRate;
+            const absolutePosition = startPosition + position;
+
+            if (significantAudioDetected) {
+                if (!this.state.activeSpeechStart && isSpeech) {
+                    this.state.activeSpeechStart = absolutePosition;
+                    console.log('Speech started:', {
+                        time: absoluteTime.toFixed(2),
+                        energy: energy.toFixed(4)
+                    });
+                } else if (this.state.activeSpeechStart && !isSpeech) {
+                    this.state.silenceCounter += windowSize;
+                    if (this.state.silenceCounter >= this.options.minSilenceBetween * this.options.sampleRate) {
+                        const segment = new SpeechSegment({
+                            startTime: this.state.activeSpeechStart / this.options.sampleRate,
+                            endTime: absoluteTime,
+                            energy: this.state.currentEnergy,
+                            audioData: new Float32Array(
+                                audioData.slice(
+                                    this.state.activeSpeechStart,
+                                    absolutePosition
+                                )
+                            )
+                        });
+
+                        console.log('Speech segment completed:', {
+                            start: segment.startTime.toFixed(2),
+                            end: segment.endTime.toFixed(2),
+                            duration: segment.getDuration().toFixed(2)
+                        });
+
+                        segments.push(segment);
+                        this.state.activeSpeechStart = null;
+                        this.state.silenceCounter = 0;
+                    }
+                } else if (this.state.activeSpeechStart && isSpeech) {
+                    this.state.silenceCounter = 0;
+                }
+            }
+
             position += windowSize;
         }
 
-        this.state.lastProcessedSampleIndex = startSample + position;
+        this.state.lastProcessedPosition = startPosition + position;
         this.state.processedDuration = totalDuration;
-
-        console.log('Processing audio buffer:', {
-            totalDuration: totalDuration.toFixed(2),
-            processStartTime: processStartTime.toFixed(2),
-            bufferLength: (processableData.length / this.options.sampleRate).toFixed(2)
-        });
 
         return segments;
     }
@@ -180,8 +218,9 @@ export class AudioSegmentProcessor {
             this.state.hangoverFrames = 0;
             
             console.log('Speech start:', {
-                bufferTime: timePoint.toFixed(2),
+                time: timePoint.toFixed(2),
                 totalDuration: this.state.processedDuration.toFixed(2),
+                position: position,
                 energy: this.state.currentEnergy.toFixed(4)
             });
         } else if (this.state.inSpeech && !isSpeech) {
@@ -216,6 +255,7 @@ export class AudioSegmentProcessor {
                         start: segment.startTime.toFixed(2),
                         end: segment.endTime.toFixed(2),
                         duration: segment.getDuration().toFixed(2),
+                        position: position,
                         totalDuration: this.state.processedDuration.toFixed(2),
                         avgEnergy: this.state.energyAverage.toFixed(4)
                     });
@@ -239,19 +279,19 @@ export class AudioSegmentProcessor {
     reset() {
         this.state = {
             ...this.state,
-            processingStartTime: Date.now() / 1000,
+            processingStartTime: 0,
             lastSegmentTime: 0,
             processedDuration: 0,
             firstAudioDetected: false,
-            inSpeech: false,
-            speechStart: null,
+            activeSpeechStart: null,
             silenceCounter: 0,
             energyHistory: [],
             currentEnergy: 0,
             energyAverage: 0,
             lastSegmentEnd: 0,
-            hangoverFrames: 0,
-            peakEnergy: 0
+            peakEnergy: 0,
+            lastProcessedPosition: 0,
+            totalProcessedSamples: 0
         };
         
         this.debugStats = {

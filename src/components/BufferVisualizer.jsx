@@ -1,20 +1,20 @@
 import { useRef, useEffect } from "react";
 
-export function BufferVisualizer({ chunks, audioContextRef, segments = [], onEnergyUpdate }) {
+export function BufferVisualizer({ chunks, audioContextRef, segments = [], energyValues }) {
     const canvasRef = useRef(null);
     const lastUpdateRef = useRef(0);
     const lastChunksLengthRef = useRef(0);
-    const UPDATE_INTERVAL = 250;
+    const UPDATE_INTERVAL = 100;
     const MAX_DURATION = 30;
-    const SKIP_POINTS = 1;
+    const SKIP_POINTS = 16;
 
     useEffect(() => {
+        const now = Date.now();
+        if (now - lastUpdateRef.current < UPDATE_INTERVAL) return;
+
         if (!chunks.length || !canvasRef.current) return;
         
         if (chunks.length === lastChunksLengthRef.current) return;
-        
-        const now = Date.now();
-        if (now - lastUpdateRef.current < UPDATE_INTERVAL) return;
 
         lastUpdateRef.current = now;
         lastChunksLengthRef.current = chunks.length;
@@ -46,44 +46,6 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], onEne
                 writeOffset -= copySize;
             }
 
-            // Calculate energy values
-            let currentEnergy = 0;
-            let sumEnergy = 0;
-            let peakEnergy = 0;
-            let maxAbsValue = 0;
-            const windowSize = 256;
-
-            // First pass - find maximum absolute value
-            for (let i = 0; i < audioData.length; i++) {
-                maxAbsValue = Math.max(maxAbsValue, Math.abs(audioData[i]));
-            }
-
-            // Second pass - calculate energies
-            for (let i = 0; i < audioData.length; i += windowSize) {
-                const window = audioData.slice(i, Math.min(i + windowSize, audioData.length));
-                if (window.length < windowSize) continue;
-
-                // Calculate RMS energy
-                const sum = window.reduce((acc, sample) => acc + sample * sample, 0);
-                const rms = Math.sqrt(sum / window.length);
-                
-                currentEnergy = rms;
-                sumEnergy += rms;
-                peakEnergy = Math.max(peakEnergy, rms);
-            }
-
-            const avgEnergy = sumEnergy / (audioData.length / windowSize);
-
-            // Update energy values through callback with both RMS and peak
-            if (onEnergyUpdate) {
-                onEnergyUpdate(
-                    currentEnergy,
-                    avgEnergy,
-                    peakEnergy,
-                    maxAbsValue
-                );
-            }
-
             // Draw waveform
             ctx.fillStyle = '#f5f5f5';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -95,6 +57,7 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], onEne
             ctx.lineWidth = 1;
             ctx.beginPath();
 
+            // Draw waveform without energy calculations
             for (let i = 0; i < audioData.length; i += SKIP_POINTS) {
                 const x = (i / audioData.length) * canvas.width;
                 const y = centerY + audioData[i] * scale;
@@ -146,7 +109,7 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], onEne
         };
 
         processAudioData();
-    }, [chunks, segments, onEnergyUpdate]);
+    }, [chunks, segments]);
 
     return (
         <canvas 
