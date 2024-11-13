@@ -287,24 +287,31 @@ export class AudioManager {
                 audioBuffer.getChannelData(0) : 
                 audioBuffer.audioData || audioBuffer;
 
+            // Log processing attempt
+            console.log('Processing audio buffer:', {
+                startTime: bufferStartTime.toFixed(2),
+                duration: (audioData.length / this.audioContext.sampleRate).toFixed(2),
+                samples: audioData.length
+            });
+
             const segments = this.processor.processAudioData(audioData, bufferStartTime);
 
-            // Filter out duplicate segments using more precise timing
+            // Filter out duplicate segments with improved overlap handling
             const newSegments = segments.filter(segment => {
                 const segmentKey = `${segment.startTime.toFixed(3)}-${segment.endTime.toFixed(3)}`;
-                if (this.processedSegments.has(segmentKey)) {
-                    return false;
-                }
                 
-                // Check for overlapping segments with small tolerance
+                // Check for duplicates with tolerance
                 const tolerance = 0.1; // 100ms tolerance
-                const hasOverlap = Array.from(this.processedSegments).some(key => {
+                const isDuplicate = Array.from(this.processedSegments).some(key => {
                     const [existingStart, existingEnd] = key.split('-').map(Number);
-                    return !(segment.endTime + tolerance < existingStart || 
-                           segment.startTime - tolerance > existingEnd);
+                    const overlap = !(
+                        segment.endTime + tolerance < existingStart || 
+                        segment.startTime - tolerance > existingEnd
+                    );
+                    return overlap;
                 });
 
-                if (!hasOverlap) {
+                if (!isDuplicate) {
                     this.processedSegments.add(segmentKey);
                     return true;
                 }
@@ -321,10 +328,10 @@ export class AudioManager {
                     count: newSegments.length,
                     segments: newSegments.map(s => ({
                         start: s.startTime.toFixed(2),
-                        end: s.endTime.toFixed(2)
+                        end: s.endTime.toFixed(2),
+                        duration: (s.endTime - s.startTime).toFixed(2)
                     })),
-                    bufferStartTime: bufferStartTime.toFixed(2),
-                    processedSamples: this.lastProcessedSampleIndex
+                    bufferStartTime: bufferStartTime.toFixed(2)
                 });
             }
 
@@ -339,39 +346,53 @@ export class AudioManager {
      * Process new chunk of audio data
      * @param {Float32Array} chunk - New audio chunk
      */
-    processNewChunk(chunk) {
+    async processNewChunk(chunk) {
         this.addChunk(chunk);
         
-        // Only process periodically, not every chunk
         const currentTime = Date.now();
         if (currentTime - this.lastProcessTime < this.processingInterval) {
             return;
         }
         this.lastProcessTime = currentTime;
 
-        // Get the last 30 seconds of audio for processing
-        const samplesFor30Sec = 30 * this.audioContext.sampleRate;
-        const totalSamples = this.audioBuffer.length;
-        const startIndex = Math.max(this.lastProcessedSampleIndex, totalSamples - samplesFor30Sec);
-        
-        // Only process if we have new unprocessed audio
-        if (startIndex >= totalSamples) {
-            return;
-        }
+        try {
+            // Calculate buffer positions
+            const totalSamples = this.audioBuffer.length;
+            const sampleRate = this.audioContext.sampleRate;
+            const currentBufferTime = totalSamples / sampleRate;
+            
+            // Process last 30 seconds with 2-second overlap
+            const windowSize = 30 * sampleRate;
+            const overlapSize = 2 * sampleRate;
+            const startIndex = Math.max(0, totalSamples - windowSize);
+            
+            // Ensure we don't reprocess the same audio
+            if (startIndex >= this.lastProcessedSampleIndex - overlapSize) {
+                const audioToProcess = this.audioBuffer.slice(startIndex);
+                const bufferStartTime = startIndex / sampleRate;
+                
+                console.log('Processing window:', {
+                    totalDuration: currentBufferTime.toFixed(2),
+                    windowStart: bufferStartTime.toFixed(2),
+                    windowDuration: (audioToProcess.length / sampleRate).toFixed(2),
+                    lastProcessed: (this.lastProcessedSampleIndex / sampleRate).toFixed(2),
+                    samplesProcessed: audioToProcess.length
+                });
 
-        const audioToProcess = this.audioBuffer.slice(startIndex);
-        
-        if (audioToProcess.length > 0) {
-            const bufferStartTime = startIndex / this.audioContext.sampleRate;
-            
-            this.processAudioBuffer({
-                getChannelData: () => audioToProcess,
-                sampleRate: this.audioContext.sampleRate,
-                length: audioToProcess.length
-            }, bufferStartTime);
-            
-            // Update last processed position
-            this.lastProcessedSampleIndex = Math.max(0, totalSamples - (2 * this.audioContext.sampleRate)); // Keep 2 second overlap
+                // Process the audio window
+                await this.processAudioBuffer({
+                    getChannelData: () => audioToProcess,
+                    sampleRate: sampleRate,
+                    length: audioToProcess.length,
+                    startTime: bufferStartTime,
+                    currentTime: currentBufferTime
+                }, bufferStartTime);
+                
+                // Update last processed position
+                this.lastProcessedSampleIndex = startIndex + audioToProcess.length - overlapSize;
+            }
+        } catch (error) {
+            console.error('Error in processNewChunk:', error);
         }
     }
 }

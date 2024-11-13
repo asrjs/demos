@@ -4,18 +4,38 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], energ
     const canvasRef = useRef(null);
     const lastUpdateRef = useRef(0);
     const lastChunksLengthRef = useRef(0);
+    const lastBufferStateRef = useRef({ isBufferFull: false });
     const UPDATE_INTERVAL = 100;
     const MAX_DURATION = 30;
     const SKIP_POINTS = 16;
 
     const drawSegments = useCallback((ctx, segments, totalDuration, canvas) => {
+        const isBufferFull = totalDuration > MAX_DURATION;
+        const visibleDuration = isBufferFull ? MAX_DURATION : totalDuration;
+        const windowStart = isBufferFull ? totalDuration - MAX_DURATION : 0;
+
+        if (lastBufferStateRef.current?.isBufferFull !== isBufferFull) {
+            console.log('Buffer state changed:', {
+                totalDuration: totalDuration.toFixed(2),
+                isBufferFull,
+                visibleDuration: visibleDuration.toFixed(2),
+                windowStart: windowStart.toFixed(2)
+            });
+            lastBufferStateRef.current = { isBufferFull };
+        }
+
         segments.forEach(segment => {
-            // Calculate relative positions based on total duration
-            const startX = (segment.startTime / totalDuration) * canvas.width;
-            const endX = (segment.endTime / totalDuration) * canvas.width;
-            
-            // Only draw if segment is within view
-            if (startX < canvas.width && endX > 0) {
+            const normalizedStart = isBufferFull 
+                ? (segment.startTime - windowStart) 
+                : segment.startTime;
+            const normalizedEnd = isBufferFull 
+                ? (segment.endTime - windowStart) 
+                : segment.endTime;
+
+            const startX = (normalizedStart / visibleDuration) * canvas.width;
+            const endX = (normalizedEnd / visibleDuration) * canvas.width;
+
+            if (normalizedStart <= visibleDuration && normalizedEnd >= 0) {
                 ctx.fillStyle = segment.isProcessed 
                     ? 'rgba(0, 200, 0, 0.1)'
                     : 'rgba(0, 100, 200, 0.1)';
@@ -28,16 +48,49 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], energ
                 ctx.moveTo(endX, 0);
                 ctx.lineTo(endX, canvas.height);
                 ctx.stroke();
+
+                ctx.fillStyle = '#666';
+                ctx.font = '10px Arial';
+                ctx.fillText(`${segment.startTime.toFixed(1)}s`, startX + 2, 10);
+                ctx.fillText(`${segment.endTime.toFixed(1)}s`, endX - 40, 10);
             }
         });
+    }, []);
+
+    const drawWaveform = useCallback((ctx, audioData, canvas, totalDuration) => {
+        const isBufferFull = totalDuration > MAX_DURATION;
+        const visibleDuration = isBufferFull ? MAX_DURATION : totalDuration;
+
+        const visibleSamples = isBufferFull 
+            ? Math.min(audioData.length, MAX_DURATION * audioContextRef.current.sampleRate)
+            : audioData.length;
+        
+        const startIndex = isBufferFull 
+            ? audioData.length - visibleSamples 
+            : 0;
+
+        const centerY = canvas.height / 2;
+        const scale = canvas.height / 2;
+        
+        ctx.strokeStyle = '#c8c8c8';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+
+        for (let i = 0; i < visibleSamples; i += SKIP_POINTS) {
+            const x = (i / visibleSamples) * canvas.width;
+            const dataIndex = startIndex + i;
+            const y = centerY + (audioData[dataIndex] || 0) * scale;
+            
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
     }, []);
 
     useEffect(() => {
         const now = Date.now();
         if (now - lastUpdateRef.current < UPDATE_INTERVAL) return;
-
         if (!chunks.length || !canvasRef.current) return;
-        
         if (chunks.length === lastChunksLengthRef.current) return;
 
         lastUpdateRef.current = now;
@@ -50,61 +103,47 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], energ
         });
 
         const processAudioData = async () => {
-            // Calculate total duration of all chunks
+            // Create combined audio data from chunks
             const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
-            const totalDuration = totalLength / audioContextRef.current.sampleRate;
-
-            // Create buffer for last 30 seconds
-            const samplesFor30Sec = MAX_DURATION * audioContextRef.current.sampleRate;
-            const audioData = new Float32Array(Math.min(totalLength, samplesFor30Sec));
-            
-            // Fill buffer with most recent audio data
-            let writeOffset = audioData.length;
-            for (let i = chunks.length - 1; i >= 0 && writeOffset > 0; i--) {
-                const chunk = chunks[i];
-                const copySize = Math.min(writeOffset, chunk.length);
-                audioData.set(
-                    chunk.slice(-copySize),
-                    writeOffset - copySize
-                );
-                writeOffset -= copySize;
+            const audioData = new Float32Array(totalLength);
+            let offset = 0;
+            for (const chunk of chunks) {
+                audioData.set(chunk, offset);
+                offset += chunk.length;
             }
 
-            // Draw waveform
+            const totalDuration = totalLength / audioContextRef.current.sampleRate;
+
+            // Clear canvas
             ctx.fillStyle = '#f5f5f5';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            const centerY = canvas.height / 2;
-            const scale = canvas.height / 2;
-            
-            ctx.strokeStyle = '#c8c8c8';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-
-            // Draw waveform without energy calculations
-            for (let i = 0; i < audioData.length; i += SKIP_POINTS) {
-                const x = (i / audioData.length) * canvas.width;
-                const y = centerY + audioData[i] * scale;
-                if (i === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-            }
-            ctx.stroke();
+            // Draw waveform
+            drawWaveform(ctx, audioData, canvas, totalDuration);
 
             // Draw segments
             drawSegments(ctx, segments, totalDuration, canvas);
 
             // Draw time markers
-            ctx.fillStyle = '#666';
-            ctx.font = '10px Arial';
-            for (let i = 0; i <= MAX_DURATION; i += 10) {
-                const x = (canvas.width * i) / MAX_DURATION;
-                const time = totalDuration - MAX_DURATION + i;
-                ctx.fillText(`${time.toFixed(0)}s`, x, canvas.height - 2);
-            }
+            const drawTimeMarkers = () => {
+                ctx.fillStyle = '#666';
+                ctx.font = '10px Arial';
+                const isBufferFull = totalDuration > MAX_DURATION;
+                const visibleDuration = isBufferFull ? MAX_DURATION : totalDuration;
+                const windowStart = isBufferFull ? totalDuration - MAX_DURATION : 0;
+
+                for (let i = 0; i <= visibleDuration; i += 5) {
+                    const x = (i / visibleDuration) * canvas.width;
+                    const time = windowStart + i;
+                    ctx.fillText(`${time.toFixed(0)}s`, x, canvas.height - 2);
+                }
+            };
+
+            drawTimeMarkers();
         };
 
-        processAudioData();
-    }, [chunks, segments, drawSegments]);
+        processAudioData().catch(console.error);
+    }, [chunks, segments, drawSegments, drawWaveform]);
 
     return (
         <canvas 
