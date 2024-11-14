@@ -19,8 +19,10 @@ const LANGUAGES = [
     { value: 'en', label: 'English' }
 ];
 
-const PROCESS_INTERVAL = 250;  // Process every 250ms
-const BUFFER_WINDOW = 15;      // Keep last 15 seconds for processing
+// Zaman sabitleri
+const BASE_TIME_UNIT = 100; // milliseconds
+const PROCESS_INTERVAL = 2 * BASE_TIME_UNIT;  // 200ms
+const BUFFER_WINDOW = 15;   // 15 seconds
 
 function App() {
 
@@ -47,11 +49,11 @@ function App() {
 
   // Audio parameters state
   const [audioThreshold, setAudioThreshold] = useState(0.02);
-  const [silenceLength, setSilenceLength] = useState(0.3);
+  const [silenceLength, setSilenceLength] = useState(0.8);    // 8 * BASE_TIME_UNIT
   const [speechHangover, setSpeechHangover] = useState(0.2);
   const [energyScale, setEnergyScale] = useState(2.0);
   const [hysteresisRatio, setHysteresisRatio] = useState(1.2);
-  const [minSpeechDuration, setMinSpeechDuration] = useState(0.1);
+  const [minSpeechDuration, setMinSpeechDuration] = useState(0.3); // 3 * BASE_TIME_UNIT
   const [maxSilenceWithinSpeech, setMaxSilenceWithinSpeech] = useState(0.3);
   const [endingSpeechTolerance, setEndingSpeechTolerance] = useState(0.4);
   const [endingEnergyThreshold, setEndingEnergyThreshold] = useState(0.6);
@@ -115,8 +117,13 @@ function App() {
         workletNode.port.onmessage = (event) => {
             if (event.data.type === 'audio_data') {
                 const chunk = event.data.audioData;
+                const energy = event.data.energy;
+                
+                // Chunk'ı state'e ekle (visualizer için)
                 setChunks(prev => [...prev, chunk]);
-                audioManager.processNewChunk(chunk);
+                
+                // Chunk'ı direkt işle
+                audioManager.processNewChunk(chunk, energy);
             }
         };
 

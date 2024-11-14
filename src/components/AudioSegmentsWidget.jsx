@@ -1,37 +1,29 @@
 import React from 'react';
 
 export function AudioSegmentsWidget({ segments }) {
-    const playSegment = (segment) => {
-        // Verify segment data
+    const playSegment = async (segment) => {
+        if (!segment.audioData || segment.audioData.length === 0) {
+            console.error('Invalid segment audio data');
+            return;
+        }
+
         console.log('Playing segment:', {
             start: segment.startTime.toFixed(2),
             end: segment.endTime.toFixed(2),
-            duration: (segment.endTime - segment.startTime).toFixed(2),
+            duration: segment.duration.toFixed(2),
             expectedSamples: segment.samples,
             actualSamples: segment.audioData.length,
             sampleRate: segment.sampleRate
         });
 
-        // Create audio context with correct sample rate
-        const audioContext = new AudioContext({ sampleRate: segment.sampleRate });
+        const audioContext = new AudioContext();
+        const buffer = audioContext.createBuffer(1, segment.audioData.length, segment.sampleRate);
+        buffer.getChannelData(0).set(segment.audioData);
         
-        // Create buffer with exact segment length
-        const buffer = audioContext.createBuffer(1, segment.samples, segment.sampleRate);
-        
-        // Copy the entire segment audio data
-        const channelData = buffer.getChannelData(0);
-        channelData.set(segment.audioData);
-
         const source = audioContext.createBufferSource();
         source.buffer = buffer;
         source.connect(audioContext.destination);
-        
         source.start();
-        
-        // Clean up when done
-        source.onended = () => {
-            audioContext.close();
-        };
     };
 
     const downloadSegment = (segment, index) => {
