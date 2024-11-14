@@ -36,30 +36,45 @@ class AutomaticSpeechRecognitionPipeline {
         console.log('Loading model...');
 
         try {
+            // Load tokenizer
             this.tokenizer = await AutoTokenizer.from_pretrained(this.model_id, {
                 progress_callback: (progress) => {
                     if (shouldLogProgress(progress.progress)) {
-                        progress_callback?.(progress);
+                        progress_callback?.({
+                            status: 'initiate',
+                            file: 'tokenizer',
+                            ...progress
+                        });
                     }
                 },
                 local: true,
             });
             
+            // Load processor
             this.processor = await AutoProcessor.from_pretrained(this.model_id, {
                 progress_callback: (progress) => {
                     if (shouldLogProgress(progress.progress)) {
-                        progress_callback?.(progress);
+                        progress_callback?.({
+                            status: 'initiate',
+                            file: 'processor',
+                            ...progress
+                        });
                     }
                 },
                 local: true,
             });
 
+            // Load model
             this.model = await WhisperForConditionalGeneration.from_pretrained(this.model_id, {
                 local: true,
                 device: 'webgpu',
                 progress_callback: (progress) => {
                     if (shouldLogProgress(progress.progress)) {
-                        progress_callback?.(progress);
+                        progress_callback?.({
+                            status: 'initiate',
+                            file: 'model',
+                            ...progress
+                        });
                     }
                 },
             });
@@ -76,37 +91,36 @@ class AutomaticSpeechRecognitionPipeline {
 
 let isLoaded = false;
 
+// Sadece model yükleme
 async function load() {
     if (isLoaded) {
-        console.log('Model already loaded, skipping initialization');
+        console.log('Model already loaded');
         self.postMessage({ status: 'ready' });
         return;
     }
 
-    console.log('Starting model load...');
+    console.log('Loading Whisper model...');
     
     self.postMessage({
         status: 'loading',
-        data: 'Loading model...'
+        data: 'Loading Whisper model...'
     });
 
     try {
+        // Model dosyalarını kontrol et
         const testPath = `${env.localModelPath}/base-dsntt1-tr/config.json`;
-        console.log('Attempting to access:', testPath);
-        
         const response = await fetch(testPath);
         if (!response.ok) {
             throw new Error(`Failed to load config.json: ${response.status}`);
         }
-        console.log('Successfully accessed config.json');
 
-        await AutomaticSpeechRecognitionPipeline.getInstance(x => {
-            console.log('Loading progress:', x);
-            self.postMessage(x);
+        // Model, tokenizer ve processor'ı yükle
+        await AutomaticSpeechRecognitionPipeline.getInstance(progress => {
+            self.postMessage(progress);
         });
 
-        console.log('Model loaded successfully, warming up...');
-        
+        // Model warm-up
+        console.log('Warming up model...');
         self.postMessage({
             status: 'loading',
             data: 'Compiling shaders and warming up model...'
@@ -119,80 +133,80 @@ async function load() {
         });
         
         isLoaded = true;
-        console.log('Warm-up complete');
+        console.log('Model ready');
         self.postMessage({ status: 'ready' });
     } catch (error) {
-        console.error('Error in load():', {
-            error: error.message,
-            stack: error.stack
-        });
+        console.error('Error loading model:', error);
         throw error;
     }
 }
 
+// Segment transkripsiyon işlemi
 let processing = false;
-async function generate({ audio, language, segmentId }) {
+async function transcribeSegment({ audioData, language, segmentId }) {
     if (processing) return;
     processing = true;
 
-    // Tell the main thread we are starting
-    self.postMessage({ status: 'start' });
+    try {
+        self.postMessage({ status: 'start' });
 
-    // Retrieve the text-generation pipeline.
-    const [tokenizer, processor, model] = await AutomaticSpeechRecognitionPipeline.getInstance();
+        const [tokenizer, processor, model] = await AutomaticSpeechRecognitionPipeline.getInstance();
 
-    let startTime;
-    let numTokens = 0;
-    const callback_function = (output) => {
-        startTime ??= performance.now();
-
-        let tps;
-        if (numTokens++ > 0) {
-            tps = numTokens / (performance.now() - startTime) * 1000;
+        let startTime;
+        let numTokens = 0;
+        const callback_function = (output) => {
+            startTime ??= performance.now();
+            let tps;
+            if (numTokens++ > 0) {
+                tps = numTokens / (performance.now() - startTime) * 1000;
+            }
+            self.postMessage({ status: 'update', output, tps, numTokens });
         }
-        self.postMessage({
-            status: 'update',
-            output, tps, numTokens,
+
+        const streamer = new TextStreamer(tokenizer, {
+            skip_prompt: true,
+            skip_special_tokens: true,
+            callback_function,
         });
+
+        const inputs = await processor(audioData);
+        const outputs = await model.generate({
+            ...inputs,
+            max_new_tokens: MAX_NEW_TOKENS,
+            language,
+            streamer,
+        });
+
+        const outputText = tokenizer.batch_decode(outputs, { skip_special_tokens: true });
+
+        self.postMessage({
+            status: 'complete',
+            output: outputText,
+            segmentId
+        });
+    } catch (error) {
+        console.error('Transcription error:', error);
+        self.postMessage({
+            status: 'error',
+            error: error.message,
+            segmentId
+        });
+    } finally {
+        processing = false;
     }
-
-    const streamer = new TextStreamer(tokenizer, {
-        skip_prompt: true,
-        skip_special_tokens: true,
-        callback_function,
-    });
-
-    const inputs = await processor(audio);
-
-    const outputs = await model.generate({
-        ...inputs,
-        max_new_tokens: MAX_NEW_TOKENS,
-        language,
-        streamer,
-    });
-
-    const outputText = tokenizer.batch_decode(outputs, { skip_special_tokens: true });
-
-    // Send the output back to the main thread with segmentId
-    self.postMessage({
-        status: 'complete',
-        output: outputText,
-        segmentId
-    });
-    processing = false;
 }
 
-// Listen for messages from the main thread
+// Message handler
 self.addEventListener('message', async (e) => {
     const { type, data } = e.data;
 
     switch (type) {
         case 'load':
-            load();
+            await load();
             break;
 
-        case 'generate':
-            generate(data);
+        case 'transcribe':
+            await transcribeSegment(data);
             break;
     }
 });

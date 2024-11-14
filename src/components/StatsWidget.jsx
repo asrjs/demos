@@ -6,45 +6,53 @@ export function StatsWidget({
     chunks, 
     audioContextRef,
     segments,
-    threshold 
+    threshold,
+    processor
 }) {
-    const [maxValue, setMaxValue] = useState(0);
+    const stats = processor?.getStats() || {
+        silence: { avgDuration: 0, avgEnergy: 0, avgEnergyIntegral: 0 },
+        speech: { avgDuration: 0, avgEnergy: 0, avgEnergyIntegral: 0 }
+    };
+
+    const [localStats, setLocalStats] = useState(stats);
     
     useEffect(() => {
-        if (!chunks.length) return;
-        const lastChunk = chunks[chunks.length - 1];
-        if (!lastChunk) return;
-        
-        // Calculate max value from the last chunk
-        const chunkMaxValue = Math.max(...Array.from(lastChunk).map(Math.abs));
-        setMaxValue(chunkMaxValue);
-    }, [chunks]);
+        const interval = setInterval(() => {
+            if (processor) {
+                setLocalStats(processor.getStats());
+            }
+        }, 100);
 
-    if (!audioContextRef?.current) return null;
-
-    const totalDuration = chunks.reduce((acc, chunk) => acc + chunk.length, 0) / audioContextRef.current.sampleRate;
-    const totalSegments = segments.length;
-    const processedSegments = segments.filter(s => s.isProcessed).length;
+        return () => clearInterval(interval);
+    }, [processor]);
 
     return (
-        <div className="mt-4 p-4 border rounded-lg space-y-2">
+        <div className="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
             <h3 className="font-semibold mb-2">Audio Stats</h3>
-            
-            {/* Add VU Meter at the top */}
-            <VUMeter value={maxValue} />
-            
-            <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <span className="font-medium">Duration:</span> {totalDuration.toFixed(1)}s
+                    <h4 className="font-medium">Silence Stats</h4>
+                    <p>Avg Duration: {localStats.silence.avgDuration.toFixed(2)}s</p>
+                    <p>Avg Energy: {localStats.silence.avgEnergy.toFixed(4)}</p>
+                    <p>Energy Integral: {localStats.silence.avgEnergyIntegral.toFixed(4)}</p>
                 </div>
                 <div>
-                    <span className="font-medium">Threshold:</span> {threshold.toFixed(3)}
+                    <h4 className="font-medium">Speech Stats</h4>
+                    <p>Avg Duration: {localStats.speech.avgDuration.toFixed(2)}s</p>
+                    <p>Avg Energy: {localStats.speech.avgEnergy.toFixed(4)}</p>
+                    <p>Energy Integral: {localStats.speech.avgEnergyIntegral.toFixed(4)}</p>
                 </div>
-                <div>
-                    <span className="font-medium">Segments:</span> {totalSegments}
-                </div>
-                <div>
-                    <span className="font-medium">Processed:</span> {processedSegments}
+                <div className="col-span-2">
+                    <div className="grid grid-cols-2 gap-2">
+                        <div>
+                            <p>Total Segments: {segments.length}</p>
+                            <p>Energy Threshold: {threshold.toFixed(4)}</p>
+                        </div>
+                        <div>
+                            <p>Buffer Duration: {(chunks.length * 1600 / 16000).toFixed(2)}s</p>
+                            <p>Sample Rate: {audioContextRef.current?.sampleRate || 16000}Hz</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

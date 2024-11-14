@@ -1,6 +1,7 @@
 import React from 'react';
+import { WaveFile } from 'wavefile';
 
-export function AudioSegmentsWidget({ segments }) {
+export function AudioSegmentsWidget({ segments, worker, language }) {
     const playSegment = async (segment) => {
         if (!segment.audioData || segment.audioData.length === 0) {
             console.error('Invalid segment audio data');
@@ -11,75 +12,100 @@ export function AudioSegmentsWidget({ segments }) {
             start: segment.startTime.toFixed(2),
             end: segment.endTime.toFixed(2),
             duration: segment.duration.toFixed(2),
-            expectedSamples: segment.samples,
-            actualSamples: segment.audioData.length,
+            samples: segment.audioData.length,
             sampleRate: segment.sampleRate
         });
 
-        const audioContext = new AudioContext();
-        const buffer = audioContext.createBuffer(1, segment.audioData.length, segment.sampleRate);
-        buffer.getChannelData(0).set(segment.audioData);
-        
-        const source = audioContext.createBufferSource();
-        source.buffer = buffer;
-        source.connect(audioContext.destination);
-        source.start();
+        try {
+            // Yeni bir WaveFile oluştur
+            const wav = new WaveFile();
+            
+            // Ses verisini ayarla
+            wav.fromScratch(1, // mono
+                segment.sampleRate,
+                '32f', // 32-bit float
+                segment.audioData
+            );
+
+            // 16-bit PCM'e dönüştür
+            wav.toBitDepth('16');
+
+            // WAV buffer'ını al
+            const wavBuffer = wav.toBuffer();
+
+            // AudioBuffer oluştur ve çal
+            const audioContext = new AudioContext();
+            const audioBuffer = await audioContext.decodeAudioData(wavBuffer.buffer);
+            
+            const source = audioContext.createBufferSource();
+            source.buffer = audioBuffer;
+            source.connect(audioContext.destination);
+            source.start();
+        } catch (error) {
+            console.error('Error playing segment:', error);
+        }
     };
 
     const downloadSegment = (segment, index) => {
-        // Use the actual segment audio data
-        const wavData = createWavFile(segment.audioData, segment.sampleRate);
-        
-        // Create and trigger download
-        const blob = new Blob([wavData], { type: 'audio/wav' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `segment_${index}_${segment.startTime.toFixed(2)}-${segment.endTime.toFixed(2)}.wav`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    };
+        try {
+            // Yeni bir WaveFile oluştur
+            const wav = new WaveFile();
+            
+            // Ses verisini ayarla
+            wav.fromScratch(1, // mono
+                segment.sampleRate,
+                '32f', // 32-bit float
+                segment.audioData
+            );
 
-    // Helper function to create WAV file
-    const createWavFile = (audioData, sampleRate) => {
-        const buffer = new ArrayBuffer(44 + audioData.length * 2);
-        const view = new DataView(buffer);
+            // 16-bit PCM'e dönüştür
+            wav.toBitDepth('16');
 
-        // Write WAV header
-        writeString(view, 0, 'RIFF');
-        view.setUint32(4, 36 + audioData.length * 2, true);
-        writeString(view, 8, 'WAVE');
-
-        // Write format chunk
-        writeString(view, 12, 'fmt ');
-        view.setUint32(16, 16, true);
-        view.setUint16(20, 1, true);
-        view.setUint16(22, 1, true);
-        view.setUint32(24, sampleRate, true);
-        view.setUint32(28, sampleRate * 2, true);
-        view.setUint16(32, 2, true);
-        view.setUint16(34, 16, true);
-
-        // Write data chunk
-        writeString(view, 36, 'data');
-        view.setUint32(40, audioData.length * 2, true);
-
-        // Write audio data
-        const volume = 0.8; // Increased volume slightly
-        let offset = 44;
-        for (let i = 0; i < audioData.length; i++) {
-            view.setInt16(offset, audioData[i] * 0x7FFF * volume, true);
-            offset += 2;
+            // WAV buffer'ını al
+            const wavBuffer = wav.toBuffer();
+            
+            // Download işlemi
+            const blob = new Blob([wavBuffer], { type: 'audio/wav' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `segment_${index}_${segment.startTime.toFixed(2)}-${segment.endTime.toFixed(2)}.wav`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error downloading segment:', error);
         }
-
-        return buffer;
     };
 
-    const writeString = (view, offset, string) => {
-        for (let i = 0; i < string.length; i++) {
-            view.setUint8(offset + i, string.charCodeAt(i));
+    // Segment'i transkripsiyon için worker'a gönder
+    const transcribeSegment = (segment, index) => {
+        if (!worker || !worker.postMessage) {
+            console.error('Worker not properly initialized', {
+                workerExists: !!worker,
+                hasPostMessage: !!(worker && worker.postMessage)
+            });
+            return;
+        }
+        
+        try {
+            console.log('Transcribing segment:', {
+                index,
+                duration: segment.duration,
+                samples: segment.audioData.length
+            });
+
+            worker.postMessage({
+                type: 'transcribe',
+                data: {
+                    audioData: segment.audioData,
+                    language: language || 'tr',
+                    segmentId: index
+                }
+            });
+        } catch (error) {
+            console.error('Error sending message to worker:', error);
         }
     };
 
@@ -91,6 +117,11 @@ export function AudioSegmentsWidget({ segments }) {
                     <div key={index} className="flex items-center space-x-4 p-2 bg-white dark:bg-gray-700 rounded">
                         <span className="text-sm">
                             {`Segment ${index + 1}: ${segment.startTime.toFixed(2)}s - ${segment.endTime.toFixed(2)}s (${(segment.endTime - segment.startTime).toFixed(2)}s)`}
+                            {segment.transcription && (
+                                <span className="ml-2 text-gray-600">
+                                    "{segment.transcription}"
+                                </span>
+                            )}
                         </span>
                         <button
                             onClick={() => playSegment(segment)}
@@ -103,6 +134,13 @@ export function AudioSegmentsWidget({ segments }) {
                             className="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600"
                         >
                             Download
+                        </button>
+                        <button
+                            onClick={() => transcribeSegment(segment, index)}
+                            className="px-2 py-1 bg-purple-500 text-white rounded hover:bg-purple-600"
+                            disabled={segment.isProcessed}
+                        >
+                            {segment.isProcessed ? 'Transcribed' : 'Transcribe'}
                         </button>
                     </div>
                 ))}

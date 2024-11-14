@@ -48,8 +48,8 @@ function App() {
   const [recording, setRecording] = useState(false);
 
   // Audio parameters state
-  const [audioThreshold, setAudioThreshold] = useState(0.02);
-  const [silenceLength, setSilenceLength] = useState(0.55);    // 8 * BASE_TIME_UNIT
+  const [audioThreshold, setAudioThreshold] = useState(0.1);
+  const [silenceLength, setSilenceLength] = useState(0.6);    // 8 * BASE_TIME_UNIT
   const [speechHangover, setSpeechHangover] = useState(0.2);
   const [energyScale, setEnergyScale] = useState(2.0);
   const [hysteresisRatio, setHysteresisRatio] = useState(1.2);
@@ -151,247 +151,126 @@ function App() {
     }
   };
 
-  // Process buffer periodically
+  // Process buffer useEffect'ini güncelle - sadece recording durumuna bağlı olsun
   useEffect(() => {
-    if (status === 'ready' && recording) {
-      console.log('Setting up process interval');
-      let lastProcessTime = 0;
-      
-      const processInterval = setInterval(async () => {
-        const currentTime = Date.now();
-        if (currentTime - lastProcessTime < PROCESS_INTERVAL) {
-          return;
-        }
+    if (recording) {
+        console.log('Setting up process interval');
+        let lastProcessTime = 0;
         
-        const currentChunks = chunksRef.current;
-        if (!currentChunks.length) return;
-
-        try {
-          // Get the last 30 seconds worth of samples
-          const samplesFor30Sec = 30 * audioContextRef.current.sampleRate;
-          const audioData = new Float32Array(samplesFor30Sec);
-          let writeOffset = audioData.length;
-
-          // Fill buffer from newest to oldest chunks
-          for (let i = currentChunks.length - 1; i >= 0 && writeOffset > 0; i--) {
-            const chunk = currentChunks[i];
-            if (!(chunk instanceof Float32Array)) continue;
-
-            const copySize = Math.min(writeOffset, chunk.length);
-            const startPos = chunk.length - copySize;
+        const processInterval = setInterval(async () => {
+            const currentTime = Date.now();
+            if (currentTime - lastProcessTime < PROCESS_INTERVAL) {
+                return;
+            }
             
-            audioData.set(
-              chunk.slice(startPos, startPos + copySize),
-              writeOffset - copySize
-            );
-            writeOffset -= copySize;
-          }
+            const currentChunks = chunksRef.current;
+            if (!currentChunks.length) return;
 
-          // Only process if we have significant audio
-          const maxValue = Math.max(...Array.from(audioData.slice(0, 1000)).map(Math.abs));
-          if (maxValue > 0.1) {
-            console.log('Processing high-volume audio:', {
-              maxValue: maxValue.toFixed(3),
-              time: currentTime
-            });
-            
-            // Process using AudioManager
-            await audioManager.processNewChunk(audioData);
-          }
+            try {
+                const samplesFor30Sec = 30 * audioContextRef.current.sampleRate;
+                const audioData = new Float32Array(samplesFor30Sec);
+                let writeOffset = audioData.length;
 
-          lastProcessTime = currentTime;
-        } catch (error) {
-          console.error('Error in process interval:', error);
-        }
-      }, PROCESS_INTERVAL);
+                for (let i = currentChunks.length - 1; i >= 0 && writeOffset > 0; i--) {
+                    const chunk = currentChunks[i];
+                    if (!(chunk instanceof Float32Array)) continue;
 
-      return () => clearInterval(processInterval);
+                    const copySize = Math.min(writeOffset, chunk.length);
+                    const startPos = chunk.length - copySize;
+                    
+                    audioData.set(
+                        chunk.slice(startPos, startPos + copySize),
+                        writeOffset - copySize
+                    );
+                    writeOffset -= copySize;
+                }
+
+                const maxValue = Math.max(...Array.from(audioData.slice(0, 1000)).map(Math.abs));
+                if (maxValue > 0.1) {
+                    await audioManager.processNewChunk(audioData);
+                }
+
+                lastProcessTime = currentTime;
+            } catch (error) {
+                console.error('Error in process interval:', error);
+            }
+        }, PROCESS_INTERVAL);
+
+        return () => clearInterval(processInterval);
     }
-  }, [status, recording]);
+  }, [recording]); // Sadece recording'e bağlı
 
-  // Initialize worker in useEffect
+  // Initialize worker and handle model loading - sadece model yükleme
   useEffect(() => {
     if (!worker.current) {
-      worker.current = new Worker(new URL('./worker.js', import.meta.url), {
-        type: 'module'
-      });
+        worker.current = new Worker(new URL('./worker.js', import.meta.url), {
+            type: 'module'
+        });
 
-      // Handle worker messages
-      const onMessageReceived = (e) => {
-        switch (e.data.status) {
-          case 'loading':
-            setStatus('loading');
-            setLoadingMessage(e.data.data);
-            break;
+        // Handle worker messages
+        const onMessageReceived = (e) => {
+            switch (e.data.status) {
+                case 'loading':
+                    setStatus('loading');
+                    setLoadingMessage(e.data.data);
+                    break;
 
-          case 'initiate':
-            setProgressItems(prev => [...prev, e.data]);
-            break;
+                case 'initiate':
+                    setProgressItems(prev => [...prev, e.data]);
+                    break;
 
-          case 'progress':
-            setProgressItems(
-              prev => prev.map(item => {
-                if (item.file === e.data.file) {
-                  return { ...item, ...e.data }
-                }
-                return item;
-              })
-            );
-            break;
+                case 'progress':
+                    setProgressItems(
+                        prev => prev.map(item => {
+                            if (item.file === e.data.file) {
+                                return { ...item, ...e.data }
+                            }
+                            return item;
+                        })
+                    );
+                    break;
 
-          case 'done':
-            setProgressItems(
-              prev => prev.filter(item => item.file !== e.data.file)
-            );
-            break;
+                case 'done':
+                    setProgressItems(
+                        prev => prev.filter(item => item.file !== e.data.file)
+                    );
+                    break;
 
-          case 'ready':
-            setStatus('ready');
-            if (recorderRef.current && recorderRef.current.state !== 'recording') {
-              try {
-                recorderRef.current.start();
-              } catch (error) {
-                console.error('Failed to start recording:', error);
-                setTimeout(() => {
-                  if (recorderRef.current && recorderRef.current.state !== 'recording') {
-                    recorderRef.current.start();
-                  }
-                }, 100);
-              }
+                case 'ready':
+                    setStatus('ready');
+                    break;
+
+                case 'start':
+                    setIsProcessing(true);
+                    break;
+
+                case 'update':
+                    setTps(e.data.tps);
+                    break;
+
+                case 'complete':
+                    setIsProcessing(false);
+                    setText(prev => prev + ' ' + e.data.output);
+                    if (e.data.segmentId !== undefined) {
+                        setSegments(prev => prev.map((seg, idx) => 
+                            idx === e.data.segmentId 
+                                ? { ...seg, isProcessed: true, transcription: e.data.output }
+                                : seg
+                        ));
+                    }
+                    break;
             }
-            break;
+        };
 
-          case 'start':
-            setIsProcessing(true);
-            recorderRef.current?.requestData();
-            break;
+        worker.current.addEventListener('message', onMessageReceived);
 
-          case 'update':
-            setTps(e.data.tps);
-            break;
-
-          case 'complete':
-            setIsProcessing(false);
-            setText(prev => prev + ' ' + e.data.output);
-            if (e.data.segmentId !== undefined) {
-              setSegments(prev => prev.map((seg, idx) => 
-                idx === e.data.segmentId 
-                  ? { ...seg, isProcessed: true, transcription: e.data.output }
-                  : seg
-              ));
-            }
-            break;
-        }
-
-        // Let TranscriptionManager handle transcription-related messages
-        transcriptionManagerRef.current?.handleWorkerMessage(e.data);
-      };
-
-      worker.current.addEventListener('message', onMessageReceived);
-
-      // Cleanup
-      return () => {
-        worker.current.removeEventListener('message', onMessageReceived);
-        worker.current.terminate();
-        worker.current = null;
-      };
+        return () => {
+            worker.current.removeEventListener('message', onMessageReceived);
+            worker.current.terminate();
+            worker.current = null;
+        };
     }
-  }, []); // Empty dependency array - only run once on mount
-
-  // Initialize MediaRecorder when model is ready
-  useEffect(() => {
-    if (status === 'ready' && !recorderRef.current) {
-        addLog('Initializing MediaRecorder - model is ready');
-
-        navigator.mediaDevices.getUserMedia({ audio: true })
-            .then(async stream => {
-                setStream(stream);
-                audioContextRef.current = new AudioContext({ sampleRate: WHISPER_SAMPLING_RATE });
-                
-                try {
-                    await audioContextRef.current.audioWorklet.addModule('src/audio-processor.js');
-                    const source = audioContextRef.current.createMediaStreamSource(stream);
-                    const workletNode = new AudioWorkletNode(audioContextRef.current, 'audio-processor', {
-                        numberOfInputs: 1,
-                        numberOfOutputs: 1,
-                        processorOptions: {
-                            sampleRate: WHISPER_SAMPLING_RATE
-                        }
-                    });
-
-                    // Create initial 30 seconds of silence
-                    const silenceDuration = 30; // seconds
-                    const silenceSamples = silenceDuration * WHISPER_SAMPLING_RATE;
-                    const initialSilence = new Float32Array(silenceSamples).fill(0);
-                    
-                    // Create custom recorder with initial silence
-                    recorderRef.current = {
-                        chunks: [initialSilence], // Start with 30 seconds of silence
-                        state: 'inactive',
-                        start: () => {
-                            console.log('Recorder start called, current state:', {
-                                state: recorderRef.current.state,
-                                recording,
-                                initialSilenceLength: initialSilence.length
-                            });
-                            recorderRef.current.state = 'recording';
-                            source.connect(workletNode);
-                            workletNode.connect(audioContextRef.current.destination);
-                            setRecording(true);
-                            // Initialize chunks with silence
-                            setChunks([initialSilence]);
-                            setSegments([]);
-                            setText('');
-                        },
-                        stop: () => {
-                            recorderRef.current.state = 'inactive';
-                            source.disconnect(workletNode);
-                            workletNode.disconnect();
-                            setRecording(false);
-                        }
-                    };
-
-                    // Handle raw PCM data from worklet
-                    workletNode.port.onmessage = (event) => {
-                        if (event.data.type === 'audio_data') {
-                            const chunk = event.data.audioData;
-                            setChunks(prev => [...prev, chunk]);
-                        }
-                    };
-
-                    addLog('AudioWorklet setup complete for raw PCM recording');
-                    
-                    // Start recording
-                    recorderRef.current.start();
-                    
-                } catch (error) {
-                    addLog('Failed to setup AudioWorklet: ' + error.message, 'error');
-                }
-            })
-            .catch(err => {
-                addLog(`Media access error: ${err.message}`, 'error');
-            });
-    }
-
-    return () => {
-        if (recorderRef.current?.state === 'recording') {
-            recorderRef.current.stop();
-        }
-        recorderRef.current = null;
-    };
-}, [status]);
-
-  // Separate effect to handle recording state when model becomes ready
-  useEffect(() => {
-    if (status === 'ready' && recorderRef.current && recorderRef.current.state !== 'recording') {
-        try {
-            recorderRef.current.start(250);
-            addLog('Started recording after model loaded');
-        } catch (error) {
-            addLog(`Failed to start recording: ${error.message}`, 'error');
-        }
-    }
-}, [status]); // Only depend on status
+}, []); // Empty dependency array - only run once on mount
 
   // Create addLog callback that uses the ref
   const addLog = useCallback((message, type = 'info') => {
@@ -712,6 +591,7 @@ function App() {
               audioContextRef={audioContextRef}
               segments={segments}
               threshold={audioThreshold}
+              processor={audioManager.processor}
             />
 
             {/* Language selection and reset */}
@@ -740,7 +620,11 @@ function App() {
 
         {/* Speech Segments Widget - Moved to bottom */}
         <div className="w-full max-w-[90vw] p-2 mt-auto">
-          <AudioSegmentsWidget segments={segments} />
+          <AudioSegmentsWidget 
+              segments={segments} 
+              worker={worker.current} 
+              language={language}
+          />
         </div>
       </div>
     </div>

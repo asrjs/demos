@@ -64,8 +64,8 @@ export function AudioVisualizer({
                         <label className="text-sm">Energy Threshold: {threshold.toFixed(3)}</label>
                         <input
                             type="range"
-                            min="0.001"
-                            max="0.1"
+                            min="0.005"
+                            max="0.25"
                             step="0.001"
                             value={threshold}
                             onChange={(e) => onThresholdChange(parseFloat(e.target.value))}

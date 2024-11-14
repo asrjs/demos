@@ -27,6 +27,10 @@ export class AudioManager {
         this.currentSegment = null;
         this.recordedChunks = [];
         
+        // Tüm ses verisini tutmak için
+        this.audioBuffer = new Float32Array(0);
+        this.lastProcessedTime = 0;
+        
         AudioManager.instance = this;
     }
 
@@ -78,16 +82,30 @@ export class AudioManager {
     processNewChunk(chunk, energy) {
         if (!chunk || !chunk.length) return;
 
+        // Yeni chunk'ı ana buffer'a ekle
+        const newBuffer = new Float32Array(this.audioBuffer.length + chunk.length);
+        newBuffer.set(this.audioBuffer);
+        newBuffer.set(chunk, this.audioBuffer.length);
+        this.audioBuffer = newBuffer;
+
         const currentTime = this.getCurrentTime();
         
         // Chunk'ı işle ve segment oluştur
-        const segments = this.processor.processAudioData(chunk, currentTime, energy);
+        const segments = this.processor.processAudioData(
+            chunk,              // anlık chunk
+            currentTime,        // zaman
+            energy,            // enerji
+            this.audioBuffer,  // tüm ses verisi
+            this.lastProcessedTime  // son işlenen zaman
+        );
         
         if (segments.length > 0) {
             segments.forEach(segment => {
                 this.notifyListeners('newSegment', segment);
             });
         }
+
+        this.lastProcessedTime = currentTime;
     }
 
     /**

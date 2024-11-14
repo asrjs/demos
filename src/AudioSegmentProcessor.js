@@ -6,13 +6,12 @@ export class AudioSegmentProcessor {
             sampleRate: 16000,
             windowSize: 1600,
             minSpeechDuration: 0.3,
-            silenceThreshold: 0.7,
-            chunksForSilence: 7,
+            silenceThreshold: 0.8,
             energyThreshold: 0.02,
             smaLength: 6,
             lookbackChunks: 3,
             overlapDuration: 0.2,
-            maxSilenceStats: 20,
+            maxHistoryLength: 10,
             logger: console.log,
             ...options
         };
@@ -26,16 +25,15 @@ export class AudioSegmentProcessor {
         }
     }
 
-    processAudioData(audioData, bufferStartTime, chunkEnergy) {
-        if (!audioData || !audioData.length) return [];
+    processAudioData(chunk, currentTime, energy, fullAudioBuffer, lastProcessedTime) {
+        if (!chunk || !chunk.length) return [];
 
         const segments = [];
-        const isSpeech = chunkEnergy > this.getAdaptiveThreshold();
+        const isSpeech = energy > this.options.energyThreshold;
 
         this.state.recentChunks.push({
-            time: bufferStartTime,
-            energy: chunkEnergy,
-            audio: audioData
+            time: currentTime,
+            energy: energy
         });
 
         if (this.state.recentChunks.length > this.options.lookbackChunks * 2) {
@@ -43,173 +41,145 @@ export class AudioSegmentProcessor {
         }
 
         if (!this.state.inSpeech && isSpeech) {
-            if (this.state.currentSilence) {
-                this.updateSilenceStats(this.state.currentSilence);
-            }
+            if (this.state.silenceStartTime !== null) {
+                const silenceDuration = currentTime - this.state.silenceStartTime;
+                const avgEnergy = this.state.silenceEnergies.reduce((a, b) => a + b, 0) / 
+                                this.state.silenceEnergies.length;
 
-            let lookbackIndex = this.state.recentChunks.length - 1;
-            let foundStart = false;
+                this.state.silenceStats.push({
+                    startTime: this.state.silenceStartTime,
+                    endTime: currentTime,
+                    duration: silenceDuration,
+                    avgEnergy: avgEnergy,
+                    energyIntegral: avgEnergy * silenceDuration
+                });
 
-            while (lookbackIndex >= 0 && !foundStart) {
-                const chunk = this.state.recentChunks[lookbackIndex];
-                if (chunk.energy <= this.getAdaptiveThreshold()) {
-                    foundStart = true;
-                    this.state.speechStartTime = chunk.time;
-                } else {
-                    lookbackIndex--;
+                if (this.state.silenceStats.length > this.options.maxHistoryLength) {
+                    this.state.silenceStats.shift();
                 }
             }
 
-            if (!foundStart) {
-                this.state.speechStartTime = bufferStartTime;
-            }
-
-            this.state.inSpeech = true;
-            this.state.silenceCounter = 0;
-            this.state.currentSilence = null;
-
-            this.log('Speech start', {
-                time: this.state.speechStartTime.toFixed(2),
-                energy: chunkEnergy,
-                lookback: bufferStartTime - this.state.speechStartTime,
-                adaptiveThreshold: this.getAdaptiveThreshold()
-            });
+            this.startSpeech(currentTime, energy);
         } else if (this.state.inSpeech && !isSpeech) {
             this.state.silenceCounter++;
             
-            if (!this.state.currentSilence) {
-                this.state.currentSilence = {
-                    startTime: bufferStartTime,
-                    energies: [],
-                    duration: 0
-                };
-            }
-            
-            this.state.currentSilence.energies.push(chunkEnergy);
-            this.state.currentSilence.duration = 
-                bufferStartTime - this.state.currentSilence.startTime;
+            if (this.state.silenceCounter >= (this.options.silenceThreshold * 10)) {
+                if (this.state.speechStartTime !== null) {
+                    const speechDuration = currentTime - this.state.speechStartTime;
+                    const avgEnergy = this.state.speechEnergies.reduce((a, b) => a + b, 0) / 
+                                    this.state.speechEnergies.length;
 
-            if (this.state.silenceCounter >= this.options.chunksForSilence) {
-                const duration = bufferStartTime - this.state.speechStartTime;
-                
-                if (duration >= this.options.minSpeechDuration) {
-                    const segment = this.createSegment(
-                        this.state.speechStartTime,
-                        bufferStartTime,
-                        this.state.recentChunks
-                    );
+                    this.state.speechStats.push({
+                        startTime: this.state.speechStartTime,
+                        endTime: currentTime,
+                        duration: speechDuration,
+                        avgEnergy: avgEnergy,
+                        energyIntegral: avgEnergy * speechDuration
+                    });
 
-                    if (segment) {
-                        segments.push(segment);
-                        this.log('Speech segment created', {
-                            start: segment.startTime.toFixed(2),
-                            end: segment.endTime.toFixed(2),
-                            duration: segment.duration.toFixed(2),
-                            silenceStats: this.getSilenceStats()
-                        });
+                    if (this.state.speechStats.length > this.options.maxHistoryLength) {
+                        this.state.speechStats.shift();
                     }
                 }
 
-                this.state.inSpeech = false;
-                this.state.speechStartTime = null;
-                this.state.silenceCounter = 0;
+                const segment = this.createSegment(
+                    this.state.speechStartTime,
+                    currentTime,
+                    fullAudioBuffer,
+                    this.options.sampleRate
+                );
+
+                if (segment) {
+                    segments.push(segment);
+                }
+
+                this.startSilence(currentTime);
             }
-        } else if (this.state.inSpeech && isSpeech) {
-            this.state.silenceCounter = 0;
-            this.state.currentSilence = null;
+        } else {
+            if (this.state.inSpeech) {
+                this.state.speechEnergies.push(energy);
+            } else {
+                this.state.silenceEnergies.push(energy);
+            }
         }
+
+        this.updateStats();
 
         return segments;
     }
 
-    updateSilenceStats(silence) {
-        this.state.silenceStats.push({
-            duration: silence.duration,
-            avgEnergy: silence.energies.reduce((a, b) => a + b, 0) / silence.energies.length,
-            timestamp: Date.now()
-        });
-
-        if (this.state.silenceStats.length > this.options.maxSilenceStats) {
-            this.state.silenceStats.shift();
-        }
-
-        this.log('Silence stats updated', {
-            stats: this.getSilenceStats(),
-            currentSilence: silence
-        });
+    startSpeech(time, energy) {
+        this.state.inSpeech = true;
+        this.state.speechStartTime = time;
+        this.state.silenceCounter = 0;
+        this.state.speechEnergies = [energy];
+        this.state.silenceStartTime = null;
     }
 
-    getSilenceStats() {
-        if (this.state.silenceStats.length === 0) return null;
+    startSilence(time) {
+        this.state.inSpeech = false;
+        this.state.silenceStartTime = time;
+        this.state.speechStartTime = null;
+        this.state.silenceCounter = 0;
+        this.state.silenceEnergies = [];
+    }
 
+    updateStats() {
         const stats = {
-            avgDuration: 0,
-            avgEnergy: 0,
-            minDuration: Infinity,
-            maxDuration: 0,
-            count: this.state.silenceStats.length
+            silence: {
+                avgDuration: 0,
+                avgEnergy: 0,
+                avgEnergyIntegral: 0
+            },
+            speech: {
+                avgDuration: 0,
+                avgEnergy: 0,
+                avgEnergyIntegral: 0
+            }
         };
 
-        this.state.silenceStats.forEach(s => {
-            stats.avgDuration += s.duration;
-            stats.avgEnergy += s.avgEnergy;
-            stats.minDuration = Math.min(stats.minDuration, s.duration);
-            stats.maxDuration = Math.max(stats.maxDuration, s.duration);
-        });
-
-        stats.avgDuration /= stats.count;
-        stats.avgEnergy /= stats.count;
-
-        return stats;
-    }
-
-    getAdaptiveThreshold() {
-        const stats = this.getSilenceStats();
-        if (!stats || stats.count < 3) {
-            return this.options.energyThreshold;
+        if (this.state.silenceStats.length > 0) {
+            stats.silence = {
+                avgDuration: this.average(this.state.silenceStats.map(s => s.duration)),
+                avgEnergy: this.average(this.state.silenceStats.map(s => s.avgEnergy)),
+                avgEnergyIntegral: this.average(this.state.silenceStats.map(s => s.energyIntegral))
+            };
         }
 
-        return stats.avgEnergy * 1.5;
+        if (this.state.speechStats.length > 0) {
+            stats.speech = {
+                avgDuration: this.average(this.state.speechStats.map(s => s.duration)),
+                avgEnergy: this.average(this.state.speechStats.map(s => s.avgEnergy)),
+                avgEnergyIntegral: this.average(this.state.speechStats.map(s => s.energyIntegral))
+            };
+        }
+
+        this.state.currentStats = stats;
     }
 
-    createSegment(startTime, endTime, chunks) {
-        const relevantChunks = chunks.filter(chunk => 
-            chunk.time >= startTime - this.options.overlapDuration && 
-            chunk.time <= endTime
-        );
+    average(arr) {
+        return arr.reduce((a, b) => a + b, 0) / arr.length;
+    }
 
-        if (relevantChunks.length === 0) return null;
-
-        const totalSamples = relevantChunks.reduce((sum, chunk) => 
-            sum + chunk.audio.length, 0
-        );
-
-        const combinedAudio = new Float32Array(totalSamples);
-        let offset = 0;
-
-        relevantChunks.forEach(chunk => {
-            combinedAudio.set(chunk.audio, offset);
-            offset += chunk.audio.length;
-        });
-
-        return {
-            startTime: startTime - this.options.overlapDuration,
-            endTime: endTime,
-            audioData: combinedAudio,
-            sampleRate: this.options.sampleRate,
-            duration: endTime - startTime + this.options.overlapDuration
-        };
+    getStats() {
+        return this.state.currentStats;
     }
 
     reset() {
         this.state = {
             inSpeech: false,
             speechStartTime: null,
+            silenceStartTime: null,
             silenceCounter: 0,
             recentChunks: [],
+            speechEnergies: [],
+            silenceEnergies: [],
+            speechStats: [],
             silenceStats: [],
-            currentSilence: null,
-            energyValues: []
+            currentStats: {
+                silence: { avgDuration: 0, avgEnergy: 0, avgEnergyIntegral: 0 },
+                speech: { avgDuration: 0, avgEnergy: 0, avgEnergyIntegral: 0 }
+            }
         };
     }
 
@@ -219,5 +189,60 @@ export class AudioSegmentProcessor {
 
     setSilenceLength(length) {
         this.options.silenceThreshold = length;
+    }
+
+    createSegment(startTime, endTime, fullAudioBuffer, sampleRate) {
+        const startSample = Math.floor(startTime * sampleRate);
+        const endSample = Math.floor(endTime * sampleRate);
+        
+        const overlapSamples = Math.floor(this.options.overlapDuration * sampleRate);
+        const segmentStartSample = Math.max(0, startSample - overlapSamples);
+        
+        if (segmentStartSample >= fullAudioBuffer.length || endSample <= 0) {
+            this.log('Invalid segment boundaries', {
+                start: startTime,
+                end: endTime,
+                startSample,
+                endSample,
+                bufferLength: fullAudioBuffer.length
+            });
+            return null;
+        }
+
+        const segmentLength = endSample - segmentStartSample;
+        
+        if (segmentLength <= 0) {
+            this.log('Invalid segment length', {
+                length: segmentLength,
+                start: startTime,
+                end: endTime
+            });
+            return null;
+        }
+
+        const segmentAudio = new Float32Array(segmentLength);
+        segmentAudio.set(
+            fullAudioBuffer.slice(segmentStartSample, endSample)
+        );
+
+        const segment = new SpeechSegment({
+            startTime: startTime - this.options.overlapDuration,
+            endTime: endTime,
+            audioData: segmentAudio,
+            sampleRate: sampleRate,
+            energy: this.state.speechEnergies.reduce((a, b) => a + b, 0) / 
+                    this.state.speechEnergies.length
+        });
+
+        this.log('Created segment', {
+            start: segment.startTime.toFixed(2),
+            end: segment.endTime.toFixed(2),
+            duration: (segment.endTime - segment.startTime).toFixed(2),
+            samples: segmentLength,
+            startSample: segmentStartSample,
+            endSample: endSample
+        });
+
+        return segment;
     }
 } 
