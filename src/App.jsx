@@ -49,7 +49,7 @@ function App() {
 
   // Audio parameters state
   const [audioThreshold, setAudioThreshold] = useState(0.02);
-  const [silenceLength, setSilenceLength] = useState(0.8);    // 8 * BASE_TIME_UNIT
+  const [silenceLength, setSilenceLength] = useState(0.55);    // 8 * BASE_TIME_UNIT
   const [speechHangover, setSpeechHangover] = useState(0.2);
   const [energyScale, setEnergyScale] = useState(2.0);
   const [hysteresisRatio, setHysteresisRatio] = useState(1.2);

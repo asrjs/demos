@@ -6,11 +6,13 @@ export class AudioSegmentProcessor {
             sampleRate: 16000,
             windowSize: 1600,
             minSpeechDuration: 0.3,
-            silenceThreshold: 0.8,
+            silenceThreshold: 0.7,
+            chunksForSilence: 7,
             energyThreshold: 0.02,
             smaLength: 6,
             lookbackChunks: 3,
             overlapDuration: 0.2,
+            maxSilenceStats: 20,
             logger: console.log,
             ...options
         };
@@ -28,7 +30,7 @@ export class AudioSegmentProcessor {
         if (!audioData || !audioData.length) return [];
 
         const segments = [];
-        const isSpeech = chunkEnergy > this.options.energyThreshold;
+        const isSpeech = chunkEnergy > this.getAdaptiveThreshold();
 
         this.state.recentChunks.push({
             time: bufferStartTime,
@@ -41,12 +43,16 @@ export class AudioSegmentProcessor {
         }
 
         if (!this.state.inSpeech && isSpeech) {
+            if (this.state.currentSilence) {
+                this.updateSilenceStats(this.state.currentSilence);
+            }
+
             let lookbackIndex = this.state.recentChunks.length - 1;
             let foundStart = false;
 
             while (lookbackIndex >= 0 && !foundStart) {
                 const chunk = this.state.recentChunks[lookbackIndex];
-                if (chunk.energy <= this.options.energyThreshold) {
+                if (chunk.energy <= this.getAdaptiveThreshold()) {
                     foundStart = true;
                     this.state.speechStartTime = chunk.time;
                 } else {
@@ -60,16 +66,30 @@ export class AudioSegmentProcessor {
 
             this.state.inSpeech = true;
             this.state.silenceCounter = 0;
-            
+            this.state.currentSilence = null;
+
             this.log('Speech start', {
                 time: this.state.speechStartTime.toFixed(2),
                 energy: chunkEnergy,
-                lookback: bufferStartTime - this.state.speechStartTime
+                lookback: bufferStartTime - this.state.speechStartTime,
+                adaptiveThreshold: this.getAdaptiveThreshold()
             });
         } else if (this.state.inSpeech && !isSpeech) {
             this.state.silenceCounter++;
             
-            if (this.state.silenceCounter >= (this.options.silenceThreshold * 10)) {
+            if (!this.state.currentSilence) {
+                this.state.currentSilence = {
+                    startTime: bufferStartTime,
+                    energies: [],
+                    duration: 0
+                };
+            }
+            
+            this.state.currentSilence.energies.push(chunkEnergy);
+            this.state.currentSilence.duration = 
+                bufferStartTime - this.state.currentSilence.startTime;
+
+            if (this.state.silenceCounter >= this.options.chunksForSilence) {
                 const duration = bufferStartTime - this.state.speechStartTime;
                 
                 if (duration >= this.options.minSpeechDuration) {
@@ -84,7 +104,8 @@ export class AudioSegmentProcessor {
                         this.log('Speech segment created', {
                             start: segment.startTime.toFixed(2),
                             end: segment.endTime.toFixed(2),
-                            duration: segment.duration.toFixed(2)
+                            duration: segment.duration.toFixed(2),
+                            silenceStats: this.getSilenceStats()
                         });
                     }
                 }
@@ -95,9 +116,60 @@ export class AudioSegmentProcessor {
             }
         } else if (this.state.inSpeech && isSpeech) {
             this.state.silenceCounter = 0;
+            this.state.currentSilence = null;
         }
 
         return segments;
+    }
+
+    updateSilenceStats(silence) {
+        this.state.silenceStats.push({
+            duration: silence.duration,
+            avgEnergy: silence.energies.reduce((a, b) => a + b, 0) / silence.energies.length,
+            timestamp: Date.now()
+        });
+
+        if (this.state.silenceStats.length > this.options.maxSilenceStats) {
+            this.state.silenceStats.shift();
+        }
+
+        this.log('Silence stats updated', {
+            stats: this.getSilenceStats(),
+            currentSilence: silence
+        });
+    }
+
+    getSilenceStats() {
+        if (this.state.silenceStats.length === 0) return null;
+
+        const stats = {
+            avgDuration: 0,
+            avgEnergy: 0,
+            minDuration: Infinity,
+            maxDuration: 0,
+            count: this.state.silenceStats.length
+        };
+
+        this.state.silenceStats.forEach(s => {
+            stats.avgDuration += s.duration;
+            stats.avgEnergy += s.avgEnergy;
+            stats.minDuration = Math.min(stats.minDuration, s.duration);
+            stats.maxDuration = Math.max(stats.maxDuration, s.duration);
+        });
+
+        stats.avgDuration /= stats.count;
+        stats.avgEnergy /= stats.count;
+
+        return stats;
+    }
+
+    getAdaptiveThreshold() {
+        const stats = this.getSilenceStats();
+        if (!stats || stats.count < 3) {
+            return this.options.energyThreshold;
+        }
+
+        return stats.avgEnergy * 1.5;
     }
 
     createSegment(startTime, endTime, chunks) {
@@ -135,6 +207,8 @@ export class AudioSegmentProcessor {
             speechStartTime: null,
             silenceCounter: 0,
             recentChunks: [],
+            silenceStats: [],
+            currentSilence: null,
             energyValues: []
         };
     }
