@@ -12,7 +12,7 @@ env.allowLocalModels = true;
 env.allowRemoteModels = false;
 env.localModelPath = '/models';
 
-const MAX_NEW_TOKENS = 64;
+const MAX_NEW_TOKENS = 96;
 
 // Simplify progress logging
 function shouldLogProgress(progress) {
@@ -31,7 +31,7 @@ class AutomaticSpeechRecognitionPipeline {
             return Promise.all([this.tokenizer, this.processor, this.model]);
         }
 
-        this.model_id = 'base-dsntt1-tr';
+        this.model_id = 'small-dsntt1-tr';
         
         console.log('Loading model...');
 
@@ -108,7 +108,7 @@ async function load() {
 
     try {
         // Model dosyalarını kontrol et
-        const testPath = `${env.localModelPath}/base-dsntt1-tr/config.json`;
+        const testPath = `${env.localModelPath}/small-dsntt1-tr/config.json`;
         const response = await fetch(testPath);
         if (!response.ok) {
             throw new Error(`Failed to load config.json: ${response.status}`);

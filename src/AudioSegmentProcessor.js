@@ -33,33 +33,27 @@ export class AudioSegmentProcessor {
 
         this.state.recentChunks.push({
             time: currentTime,
-            energy: energy
+            energy: energy,
+            isSpeech: isSpeech
         });
 
-        if (this.state.recentChunks.length > this.options.lookbackChunks * 2) {
+        if (this.state.recentChunks.length > 10) {
             this.state.recentChunks.shift();
         }
 
         if (!this.state.inSpeech && isSpeech) {
-            if (this.state.silenceStartTime !== null) {
-                const silenceDuration = currentTime - this.state.silenceStartTime;
-                const avgEnergy = this.state.silenceEnergies.reduce((a, b) => a + b, 0) / 
-                                this.state.silenceEnergies.length;
+            let realStartIndex = this.findSpeechStart();
+            let realStartTime = realStartIndex !== -1 
+                ? this.state.recentChunks[realStartIndex].time 
+                : currentTime;
 
-                this.state.silenceStats.push({
-                    startTime: this.state.silenceStartTime,
-                    endTime: currentTime,
-                    duration: silenceDuration,
-                    avgEnergy: avgEnergy,
-                    energyIntegral: avgEnergy * silenceDuration
-                });
-
-                if (this.state.silenceStats.length > this.options.maxHistoryLength) {
-                    this.state.silenceStats.shift();
-                }
-            }
-
-            this.startSpeech(currentTime, energy);
+            this.startSpeech(realStartTime, energy);
+            
+            this.log('Speech start detected', {
+                detectedAt: currentTime.toFixed(2),
+                actualStart: realStartTime.toFixed(2),
+                lookbackDiff: (currentTime - realStartTime).toFixed(2)
+            });
         } else if (this.state.inSpeech && !isSpeech) {
             this.state.silenceCounter++;
             
@@ -192,24 +186,32 @@ export class AudioSegmentProcessor {
     }
 
     createSegment(startTime, endTime, fullAudioBuffer, sampleRate) {
+        const lookbackDuration = 0.5;  // 500ms lookback
+        const overlapDuration = 0.3;   // 300ms overlap
+        
+        const lookbackSamples = Math.floor(lookbackDuration * sampleRate);
+        const overlapSamples = Math.floor(overlapDuration * sampleRate);
+        
         const startSample = Math.floor(startTime * sampleRate);
         const endSample = Math.floor(endTime * sampleRate);
         
-        const overlapSamples = Math.floor(this.options.overlapDuration * sampleRate);
-        const segmentStartSample = Math.max(0, startSample - overlapSamples);
+        const segmentStartSample = Math.max(0, startSample - lookbackSamples);
+        const segmentEndSample = Math.min(fullAudioBuffer.length, endSample + overlapSamples);
         
-        if (segmentStartSample >= fullAudioBuffer.length || endSample <= 0) {
+        if (segmentStartSample >= fullAudioBuffer.length || segmentEndSample <= 0) {
             this.log('Invalid segment boundaries', {
                 start: startTime,
                 end: endTime,
-                startSample,
-                endSample,
-                bufferLength: fullAudioBuffer.length
+                startSample: segmentStartSample,
+                endSample: segmentEndSample,
+                bufferLength: fullAudioBuffer.length,
+                lookback: lookbackDuration,
+                overlap: overlapDuration
             });
             return null;
         }
 
-        const segmentLength = endSample - segmentStartSample;
+        const segmentLength = segmentEndSample - segmentStartSample;
         
         if (segmentLength <= 0) {
             this.log('Invalid segment length', {
@@ -222,12 +224,12 @@ export class AudioSegmentProcessor {
 
         const segmentAudio = new Float32Array(segmentLength);
         segmentAudio.set(
-            fullAudioBuffer.slice(segmentStartSample, endSample)
+            fullAudioBuffer.slice(segmentStartSample, segmentEndSample)
         );
 
         const segment = new SpeechSegment({
-            startTime: startTime - this.options.overlapDuration,
-            endTime: endTime,
+            startTime: startTime - lookbackDuration,  // Başlangıç zamanını lookback kadar geri al
+            endTime: endTime + overlapDuration,       // Bitiş zamanını overlap kadar ileri al
             audioData: segmentAudio,
             sampleRate: sampleRate,
             energy: this.state.speechEnergies.reduce((a, b) => a + b, 0) / 
@@ -235,14 +237,36 @@ export class AudioSegmentProcessor {
         });
 
         this.log('Created segment', {
-            start: segment.startTime.toFixed(2),
-            end: segment.endTime.toFixed(2),
+            originalStart: startTime.toFixed(2),
+            originalEnd: endTime.toFixed(2),
+            finalStart: segment.startTime.toFixed(2),
+            finalEnd: segment.endTime.toFixed(2),
             duration: (segment.endTime - segment.startTime).toFixed(2),
             samples: segmentLength,
-            startSample: segmentStartSample,
-            endSample: endSample
+            lookbackSamples,
+            overlapSamples
         });
 
         return segment;
+    }
+
+    findSpeechStart() {
+        const chunks = this.state.recentChunks;
+        let startIndex = chunks.length - 1;
+        
+        while (startIndex >= 0) {
+            if (!chunks[startIndex].isSpeech) {
+                let silentCount = 0;
+                while (startIndex >= 0 && !chunks[startIndex].isSpeech) {
+                    silentCount++;
+                    startIndex--;
+                }
+                if (silentCount >= 3) {
+                    return startIndex + 1;
+                }
+            }
+            startIndex--;
+        }
+        return 0;
     }
 } 
