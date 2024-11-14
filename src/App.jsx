@@ -115,12 +115,6 @@ function App() {
         workletNode.port.onmessage = (event) => {
             if (event.data.type === 'audio_data') {
                 const chunk = event.data.audioData;
-                const maxValue = Math.max(...Array.from(chunk).map(Math.abs));
-                if (maxValue > 0.1) {
-                    console.log('Significant audio detected:', {
-                        maxValue: maxValue.toFixed(3)
-                    });
-                }
                 setChunks(prev => [...prev, chunk]);
                 audioManager.processNewChunk(chunk);
             }
@@ -354,13 +348,6 @@ function App() {
                     workletNode.port.onmessage = (event) => {
                         if (event.data.type === 'audio_data') {
                             const chunk = event.data.audioData;
-                            // Only log if significant audio is detected
-                            const maxValue = Math.max(...Array.from(chunk).map(Math.abs));
-                            if (maxValue > 0.1) { // Only log louder sounds
-                                console.log('Significant audio detected:', {
-                                    maxValue: maxValue.toFixed(3)
-                                });
-                            }
                             setChunks(prev => [...prev, chunk]);
                         }
                     };
@@ -562,14 +549,6 @@ function App() {
   useEffect(() => {
       if (recorderRef.current) {
           recorderRef.current.ondataavailable = (e) => {
-              // Only log if significant audio is detected
-              const chunk = e.data;
-              const maxValue = Math.max(...Array.from(chunk).map(Math.abs));
-              if (maxValue > 0.1) { // Only log louder sounds
-                  console.log('Significant audio detected:', {
-                      maxValue: maxValue.toFixed(3)
-                  });
-              }
               if (e.data.size > 0) {
                   setChunks(prev => [...prev, e.data]);
               }

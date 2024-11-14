@@ -28,7 +28,7 @@ export class AudioManager {
         
         this.parameters = {
             threshold: 0.02,
-            silenceLength: 0.3,
+            silenceLength: 0.2,
             speechHangover: 0.2,
             energyScale: 2.0,
             hysteresisRatio: 1.2,
@@ -38,8 +38,12 @@ export class AudioManager {
         // Add better tracking for processed audio
         this.lastProcessedSampleIndex = 0;
         this.processedSegments = new Set(); // Track unique segments
-        this.processingInterval = 1000; // Process every 1 second instead of every chunk
+        this.processingInterval = 250; // Process every 1 second instead of every chunk
         this.lastProcessTime = 0;
+        
+        // Add tracking for last processed position
+        this.lastProcessedTime = 0;
+        this.processedSegments = new Set(); // Track processed segments
         
         AudioManager.instance = this;
     }
@@ -356,44 +360,82 @@ export class AudioManager {
         this.lastProcessTime = currentTime;
 
         try {
-            // Calculate buffer positions
-            const totalSamples = this.audioBuffer.length;
             const sampleRate = this.audioContext.sampleRate;
+            const totalSamples = this.audioBuffer.length;
             const currentBufferTime = totalSamples / sampleRate;
             
-            // Process last 30 seconds with 2-second overlap
-            const windowSize = 30 * sampleRate;
-            const overlapSize = 2 * sampleRate;
-            const startIndex = Math.max(0, totalSamples - windowSize);
+            // Find start position based on last processed segment
+            let startTime = this.lastProcessedTime;
             
-            // Ensure we don't reprocess the same audio
-            if (startIndex >= this.lastProcessedSampleIndex - overlapSize) {
+            // Add overlap to catch segments that might start before the last processed time
+            const overlapSeconds = 0.5; // 500ms overlap
+            startTime = Math.max(0, startTime - overlapSeconds);
+            
+            // Convert time to samples
+            const startIndex = Math.floor(startTime * sampleRate);
+            
+            // Process in smaller windows to avoid missing segments
+            const windowSize = 2 * sampleRate; // 2 second windows
+            const overlap = 0.5 * sampleRate; // 500ms overlap between windows
+            
+            if (startIndex < totalSamples) {
                 const audioToProcess = this.audioBuffer.slice(startIndex);
-                const bufferStartTime = startIndex / sampleRate;
+                let processedLength = 0;
                 
-                console.log('Processing window:', {
-                    totalDuration: currentBufferTime.toFixed(2),
-                    windowStart: bufferStartTime.toFixed(2),
-                    windowDuration: (audioToProcess.length / sampleRate).toFixed(2),
-                    lastProcessed: (this.lastProcessedSampleIndex / sampleRate).toFixed(2),
-                    samplesProcessed: audioToProcess.length
-                });
+                // Process audio in smaller windows
+                while (processedLength < audioToProcess.length) {
+                    const windowStart = processedLength;
+                    const windowEnd = Math.min(windowStart + windowSize, audioToProcess.length);
+                    const windowAudio = audioToProcess.slice(windowStart, windowEnd);
+                    
+                    const windowStartTime = startTime + (windowStart / sampleRate);
+                    
+                    console.log('Processing window:', {
+                        windowStartTime: windowStartTime.toFixed(2),
+                        windowDuration: (windowAudio.length / sampleRate).toFixed(2),
+                        samples: windowAudio.length
+                    });
 
-                // Process the audio window
-                await this.processAudioBuffer({
-                    getChannelData: () => audioToProcess,
-                    sampleRate: sampleRate,
-                    length: audioToProcess.length,
-                    startTime: bufferStartTime,
-                    currentTime: currentBufferTime
-                }, bufferStartTime);
-                
-                // Update last processed position
-                this.lastProcessedSampleIndex = startIndex + audioToProcess.length - overlapSize;
+                    // Process the window
+                    const newSegments = await this.processAudioBuffer({
+                        getChannelData: () => windowAudio,
+                        sampleRate: sampleRate,
+                        length: windowAudio.length
+                    }, windowStartTime);
+
+                    // Move to next window with overlap
+                    processedLength += (windowSize - overlap);
+                    
+                    // Update last processed time, accounting for the overlap in the next window
+                    this.lastProcessedTime = windowStartTime + (windowAudio.length / sampleRate) - (overlap / sampleRate);
+                }
+
+                console.log('Finished processing chunk:', {
+                    startTime: startTime.toFixed(2),
+                    endTime: this.lastProcessedTime.toFixed(2),
+                    duration: ((totalSamples - startIndex) / sampleRate).toFixed(2)
+                });
             }
         } catch (error) {
             console.error('Error in processNewChunk:', error);
         }
+    }
+
+    /**
+     * Check if a segment overlaps with processed segments
+     * @param {Object} segment - Speech segment to check
+     * @param {number} tolerance - Tolerance for overlap in seconds
+     * @returns {boolean} True if the segment is processed, false otherwise
+     */
+    isSegmentProcessed(segment, tolerance = 0.1) {
+        const segmentKey = `${segment.startTime.toFixed(3)}-${segment.endTime.toFixed(3)}`;
+        
+        // Check for duplicates with tolerance
+        return Array.from(this.processedSegments).some(key => {
+            const [existingStart, existingEnd] = key.split('-').map(Number);
+            return !(segment.endTime + tolerance < existingStart || 
+                    segment.startTime - tolerance > existingEnd);
+        });
     }
 }
 

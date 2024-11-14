@@ -5,11 +5,11 @@ export class AudioSegmentProcessor {
         this.options = {
             sampleRate: 16000,
             windowSize: 256,
-            minSpeechDuration: 0.1,
+            minSpeechDuration: 0.3,
             minSilenceBetween: 0.3,
             energyThreshold: 0.02,
             energyScale: 2,
-            speechHangover: 0.2,
+            speechHangover: 0.3,
             hysteresisRatio: 1.2,
             movingAverageWindow: 10,
             logger: console.log,
@@ -54,9 +54,8 @@ export class AudioSegmentProcessor {
             this.log("📊 Audio processing summary:", {
                 segmentsCreated: segments.length,
                 maxEnergy: maxEnergy.toFixed(5),
-                threshold: this.options.energyThreshold,
-                averageEnergy: this.state.energyAverage?.toFixed(5) || 0,
-                bufferStartTime: bufferStartTime.toFixed(2)
+                startTime: bufferStartTime.toFixed(2),
+                endTime: (bufferStartTime + audioData.length / this.options.sampleRate).toFixed(2)
             });
         }
 

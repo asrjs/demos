@@ -1,4 +1,5 @@
 import { useRef, useEffect, useCallback } from "react";
+import { audioManager } from "../AudioManager";
 
 export function BufferVisualizer({ chunks, audioContextRef, segments = [], energyValues }) {
     const canvasRef = useRef(null);
@@ -38,7 +39,7 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], energ
             if (normalizedStart <= visibleDuration && normalizedEnd >= 0) {
                 ctx.fillStyle = segment.isProcessed 
                     ? 'rgba(0, 200, 0, 0.1)'
-                    : 'rgba(0, 100, 200, 0.1)';
+                    : 'rgba(255, 200, 0, 0.1)';
                 ctx.fillRect(startX, 0, endX - startX, canvas.height);
 
                 ctx.strokeStyle = 'rgba(0, 100, 200, 0.5)';
@@ -55,6 +56,23 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], energ
                 ctx.fillText(`${segment.endTime.toFixed(1)}s`, endX - 40, 10);
             }
         });
+
+        if (audioManager.lastProcessedTime > 0) {
+            const normalizedProcessedTime = isBufferFull 
+                ? (audioManager.lastProcessedTime - windowStart)
+                : audioManager.lastProcessedTime;
+                
+            if (normalizedProcessedTime >= 0 && normalizedProcessedTime <= visibleDuration) {
+                const processedX = (normalizedProcessedTime / visibleDuration) * canvas.width;
+                ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.moveTo(processedX, 0);
+                ctx.lineTo(processedX, canvas.height);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+        }
     }, []);
 
     const drawWaveform = useCallback((ctx, audioData, canvas, totalDuration) => {

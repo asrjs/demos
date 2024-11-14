@@ -1,0 +1,2 @@
+Speech segment detection stops working after a while eg. after 90-120 seconds of auido buffer. Even "Significant audio detected:" signals stops.
+Check for possible issues in segment processing workflow.
