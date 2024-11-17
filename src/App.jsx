@@ -1,3 +1,5 @@
+// import { scan } from 'react-scan'; // import this BEFORE react
+
 import { useEffect, useState, useRef, useCallback } from 'react';
 
 import { AudioVisualizer } from './components/AudioVisualizer';
@@ -7,6 +9,12 @@ import { SpeechSegment } from './SpeechSegment';
 import { AudioSegmentProcessor } from './AudioSegmentProcessor';
 import { AudioManager, audioManager } from './AudioManager';
 import { AudioSegmentsWidget } from './components/AudioSegmentsWidget';
+
+// scan({
+//   enabled: true,
+//   log: true, // logs render info to console (default: false)
+//   clearLog: false, // clears the console per group of renders (default: false)
+// });
 
 const IS_WEBGPU_AVAILABLE = !!navigator.gpu;
 
