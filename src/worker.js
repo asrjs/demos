@@ -175,6 +175,7 @@ async function transcribeSegment({ audioData, language, segmentId }) {
             max_new_tokens: MAX_NEW_TOKENS,
             language,
             streamer,
+            top_k: 10,
         });
 
         const outputText = tokenizer.batch_decode(outputs, { skip_special_tokens: true });
