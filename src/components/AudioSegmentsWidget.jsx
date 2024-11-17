@@ -114,34 +114,48 @@ export function AudioSegmentsWidget({ segments, worker, language }) {
             <h3 className="font-semibold mb-2">Detected Speech Segments</h3>
             <div className="space-y-2">
                 {segments.map((segment, index) => (
-                    <div key={index} className="flex items-center space-x-4 p-2 bg-white dark:bg-gray-700 rounded">
-                        <span className="text-sm">
-                            {`Segment ${index + 1}: ${segment.startTime.toFixed(2)}s - ${segment.endTime.toFixed(2)}s (${(segment.endTime - segment.startTime).toFixed(2)}s)`}
-                            {segment.transcription && (
-                                <span className="ml-2 text-gray-600">
-                                    "{segment.transcription}"
-                                </span>
-                            )}
-                        </span>
-                        <button
-                            onClick={() => playSegment(segment)}
-                            className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                        >
-                            Play
-                        </button>
-                        <button
-                            onClick={() => downloadSegment(segment, index + 1)}
-                            className="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600"
-                        >
-                            Download
-                        </button>
-                        <button
-                            onClick={() => transcribeSegment(segment, index)}
-                            className="px-2 py-1 bg-purple-500 text-white rounded hover:bg-purple-600"
-                            disabled={segment.isProcessed}
-                        >
-                            {segment.isProcessed ? 'Transcribed' : 'Transcribe'}
-                        </button>
+                    <div key={index} className="flex flex-col p-2 bg-white dark:bg-gray-700 rounded">
+                        <div className="flex items-center space-x-4">
+                            <span className="text-sm">
+                                {`Segment ${index + 1}: ${segment.startTime.toFixed(2)}s - ${segment.endTime.toFixed(2)}s (${(segment.endTime - segment.startTime).toFixed(2)}s)`}
+                            </span>
+                            <button
+                                onClick={() => playSegment(segment)}
+                                className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                            >
+                                Play
+                            </button>
+                            <button
+                                onClick={() => downloadSegment(segment, index + 1)}
+                                className="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                            >
+                                Download
+                            </button>
+                            <button
+                                onClick={() => transcribeSegment(segment, index)}
+                                className="px-2 py-1 bg-purple-500 text-white rounded hover:bg-purple-600"
+                                disabled={segment.isProcessed}
+                            >
+                                {segment.isProcessed ? 'Transcribed' : 'Transcribe'}
+                            </button>
+                        </div>
+
+                        {segment.transcription && (
+                            <div className="mt-2 ml-4">
+                                <div className="text-sm text-gray-600">
+                                    {segment.transcription.text}
+                                </div>
+                                {segment.transcription.chunks && segment.transcription.chunks.length > 0 && (
+                                    <div className="mt-1 text-xs text-gray-400 flex flex-wrap gap-1">
+                                        {segment.transcription.chunks.map((chunk, i) => (
+                                            <span key={i} className="bg-gray-100 dark:bg-gray-600 px-1 rounded">
+                                                {chunk.text} [{chunk.start.toFixed(1)}s-{chunk.end.toFixed(1)}s]
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 ))}
             </div>
