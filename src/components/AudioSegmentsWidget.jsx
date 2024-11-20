@@ -113,20 +113,27 @@ export function AudioSegmentsWidget({ segments, worker, language }) {
         const width = `${(segment.endTime - segment.startTime) * 100}%`;
         const left = `${segment.startTime * 100}%`;
         
-        // Different styling for merged segments
-        const bgColor = segment.isMerged 
-            ? 'bg-purple-500 opacity-60'  // More visible purple for merged segments
-            : segment.isProcessed 
-                ? 'bg-blue-500 opacity-40'  // Blue for processed segments
-                : 'bg-gray-500 opacity-40';  // Gray for unprocessed segments
+        // Different styling for segment states
+        let bgColor;
+        if (segment.isMerged) {
+            bgColor = 'bg-purple-500 opacity-60';  // Merged segments
+        } else if (segment.isPartOfMerged) {
+            bgColor = 'bg-purple-300 opacity-40';  // Parts of merged segments
+        } else if (segment.isProcessed) {
+            bgColor = 'bg-blue-500 opacity-40';    // Processed individual segments
+        } else {
+            bgColor = 'bg-gray-500 opacity-40';    // Unprocessed segments
+        }
         
-        console.log('Rendering segment:', {
-            index,
-            isMerged: segment.isMerged,
-            isProcessed: segment.isProcessed,
-            bgColor,
-            transcription: segment.transcription
-        });
+        // console.log('Rendering segment:', {
+        //     index,
+        //     id: segment.id,
+        //     isMerged: segment.isMerged,
+        //     isPartOfMerged: segment.isPartOfMerged,
+        //     isProcessed: segment.isProcessed,
+        //     bgColor,
+        //     transcription: segment.transcription
+        // });
 
         return (
             <div 
@@ -134,13 +141,18 @@ export function AudioSegmentsWidget({ segments, worker, language }) {
                 style={{ 
                     left,
                     width,
-                    zIndex: segment.isMerged ? 2 : 1  // Merged segments on top
+                    zIndex: segment.isMerged ? 2 : segment.isPartOfMerged ? 1 : 0
                 }}
-                title={`${segment.isMerged ? 'Merged: ' : ''}${segment.startTime.toFixed(2)}s - ${segment.endTime.toFixed(2)}s`}
+                title={`${segment.isMerged ? 'Merged: ' : segment.isPartOfMerged ? 'Part of merged: ' : ''}${segment.startTime.toFixed(2)}s - ${segment.endTime.toFixed(2)}s`}
             >
                 {segment.isMerged && (
                     <div className="absolute -top-5 left-0 text-xs text-purple-600 font-bold">
                         Merged ({segment.mergedCount})
+                    </div>
+                )}
+                {segment.isPartOfMerged && (
+                    <div className="absolute -top-5 left-0 text-xs text-purple-400">
+                        Part of: {segment.mergedId}
                     </div>
                 )}
                 {segment.transcription && (

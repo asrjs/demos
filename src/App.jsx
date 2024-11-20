@@ -80,9 +80,6 @@ function App() {
   // Add new state for transcription tracking
   const [transcriptionHistory, setTranscriptionHistory] = useState([]);
 
-  // Add new state for overlap detection
-  const [overlapThreshold, setOverlapThreshold] = useState(0.5); // 500ms default
-
   // Initialize AudioManager without audio context
   useEffect(() => {
     console.log('Initializing AudioManager');
@@ -90,9 +87,14 @@ function App() {
     audioManager.initialize({
         sampleRate: WHISPER_SAMPLING_RATE,
         onSegmentDetected: (segment) => {
+            console.log('App: Received new segment', {
+                id: segment.id,
+                start: segment.startTime,
+                end: segment.endTime,
+                isMerged: segment.isMerged
+            });
             setSegments(prev => [...prev, segment]);
-        },
-        overlapThreshold // Add this parameter
+        }
     }).catch(error => {
         console.error('Failed to initialize AudioManager:', error);
     });
@@ -105,13 +107,36 @@ function App() {
         energyScale,
         hysteresisRatio,
         minSpeechDuration,
-        overlapThreshold     // Add this parameter
+        maxSilenceWithinSpeech,
+        endingSpeechTolerance,
+        endingEnergyThreshold
     });
 
     return () => {
         audioManager.reset();
     };
   }, []); // Run once on mount
+
+  // Add effect to update segments when AudioManager notifies
+  useEffect(() => {
+    const handleSegmentsUpdate = (event, data) => {
+        if (event === 'segmentsUpdated') {
+            console.log('App: Segments updated', {
+                count: data.length,
+                segments: data.map(s => ({
+                    id: s.id,
+                    start: s.startTime,
+                    end: s.endTime,
+                    isMerged: s.isMerged
+                }))
+            });
+            setSegments(data);
+        }
+    };
+
+    audioManager.subscribe(handleSegmentsUpdate);
+    return () => audioManager.subscribe(handleSegmentsUpdate);
+  }, []);
 
   // Add user interaction handler
   const handleStartAudio = async () => {
@@ -290,12 +315,34 @@ function App() {
                             mergedId: !isMerged ? audioManager.segments.find(s => s.id === segmentId)?.mergedId : null
                         };
 
-                        // Filter out transcriptions that are now part of this merged segment
-                        const filteredHistory = prev.filter(entry => 
-                            !newEntry.containedSegments?.includes(entry.id)
-                        );
+                        // If this is a merged segment, remove transcriptions of contained segments
+                        const filteredHistory = isMerged ?
+                            prev.filter(entry => !newEntry.containedSegments?.includes(entry.id)) :
+                            // If this is a regular segment that's not part of a merged one, keep it
+                            prev.filter(entry => 
+                                entry.id !== segmentId && 
+                                (!entry.isPartOfMerged || entry.mergedId !== newEntry.mergedId)
+                            );
 
                         return [...filteredHistory, newEntry];
+                    });
+
+                    // Update editable text based on filtered history
+                    setEditableText(prev => {
+                        const validTranscriptions = transcriptionHistory
+                            .filter(entry => 
+                                // Keep only:
+                                // 1. Merged segments
+                                // 2. OR individual segments that aren't part of any merged segment
+                                entry.isMerged || (!entry.isPartOfMerged && !entry.mergedId)
+                            )
+                            .sort((a, b) => {
+                                // Sort by timestamp to maintain order
+                                return a.timestamp - b.timestamp;
+                            })
+                            .map(entry => entry.text);
+
+                        return validTranscriptions.join('\n');
                     });
 
                     // Update AudioManager
@@ -641,8 +688,6 @@ function App() {
               onHysteresisChange={setHysteresisRatio}
               minSpeechDuration={minSpeechDuration}
               onMinSpeechDurationChange={setMinSpeechDuration}
-              overlapThreshold={overlapThreshold}           // Add these
-              onOverlapThresholdChange={setOverlapThreshold} // two props
             />
 
             {/* Loading progress */}

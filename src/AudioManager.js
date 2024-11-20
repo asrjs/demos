@@ -1,4 +1,5 @@
 import { AudioSegmentProcessor } from './AudioSegmentProcessor';
+import { SpeechSegment } from './SpeechSegment';
 
 /**
  * Singleton class to manage audio state and processing across components
@@ -20,8 +21,7 @@ export class AudioManager {
         this.parameters = {
             threshold: 0.02,
             silenceLength: 0.8,
-            minSpeechDuration: 0.3,
-            overlapThreshold: 0.5
+            minSpeechDuration: 0.3
         };
         
         // Chunk işleme için state
@@ -146,93 +146,100 @@ export class AudioManager {
      * @param {Object} segment - Detected speech segment
      */
     handleNewSegment(segment) {
-        // Add audio data to the segment
+        console.log('AudioManager: Handling new segment', {
+            segment,
+            currentSegments: this.segments.length
+        });
+        
+        // Add audio data and basic properties
         const startSample = Math.floor(segment.startTime * this.audioContext.sampleRate);
         const endSample = Math.ceil(segment.endTime * this.audioContext.sampleRate);
-        segment.audioData = this.audioBuffer.slice(startSample, endSample);
-        segment.sampleRate = this.audioContext.sampleRate;
-
-        // Add unique ID to the segment
-        segment.id = this.generateSegmentId();
-
-        // Add the new segment (but don't transcribe yet)
-        this.segments.push({...segment, isProcessed: false});
         
-        // Find ALL potential overlapping segments, including previously merged ones
+        // Create a proper segment object if it's not already one
+        const segmentObj = segment instanceof SpeechSegment ? segment : new SpeechSegment({
+            startTime: segment.startTime,
+            endTime: segment.endTime,
+            audioData: this.audioBuffer.slice(startSample, endSample),
+            sampleRate: this.audioContext.sampleRate,
+            energy: segment.energy || 0,
+            isProcessed: false,
+            isMerged: false,
+            isPartOfMerged: false
+        });
+
+        // Add unique ID
+        segmentObj.id = this.generateSegmentId();
+        
+        // Add to segments array
+        this.segments.push(segmentObj);
+        
+        // Always transcribe the individual segment first
+        this.sendForTranscription(segmentObj);
+
+        // Find potential overlapping segments for merging
         const recentSegments = this.segments
             .filter(s => {
-                // Include if:
-                // 1. Not already part of another merged segment
-                // 2. Overlaps with current time window
-                // 3. Not the current segment
                 return !s.isPartOfMerged && 
-                       s.endTime >= (segment.startTime - this.parameters.overlapThreshold) &&
-                       s.id !== segment.id;
-            });
-        
-        // Add current segment to the group
-        recentSegments.push(segment);
-        
-        if (recentSegments.length > 1) {
-            console.log('Creating merged segment from:', {
-                count: recentSegments.length,
-                segments: recentSegments.map(s => ({
-                    id: s.id,
-                    start: s.startTime,
-                    end: s.endTime
-                }))
-            });
+                       !s.isMerged && 
+                       s.id !== segmentObj.id;
+            })
+            .filter(s => {
+                return s.endTime >= segmentObj.startTime && 
+                       s.startTime <= segmentObj.endTime;
+            })
+            .sort((a, b) => b.endTime - a.endTime);
+
+        if (recentSegments.length > 0) {
+            // Include current segment in merge
+            const allSegments = [...recentSegments, segmentObj];
             
-            // Create merged segment with unique ID
-            const mergedSegment = {
-                startTime: Math.min(...recentSegments.map(s => s.startTime)),
-                endTime: Math.max(...recentSegments.map(s => s.endTime)),
-                isMerged: true,
-                mergedCount: recentSegments.length,
-                originalSegments: recentSegments.map(s => ({...s})),
-                id: `merged_${Date.now()}`,
-                audioData: this.getMergedAudioData(recentSegments),
+            // Create merged segment
+            const mergedSegment = new SpeechSegment({
+                startTime: Math.min(...allSegments.map(s => s.startTime)),
+                endTime: Math.max(...allSegments.map(s => s.endTime)),
+                audioData: this.getMergedAudioData(allSegments),
                 sampleRate: this.audioContext.sampleRate,
-                isProcessed: false
-            };
-            
-            // Mark ALL original segments as part of merged
-            recentSegments.forEach(s => {
+                energy: Math.max(...allSegments.map(s => s.energy)),
+                isProcessed: false,
+                isMerged: true,
+                isPartOfMerged: false
+            });
+
+            mergedSegment.id = `merged_${Date.now()}`;
+            mergedSegment.mergedCount = allSegments.length;
+            mergedSegment.originalSegments = allSegments;
+
+            // Mark original segments as part of merged but don't set isProcessed
+            // so they still get transcribed individually
+            allSegments.forEach(s => {
                 const originalSegment = this.segments.find(seg => seg.id === s.id);
                 if (originalSegment) {
                     originalSegment.isPartOfMerged = true;
                     originalSegment.mergedId = mergedSegment.id;
                 }
             });
-            
-            // Remove any previous merged segments that contain these segments
-            this.segments = this.segments.filter(s => 
-                !s.isMerged || 
-                !s.originalSegments.some(orig => 
-                    recentSegments.some(recent => recent.id === orig.id)
-                )
-            );
-            
-            // Add new merged segment
+
+            // Add merged segment
             this.segments.push(mergedSegment);
             
-            // Only send merged segment for transcription
+            // Also transcribe the merged segment
             this.sendForTranscription(mergedSegment);
-
+            
             console.log('Created merged segment:', {
                 id: mergedSegment.id,
-                start: mergedSegment.startTime,
-                end: mergedSegment.endTime,
+                start: mergedSegment.startTime.toFixed(2),
+                end: mergedSegment.endTime.toFixed(2),
                 count: mergedSegment.mergedCount,
-                originalSegments: recentSegments.map(s => s.id)
+                originalSegments: allSegments.map(s => s.id)
             });
-        } else {
-            // Only transcribe if not part of a merged segment
-            this.sendForTranscription(segment);
         }
 
-        // Notify subscribers of updated segments
-        this.notifyListeners('segmentsUpdated', this.segments);
+        console.log('AudioManager: Updated segments', {
+            totalSegments: this.segments.length,
+            lastSegment: this.segments[this.segments.length - 1]
+        });
+        
+        this.notifyListeners('segmentsUpdated', [...this.segments]);
     }
 
     getMergedAudioData(segments) {
@@ -248,11 +255,10 @@ export class AudioManager {
     }
 
     sendForTranscription(segment) {
-        if (!this.worker || !segment.audioData || segment.isPartOfMerged) {
-            console.log('Skipping transcription:', {
+        if (!this.worker || !segment.audioData) {
+            console.log('Cannot transcribe:', {
                 hasWorker: !!this.worker,
                 hasAudioData: !!segment.audioData,
-                isPartOfMerged: segment.isPartOfMerged,
                 segment
             });
             return;
@@ -321,7 +327,7 @@ export class AudioManager {
         });
 
         // Notify subscribers of updated segments
-        this.notifyListeners('segmentsUpdated', this.segments);
+        this.notifyListeners('segmentsUpdated', [...this.segments]);
     }
 
     /**
