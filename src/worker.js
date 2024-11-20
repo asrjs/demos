@@ -52,10 +52,12 @@ class AutomaticSpeechRecognitionPipeline {
                 local: true,
             });
 
-            // Load model
+            // Load model with specific configuration
             this.model = await WhisperForConditionalGeneration.from_pretrained(this.model_id, {
                 local: true,
                 device: 'webgpu',
+                dtype: 'float32', // Explicitly set dtype
+                revision: 'main',
                 progress_callback: (progress) => {
                     progress_callback?.({
                         status: 'initiate',
@@ -83,16 +85,24 @@ async function transcribeAudio(audioData, options) {
     try {
         const [tokenizer, processor, model] = await pipeline;
         
-        // Create new session for each transcription
+        // Process audio data
         const inputs = await processor(audioData);
+        
+        // Generate with explicit configuration
         const outputs = await model.generate({
             ...inputs,
             max_new_tokens: MAX_NEW_TOKENS,
             language: options.language,
             top_k: 10,
+            do_sample: false, // Disable sampling for deterministic output
+            num_beams: 1,     // Simple beam search
+            return_dict_in_generate: false
         });
 
-        return tokenizer.batch_decode(outputs, { skip_special_tokens: true })[0];
+        return tokenizer.batch_decode(outputs, { 
+            skip_special_tokens: true,
+            clean_up_tokenization_spaces: true 
+        })[0];
     } catch (error) {
         console.error('Transcription error:', error);
         throw error;
@@ -141,7 +151,7 @@ async function processQueue() {
         
         // If there are more items in queue, process them
         if (transcriptionQueue.size > 0) {
-            setTimeout(processQueue, 100); // Add small delay between processing
+            setTimeout(processQueue, 100);
         }
     }
 }
@@ -161,23 +171,23 @@ async function load() {
     });
 
     try {
-        pipeline = AutomaticSpeechRecognitionPipeline.getInstance(progress => {
+        pipeline = await AutomaticSpeechRecognitionPipeline.getInstance(progress => {
             self.postMessage(progress);
         });
 
-        await pipeline; // Wait for initialization
-
-        // Model warm-up
+        // Model warm-up with explicit configuration
         console.log('Warming up model...');
         self.postMessage({
             status: 'loading',
             data: 'Compiling shaders and warming up model...'
         });
 
-        const [,,model] = await pipeline;
+        const [,,model] = pipeline;
         await model.generate({
             input_features: full([1, 80, 3000], 0.0),
             max_new_tokens: 1,
+            do_sample: false,
+            num_beams: 1
         });
         
         isLoaded = true;
@@ -185,6 +195,10 @@ async function load() {
         self.postMessage({ status: 'ready' });
     } catch (error) {
         console.error('Error loading model:', error);
+        self.postMessage({ 
+            status: 'error', 
+            error: error.message 
+        });
         throw error;
     }
 }
@@ -198,13 +212,11 @@ self.addEventListener('message', async (e) => {
             break;
 
         case 'transcribe':
-            // Add to queue if not already present
             if (!transcriptionQueue.has(data.segmentId)) {
                 transcriptionQueue.set(data.segmentId, { type, data });
                 console.log('Added to queue:', data.segmentId, 
                     'Queue size:', transcriptionQueue.size);
                 
-                // Try to process queue
                 processQueue();
             } else {
                 console.log('Segment already in queue:', data.segmentId);
