@@ -157,13 +157,30 @@ export class AudioManager {
         // Add the new segment (but don't transcribe yet)
         this.segments.push({...segment, isProcessed: false});
         
-        // Find potential overlapping segments
+        // Find ALL potential overlapping segments, including previously merged ones
         const recentSegments = this.segments
-            .filter(s => !s.isMerged && 
-                        s.endTime >= (segment.startTime - 0.5));
+            .filter(s => {
+                // Include if:
+                // 1. Not already part of another merged segment
+                // 2. Overlaps with current time window
+                // 3. Not the current segment
+                return !s.isPartOfMerged && 
+                       s.endTime >= (segment.startTime - 0.5) &&
+                       s.id !== segment.id;
+            });
+        
+        // Add current segment to the group
+        recentSegments.push(segment);
         
         if (recentSegments.length > 1) {
-            console.log('Creating merged segment from:', recentSegments.length, 'segments');
+            console.log('Creating merged segment from:', {
+                count: recentSegments.length,
+                segments: recentSegments.map(s => ({
+                    id: s.id,
+                    start: s.startTime,
+                    end: s.endTime
+                }))
+            });
             
             // Create merged segment with unique ID
             const mergedSegment = {
@@ -178,13 +195,24 @@ export class AudioManager {
                 isProcessed: false
             };
             
-            // Mark original segments as part of merged
+            // Mark ALL original segments as part of merged
             recentSegments.forEach(s => {
-                s.isPartOfMerged = true;
-                s.mergedId = mergedSegment.id;
+                const originalSegment = this.segments.find(seg => seg.id === s.id);
+                if (originalSegment) {
+                    originalSegment.isPartOfMerged = true;
+                    originalSegment.mergedId = mergedSegment.id;
+                }
             });
             
-            // Add merged segment
+            // Remove any previous merged segments that contain these segments
+            this.segments = this.segments.filter(s => 
+                !s.isMerged || 
+                !s.originalSegments.some(orig => 
+                    recentSegments.some(recent => recent.id === orig.id)
+                )
+            );
+            
+            // Add new merged segment
             this.segments.push(mergedSegment);
             
             // Only send merged segment for transcription
