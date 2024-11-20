@@ -56,7 +56,7 @@ class AutomaticSpeechRecognitionPipeline {
             this.model = await WhisperForConditionalGeneration.from_pretrained(this.model_id, {
                 local: true,
                 device: 'webgpu',
-                dtype: 'float32', // Explicitly set dtype
+                dtype: 'fp32', // Explicitly set dtype
                 revision: 'main',
                 progress_callback: (progress) => {
                     progress_callback?.({
