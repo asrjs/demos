@@ -74,6 +74,12 @@ function App() {
   const [tps, setTps] = useState(null);
   const [language, setLanguage] = useState('tr');
 
+  // Add state for editable text
+  const [editableText, setEditableText] = useState('');
+
+  // Add new state for transcription tracking
+  const [transcriptionHistory, setTranscriptionHistory] = useState([]);
+
   // Initialize AudioManager without audio context
   useEffect(() => {
     console.log('Initializing AudioManager');
@@ -215,7 +221,9 @@ function App() {
             type: 'module'
         });
 
-        // Handle worker messages
+        // Pass worker to AudioManager
+        audioManager.setWorker(worker.current);
+
         const onMessageReceived = (e) => {
             switch (e.data.status) {
                 case 'loading':
@@ -258,14 +266,39 @@ function App() {
 
                 case 'complete':
                     setIsProcessing(false);
-                    setText(prev => prev + ' ' + e.data.output);
-                    if (e.data.segmentId !== undefined) {
-                        setSegments(prev => prev.map((seg, idx) => 
-                            idx === e.data.segmentId 
-                                ? { ...seg, isProcessed: true, transcription: e.data.output }
-                                : seg
-                        ));
-                    }
+                    const transcription = e.data.output;
+                    const segmentId = e.data.segmentId;
+                    const isMerged = e.data.segmentId.startsWith('merged_');
+
+                    // Update transcription history
+                    setTranscriptionHistory(prev => {
+                        // Create new transcription entry
+                        const newEntry = {
+                            id: segmentId,
+                            text: transcription,
+                            timestamp: Date.now(),
+                            isMerged,
+                            containedSegments: isMerged ? 
+                                audioManager.segments.find(s => s.id === segmentId)?.originalSegments?.map(s => s.id) : 
+                                [],
+                            isPartOfMerged: !isMerged && audioManager.segments.find(s => s.id === segmentId)?.isPartOfMerged,
+                            mergedId: !isMerged ? audioManager.segments.find(s => s.id === segmentId)?.mergedId : null
+                        };
+
+                        // Filter out transcriptions that are now part of this merged segment
+                        const filteredHistory = prev.filter(entry => 
+                            !newEntry.containedSegments?.includes(entry.id)
+                        );
+
+                        return [...filteredHistory, newEntry];
+                    });
+
+                    // Update AudioManager
+                    audioManager.handleTranscriptionResult({
+                        segmentId,
+                        output: transcription,
+                        isMerged
+                    });
                     break;
             }
         };
@@ -516,6 +549,37 @@ function App() {
     };
 }, [stream]);
 
+  // Add debug display for transcription history (optional)
+  const TranscriptionHistoryDebug = () => (
+    <div className="mt-4 p-2 text-xs font-mono bg-gray-100 dark:bg-gray-800 rounded">
+        <h4 className="font-bold">Transcription History:</h4>
+        {transcriptionHistory.map((entry, i) => (
+            <div key={i} className="ml-2">
+                <span className={entry.isMerged ? 'text-purple-600' : 'text-blue-600'}>
+                    {entry.id}
+                </span>
+                : {entry.text}
+                {entry.isPartOfMerged && <span className="text-red-500"> (part of {entry.mergedId})</span>}
+            </div>
+        ))}
+    </div>
+  );
+
+  // Add useEffect to handle transcription history updates
+  useEffect(() => {
+      // Update editable text whenever transcription history changes
+      const validTranscriptions = transcriptionHistory
+          .filter(entry => 
+              // Keep if:
+              // 1. It's a merged segment
+              // 2. OR it's not part of any merged segment
+              entry.isMerged || !entry.isPartOfMerged
+          )
+          .map(entry => entry.text);
+
+      setEditableText(validTranscriptions.join('\n'));
+  }, [transcriptionHistory]); // Depend on transcriptionHistory
+
   return (
     <div className="flex flex-col h-screen w-screen mx-auto justify-start text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-900">
       <div className="h-full w-full overflow-auto scrollbar-thin flex justify-start items-center flex-col relative pt-4">
@@ -586,11 +650,38 @@ function App() {
 
             {/* Transcription output */}
             {status === 'ready' && (
-              <div className="relative">
-                <p className="w-full h-[160px] overflow-y-auto overflow-wrap-anywhere border rounded-lg p-2">
-                  {text}
-                </p>
-                {tps && <span className="absolute bottom-0 right-0 px-1">{tps.toFixed(2)} tok/s</span>}
+              <div className="relative w-full max-w-[90vw]">
+                <textarea
+                    value={editableText}
+                    onChange={(e) => setEditableText(e.target.value)}
+                    className="w-full h-[160px] overflow-y-auto font-mono text-sm 
+                              border rounded-lg p-2 bg-white dark:bg-gray-800 
+                              focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Transcriptions will appear here. You can edit the text..."
+                />
+                <div className="absolute bottom-2 right-2 flex gap-2">
+                    {tps && (
+                        <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-sm">
+                            {tps.toFixed(2)} tok/s
+                        </span>
+                    )}
+                    <button
+                        onClick={() => setEditableText('')}
+                        className="px-2 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
+                    >
+                        Clear
+                    </button>
+                    <button
+                        onClick={() => {
+                            navigator.clipboard.writeText(editableText);
+                        }}
+                        className="px-2 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+                    >
+                        Copy
+                    </button>
+                </div>
+                {/* Uncomment to show debug info */}
+                {/* <TranscriptionHistoryDebug /> */}
               </div>
             )}
 

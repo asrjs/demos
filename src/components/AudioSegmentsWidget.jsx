@@ -109,15 +109,78 @@ export function AudioSegmentsWidget({ segments, worker, language }) {
         }
     };
 
+    const SegmentItem = ({ segment, index }) => {
+        const width = `${(segment.endTime - segment.startTime) * 100}%`;
+        const left = `${segment.startTime * 100}%`;
+        
+        // Different styling for merged segments
+        const bgColor = segment.isMerged 
+            ? 'bg-purple-500 opacity-60'  // More visible purple for merged segments
+            : segment.isProcessed 
+                ? 'bg-blue-500 opacity-40'  // Blue for processed segments
+                : 'bg-gray-500 opacity-40';  // Gray for unprocessed segments
+        
+        console.log('Rendering segment:', {
+            index,
+            isMerged: segment.isMerged,
+            isProcessed: segment.isProcessed,
+            bgColor,
+            transcription: segment.transcription
+        });
+
+        return (
+            <div 
+                className={`absolute h-full ${bgColor} rounded-md transition-all duration-200`}
+                style={{ 
+                    left,
+                    width,
+                    zIndex: segment.isMerged ? 2 : 1  // Merged segments on top
+                }}
+                title={`${segment.isMerged ? 'Merged: ' : ''}${segment.startTime.toFixed(2)}s - ${segment.endTime.toFixed(2)}s`}
+            >
+                {segment.isMerged && (
+                    <div className="absolute -top-5 left-0 text-xs text-purple-600 font-bold">
+                        Merged ({segment.mergedCount})
+                    </div>
+                )}
+                {segment.transcription && (
+                    <div className="absolute -bottom-6 left-0 text-xs text-gray-600 dark:text-gray-300 whitespace-nowrap overflow-hidden max-w-full">
+                        {typeof segment.transcription === 'string' 
+                            ? segment.transcription 
+                            : segment.transcription.text || segment.transcription.toString()}
+                    </div>
+                )}
+            </div>
+        );
+    };
+
     return (
         <div className="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
-            <h3 className="font-semibold mb-2">Detected Speech Segments</h3>
+            <h3 className="font-semibold mb-2">Detected Speech Segments ({segments.length})</h3>
+            
+            {/* Visualization of segments */}
+            <div className="relative h-16 mb-8 bg-gray-200 dark:bg-gray-700 rounded">
+                {segments.map((segment, index) => (
+                    <SegmentItem 
+                        key={segment.isMerged ? segment.id : index}
+                        segment={segment} 
+                        index={index}
+                    />
+                ))}
+            </div>
+
+            {/* List of segments */}
             <div className="space-y-2">
                 {segments.map((segment, index) => (
-                    <div key={index} className="flex flex-col p-2 bg-white dark:bg-gray-700 rounded">
+                    <div key={segment.isMerged ? segment.id : index} 
+                         className={`flex flex-col p-2 rounded ${
+                             segment.isMerged 
+                                 ? 'bg-purple-100 dark:bg-purple-900' 
+                                 : 'bg-white dark:bg-gray-700'
+                         }`}>
                         <div className="flex items-center space-x-4">
                             <span className="text-sm">
-                                {`Segment ${index + 1}: ${segment.startTime.toFixed(2)}s - ${segment.endTime.toFixed(2)}s (${(segment.endTime - segment.startTime).toFixed(2)}s)`}
+                                {segment.isMerged ? '🔄 ' : ''}{`Segment ${index + 1}: ${segment.startTime.toFixed(2)}s - ${segment.endTime.toFixed(2)}s (${(segment.endTime - segment.startTime).toFixed(2)}s)`}
                             </span>
                             <button
                                 onClick={() => playSegment(segment)}
@@ -139,21 +202,11 @@ export function AudioSegmentsWidget({ segments, worker, language }) {
                                 {segment.isProcessed ? 'Transcribed' : 'Transcribe'}
                             </button>
                         </div>
-
                         {segment.transcription && (
-                            <div className="mt-2 ml-4">
-                                <div className="text-sm text-gray-600">
-                                    {segment.transcription.text}
-                                </div>
-                                {segment.transcription.chunks && segment.transcription.chunks.length > 0 && (
-                                    <div className="mt-1 text-xs text-gray-400 flex flex-wrap gap-1">
-                                        {segment.transcription.chunks.map((chunk, i) => (
-                                            <span key={i} className="bg-gray-100 dark:bg-gray-600 px-1 rounded">
-                                                {chunk.text} [{chunk.start.toFixed(1)}s-{chunk.end.toFixed(1)}s]
-                                            </span>
-                                        ))}
-                                    </div>
-                                )}
+                            <div className="mt-2 ml-4 text-sm">
+                                {typeof segment.transcription === 'string' 
+                                    ? segment.transcription 
+                                    : segment.transcription.text || segment.transcription.toString()}
                             </div>
                         )}
                     </div>

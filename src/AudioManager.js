@@ -24,12 +24,18 @@ export class AudioManager {
         };
         
         // Chunk işleme için state
-        this.currentSegment = null;
+        this.segments = [];
         this.recordedChunks = [];
         
         // Tüm ses verisini tutmak için
         this.audioBuffer = new Float32Array(0);
         this.lastProcessedTime = 0;
+        
+        this._activeTranscriptions = new Set();
+        this.worker = null;
+        this.language = 'tr';
+        
+        this._nextSegmentId = 0;
         
         AudioManager.instance = this;
     }
@@ -82,7 +88,7 @@ export class AudioManager {
     processNewChunk(chunk, energy) {
         if (!chunk || !chunk.length) return;
 
-        // Yeni chunk'ı ana buffer'a ekle
+        // Add to main buffer
         const newBuffer = new Float32Array(this.audioBuffer.length + chunk.length);
         newBuffer.set(this.audioBuffer);
         newBuffer.set(chunk, this.audioBuffer.length);
@@ -90,19 +96,18 @@ export class AudioManager {
 
         const currentTime = this.getCurrentTime();
         
-        // Chunk'ı işle ve segment oluştur
-        const segments = this.processor.processAudioData(
-            chunk,              // anlık chunk
-            currentTime,        // zaman
-            energy,            // enerji
-            this.audioBuffer,  // tüm ses verisi
-            this.lastProcessedTime  // son işlenen zaman
+        // Process chunk and get segments
+        const newSegments = this.processor.processAudioData(
+            chunk,
+            currentTime,
+            energy,
+            this.audioBuffer,
+            this.lastProcessedTime
         );
         
-        if (segments.length > 0) {
-            segments.forEach(segment => {
-                this.notifyListeners('newSegment', segment);
-            });
+        // Handle any new segments
+        if (newSegments.length > 0) {
+            newSegments.forEach(segment => this.handleNewSegment(segment));
         }
 
         this.lastProcessedTime = currentTime;
@@ -140,14 +145,161 @@ export class AudioManager {
      * @param {Object} segment - Detected speech segment
      */
     handleNewSegment(segment) {
-        this.notifyListeners('newSegment', segment);
+        // Add audio data to the segment
+        const startSample = Math.floor(segment.startTime * this.audioContext.sampleRate);
+        const endSample = Math.ceil(segment.endTime * this.audioContext.sampleRate);
+        segment.audioData = this.audioBuffer.slice(startSample, endSample);
+        segment.sampleRate = this.audioContext.sampleRate;
+
+        // Add unique ID to the segment
+        segment.id = this.generateSegmentId();
+
+        // Add the new segment (but don't transcribe yet)
+        this.segments.push({...segment, isProcessed: false});
+        
+        // Find potential overlapping segments
+        const recentSegments = this.segments
+            .filter(s => !s.isMerged && 
+                        s.endTime >= (segment.startTime - 0.5));
+        
+        if (recentSegments.length > 1) {
+            console.log('Creating merged segment from:', recentSegments.length, 'segments');
+            
+            // Create merged segment with unique ID
+            const mergedSegment = {
+                startTime: Math.min(...recentSegments.map(s => s.startTime)),
+                endTime: Math.max(...recentSegments.map(s => s.endTime)),
+                isMerged: true,
+                mergedCount: recentSegments.length,
+                originalSegments: recentSegments.map(s => ({...s})),
+                id: `merged_${Date.now()}`,
+                audioData: this.getMergedAudioData(recentSegments),
+                sampleRate: this.audioContext.sampleRate,
+                isProcessed: false
+            };
+            
+            // Mark original segments as part of merged
+            recentSegments.forEach(s => {
+                s.isPartOfMerged = true;
+                s.mergedId = mergedSegment.id;
+            });
+            
+            // Add merged segment
+            this.segments.push(mergedSegment);
+            
+            // Only send merged segment for transcription
+            this.sendForTranscription(mergedSegment);
+
+            console.log('Created merged segment:', {
+                id: mergedSegment.id,
+                start: mergedSegment.startTime,
+                end: mergedSegment.endTime,
+                count: mergedSegment.mergedCount,
+                originalSegments: recentSegments.map(s => s.id)
+            });
+        } else {
+            // Only transcribe if not part of a merged segment
+            this.sendForTranscription(segment);
+        }
+
+        // Notify subscribers of updated segments
+        this.notifyListeners('segmentsUpdated', this.segments);
+    }
+
+    getMergedAudioData(segments) {
+        if (!segments.length) return new Float32Array(0);
+        
+        const startTime = Math.min(...segments.map(s => s.startTime));
+        const endTime = Math.max(...segments.map(s => s.endTime));
+        
+        const startSample = Math.floor(startTime * this.audioContext.sampleRate);
+        const endSample = Math.ceil(endTime * this.audioContext.sampleRate);
+        
+        return this.audioBuffer.slice(startSample, endSample);
+    }
+
+    sendForTranscription(segment) {
+        if (!this.worker || !segment.audioData || segment.isPartOfMerged) {
+            console.log('Skipping transcription:', {
+                hasWorker: !!this.worker,
+                hasAudioData: !!segment.audioData,
+                isPartOfMerged: segment.isPartOfMerged,
+                segment
+            });
+            return;
+        }
+        
+        const transcriptionId = segment.id;
+
+        // Skip if already transcribing
+        if (this._activeTranscriptions.has(transcriptionId)) {
+            console.log('Already transcribing:', transcriptionId);
+            return;
+        }
+
+        console.log('Sending for transcription:', {
+            id: transcriptionId,
+            isMerged: segment.isMerged,
+            duration: segment.endTime - segment.startTime
+        });
+
+        // Mark as being processed
+        segment.isProcessed = true;
+        this._activeTranscriptions.add(transcriptionId);
+
+        // Send to worker
+        this.worker.postMessage({
+            type: 'transcribe',
+            data: {
+                audioData: segment.audioData,
+                language: this.language,
+                segmentId: transcriptionId,
+                isMerged: segment.isMerged
+            }
+        });
+    }
+
+    handleTranscriptionResult(result) {
+        const { segmentId, output, isMerged } = result;
+        this._activeTranscriptions.delete(segmentId);
+
+        console.log('Received transcription result:', {
+            segmentId,
+            output,
+            isMerged
+        });
+
+        // Update segments with transcription
+        this.segments = this.segments.map(segment => {
+            if (segment.id === segmentId) {
+                // If this is a merged segment, update original segments too
+                if (segment.isMerged) {
+                    segment.originalSegments.forEach(origSeg => {
+                        const originalSegment = this.segments.find(s => s.id === origSeg.id);
+                        if (originalSegment) {
+                            originalSegment.transcription = `(Part of: ${output})`;
+                            originalSegment.isProcessed = true;
+                        }
+                    });
+                }
+                return { 
+                    ...segment, 
+                    transcription: output,
+                    isProcessed: true 
+                };
+            }
+            return segment;
+        });
+
+        // Notify subscribers of updated segments
+        this.notifyListeners('segmentsUpdated', this.segments);
     }
 
     /**
      * Reset all state
      */
     reset() {
-        this.currentSegment = null;
+        this.segments = [];
         this.recordedChunks = [];
         if (this.processor) {
             this.processor.reset();
@@ -165,6 +317,43 @@ export class AudioManager {
             this.processor.setThreshold(this.parameters.threshold);
             this.processor.setSilenceLength(this.parameters.silenceLength);
         }
+    }
+
+    mergeOverlappingSegments(segments) {
+        if (!segments || segments.length < 2) return segments;
+
+        const merged = [];
+        let currentMerged = segments[0];
+
+        for (let i = 1; i < segments.length; i++) {
+            const current = segments[i];
+            
+            // Check for overlap
+            if (current.startTime <= currentMerged.endTime) {
+                // Merge by extending the end time
+                currentMerged = {
+                    ...currentMerged,
+                    endTime: Math.max(currentMerged.endTime, current.endTime),
+                    isProcessed: false, // Reset processed flag for merged segment
+                    isMerged: true, // Mark as merged segment
+                    mergedCount: (currentMerged.mergedCount || 1) + 1
+                };
+            } else {
+                merged.push(currentMerged);
+                currentMerged = current;
+            }
+        }
+        merged.push(currentMerged);
+        return merged;
+    }
+
+    setWorker(worker) {
+        this.worker = worker;
+    }
+
+    // Add method to generate unique segment IDs
+    generateSegmentId() {
+        return `segment_${this._nextSegmentId++}`;
     }
 }
 
