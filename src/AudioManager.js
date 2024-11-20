@@ -20,7 +20,8 @@ export class AudioManager {
         this.parameters = {
             threshold: 0.02,
             silenceLength: 0.8,
-            minSpeechDuration: 0.3
+            minSpeechDuration: 0.3,
+            overlapThreshold: 0.5
         };
         
         // Chunk işleme için state
@@ -165,7 +166,7 @@ export class AudioManager {
                 // 2. Overlaps with current time window
                 // 3. Not the current segment
                 return !s.isPartOfMerged && 
-                       s.endTime >= (segment.startTime - 0.5) &&
+                       s.endTime >= (segment.startTime - this.parameters.overlapThreshold) &&
                        s.id !== segment.id;
             });
         

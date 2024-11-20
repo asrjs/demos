@@ -29,7 +29,9 @@ export function AudioVisualizer({
     hysteresisRatio,
     onHysteresisChange,
     minSpeechDuration,
-    onMinSpeechDurationChange
+    onMinSpeechDurationChange,
+    overlapThreshold,
+    onOverlapThresholdChange,
 }) {
     // Add state for displaying current values
     const [currentEnergy, setCurrentEnergy] = useState(0);
@@ -141,6 +143,23 @@ export function AudioVisualizer({
                             onChange={(e) => onHysteresisChange(parseFloat(e.target.value))}
                             className="w-full"
                         />
+                    </div>
+
+                    {/* Overlap Threshold */}
+                    <div className="flex flex-col">
+                        <label className="text-sm">Overlap Threshold (s): {overlapThreshold.toFixed(2)}</label>
+                        <input
+                            type="range"
+                            min="0.2"
+                            max="5.0"
+                            step="0.1"
+                            value={overlapThreshold}
+                            onChange={(e) => onOverlapThresholdChange(parseFloat(e.target.value))}
+                            className="w-full"
+                        />
+                        <span className="text-xs text-gray-500">
+                            Time window for merging overlapping segments
+                        </span>
                     </div>
                 </div>
 

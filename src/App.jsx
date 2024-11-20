@@ -80,6 +80,9 @@ function App() {
   // Add new state for transcription tracking
   const [transcriptionHistory, setTranscriptionHistory] = useState([]);
 
+  // Add new state for overlap detection
+  const [overlapThreshold, setOverlapThreshold] = useState(0.5); // 500ms default
+
   // Initialize AudioManager without audio context
   useEffect(() => {
     console.log('Initializing AudioManager');
@@ -88,7 +91,8 @@ function App() {
         sampleRate: WHISPER_SAMPLING_RATE,
         onSegmentDetected: (segment) => {
             setSegments(prev => [...prev, segment]);
-        }
+        },
+        overlapThreshold // Add this parameter
     }).catch(error => {
         console.error('Failed to initialize AudioManager:', error);
     });
@@ -96,11 +100,12 @@ function App() {
     // Set initial parameters
     audioManager.updateParameters({
         threshold: audioThreshold,
-        silenceLength,
+        silenceLength,        // Used for silence detection between speech
         speechHangover,
         energyScale,
         hysteresisRatio,
-        minSpeechDuration
+        minSpeechDuration,
+        overlapThreshold     // Add this parameter
     });
 
     return () => {
@@ -636,6 +641,8 @@ function App() {
               onHysteresisChange={setHysteresisRatio}
               minSpeechDuration={minSpeechDuration}
               onMinSpeechDurationChange={setMinSpeechDuration}
+              overlapThreshold={overlapThreshold}           // Add these
+              onOverlapThresholdChange={setOverlapThreshold} // two props
             />
 
             {/* Loading progress */}
