@@ -12,7 +12,7 @@ env.allowLocalModels = true;
 env.allowRemoteModels = false;
 env.localModelPath = '/models';
 
-const MAX_NEW_TOKENS = 96;
+const MAX_NEW_TOKENS = 128;
 const MAX_PARALLEL_JOBS = 1;
 
 class AutomaticSpeechRecognitionPipeline {
@@ -56,6 +56,9 @@ class AutomaticSpeechRecognitionPipeline {
             this.model = await WhisperForConditionalGeneration.from_pretrained(this.model_id, {
                 local: true,
                 device: 'webgpu',
+                dtype: 'fp32',   // Change to int8 for quantization
+                quantized: false, // Enable quantization
+                revision: 'main',
                 progress_callback: (progress) => {
                     progress_callback?.({
                         status: 'initiate',
@@ -89,10 +92,29 @@ async function transcribeAudio(audioData, options) {
             ...inputs,
             max_new_tokens: MAX_NEW_TOKENS,
             language: options.language,
-            top_k: 10,
+
+            // Beam search optimization
+            // num_beams: 1,              // Increase beam search width for better candidates
+            // length_penalty: 1.0,       // Encourage longer sequences
+            // no_repeat_ngram_size: 3,   // Prevent repetition of 3-grams
+            
+            // Sampling strategy
+            // do_sample: false,           // Enable sampling for more natural output
+            // top_k: 10,                 // Consider more candidates
+            // top_p: 0.9,              // Nucleus sampling threshold
+            // temperature: 0.95,          // Add some randomness while keeping coherence
+            
+            // Additional options
+            // early_stopping: true,      // Stop when no better candidates are found  * worse
+            // bad_words_ids: [[1]],     // Optionally block specific tokens
+            return_dict_in_generate: false, // Get detailed output info
+            output_scores: false        // Get token probabilities
         });
 
-        return tokenizer.batch_decode(outputs, { skip_special_tokens: true })[0];
+        return tokenizer.batch_decode(outputs, { 
+            skip_special_tokens: true,
+            // clean_up_tokenization_spaces: true
+        })[0];
     } catch (error) {
         console.error('Transcription error:', error);
         throw error;
