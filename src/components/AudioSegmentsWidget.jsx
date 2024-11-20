@@ -113,20 +113,11 @@ export function AudioSegmentsWidget({ segments, worker, language }) {
         const width = `${(segment.endTime - segment.startTime) * 100}%`;
         const left = `${segment.startTime * 100}%`;
         
-        // Different styling for merged segments
         const bgColor = segment.isMerged 
-            ? 'bg-purple-500 opacity-60'  // More visible purple for merged segments
+            ? 'bg-purple-500 opacity-60'
             : segment.isProcessed 
-                ? 'bg-blue-500 opacity-40'  // Blue for processed segments
-                : 'bg-gray-500 opacity-40';  // Gray for unprocessed segments
-        
-        console.log('Rendering segment:', {
-            index,
-            isMerged: segment.isMerged,
-            isProcessed: segment.isProcessed,
-            bgColor,
-            transcription: segment.transcription
-        });
+                ? 'bg-blue-500 opacity-40'
+                : 'bg-gray-500 opacity-40';
 
         return (
             <div 
@@ -134,7 +125,7 @@ export function AudioSegmentsWidget({ segments, worker, language }) {
                 style={{ 
                     left,
                     width,
-                    zIndex: segment.isMerged ? 2 : 1  // Merged segments on top
+                    zIndex: segment.isMerged ? 2 : 1
                 }}
                 title={`${segment.isMerged ? 'Merged: ' : ''}${segment.startTime.toFixed(2)}s - ${segment.endTime.toFixed(2)}s`}
             >

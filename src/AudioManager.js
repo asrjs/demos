@@ -151,86 +151,47 @@ export class AudioManager {
         segment.audioData = this.audioBuffer.slice(startSample, endSample);
         segment.sampleRate = this.audioContext.sampleRate;
 
-        // Add unique ID to the segment
+        // Add metadata
         segment.id = this.generateSegmentId();
+        segment.isProcessed = false;
+        segment.isMerged = false;
+        segment.isPartOfMerged = false;
+        segment.mergedId = null;
 
-        // Add the new segment (but don't transcribe yet)
-        this.segments.push({...segment, isProcessed: false});
+        // Add to segments array
+        this.segments.push(segment);
         
-        // Find ALL potential overlapping segments, including previously merged ones
+        // Find overlapping segments
         const recentSegments = this.segments
-            .filter(s => {
-                // Include if:
-                // 1. Not already part of another merged segment
-                // 2. Overlaps with current time window
-                // 3. Not the current segment
-                return !s.isPartOfMerged && 
-                       s.endTime >= (segment.startTime - 0.5) &&
-                       s.id !== segment.id;
-            });
+            .filter(s => !s.isPartOfMerged && 
+                        s.endTime >= (segment.startTime - 0.5) &&
+                        s.id !== segment.id);
         
-        // Add current segment to the group
-        recentSegments.push(segment);
-        
-        if (recentSegments.length > 1) {
-            console.log('Creating merged segment from:', {
-                count: recentSegments.length,
-                segments: recentSegments.map(s => ({
-                    id: s.id,
-                    start: s.startTime,
-                    end: s.endTime
-                }))
-            });
-            
-            // Create merged segment with unique ID
+        if (recentSegments.length > 0) {
+            // Create merged segment
             const mergedSegment = {
-                startTime: Math.min(...recentSegments.map(s => s.startTime)),
-                endTime: Math.max(...recentSegments.map(s => s.endTime)),
-                isMerged: true,
-                mergedCount: recentSegments.length,
-                originalSegments: recentSegments.map(s => ({...s})),
+                startTime: Math.min(...recentSegments.map(s => s.startTime), segment.startTime),
+                endTime: Math.max(...recentSegments.map(s => s.endTime), segment.endTime),
                 id: `merged_${Date.now()}`,
-                audioData: this.getMergedAudioData(recentSegments),
+                isMerged: true,
+                isProcessed: false,
+                audioData: this.getMergedAudioData([...recentSegments, segment]),
                 sampleRate: this.audioContext.sampleRate,
-                isProcessed: false
+                originalSegments: [...recentSegments, segment]
             };
-            
-            // Mark ALL original segments as part of merged
-            recentSegments.forEach(s => {
-                const originalSegment = this.segments.find(seg => seg.id === s.id);
-                if (originalSegment) {
-                    originalSegment.isPartOfMerged = true;
-                    originalSegment.mergedId = mergedSegment.id;
-                }
-            });
-            
-            // Remove any previous merged segments that contain these segments
-            this.segments = this.segments.filter(s => 
-                !s.isMerged || 
-                !s.originalSegments.some(orig => 
-                    recentSegments.some(recent => recent.id === orig.id)
-                )
-            );
-            
-            // Add new merged segment
-            this.segments.push(mergedSegment);
-            
-            // Only send merged segment for transcription
-            this.sendForTranscription(mergedSegment);
 
-            console.log('Created merged segment:', {
-                id: mergedSegment.id,
-                start: mergedSegment.startTime,
-                end: mergedSegment.endTime,
-                count: mergedSegment.mergedCount,
-                originalSegments: recentSegments.map(s => s.id)
+            // Mark original segments
+            [...recentSegments, segment].forEach(s => {
+                s.isPartOfMerged = true;
+                s.mergedId = mergedSegment.id;
             });
+
+            this.segments.push(mergedSegment);
+            this.sendForTranscription(mergedSegment);
         } else {
-            // Only transcribe if not part of a merged segment
             this.sendForTranscription(segment);
         }
 
-        // Notify subscribers of updated segments
         this.notifyListeners('segmentsUpdated', this.segments);
     }
 
@@ -247,41 +208,20 @@ export class AudioManager {
     }
 
     sendForTranscription(segment) {
-        if (!this.worker || !segment.audioData || segment.isPartOfMerged) {
-            console.log('Skipping transcription:', {
-                hasWorker: !!this.worker,
-                hasAudioData: !!segment.audioData,
-                isPartOfMerged: segment.isPartOfMerged,
-                segment
-            });
-            return;
-        }
+        if (!this.worker || !segment.audioData || 
+            (segment.isPartOfMerged && !segment.isMerged)) return;
         
-        const transcriptionId = segment.id;
-
-        // Skip if already transcribing
-        if (this._activeTranscriptions.has(transcriptionId)) {
-            console.log('Already transcribing:', transcriptionId);
-            return;
-        }
-
-        console.log('Sending for transcription:', {
-            id: transcriptionId,
-            isMerged: segment.isMerged,
-            duration: segment.endTime - segment.startTime
-        });
-
-        // Mark as being processed
+        if (this._activeTranscriptions.has(segment.id)) return;
+        
         segment.isProcessed = true;
-        this._activeTranscriptions.add(transcriptionId);
+        this._activeTranscriptions.add(segment.id);
 
-        // Send to worker
         this.worker.postMessage({
             type: 'transcribe',
             data: {
                 audioData: segment.audioData,
                 language: this.language,
-                segmentId: transcriptionId,
+                segmentId: segment.id,
                 isMerged: segment.isMerged
             }
         });

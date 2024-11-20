@@ -524,11 +524,18 @@ function App() {
   useEffect(() => {
     const unsubscribe = audioManager.subscribe((event, data) => {
         switch(event) {
-            case 'newSegment':
-                setSegments(prev => [...prev, data]);
-                break;
-            case 'bufferUpdated':
-                // Update visualizer etc
+            case 'segmentsUpdated':
+                // Ensure all segment metadata is included
+                setSegments(data.map(segment => ({
+                    ...segment,
+                    startTime: segment.startTime,
+                    endTime: segment.endTime,
+                    isMerged: segment.isMerged || false,
+                    isPartOfMerged: segment.isPartOfMerged || false,
+                    isProcessed: segment.isProcessed || false,
+                    mergedId: segment.mergedId,
+                    energy: segment.energy
+                })));
                 break;
         }
     });

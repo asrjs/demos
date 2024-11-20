@@ -15,16 +15,6 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], energ
         const visibleDuration = isBufferFull ? MAX_DURATION : totalDuration;
         const windowStart = isBufferFull ? totalDuration - MAX_DURATION : 0;
 
-        if (lastBufferStateRef.current?.isBufferFull !== isBufferFull) {
-            console.log('Buffer state changed:', {
-                totalDuration: totalDuration.toFixed(2),
-                isBufferFull,
-                visibleDuration: visibleDuration.toFixed(2),
-                windowStart: windowStart.toFixed(2)
-            });
-            lastBufferStateRef.current = { isBufferFull };
-        }
-
         segments.forEach(segment => {
             const normalizedStart = isBufferFull 
                 ? (segment.startTime - windowStart) 
@@ -37,12 +27,16 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], energ
             const endX = (normalizedEnd / visibleDuration) * canvas.width;
 
             if (normalizedStart <= visibleDuration && normalizedEnd >= 0) {
-                ctx.fillStyle = segment.isProcessed 
-                    ? 'rgba(0, 200, 0, 0.1)'
-                    : 'rgba(255, 200, 0, 0.1)';
+                ctx.fillStyle = segment.isMerged ? 'rgba(128, 0, 128, 0.2)' :
+                              segment.isPartOfMerged ? 'rgba(255, 165, 0, 0.1)' :
+                              segment.isProcessed ? 'rgba(0, 200, 0, 0.1)' :
+                              'rgba(255, 200, 0, 0.1)';
+                
                 ctx.fillRect(startX, 0, endX - startX, canvas.height);
 
-                ctx.strokeStyle = 'rgba(0, 100, 200, 0.5)';
+                ctx.strokeStyle = segment.isMerged ? 
+                    'rgba(128, 0, 128, 0.5)' : 
+                    'rgba(0, 100, 200, 0.5)';
                 ctx.beginPath();
                 ctx.moveTo(startX, 0);
                 ctx.lineTo(startX, canvas.height);
@@ -53,26 +47,8 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], energ
                 ctx.fillStyle = '#666';
                 ctx.font = '10px Arial';
                 ctx.fillText(`${segment.startTime.toFixed(1)}s`, startX + 2, 10);
-                ctx.fillText(`${segment.endTime.toFixed(1)}s`, endX - 40, 10);
             }
         });
-
-        if (audioManager.lastProcessedTime > 0) {
-            const normalizedProcessedTime = isBufferFull 
-                ? (audioManager.lastProcessedTime - windowStart)
-                : audioManager.lastProcessedTime;
-                
-            if (normalizedProcessedTime >= 0 && normalizedProcessedTime <= visibleDuration) {
-                const processedX = (normalizedProcessedTime / visibleDuration) * canvas.width;
-                ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
-                ctx.setLineDash([5, 5]);
-                ctx.beginPath();
-                ctx.moveTo(processedX, 0);
-                ctx.lineTo(processedX, canvas.height);
-                ctx.stroke();
-                ctx.setLineDash([]);
-            }
-        }
     }, []);
 
     const drawWaveform = useCallback((ctx, audioData, canvas, totalDuration) => {
@@ -132,36 +108,32 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], energ
 
             const totalDuration = totalLength / audioContextRef.current.sampleRate;
 
-            // Clear canvas
+            // Clear canvas ONCE
             ctx.fillStyle = '#f5f5f5';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Draw waveform
+            // Draw layers in order
             drawWaveform(ctx, audioData, canvas, totalDuration);
-
-            // Draw segments
             drawSegments(ctx, segments, totalDuration, canvas);
-
-            // Draw time markers
-            const drawTimeMarkers = () => {
-                ctx.fillStyle = '#666';
-                ctx.font = '10px Arial';
-                const isBufferFull = totalDuration > MAX_DURATION;
-                const visibleDuration = isBufferFull ? MAX_DURATION : totalDuration;
-                const windowStart = isBufferFull ? totalDuration - MAX_DURATION : 0;
-
-                for (let i = 0; i <= visibleDuration; i += 5) {
-                    const x = (i / visibleDuration) * canvas.width;
-                    const time = windowStart + i;
-                    ctx.fillText(`${time.toFixed(0)}s`, x, canvas.height - 2);
-                }
-            };
-
-            drawTimeMarkers();
+            drawTimeMarkers(ctx, totalDuration, canvas);
         };
 
         processAudioData().catch(console.error);
     }, [chunks, segments, drawSegments, drawWaveform]);
+
+    const drawTimeMarkers = (ctx, totalDuration, canvas) => {
+        const isBufferFull = totalDuration > MAX_DURATION;
+        const visibleDuration = isBufferFull ? MAX_DURATION : totalDuration;
+        const windowStart = isBufferFull ? totalDuration - MAX_DURATION : 0;
+
+        ctx.fillStyle = '#666';
+        ctx.font = '10px Arial';
+        for (let i = 0; i <= visibleDuration; i += 5) {
+            const x = (i / visibleDuration) * canvas.width;
+            const time = windowStart + i;
+            ctx.fillText(`${time.toFixed(0)}s`, x, canvas.height - 2);
+        }
+    };
 
     return (
         <canvas 
