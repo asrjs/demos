@@ -29,7 +29,7 @@ export function AudioVisualizer({
     hysteresisRatio,
     onHysteresisChange,
     minSpeechDuration,
-    onMinSpeechDurationChange,
+    onMinSpeechDurationChange
 }) {
     // Add state for displaying current values
     const [currentEnergy, setCurrentEnergy] = useState(0);
@@ -89,17 +89,12 @@ export function AudioVisualizer({
 
                     {/* Silence Length */}
                     <div className="flex flex-col">
-                        <label className="text-sm">
-                            Min Silence (s): {silenceLength.toFixed(2)}
-                            <span className="text-xs text-gray-500 ml-1">
-                                (Minimum silence duration to split segments)
-                            </span>
-                        </label>
+                        <label className="text-sm">Min Silence (s): {silenceLength.toFixed(2)}</label>
                         <input
                             type="range"
-                            min="0.3"
-                            max="2.0"
-                            step="0.1"
+                            min="0.1"
+                            max="1.0"
+                            step="0.05"
                             value={silenceLength}
                             onChange={(e) => onSilenceLengthChange(parseFloat(e.target.value))}
                             className="w-full"

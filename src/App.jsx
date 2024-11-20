@@ -87,12 +87,6 @@ function App() {
     audioManager.initialize({
         sampleRate: WHISPER_SAMPLING_RATE,
         onSegmentDetected: (segment) => {
-            console.log('App: Received new segment', {
-                id: segment.id,
-                start: segment.startTime,
-                end: segment.endTime,
-                isMerged: segment.isMerged
-            });
             setSegments(prev => [...prev, segment]);
         }
     }).catch(error => {
@@ -102,41 +96,17 @@ function App() {
     // Set initial parameters
     audioManager.updateParameters({
         threshold: audioThreshold,
-        silenceLength,        // Used for silence detection between speech
+        silenceLength,
         speechHangover,
         energyScale,
         hysteresisRatio,
-        minSpeechDuration,
-        maxSilenceWithinSpeech,
-        endingSpeechTolerance,
-        endingEnergyThreshold
+        minSpeechDuration
     });
 
     return () => {
         audioManager.reset();
     };
   }, []); // Run once on mount
-
-  // Add effect to update segments when AudioManager notifies
-  useEffect(() => {
-    const handleSegmentsUpdate = (event, data) => {
-        if (event === 'segmentsUpdated') {
-            console.log('App: Segments updated', {
-                count: data.length,
-                segments: data.map(s => ({
-                    id: s.id,
-                    start: s.startTime,
-                    end: s.endTime,
-                    isMerged: s.isMerged
-                }))
-            });
-            setSegments(data);
-        }
-    };
-
-    audioManager.subscribe(handleSegmentsUpdate);
-    return () => audioManager.subscribe(handleSegmentsUpdate);
-  }, []);
 
   // Add user interaction handler
   const handleStartAudio = async () => {
@@ -315,34 +285,12 @@ function App() {
                             mergedId: !isMerged ? audioManager.segments.find(s => s.id === segmentId)?.mergedId : null
                         };
 
-                        // If this is a merged segment, remove transcriptions of contained segments
-                        const filteredHistory = isMerged ?
-                            prev.filter(entry => !newEntry.containedSegments?.includes(entry.id)) :
-                            // If this is a regular segment that's not part of a merged one, keep it
-                            prev.filter(entry => 
-                                entry.id !== segmentId && 
-                                (!entry.isPartOfMerged || entry.mergedId !== newEntry.mergedId)
-                            );
+                        // Filter out transcriptions that are now part of this merged segment
+                        const filteredHistory = prev.filter(entry => 
+                            !newEntry.containedSegments?.includes(entry.id)
+                        );
 
                         return [...filteredHistory, newEntry];
-                    });
-
-                    // Update editable text based on filtered history
-                    setEditableText(prev => {
-                        const validTranscriptions = transcriptionHistory
-                            .filter(entry => 
-                                // Keep only:
-                                // 1. Merged segments
-                                // 2. OR individual segments that aren't part of any merged segment
-                                entry.isMerged || (!entry.isPartOfMerged && !entry.mergedId)
-                            )
-                            .sort((a, b) => {
-                                // Sort by timestamp to maintain order
-                                return a.timestamp - b.timestamp;
-                            })
-                            .map(entry => entry.text);
-
-                        return validTranscriptions.join('\n');
                     });
 
                     // Update AudioManager

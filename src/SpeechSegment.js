@@ -1,15 +1,11 @@
 export class SpeechSegment {
-    constructor({ startTime, endTime, energy, audioData, isProcessed = false, isMerged = false, isPartOfMerged = false }) {
+    constructor({ startTime, endTime, energy, audioData }) {
         this.startTime = startTime;
         this.endTime = endTime;
         this.energy = energy;
         this.audioData = audioData;
-        this.isProcessed = isProcessed;
-        this.isMerged = isMerged;
-        this.isPartOfMerged = isPartOfMerged;
+        this.isProcessed = false;
         this.transcription = '';
-        this.id = null;
-        this.mergedId = null;
     }
 
     getDuration() {
@@ -17,6 +13,6 @@ export class SpeechSegment {
     }
 
     isSilence() {
-        return false;
+        return false;  // For now, assume no silence segments
     }
 } 
