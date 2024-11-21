@@ -58,10 +58,10 @@ export function AudioVisualizer({
                 />
             </div>
             
-            {/* Parameters and Stats in flex container with aligned heights */}
-            <div className="flex gap-4 h-full">
+            {/* Change from flex to grid layout */}
+            <div className="grid grid-cols-1 gap-4">
                 {/* Parameters Panel */}
-                <div className="flex-1 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
                     <h3 className="text-xs font-semibold mb-2">Speech Detection Parameters</h3>
                     
                     <div className="grid grid-cols-2 gap-2">
@@ -174,7 +174,7 @@ export function AudioVisualizer({
                 </div>
 
                 {/* Stats Widget */}
-                <div className="flex-1 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
                     <StatsWidget 
                         chunks={chunks}
                         audioContextRef={audioContextRef}
