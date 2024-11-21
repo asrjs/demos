@@ -264,6 +264,56 @@ export class AudioManager {
         return this.audioBuffer.slice(startSample, endSample);
     }
 
+    // Update trimSilence method to use known padding durations
+    trimSilence(audioData, sampleRate, threshold = 0.01, lookbackDuration = 0.5, overlapDuration = 0.3) {
+        if (!audioData || audioData.length === 0) return audioData;
+
+        // Use half of the padding durations for trimming to be conservative
+        const safeLookback = lookbackDuration / 2;  // 250ms
+        const safeOverlap = overlapDuration / 2;    // 150ms
+
+        // Convert time to samples
+        const lookbackSamples = Math.floor(safeLookback * sampleRate);
+        const overlapSamples = Math.floor(safeOverlap * sampleRate);
+        
+        // Use a small window to calculate average energy
+        const windowSize = Math.floor(0.02 * sampleRate); // 20ms window
+        let startIndex = lookbackSamples;  // Start from lookback point
+        let endIndex = audioData.length - overlapSamples - 1; // End before overlap point
+
+        // Find start index (trim leading silence)
+        for (let i = lookbackSamples; i < audioData.length - windowSize - overlapSamples; i += windowSize) {
+            let windowEnergy = 0;
+            for (let j = 0; j < windowSize; j++) {
+                windowEnergy += Math.abs(audioData[i + j]);
+            }
+            windowEnergy /= windowSize;
+
+            if (windowEnergy > threshold) {
+                startIndex = Math.max(lookbackSamples, i - windowSize); // Keep at least lookback samples
+                break;
+            }
+        }
+
+        // Find end index (trim trailing silence)
+        for (let i = audioData.length - overlapSamples - windowSize; i >= lookbackSamples; i -= windowSize) {
+            let windowEnergy = 0;
+            for (let j = 0; j < windowSize; j++) {
+                windowEnergy += Math.abs(audioData[i + j]);
+            }
+            windowEnergy /= windowSize;
+
+            if (windowEnergy > threshold) {
+                endIndex = Math.min(audioData.length - overlapSamples, i + windowSize * 2);
+                break;
+            }
+        }
+
+        // Create trimmed copy while preserving minimum padding
+        return audioData.slice(startIndex, endIndex);
+    }
+
+    // Update sendForTranscription method to pass padding durations
     sendForTranscription(segment) {
         if (!this.worker || !segment.audioData || 
             (segment.isPartOfMerged && !segment.isMerged)) return;
@@ -273,11 +323,36 @@ export class AudioManager {
         segment.isProcessed = true;
         this._activeTranscriptions.add(segment.id);
 
+        // Get the same padding durations used in createSegment
+        const lookbackDuration = 0.5;  // Must match value in createSegment
+        const overlapDuration = 0.3;   // Must match value in createSegment
+
+        // Create trimmed copy for transcription
+        const trimmedAudio = this.trimSilence(
+            segment.audioData, 
+            this.audioContext.sampleRate,
+            this.parameters.threshold / 2, // Use half of the detection threshold for trimming
+            lookbackDuration,
+            overlapDuration
+        );
+
+        // Log trimming results
+        const originalDuration = segment.audioData.length / this.audioContext.sampleRate;
+        const trimmedDuration = trimmedAudio.length / this.audioContext.sampleRate;
+        console.log('Audio trimming results:', {
+            segmentId: segment.id,
+            originalDuration: originalDuration.toFixed(2) + 's',
+            trimmedDuration: trimmedDuration.toFixed(2) + 's',
+            reduction: ((1 - trimmedDuration / originalDuration) * 100).toFixed(1) + '%',
+            lookbackDuration: lookbackDuration.toFixed(2) + 's',
+            overlapDuration: overlapDuration.toFixed(2) + 's'
+        });
+
         console.log('Sending for transcription with language:', this.language);
         this.worker.postMessage({
             type: 'transcribe',
             data: {
-                audioData: segment.audioData,
+                audioData: trimmedAudio,
                 language: this.language,
                 segmentId: segment.id,
                 isMerged: segment.isMerged
