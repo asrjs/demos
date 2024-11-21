@@ -728,144 +728,148 @@ function App() {
 
   return (
     <div className="flex flex-col min-h-screen max-h-screen w-screen mx-auto text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-900">
-      <div className="flex-1 w-full overflow-y-auto scrollbar-thin flex flex-col items-center gap-4 p-4">
-        {/* Header - make it more compact */}
-        <div className="flex flex-col items-center mb-2">
-          <img src="logo.png" width="40px" height="auto" className="block mb-1" />
-          <h1 className="text-xl font-bold">Whisper WebGPU</h1>
-          <h2 className="text-base font-semibold">Real-time in-browser speech recognition</h2>
-        </div>
-
-        {/* Control Buttons - make them more compact */}
-        <div className="flex gap-2 items-center mb-2">
-            {!recording && (
-                <button
-                    className="border px-3 py-1 rounded-lg bg-blue-400 text-white hover:bg-blue-500"
-                    onClick={handleStartAudio}
-                >
-                    Start Audio Capture
-                </button>
-            )}
-            
-            <LanguageSelector 
-                language={language}
-                setLanguage={handleLanguageChange}
-                disabled={selectedModel.endsWith('.en')}
-            />
-            
-            {status === 'initialized' && (
-                <div className="flex items-center gap-2">
-                    <ModelSelector 
-                        model={selectedModel} 
-                        setModel={handleModelChange}
-                    />
-                    <button
-                        className="border px-3 py-1 rounded-lg bg-blue-400 text-white hover:bg-blue-500"
-                        onClick={() => {
-                            worker.current?.postMessage({ 
-                                type: 'load',
-                                data: { modelId: selectedModel }
-                            });
-                            setStatus('loading');
-                        }}
-                    >
-                        Load Model
-                    </button>
+        {/* Compact Header */}
+        <header className="flex items-center justify-between px-4 py-2 bg-gray-50 dark:bg-gray-800 border-b">
+            <div className="flex items-center gap-2">
+                <img src="logo.png" width="32" height="32" className="block" />
+                <div>
+                    <h1 className="text-lg font-bold">Whisper WebGPU</h1>
+                    <h2 className="text-xs text-gray-600 dark:text-gray-400">Real-time speech recognition</h2>
                 </div>
-            )}
-        </div>
-
-        {/* Main content area - constrain height */}
-        <div className="flex flex-col w-full max-w-[90vw] gap-4">
-          {/* Audio visualization with fixed height */}
-          <div className="h-[300px]">
-            <AudioVisualizer 
-              className="w-full h-full rounded-lg" 
-              stream={stream} 
-              threshold={audioThreshold}
-              onThresholdChange={setAudioThreshold}
-              silenceLength={silenceLength}
-              onSilenceLengthChange={setSilenceLength}
-              speechHangover={speechHangover}
-              onHangoverChange={setSpeechHangover}
-              chunks={chunks}
-              audioContextRef={audioContextRef}
-              segments={segments}
-              energyScale={energyScale}
-              onEnergyScaleChange={setEnergyScale}
-              hysteresisRatio={hysteresisRatio}
-              onHysteresisChange={setHysteresisRatio}
-              minSpeechDuration={minSpeechDuration}
-              onMinSpeechDurationChange={setMinSpeechDuration}
-              processor={audioManager.processor}
-              minEnergyIntegral={minEnergyIntegral}
-              onMinEnergyIntegralChange={setMinEnergyIntegral}
-            />
-          </div>
-
-          {/* Loading progress */}
-          {status === 'loading' && (
-            <div className="w-full max-w-[500px] mx-auto p-4">
-              <p className="text-center">{loadingMessage}</p>
-              {progressItems.map(({ file, progress, total }, i) => (
-                <Progress key={i} text={file} percentage={progress} total={total} />
-              ))}
             </div>
-          )}
-
-          {/* Transcription output with fixed height */}
-          {status === 'ready' && (
-            <div className="relative w-full h-[240px]">
-              <textarea
-                  value={editableText}
-                  onChange={(e) => setEditableText(e.target.value)}
-                  className="w-full h-full resize-none overflow-y-auto font-mono text-sm 
-                            border rounded-lg p-2 bg-white dark:bg-gray-800 
-                            focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Transcriptions will appear here. You can edit the text..."
-              />
-              <div className="absolute bottom-2 right-2 flex gap-2">
-                  {tps && (
-                      <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-sm">
-                          {tps.toFixed(2)} tok/s
-                      </span>
-                  )}
-                  <button
-                      onClick={() => setEditableText('')}
-                      className="px-2 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
-                  >
-                      Clear
-                  </button>
-                  <button
-                      onClick={() => {
-                          navigator.clipboard.writeText(editableText);
-                      }}
-                      className="px-2 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
-                  >
-                      Copy
-                  </button>
-                  <button 
-                      className="px-2 py-1 text-sm bg-gray-500 text-white rounded hover:bg-gray-600"
-                      onClick={handleReset}
-                  >
-                      Reset
-                  </button>
-              </div>
-              {/* Uncomment to show debug info */}
-              {/* <TranscriptionHistoryDebug /> */}
+            
+            <div className="flex items-center gap-2">
+                <LanguageSelector 
+                    language={language}
+                    setLanguage={handleLanguageChange}
+                    disabled={selectedModel.endsWith('.en')}
+                />
+                
+                {status === 'initialized' && (
+                    <>
+                        <ModelSelector 
+                            model={selectedModel} 
+                            setModel={handleModelChange}
+                        />
+                        <button
+                            className="px-3 py-1 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                            onClick={() => {
+                                worker.current?.postMessage({ 
+                                    type: 'load',
+                                    data: { modelId: selectedModel }
+                                });
+                                setStatus('loading');
+                            }}
+                        >
+                            Load Model
+                        </button>
+                    </>
+                )}
+                
+                {!recording && (
+                    <button
+                        className="px-3 py-1 text-sm bg-green-500 text-white rounded-lg hover:bg-green-600"
+                        onClick={handleStartAudio}
+                    >
+                        Start Recording
+                    </button>
+                )}
             </div>
-          )}
-        </div>
+        </header>
 
-        {/* Speech Segments Widget - fixed height and scrollable */}
-        <div className="w-full max-w-[90vw] h-[300px] overflow-y-auto">
-          <AudioSegmentsWidget 
-              segments={segments} 
-              worker={worker.current} 
-              language={language}
-          />
+        {/* Main Content - Three Column Layout */}
+        <div className="flex-1 grid grid-cols-12 gap-4 p-4 overflow-hidden">
+            {/* Left Column - Audio Controls & Stats */}
+            <div className="col-span-3 flex flex-col gap-4 overflow-y-auto">
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                    <AudioVisualizer 
+                        className="w-full" 
+                        stream={stream} 
+                        threshold={audioThreshold}
+                        onThresholdChange={setAudioThreshold}
+                        silenceLength={silenceLength}
+                        onSilenceLengthChange={setSilenceLength}
+                        speechHangover={speechHangover}
+                        onHangoverChange={setSpeechHangover}
+                        chunks={chunks}
+                        audioContextRef={audioContextRef}
+                        segments={segments}
+                        energyScale={energyScale}
+                        onEnergyScaleChange={setEnergyScale}
+                        hysteresisRatio={hysteresisRatio}
+                        onHysteresisChange={setHysteresisRatio}
+                        minSpeechDuration={minSpeechDuration}
+                        onMinSpeechDurationChange={setMinSpeechDuration}
+                        processor={audioManager.processor}
+                        minEnergyIntegral={minEnergyIntegral}
+                        onMinEnergyIntegralChange={setMinEnergyIntegral}
+                    />
+                </div>
+            </div>
+
+            {/* Middle Column - Transcription Output */}
+            <div className="col-span-5 flex flex-col gap-4 overflow-hidden">
+                {/* Loading Progress */}
+                {status === 'loading' && (
+                    <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                        <p className="text-center mb-2">{loadingMessage}</p>
+                        {progressItems.map(({ file, progress, total }, i) => (
+                            <Progress key={i} text={file} percentage={progress} total={total} />
+                        ))}
+                    </div>
+                )}
+
+                {/* Transcription Text Area */}
+                {status === 'ready' && (
+                    <div className="flex-1 flex flex-col bg-gray-50 dark:bg-gray-800 rounded-lg overflow-hidden">
+                        <div className="flex-1 relative">
+                            <textarea
+                                value={editableText}
+                                onChange={(e) => setEditableText(e.target.value)}
+                                className="absolute inset-0 w-full h-full resize-none p-4 
+                                         font-mono text-sm bg-white dark:bg-gray-800 
+                                         border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                placeholder="Transcriptions will appear here..."
+                            />
+                        </div>
+                        <div className="flex justify-end gap-2 p-2 bg-gray-100 dark:bg-gray-700">
+                            {tps && (
+                                <span className="px-2 py-1 text-sm bg-gray-200 dark:bg-gray-600 rounded">
+                                    {tps.toFixed(2)} tok/s
+                                </span>
+                            )}
+                            <button
+                                onClick={() => setEditableText('')}
+                                className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
+                            >
+                                Clear
+                            </button>
+                            <button
+                                onClick={() => navigator.clipboard.writeText(editableText)}
+                                className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+                            >
+                                Copy
+                            </button>
+                            <button 
+                                onClick={handleReset}
+                                className="px-3 py-1 text-sm bg-gray-500 text-white rounded hover:bg-gray-600"
+                            >
+                                Reset
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Right Column - Segments List */}
+            <div className="col-span-4 overflow-y-auto">
+                <AudioSegmentsWidget 
+                    segments={segments} 
+                    worker={worker.current} 
+                    language={language}
+                />
+            </div>
         </div>
-      </div>
     </div>
   );
 }
