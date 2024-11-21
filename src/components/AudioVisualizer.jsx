@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { BufferVisualizer } from './BufferVisualizer';
+import { StatsWidget } from './StatsWidget';
 
 /**
  * Component for visualizing audio data and controls
@@ -29,7 +30,8 @@ export function AudioVisualizer({
     hysteresisRatio,
     onHysteresisChange,
     minSpeechDuration,
-    onMinSpeechDurationChange
+    onMinSpeechDurationChange,
+    processor
 }) {
     // Add state for displaying current values
     const [currentEnergy, setCurrentEnergy] = useState(0);
@@ -39,8 +41,8 @@ export function AudioVisualizer({
 
     return (
         <div className={className}>
-            {/* Single BufferVisualizer */}
-            <div className="mb-4">
+            {/* BufferVisualizer */}
+            <div className="mb-2">
                 <BufferVisualizer 
                     chunks={chunks}
                     audioContextRef={audioContextRef}
@@ -54,102 +56,116 @@ export function AudioVisualizer({
                 />
             </div>
             
-            {/* Parameters Panel */}
-            <div className="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                <h3 className="font-semibold mb-2">Speech Detection Parameters</h3>
-                
-                <div className="grid grid-cols-2 gap-4">
-                    {/* Energy Threshold */}
-                    <div className="flex flex-col">
-                        <label className="text-sm">Energy Threshold: {threshold.toFixed(3)}</label>
-                        <input
-                            type="range"
-                            min="0.005"
-                            max="0.25"
-                            step="0.001"
-                            value={threshold}
-                            onChange={(e) => onThresholdChange(parseFloat(e.target.value))}
-                            className="w-full"
-                        />
+            {/* Parameters and Stats in flex container with aligned heights */}
+            <div className="flex gap-4 h-full">
+                {/* Parameters Panel */}
+                <div className="flex-1 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <h3 className="text-xs font-semibold mb-2">Speech Detection Parameters</h3>
+                    
+                    <div className="grid grid-cols-2 gap-2">
+                        {/* Energy Threshold */}
+                        <div className="flex flex-col">
+                            <label className="text-xs mb-1">Energy Threshold: {threshold.toFixed(3)}</label>
+                            <input
+                                type="range"
+                                min="0.05"
+                                max="1.0"
+                                step="0.01"
+                                value={threshold}
+                                onChange={(e) => onThresholdChange(parseFloat(e.target.value))}
+                                className="w-full h-4"
+                            />
+                        </div>
+
+                        {/* Energy Scale */}
+                        <div className="flex flex-col">
+                            <label className="text-xs mb-1">Energy Scale: {energyScale.toFixed(1)}</label>
+                            <input
+                                type="range"
+                                min="0.1"
+                                max="2.0"
+                                step="0.1"
+                                value={energyScale}
+                                onChange={(e) => onEnergyScaleChange(parseFloat(e.target.value))}
+                                className="w-full h-4"
+                            />
+                        </div>
+
+                        {/* Silence Length */}
+                        <div className="flex flex-col">
+                            <label className="text-xs mb-1">Min Silence (s): {silenceLength.toFixed(2)}</label>
+                            <input
+                                type="range"
+                                min="0.1"
+                                max="1.0"
+                                step="0.05"
+                                value={silenceLength}
+                                onChange={(e) => onSilenceLengthChange(parseFloat(e.target.value))}
+                                className="w-full h-4"
+                            />
+                        </div>
+
+                        {/* Speech Hangover */}
+                        <div className="flex flex-col">
+                            <label className="text-xs mb-1">Speech Hangover (s): {speechHangover.toFixed(2)}</label>
+                            <input
+                                type="range"
+                                min="0.1"
+                                max="0.5"
+                                step="0.05"
+                                value={speechHangover}
+                                onChange={(e) => onHangoverChange(parseFloat(e.target.value))}
+                                className="w-full h-4"
+                            />
+                        </div>
+
+                        {/* Min Speech Duration */}
+                        <div className="flex flex-col">
+                            <label className="text-xs mb-1">Min Speech (s): {minSpeechDuration.toFixed(2)}</label>
+                            <input
+                                type="range"
+                                min="0.05"
+                                max="0.5"
+                                step="0.05"
+                                value={minSpeechDuration}
+                                onChange={(e) => onMinSpeechDurationChange(parseFloat(e.target.value))}
+                                className="w-full h-4"
+                            />
+                        </div>
+
+                        {/* Hysteresis Ratio */}
+                        <div className="flex flex-col">
+                            <label className="text-xs mb-1">Hysteresis: {hysteresisRatio.toFixed(2)}</label>
+                            <input
+                                type="range"
+                                min="1.0"
+                                max="2.0"
+                                step="0.1"
+                                value={hysteresisRatio}
+                                onChange={(e) => onHysteresisChange(parseFloat(e.target.value))}
+                                className="w-full h-4"
+                            />
+                        </div>
                     </div>
 
-                    {/* Energy Scale */}
-                    <div className="flex flex-col">
-                        <label className="text-sm">Energy Scale: {energyScale.toFixed(1)}</label>
-                        <input
-                            type="range"
-                            min="0.1"
-                            max="2.0"
-                            step="0.1"
-                            value={energyScale}
-                            onChange={(e) => onEnergyScaleChange(parseFloat(e.target.value))}
-                            className="w-full"
-                        />
-                    </div>
-
-                    {/* Silence Length */}
-                    <div className="flex flex-col">
-                        <label className="text-sm">Min Silence (s): {silenceLength.toFixed(2)}</label>
-                        <input
-                            type="range"
-                            min="0.1"
-                            max="1.0"
-                            step="0.05"
-                            value={silenceLength}
-                            onChange={(e) => onSilenceLengthChange(parseFloat(e.target.value))}
-                            className="w-full"
-                        />
-                    </div>
-
-                    {/* Speech Hangover */}
-                    <div className="flex flex-col">
-                        <label className="text-sm">Speech Hangover (s): {speechHangover.toFixed(2)}</label>
-                        <input
-                            type="range"
-                            min="0.1"
-                            max="0.5"
-                            step="0.05"
-                            value={speechHangover}
-                            onChange={(e) => onHangoverChange(parseFloat(e.target.value))}
-                            className="w-full"
-                        />
-                    </div>
-
-                    {/* Min Speech Duration */}
-                    <div className="flex flex-col">
-                        <label className="text-sm">Min Speech (s): {minSpeechDuration.toFixed(2)}</label>
-                        <input
-                            type="range"
-                            min="0.05"
-                            max="0.5"
-                            step="0.05"
-                            value={minSpeechDuration}
-                            onChange={(e) => onMinSpeechDurationChange(parseFloat(e.target.value))}
-                            className="w-full"
-                        />
-                    </div>
-
-                    {/* Hysteresis Ratio */}
-                    <div className="flex flex-col">
-                        <label className="text-sm">Hysteresis: {hysteresisRatio.toFixed(2)}</label>
-                        <input
-                            type="range"
-                            min="1.0"
-                            max="2.0"
-                            step="0.1"
-                            value={hysteresisRatio}
-                            onChange={(e) => onHysteresisChange(parseFloat(e.target.value))}
-                            className="w-full"
-                        />
+                    {/* Current Values Display */}
+                    <div className="mt-2 text-xs grid grid-cols-4 gap-1">
+                        <div>Current: {currentEnergy.toFixed(4)}</div>
+                        <div>Avg: {averageEnergy.toFixed(4)}</div>
+                        <div>Peak: {peakEnergy.toFixed(4)}</div>
+                        <div>Raw: {rawPeakValue.toFixed(4)}</div>
                     </div>
                 </div>
 
-                {/* Current Values Display */}
-                <div className="mt-4 text-sm grid grid-cols-4 gap-2">
-                    <div>Current Energy: {currentEnergy.toFixed(4)}</div>
-                    <div>Average Energy: {averageEnergy.toFixed(4)}</div>
-                    <div>Peak Energy: {peakEnergy.toFixed(4)}</div>
-                    <div>Raw Peak: {rawPeakValue.toFixed(4)}</div>
+                {/* Stats Widget */}
+                <div className="flex-1 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <StatsWidget 
+                        chunks={chunks}
+                        audioContextRef={audioContextRef}
+                        segments={segments}
+                        threshold={threshold}
+                        processor={processor}
+                    />
                 </div>
             </div>
         </div>

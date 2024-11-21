@@ -139,7 +139,7 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], energ
         <canvas 
             ref={canvasRef} 
             width={720} 
-            height={120}
+            height={80}
             className="w-full border rounded bg-[#f5f5f5]"
         />
     );

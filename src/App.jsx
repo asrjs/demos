@@ -4,7 +4,6 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 
 import { AudioVisualizer } from './components/AudioVisualizer';
 import Progress from './components/Progress';
-import { StatsWidget } from './components/StatsWidget';
 import { SpeechSegment } from './SpeechSegment';
 import { AudioSegmentProcessor } from './AudioSegmentProcessor';
 import { AudioManager, audioManager } from './AudioManager';
@@ -56,7 +55,7 @@ function App() {
   const [recording, setRecording] = useState(false);
 
   // Audio parameters state
-  const [audioThreshold, setAudioThreshold] = useState(0.1);
+  const [audioThreshold, setAudioThreshold] = useState(0.125);
   const [silenceLength, setSilenceLength] = useState(0.6);    // 8 * BASE_TIME_UNIT
   const [speechHangover, setSpeechHangover] = useState(0.2);
   const [energyScale, setEnergyScale] = useState(2.0);
@@ -589,7 +588,7 @@ function App() {
 
   return (
     <div className="flex flex-col h-screen w-screen mx-auto justify-start text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-900">
-      <div className="h-full w-full overflow-auto scrollbar-thin flex justify-start items-center flex-col relative pt-4">
+      <div className="h-full w-full overflow-auto scrollbar-thin flex justify-start items-center flex-col relative pt-2">
         {/* Header */}
         <div className="flex flex-col items-center mb-1 max-w-[300px] text-center">
           <img src="logo.png" width="10%" height="auto" className="block" />
@@ -622,9 +621,9 @@ function App() {
         </div>
 
         {/* Main content */}
-        <div className="flex flex-col items-center w-full px-8">
+        <div className="flex flex-col items-center w-full px-4">
           {/* Audio visualization and controls */}
-          <div className="w-full max-w-[90vw] p-2">
+          <div className="w-full max-w-[90vw] p-1">
             <AudioVisualizer 
               className="w-full rounded-lg" 
               stream={stream} 
@@ -643,6 +642,7 @@ function App() {
               onHysteresisChange={setHysteresisRatio}
               minSpeechDuration={minSpeechDuration}
               onMinSpeechDurationChange={setMinSpeechDuration}
+              processor={audioManager.processor}
             />
 
             {/* Loading progress */}
@@ -661,7 +661,7 @@ function App() {
                 <textarea
                     value={editableText}
                     onChange={(e) => setEditableText(e.target.value)}
-                    className="w-full h-[160px] overflow-y-auto font-mono text-sm 
+                    className="w-full h-[240px] overflow-y-auto font-mono text-sm 
                               border rounded-lg p-2 bg-white dark:bg-gray-800 
                               focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Transcriptions will appear here. You can edit the text..."
@@ -691,14 +691,6 @@ function App() {
                 {/* <TranscriptionHistoryDebug /> */}
               </div>
             )}
-
-            <StatsWidget 
-              chunks={chunks} 
-              audioContextRef={audioContextRef}
-              segments={segments}
-              threshold={audioThreshold}
-              processor={audioManager.processor}
-            />
 
             {/* Language selection and reset */}
             {status === 'ready' && (

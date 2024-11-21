@@ -58,7 +58,7 @@ class AutomaticSpeechRecognitionPipeline {
                 device: 'webgpu',
                 dtype: 'fp32',   // Change to int8 for quantization
                 quantized: false, // Enable quantization
-                revision: 'main',
+                // revision: 'main',
                 progress_callback: (progress) => {
                     progress_callback?.({
                         status: 'initiate',
@@ -92,6 +92,8 @@ async function transcribeAudio(audioData, options) {
             ...inputs,
             max_new_tokens: MAX_NEW_TOKENS,
             language: options.language,
+            chunk_length_s: 45,
+            stride_length_s: 4,
 
             // Beam search optimization
             // num_beams: 1,              // Increase beam search width for better candidates

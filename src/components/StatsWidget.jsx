@@ -27,33 +27,37 @@ export function StatsWidget({
     }, [processor]);
 
     return (
-        <div className="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
-            <h3 className="font-semibold mb-2">Audio Stats</h3>
+        <div>
+            <h3 className="text-xs font-semibold mb-2">Audio Stats</h3>
+            
             <div className="grid grid-cols-2 gap-4">
+                {/* Silence Stats */}
                 <div>
-                    <h4 className="font-medium">Silence Stats</h4>
-                    <p>Avg Duration: {localStats.silence.avgDuration.toFixed(2)}s</p>
-                    <p>Avg Energy: {localStats.silence.avgEnergy.toFixed(4)}</p>
-                    <p>Energy Integral: {localStats.silence.avgEnergyIntegral.toFixed(4)}</p>
-                </div>
-                <div>
-                    <h4 className="font-medium">Speech Stats</h4>
-                    <p>Avg Duration: {localStats.speech.avgDuration.toFixed(2)}s</p>
-                    <p>Avg Energy: {localStats.speech.avgEnergy.toFixed(4)}</p>
-                    <p>Energy Integral: {localStats.speech.avgEnergyIntegral.toFixed(4)}</p>
-                </div>
-                <div className="col-span-2">
-                    <div className="grid grid-cols-2 gap-2">
-                        <div>
-                            <p>Total Segments: {segments.length}</p>
-                            <p>Energy Threshold: {threshold.toFixed(4)}</p>
-                        </div>
-                        <div>
-                            <p>Buffer Duration: {(chunks.length * 1600 / 16000).toFixed(2)}s</p>
-                            <p>Sample Rate: {audioContextRef.current?.sampleRate || 16000}Hz</p>
-                        </div>
+                    <h4 className="text-xs font-semibold mb-1">Silence Stats</h4>
+                    <div className="text-xs space-y-1">
+                        <div>Avg Duration: {localStats.silence.avgDuration.toFixed(2)}s</div>
+                        <div>Avg Energy: {localStats.silence.avgEnergy.toFixed(4)}</div>
+                        <div>Energy Integral: {localStats.silence.avgEnergyIntegral.toFixed(4)}</div>
                     </div>
                 </div>
+
+                {/* Speech Stats */}
+                <div>
+                    <h4 className="text-xs font-semibold mb-1">Speech Stats</h4>
+                    <div className="text-xs space-y-1">
+                        <div>Avg Duration: {localStats.speech.avgDuration.toFixed(2)}s</div>
+                        <div>Avg Energy: {localStats.speech.avgEnergy.toFixed(4)}</div>
+                        <div>Energy Integral: {localStats.speech.avgEnergyIntegral.toFixed(4)}</div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Additional Stats */}
+            <div className="mt-2 text-xs space-y-1">
+                <div>Total Segments: {segments.length}</div>
+                <div>Energy Threshold: {threshold.toFixed(4)}</div>
+                <div>Buffer Duration: {(chunks.length * 1600 / 16000).toFixed(2)}s</div>
+                <div>Sample Rate: {audioContextRef.current?.sampleRate || 16000}Hz</div>
             </div>
         </div>
     );
