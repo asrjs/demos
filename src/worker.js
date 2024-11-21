@@ -12,11 +12,11 @@ env.allowLocalModels = true;
 env.allowRemoteModels = false;
 env.localModelPath = '/models';
 
-const MAX_NEW_TOKENS = 128;
+const MAX_NEW_TOKENS = 96;
 const MAX_PARALLEL_JOBS = 1;
 
 class AutomaticSpeechRecognitionPipeline {
-    static model_id = 'small-dsntt1-tr';
+    static model_id = 'base-dsntt1-tr';
     static tokenizer = null;
     static processor = null;
     static model = null;
@@ -92,19 +92,19 @@ async function transcribeAudio(audioData, options) {
             ...inputs,
             max_new_tokens: MAX_NEW_TOKENS,
             language: options.language,
-            chunk_length_s: 45,
-            stride_length_s: 4,
+            // chunk_length_s: 45,
+            // stride_length_s: 4,
 
             // Beam search optimization
-            // num_beams: 1,              // Increase beam search width for better candidates
+            num_beams: 1,              // Increase beam search width for better candidates
             // length_penalty: 1.0,       // Encourage longer sequences
             // no_repeat_ngram_size: 3,   // Prevent repetition of 3-grams
             
             // Sampling strategy
-            // do_sample: false,           // Enable sampling for more natural output
-            // top_k: 10,                 // Consider more candidates
+            // do_sample: true,           // Enable sampling for more natural output
+            // top_k: 25,                 // Consider more candidates
             // top_p: 0.9,              // Nucleus sampling threshold
-            // temperature: 0.95,          // Add some randomness while keeping coherence
+            temperature: 0.0,          // Add some randomness while keeping coherence
             
             // Additional options
             // early_stopping: true,      // Stop when no better candidates are found  * worse
