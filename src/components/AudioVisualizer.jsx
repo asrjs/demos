@@ -31,7 +31,9 @@ export function AudioVisualizer({
     onHysteresisChange,
     minSpeechDuration,
     onMinSpeechDurationChange,
-    processor
+    processor,
+    minEnergyIntegral,
+    onMinEnergyIntegralChange
 }) {
     // Add state for displaying current values
     const [currentEnergy, setCurrentEnergy] = useState(0);
@@ -143,6 +145,20 @@ export function AudioVisualizer({
                                 step="0.1"
                                 value={hysteresisRatio}
                                 onChange={(e) => onHysteresisChange(parseFloat(e.target.value))}
+                                className="w-full h-4"
+                            />
+                        </div>
+
+                        {/* Min Energy Integral */}
+                        <div className="flex flex-col">
+                            <label className="text-xs mb-1">Min Energy Integral: {minEnergyIntegral.toFixed(3)}</label>
+                            <input
+                                type="range"
+                                min="5"
+                                max="50"
+                                step="5"
+                                value={minEnergyIntegral}
+                                onChange={(e) => onMinEnergyIntegralChange(parseFloat(e.target.value))}
                                 className="w-full h-4"
                             />
                         </div>

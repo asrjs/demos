@@ -145,11 +145,52 @@ export class AudioManager {
      * @param {Object} segment - Detected speech segment
      */
     handleNewSegment(segment) {
-        // Add audio data to the segment
+        // Calculate energy integral for the segment
+        const energyIntegral = this.calculateSegmentEnergyIntegral(segment);
+        const duration = segment.endTime - segment.startTime;
+        
+        // Log all candidate segments with their properties
+        console.log('Candidate segment detected:', {
+            startTime: segment.startTime.toFixed(2),
+            endTime: segment.endTime.toFixed(2),
+            duration: duration.toFixed(2),
+            energyIntegral: energyIntegral.toFixed(4),
+            isValidSpeech: duration >= this.parameters.minSpeechDuration && 
+                          energyIntegral >= this.parameters.minEnergyIntegral,
+            minDurationRequired: this.parameters.minSpeechDuration,
+            minEnergyIntegralRequired: this.parameters.minEnergyIntegral
+        });
+
+        // Filter out short noises and clicks
+        const isValidSpeech = 
+            duration >= this.parameters.minSpeechDuration && 
+            energyIntegral >= this.parameters.minEnergyIntegral;
+
+        if (!isValidSpeech) {
+            console.log('🚫 Filtered out noise segment:', {
+                reason: duration < this.parameters.minSpeechDuration ? 
+                    'Too short' : 'Energy integral too low',
+                duration: duration.toFixed(2),
+                energyIntegral: energyIntegral.toFixed(4),
+                thresholds: {
+                    minDuration: this.parameters.minSpeechDuration,
+                    minEnergyIntegral: this.parameters.minEnergyIntegral
+                }
+            });
+            return;
+        }
+
+        console.log('✅ Valid speech segment:', {
+            duration: duration.toFixed(2),
+            energyIntegral: energyIntegral.toFixed(4)
+        });
+
+        // Add audio data and metadata to the segment
         const startSample = Math.floor(segment.startTime * this.audioContext.sampleRate);
         const endSample = Math.ceil(segment.endTime * this.audioContext.sampleRate);
         segment.audioData = this.audioBuffer.slice(startSample, endSample);
         segment.sampleRate = this.audioContext.sampleRate;
+        segment.energyIntegral = energyIntegral;
 
         // Add metadata
         segment.id = this.generateSegmentId();
@@ -193,6 +234,22 @@ export class AudioManager {
         }
 
         this.notifyListeners('segmentsUpdated', this.segments);
+    }
+
+    calculateSegmentEnergyIntegral(segment) {
+        const startSample = Math.floor(segment.startTime * this.audioContext.sampleRate);
+        const endSample = Math.ceil(segment.endTime * this.audioContext.sampleRate);
+        const segmentData = this.audioBuffer.slice(startSample, endSample);
+        
+        // Calculate energy integral (sum of squared amplitudes)
+        let energyIntegral = 0;
+        for (let i = 0; i < segmentData.length; i++) {
+            energyIntegral += segmentData[i] * segmentData[i];
+        }
+        
+        // Normalize by duration
+        const duration = (endSample - startSample) / this.audioContext.sampleRate;
+        return energyIntegral / duration;
     }
 
     getMergedAudioData(segments) {
@@ -280,11 +337,32 @@ export class AudioManager {
      * @param {Object} params - Object containing parameter updates
      */
     updateParameters(params) {
+        // Update internal parameters
         Object.assign(this.parameters, params);
+        
+        // Update processor parameters if processor exists
         if (this.processor) {
-            this.processor.setThreshold(this.parameters.threshold);
-            this.processor.setSilenceLength(this.parameters.silenceLength);
+            // Only call methods that exist on the processor
+            if (params.threshold !== undefined) {
+                this.processor.setThreshold?.(this.parameters.threshold);
+            }
+            if (params.silenceLength !== undefined) {
+                this.processor.setSilenceLength?.(this.parameters.silenceLength);
+            }
+            
+            // Update processor options directly for other parameters
+            if (this.processor.options) {
+                Object.assign(this.processor.options, {
+                    minSpeechDuration: this.parameters.minSpeechDuration,
+                    energyScale: this.parameters.energyScale,
+                    hysteresisRatio: this.parameters.hysteresisRatio,
+                    minEnergyIntegral: this.parameters.minEnergyIntegral
+                });
+            }
         }
+        
+        // Log parameter updates for debugging
+        console.log('Updated parameters:', this.parameters);
     }
 
     mergeOverlappingSegments(segments) {

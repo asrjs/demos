@@ -79,6 +79,9 @@ function App() {
   // Add new state for transcription tracking
   const [transcriptionHistory, setTranscriptionHistory] = useState([]);
 
+  // Add state for energy integral threshold
+  const [minEnergyIntegral, setMinEnergyIntegral] = useState(25);
+
   // Initialize AudioManager without audio context
   useEffect(() => {
     console.log('Initializing AudioManager');
@@ -586,6 +589,14 @@ function App() {
       setEditableText(validTranscriptions.join('\n'));
   }, [transcriptionHistory]); // Depend on transcriptionHistory
 
+  // Update parameters when changed
+  useEffect(() => {
+    audioManager.updateParameters({
+        // ... existing parameters ...
+        minEnergyIntegral
+    });
+  }, [minEnergyIntegral]);
+
   return (
     <div className="flex flex-col h-screen w-screen mx-auto justify-start text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-900">
       <div className="h-full w-full overflow-auto scrollbar-thin flex justify-start items-center flex-col relative pt-2">
@@ -643,6 +654,8 @@ function App() {
               minSpeechDuration={minSpeechDuration}
               onMinSpeechDurationChange={setMinSpeechDuration}
               processor={audioManager.processor}
+              minEnergyIntegral={minEnergyIntegral}
+              onMinEnergyIntegralChange={setMinEnergyIntegral}
             />
 
             {/* Loading progress */}
