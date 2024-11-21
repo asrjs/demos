@@ -33,7 +33,7 @@ export class AudioManager {
         
         this._activeTranscriptions = new Set();
         this.worker = null;
-        this.language = 'tr';
+        this.language = 'en';
         
         this._nextSegmentId = 0;
         
@@ -273,6 +273,7 @@ export class AudioManager {
         segment.isProcessed = true;
         this._activeTranscriptions.add(segment.id);
 
+        console.log('Sending for transcription with language:', this.language);
         this.worker.postMessage({
             type: 'transcribe',
             data: {
@@ -284,40 +285,26 @@ export class AudioManager {
         });
     }
 
-    handleTranscriptionResult(result) {
-        const { segmentId, output, isMerged } = result;
-        this._activeTranscriptions.delete(segmentId);
+    handleTranscriptionResult({ segmentId, output, isMerged }) {
+        // Find the segment
+        const segment = this.segments.find(s => s.id === segmentId);
+        if (!segment) {
+            console.warn('Segment not found:', segmentId);
+            return;
+        }
+
+        // Update segment with transcription
+        segment.transcription = output;
+        segment.isProcessed = true;
+
+        // Notify subscribers
+        this.notifyListeners('segmentsUpdated', this.segments);
 
         console.log('Received transcription result:', {
             segmentId,
             output,
             isMerged
         });
-
-        // Update segments with transcription
-        this.segments = this.segments.map(segment => {
-            if (segment.id === segmentId) {
-                // If this is a merged segment, update original segments too
-                if (segment.isMerged) {
-                    segment.originalSegments.forEach(origSeg => {
-                        const originalSegment = this.segments.find(s => s.id === origSeg.id);
-                        if (originalSegment) {
-                            originalSegment.transcription = `(Part of: ${output})`;
-                            originalSegment.isProcessed = true;
-                        }
-                    });
-                }
-                return { 
-                    ...segment, 
-                    transcription: output,
-                    isProcessed: true 
-                };
-            }
-            return segment;
-        });
-
-        // Notify subscribers of updated segments
-        this.notifyListeners('segmentsUpdated', this.segments);
     }
 
     /**
@@ -400,6 +387,14 @@ export class AudioManager {
     // Add method to generate unique segment IDs
     generateSegmentId() {
         return `segment_${this._nextSegmentId++}`;
+    }
+
+    // Add method to update language
+    updateLanguage(language) {
+        console.log('AudioManager: Updating language from', this.language, 'to:', language);
+        this.language = language;
+        // Notify subscribers
+        this.notifyListeners('languageUpdated', language);
     }
 }
 

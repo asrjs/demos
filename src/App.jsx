@@ -8,6 +8,10 @@ import { SpeechSegment } from './SpeechSegment';
 import { AudioSegmentProcessor } from './AudioSegmentProcessor';
 import { AudioManager, audioManager } from './AudioManager';
 import { AudioSegmentsWidget } from './components/AudioSegmentsWidget';
+import { LanguageSelector } from './components/LanguageSelector';
+import { ModelSelector } from './components/ModelSelector';
+import models from './models';
+import audioProcessorUrl from './audio-processor.js?url';
 
 // scan({
 //   enabled: true,
@@ -21,15 +25,55 @@ const WHISPER_SAMPLING_RATE = 16_000;
 const MAX_AUDIO_LENGTH = 30; // seconds
 const MAX_SAMPLES = WHISPER_SAMPLING_RATE * MAX_AUDIO_LENGTH;
 
-const LANGUAGES = [
-    { value: 'tr', label: 'Turkish' },
-    { value: 'en', label: 'English' }
-];
-
 // Zaman sabitleri
 const BASE_TIME_UNIT = 100; // milliseconds
 const PROCESS_INTERVAL = 2 * BASE_TIME_UNIT;  // 200ms
 const BUFFER_WINDOW = 15;   // 15 seconds
+
+// Add this function at the top of App component
+const disableAutogain = async (stream) => {
+    try {
+        const audioTrack = stream.getAudioTracks()[0];
+        if (!audioTrack) {
+            console.warn('No audio track found');
+            return;
+        }
+
+        // Get audio constraints
+        const constraints = audioTrack.getConstraints();
+        console.log('Current constraints:', constraints);
+
+        // Try to disable automatic gain control
+        const newConstraints = {
+            autoGainControl: false,
+            echoCancellation: false,
+            noiseSuppression: false,
+            channelCount: 1,
+            sampleRate: WHISPER_SAMPLING_RATE
+        };
+
+        // Apply new constraints
+        await audioTrack.applyConstraints({
+            advanced: [newConstraints]
+        });
+
+        // Verify the changes
+        const finalConstraints = audioTrack.getConstraints();
+        console.log('Automatically unsetting gain!', {
+            audio: true,
+            initial: constraints,
+            applied: newConstraints,
+            final: finalConstraints
+        });
+
+        // Get track settings to verify
+        const settings = audioTrack.getSettings();
+        console.log('Track settings after constraints:', settings);
+
+    } catch (error) {
+        console.warn('Failed to disable auto gain:', error);
+    }
+};
 
 function App() {
 
@@ -71,7 +115,7 @@ function App() {
   const [segments, setSegments] = useState([]);
   const [text, setText] = useState('');
   const [tps, setTps] = useState(null);
-  const [language, setLanguage] = useState('tr');
+  const [language, setLanguage] = useState('en');
 
   // Add state for editable text
   const [editableText, setEditableText] = useState('');
@@ -81,6 +125,9 @@ function App() {
 
   // Add state for energy integral threshold
   const [minEnergyIntegral, setMinEnergyIntegral] = useState(25);
+
+  // Add model state
+  const [selectedModel, setSelectedModel] = useState(Object.values(models)[0]);
 
   // Initialize AudioManager without audio context
   useEffect(() => {
@@ -110,18 +157,36 @@ function App() {
     };
   }, []); // Run once on mount
 
-  // Add user interaction handler
+  // Update handleStartAudio
   const handleStartAudio = async () => {
     try {
         await audioManager.startAudioContext();
         
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        // Request audio with specific constraints
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+            audio: {
+                autoGainControl: false,
+                echoCancellation: false,
+                noiseSuppression: false,
+                channelCount: 1,
+                sampleRate: WHISPER_SAMPLING_RATE
+            }
+        });
+
+        // Try to disable auto gain after getting stream
+        await disableAutogain(stream);
+        
         setStream(stream);
         
-        // Load audio worklet module first
-        await audioManager.audioContext.audioWorklet.addModule('src/audio-processor.js');
+        // Load audio worklet module using the imported URL
+        await audioManager.audioContext.audioWorklet.addModule(audioProcessorUrl);
         
         const source = audioManager.audioContext.createMediaStreamSource(stream);
+
+        // Add gain control node
+        const gainNode = audioManager.audioContext.createGain();
+        gainNode.gain.value = 1.0; // Initial gain value
+
         const workletNode = new AudioWorkletNode(audioManager.audioContext, 'audio-processor', {
             numberOfInputs: 1,
             numberOfOutputs: 1,
@@ -130,20 +195,20 @@ function App() {
             }
         });
 
+        // Connect through gain node
+        source.connect(gainNode);
+        gainNode.connect(workletNode);
+
         workletNode.port.onmessage = (event) => {
             if (event.data.type === 'audio_data') {
                 const chunk = event.data.audioData;
                 const energy = event.data.energy;
                 
-                // Chunk'ı state'e ekle (visualizer için)
                 setChunks(prev => [...prev, chunk]);
-                
-                // Chunk'ı direkt işle
                 audioManager.processNewChunk(chunk, energy);
             }
         };
 
-        source.connect(workletNode);
         workletNode.connect(audioManager.audioContext.destination);
         setRecording(true);
 
@@ -152,7 +217,6 @@ function App() {
 
     } catch (error) {
         console.error('Failed to start audio:', error);
-        // Add more detailed error information
         if (error.name === 'NotAllowedError') {
             console.error('Microphone permission denied');
         } else if (error.name === 'NotFoundError') {
@@ -597,46 +661,126 @@ function App() {
     });
   }, [minEnergyIntegral]);
 
+  // Update the effect that handles audio chunks
+  useEffect(() => {
+    if (!recorderRef.current) return;
+    if (!recording) return;
+    if (isProcessing) return;
+    if (status !== 'ready') return;
+
+    if (chunks.length > 0) {
+        const blob = new Blob(chunks, { type: recorderRef.current.mimeType });
+        const fileReader = new FileReader();
+
+        fileReader.onloadend = async () => {
+            const arrayBuffer = fileReader.result;
+            const decoded = await audioContextRef.current.decodeAudioData(arrayBuffer);
+            let audio = decoded.getChannelData(0);
+            if (audio.length > MAX_SAMPLES) {
+                audio = audio.slice(-MAX_SAMPLES);
+            }
+
+            // Pass the current language to the worker
+            worker.current.postMessage({ 
+                type: 'transcribe', 
+                data: { 
+                    audioData: audio, 
+                    language,  // Pass current language
+                    segmentId: Date.now().toString() // Add unique ID for the segment
+                } 
+            });
+        };
+        fileReader.readAsArrayBuffer(blob);
+    } else {
+        recorderRef.current?.requestData();
+    }
+}, [status, recording, isProcessing, chunks, language]); // Add language to dependencies
+
+  // Update the language selection handler to be less disruptive
+  const handleLanguageChange = (newLanguage) => {
+      console.log('Changing language from', language, 'to:', newLanguage);
+      
+      // Update language state
+      setLanguage(newLanguage);
+      
+      // Update AudioManager with new language
+      audioManager.updateLanguage(newLanguage);
+      
+      // No need to clear chunks or restart recording
+      // Remove these lines:
+      // setChunks([]);
+      // if (recording) {
+      //     if (recorderRef.current?.state === 'recording') {
+      //         recorderRef.current.requestData();
+      //     }
+      // }
+  };
+
+  // Update the model change handler to be more specific
+  const handleModelChange = (modelId) => {
+      setSelectedModel(modelId);
+      
+      // If model ends with .en, automatically set language to English
+      if (modelId.endsWith('.en')) {
+          handleLanguageChange('en');
+      }
+  };
+
   return (
-    <div className="flex flex-col h-screen w-screen mx-auto justify-start text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-900">
-      <div className="h-full w-full overflow-auto scrollbar-thin flex justify-start items-center flex-col relative pt-2">
-        {/* Header */}
-        <div className="flex flex-col items-center mb-1 max-w-[300px] text-center">
-          <img src="logo.png" width="10%" height="auto" className="block" />
-          <h1 className="text-xl font-bold mb-1">Whisper WebGPU</h1>
+    <div className="flex flex-col min-h-screen max-h-screen w-screen mx-auto text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-900">
+      <div className="flex-1 w-full overflow-y-auto scrollbar-thin flex flex-col items-center gap-4 p-4">
+        {/* Header - make it more compact */}
+        <div className="flex flex-col items-center mb-2">
+          <img src="logo.png" width="40px" height="auto" className="block mb-1" />
+          <h1 className="text-xl font-bold">Whisper WebGPU</h1>
           <h2 className="text-base font-semibold">Real-time in-browser speech recognition</h2>
         </div>
 
-        {/* Control Buttons - Moved to top */}
-        <div className="flex gap-4 mb-4">
-          {!recording && (
-            <button
-              className="border px-4 py-2 rounded-lg bg-blue-400 text-white hover:bg-blue-500"
-              onClick={handleStartAudio}
-            >
-              Start Audio Capture
-            </button>
-          )}
-          
-          {status === 'initialized' && (
-            <button
-              className="border px-4 py-2 rounded-lg bg-blue-400 text-white hover:bg-blue-500 disabled:bg-blue-100 disabled:cursor-not-allowed select-none"
-              onClick={() => {
-                worker.current?.postMessage({ type: 'load' });
-                setStatus('loading');
-              }}
-            >
-              Load Whisper Model
-            </button>
-          )}
+        {/* Control Buttons - make them more compact */}
+        <div className="flex gap-2 items-center mb-2">
+            {!recording && (
+                <button
+                    className="border px-3 py-1 rounded-lg bg-blue-400 text-white hover:bg-blue-500"
+                    onClick={handleStartAudio}
+                >
+                    Start Audio Capture
+                </button>
+            )}
+            
+            <LanguageSelector 
+                language={language}
+                setLanguage={handleLanguageChange}
+                disabled={selectedModel.endsWith('.en')}
+            />
+            
+            {status === 'initialized' && (
+                <div className="flex items-center gap-2">
+                    <ModelSelector 
+                        model={selectedModel} 
+                        setModel={handleModelChange}
+                    />
+                    <button
+                        className="border px-3 py-1 rounded-lg bg-blue-400 text-white hover:bg-blue-500"
+                        onClick={() => {
+                            worker.current?.postMessage({ 
+                                type: 'load',
+                                data: { modelId: selectedModel }
+                            });
+                            setStatus('loading');
+                        }}
+                    >
+                        Load Model
+                    </button>
+                </div>
+            )}
         </div>
 
-        {/* Main content */}
-        <div className="flex flex-col items-center w-full px-4">
-          {/* Audio visualization and controls */}
-          <div className="w-full max-w-[90vw] p-1">
+        {/* Main content area - constrain height */}
+        <div className="flex flex-col w-full max-w-[90vw] gap-4">
+          {/* Audio visualization with fixed height */}
+          <div className="h-[300px]">
             <AudioVisualizer 
-              className="w-full rounded-lg" 
+              className="w-full h-full rounded-lg" 
               stream={stream} 
               threshold={audioThreshold}
               onThresholdChange={setAudioThreshold}
@@ -657,80 +801,64 @@ function App() {
               minEnergyIntegral={minEnergyIntegral}
               onMinEnergyIntegralChange={setMinEnergyIntegral}
             />
-
-            {/* Loading progress */}
-            {status === 'loading' && (
-              <div className="w-full max-w-[500px] text-left mx-auto p-4">
-                <p className="text-center">{loadingMessage}</p>
-                {progressItems.map(({ file, progress, total }, i) => (
-                  <Progress key={i} text={file} percentage={progress} total={total} />
-                ))}
-              </div>
-            )}
-
-            {/* Transcription output */}
-            {status === 'ready' && (
-              <div className="relative w-full max-w-[90vw]">
-                <textarea
-                    value={editableText}
-                    onChange={(e) => setEditableText(e.target.value)}
-                    className="w-full h-[240px] overflow-y-auto font-mono text-sm 
-                              border rounded-lg p-2 bg-white dark:bg-gray-800 
-                              focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Transcriptions will appear here. You can edit the text..."
-                />
-                <div className="absolute bottom-2 right-2 flex gap-2">
-                    {tps && (
-                        <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-sm">
-                            {tps.toFixed(2)} tok/s
-                        </span>
-                    )}
-                    <button
-                        onClick={() => setEditableText('')}
-                        className="px-2 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
-                    >
-                        Clear
-                    </button>
-                    <button
-                        onClick={() => {
-                            navigator.clipboard.writeText(editableText);
-                        }}
-                        className="px-2 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
-                    >
-                        Copy
-                    </button>
-                </div>
-                {/* Uncomment to show debug info */}
-                {/* <TranscriptionHistoryDebug /> */}
-              </div>
-            )}
-
-            {/* Language selection and reset */}
-            {status === 'ready' && (
-              <div className='relative w-full flex justify-center mt-4'>
-                <select 
-                  value={language} 
-                  onChange={(e) => setLanguage(e.target.value)}
-                >
-                  {LANGUAGES.map(lang => (
-                    <option key={lang.value} value={lang.value}>
-                      {lang.label}
-                    </option>
-                  ))}
-                </select>
-                <button 
-                  className="border rounded-lg px-2 absolute right-2" 
-                  onClick={handleReset}
-                >
-                  Reset
-                </button>
-              </div>
-            )}
           </div>
+
+          {/* Loading progress */}
+          {status === 'loading' && (
+            <div className="w-full max-w-[500px] mx-auto p-4">
+              <p className="text-center">{loadingMessage}</p>
+              {progressItems.map(({ file, progress, total }, i) => (
+                <Progress key={i} text={file} percentage={progress} total={total} />
+              ))}
+            </div>
+          )}
+
+          {/* Transcription output with fixed height */}
+          {status === 'ready' && (
+            <div className="relative w-full h-[240px]">
+              <textarea
+                  value={editableText}
+                  onChange={(e) => setEditableText(e.target.value)}
+                  className="w-full h-full resize-none overflow-y-auto font-mono text-sm 
+                            border rounded-lg p-2 bg-white dark:bg-gray-800 
+                            focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Transcriptions will appear here. You can edit the text..."
+              />
+              <div className="absolute bottom-2 right-2 flex gap-2">
+                  {tps && (
+                      <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-sm">
+                          {tps.toFixed(2)} tok/s
+                      </span>
+                  )}
+                  <button
+                      onClick={() => setEditableText('')}
+                      className="px-2 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
+                  >
+                      Clear
+                  </button>
+                  <button
+                      onClick={() => {
+                          navigator.clipboard.writeText(editableText);
+                      }}
+                      className="px-2 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+                  >
+                      Copy
+                  </button>
+                  <button 
+                      className="px-2 py-1 text-sm bg-gray-500 text-white rounded hover:bg-gray-600"
+                      onClick={handleReset}
+                  >
+                      Reset
+                  </button>
+              </div>
+              {/* Uncomment to show debug info */}
+              {/* <TranscriptionHistoryDebug /> */}
+            </div>
+          )}
         </div>
 
-        {/* Speech Segments Widget - Moved to bottom */}
-        <div className="w-full max-w-[90vw] p-2 mt-auto">
+        {/* Speech Segments Widget - fixed height and scrollable */}
+        <div className="w-full max-w-[90vw] h-[300px] overflow-y-auto">
           <AudioSegmentsWidget 
               segments={segments} 
               worker={worker.current} 

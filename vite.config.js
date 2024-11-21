@@ -11,4 +11,20 @@ export default defineConfig({
       'Cross-Origin-Opener-Policy': 'same-origin',
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        // Ensure worklet files are properly handled
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name === 'audio-processor.js') {
+            return 'assets/[name]-[hash][extname]';
+          }
+          return 'assets/[name]-[hash][extname]';
+        },
+      },
+    },
+  },
+  optimizeDeps: {
+    exclude: ['audio-processor.js'], // Exclude worklet from optimization
+  },
 })

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { WaveFile } from 'wavefile';
 
 export function AudioSegmentsWidget({ segments, worker, language }) {
@@ -79,35 +79,19 @@ export function AudioSegmentsWidget({ segments, worker, language }) {
         }
     };
 
-    // Segment'i transkripsiyon için worker'a gönder
-    const transcribeSegment = (segment, index) => {
-        if (!worker || !worker.postMessage) {
-            console.error('Worker not properly initialized', {
-                workerExists: !!worker,
-                hasPostMessage: !!(worker && worker.postMessage)
-            });
-            return;
-        }
+    const handleTranscribe = useCallback((segment) => {
+        if (!worker) return;
         
-        try {
-            console.log('Transcribing segment:', {
-                index,
-                duration: segment.duration,
-                samples: segment.audioData.length
-            });
-
-            worker.postMessage({
-                type: 'transcribe',
-                data: {
-                    audioData: segment.audioData,
-                    language: language || 'tr',
-                    segmentId: index
-                }
-            });
-        } catch (error) {
-            console.error('Error sending message to worker:', error);
-        }
-    };
+        worker.postMessage({
+            type: 'transcribe',
+            data: {
+                audioData: segment.audioData,
+                segmentId: segment.id,
+                language: language,
+                isMerged: segment.isMerged
+            }
+        });
+    }, [worker, language]);
 
     const SegmentItem = ({ segment, index }) => {
         const width = `${(segment.endTime - segment.startTime) * 100}%`;
@@ -149,17 +133,6 @@ export function AudioSegmentsWidget({ segments, worker, language }) {
         <div className="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
             <h3 className="font-semibold mb-2">Detected Speech Segments ({segments.length})</h3>
             
-            {/* Visualization of segments */}
-            <div className="relative h-16 mb-8 bg-gray-200 dark:bg-gray-700 rounded">
-                {segments.map((segment, index) => (
-                    <SegmentItem 
-                        key={segment.isMerged ? segment.id : index}
-                        segment={segment} 
-                        index={index}
-                    />
-                ))}
-            </div>
-
             {/* List of segments */}
             <div className="space-y-2">
                 {segments.map((segment, index) => (
@@ -186,7 +159,7 @@ export function AudioSegmentsWidget({ segments, worker, language }) {
                                 Download
                             </button>
                             <button
-                                onClick={() => transcribeSegment(segment, index)}
+                                onClick={() => handleTranscribe(segment)}
                                 className="px-2 py-1 bg-purple-500 text-white rounded hover:bg-purple-600"
                                 disabled={segment.isProcessed}
                             >

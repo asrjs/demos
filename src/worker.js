@@ -8,53 +8,52 @@ import {
 } from '@huggingface/transformers';
 
 // Configure environment for local models
-env.allowLocalModels = true;
-env.allowRemoteModels = false;
-env.localModelPath = '/models';
+env.allowLocalModels = false;
+env.allowRemoteModels = true;
 
 const MAX_NEW_TOKENS = 96;
 const MAX_PARALLEL_JOBS = 1;
 
 class AutomaticSpeechRecognitionPipeline {
-    static model_id = 'base-dsntt1-tr';
+    static model_id = null;
     static tokenizer = null;
     static processor = null;
     static model = null;
     static isInitialized = false;
 
-    static async getInstance(progress_callback = null) {
-        if (this.isInitialized) {
+    static async getInstance(modelId, progress_callback = null) {
+        if (this.isInitialized && this.model_id === modelId) {
             return [this.tokenizer, this.processor, this.model];
         }
 
         try {
+            this.model_id = modelId;
+            
             // Load tokenizer
-            this.tokenizer = await AutoTokenizer.from_pretrained(this.model_id, {
+            this.tokenizer = await AutoTokenizer.from_pretrained(modelId, {
                 progress_callback: (progress) => {
                     progress_callback?.({
                         status: 'initiate',
                         file: 'tokenizer',
                         ...progress
                     });
-                },
-                local: true,
+                }
             });
             
             // Load processor
-            this.processor = await AutoProcessor.from_pretrained(this.model_id, {
+            this.processor = await AutoProcessor.from_pretrained(modelId, {
                 progress_callback: (progress) => {
                     progress_callback?.({
                         status: 'initiate',
                         file: 'processor',
                         ...progress
                     });
-                },
-                local: true,
+                }
             });
 
             // Load model
-            this.model = await WhisperForConditionalGeneration.from_pretrained(this.model_id, {
-                local: true,
+            this.model = await WhisperForConditionalGeneration.from_pretrained(modelId, {
+                local: false,
                 device: 'webgpu',
                 dtype: 'fp32',   // Change to int8 for quantization
                 quantized: false, // Enable quantization
@@ -88,34 +87,27 @@ async function transcribeAudio(audioData, options) {
         
         // Create new session for each transcription
         const inputs = await processor(audioData);
-        const outputs = await model.generate({
+
+        // Base generation config
+        const generateConfig = {
             ...inputs,
             max_new_tokens: MAX_NEW_TOKENS,
-            language: options.language,
-            // chunk_length_s: 45,
-            // stride_length_s: 4,
+            num_beams: 1,
+            temperature: 0.0,
+            return_dict_in_generate: false,
+            output_scores: false
+        };
 
-            // Beam search optimization
-            num_beams: 1,              // Increase beam search width for better candidates
-            // length_penalty: 1.0,       // Encourage longer sequences
-            // no_repeat_ngram_size: 3,   // Prevent repetition of 3-grams
-            
-            // Sampling strategy
-            // do_sample: true,           // Enable sampling for more natural output
-            // top_k: 25,                 // Consider more candidates
-            // top_p: 0.9,              // Nucleus sampling threshold
-            temperature: 0.0,          // Add some randomness while keeping coherence
-            
-            // Additional options
-            // early_stopping: true,      // Stop when no better candidates are found  * worse
-            // bad_words_ids: [[1]],     // Optionally block specific tokens
-            return_dict_in_generate: false, // Get detailed output info
-            output_scores: false        // Get token probabilities
-        });
+        // Add language and task only for multilingual models
+        if (!AutomaticSpeechRecognitionPipeline.model_id.endsWith('.en')) {
+            generateConfig.language = options.language;
+            generateConfig.task = 'transcribe';
+        }
+
+        const outputs = await model.generate(generateConfig);
 
         return tokenizer.batch_decode(outputs, { 
             skip_special_tokens: true,
-            // clean_up_tokenization_spaces: true
         })[0];
     } catch (error) {
         console.error('Transcription error:', error);
@@ -170,22 +162,22 @@ async function processQueue() {
     }
 }
 
-async function load() {
+async function load(modelId) {
     if (isLoaded) {
         console.log('Model already loaded');
         self.postMessage({ status: 'ready' });
         return;
     }
 
-    console.log('Loading Whisper model...');
+    console.log('Loading Whisper model:', modelId);
     
     self.postMessage({
         status: 'loading',
-        data: 'Loading Whisper model...'
+        data: `Loading ${modelId}...`
     });
 
     try {
-        pipeline = AutomaticSpeechRecognitionPipeline.getInstance(progress => {
+        pipeline = AutomaticSpeechRecognitionPipeline.getInstance(modelId, progress => {
             self.postMessage(progress);
         });
 
@@ -198,11 +190,23 @@ async function load() {
             data: 'Compiling shaders and warming up model...'
         });
 
-        const [,,model] = await pipeline;
-        await model.generate({
+        const [tokenizer, processor, model] = await pipeline;
+        
+        // Warm up with proper configuration based on model type
+        const warmupConfig = {
             input_features: full([1, 80, 3000], 0.0),
             max_new_tokens: 1,
-        });
+            num_beams: 1,
+            temperature: 0.0
+        };
+
+        // Add language and task only for multilingual models
+        if (!modelId.endsWith('.en')) {
+            warmupConfig.language = 'en';  // Always use English for warmup
+            warmupConfig.task = 'transcribe';
+        }
+
+        await model.generate(warmupConfig);
         
         isLoaded = true;
         console.log('Model ready');
@@ -218,15 +222,25 @@ self.addEventListener('message', async (e) => {
 
     switch (type) {
         case 'load':
-            await load();
+            await load(data.modelId);
             break;
 
         case 'transcribe':
             // Add to queue if not already present
             if (!transcriptionQueue.has(data.segmentId)) {
-                transcriptionQueue.set(data.segmentId, { type, data });
+                // Only include language for multilingual models
+                const queueData = {
+                    ...data,
+                    isEnglishOnly: AutomaticSpeechRecognitionPipeline.model_id?.endsWith('.en'),
+                    // Use provided language, fallback to English
+                    language: data.language || 'en'
+                };
+                
+                transcriptionQueue.set(data.segmentId, { type, data: queueData });
                 console.log('Added to queue:', data.segmentId, 
-                    'Queue size:', transcriptionQueue.size);
+                    'Queue size:', transcriptionQueue.size,
+                    'Language:', queueData.isEnglishOnly ? 'en (English-only model)' : queueData.language,
+                    'Model:', AutomaticSpeechRecognitionPipeline.model_id);
                 
                 // Try to process queue
                 processQueue();

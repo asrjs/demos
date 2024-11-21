@@ -1,4 +1,3 @@
-
 function titleCase(str) {
     str = str.toLowerCase();
     return (str.match(/\w+.?/g) || [])
@@ -112,20 +111,18 @@ const LANGUAGES = {
     jw: "javanese",
     su: "sundanese",
 };
-export function LanguageSelector({ language, setLanguage }) {
-    const handleLanguageChange = (event) => {
-        setLanguage(event.target.value);
-    };
-
-    const names = Object.values(LANGUAGES).map(titleCase);
-
+export function LanguageSelector({ language, setLanguage, disabled }) {
     return (
         <select
-            className="border rounded-lg p-2 max-w-[100px]"
-            value={language} onChange={handleLanguageChange}>
+            className={`border rounded-lg p-2 ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            disabled={disabled}
+            title={disabled ? "Language locked to English for this model" : "Select language"}
+        >
             {Object.keys(LANGUAGES).map((key, i) => (
                 <option key={key} value={key}>
-                    {names[i]}
+                    {Object.values(LANGUAGES).map(titleCase)[i]}
                 </option>
             ))}
         </select>
