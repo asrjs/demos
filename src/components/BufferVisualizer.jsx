@@ -72,7 +72,7 @@ export function BufferVisualizer({ threshold = 0.02, segments = [] }) {
                 // Draw timestamp
                 ctx.fillStyle = '#666';
                 ctx.font = '10px Arial';
-                ctx.fillText(`${relativeStart.toFixed(1)}s`, startX + 2, 10);
+                // ctx.fillText(`${relativeStart.toFixed(1)}s`, startX + 2, 10);
             }
         });
 
@@ -117,7 +117,7 @@ export function BufferVisualizer({ threshold = 0.02, segments = [] }) {
         
         const updateInterval = setInterval(() => {
             const now = performance.now();
-            if (now - lastUpdateRef.current < 100) return;
+            if (now - lastUpdateRef.current < 50) return;
             
             const visualizationData = audioManager.getVisualizationData();
             const metrics = audioManager.getMetrics();
@@ -144,14 +144,14 @@ export function BufferVisualizer({ threshold = 0.02, segments = [] }) {
             <canvas 
                 ref={energyCanvasRef}
                 width={480}
-                height={32}
+                height={24}
                 className="w-full border rounded bg-[#f5f5f5]"
             />
             
             <canvas 
                 ref={canvasRef} 
                 width={480} 
-                height={160}
+                height={80}
                 className="w-full border rounded bg-[#f5f5f5]"
             />
         </div>
