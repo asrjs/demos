@@ -89,74 +89,77 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], energ
     const drawEnergyLevel = useCallback((ctx, canvas, energy, threshold) => {
         if (!ctx || !canvas || typeof energy !== 'number') return;
 
-        // Clear the energy canvas
-        ctx.fillStyle = '#f5f5f5';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        const height = canvas.height;
         const width = canvas.width;
+        const height = canvas.height;
 
-        // Draw background grid - adjust grid lines to match 0.5 max scale
-        ctx.strokeStyle = '#e5e5e5';
-        ctx.beginPath();
-        for (let i = 0; i <= 0.5; i += 0.1) {  // Changed from 1 to 0.5 to match max scale
-            const y = height * (1 - i * 2);  // Multiply by 2 to scale 0-0.5 range to full height
-            ctx.moveTo(0, y);
-            ctx.lineTo(width, y);
-            
-            // Add grid labels
-            ctx.fillStyle = '#666';
-            ctx.font = '10px Arial';
-            ctx.fillText(i.toFixed(1), 2, y - 2);
-        }
-        ctx.stroke();
+        // Only clear the necessary parts
+        ctx.fillStyle = '#f5f5f5';
+        ctx.fillRect(0, 0, width, height);
 
-        // Draw threshold line
+        // Draw threshold line (vertical)
+        const thresholdX = width * (threshold / 0.5); // Scale to 0-0.5 range
         ctx.strokeStyle = '#ff6b6b';
         ctx.lineWidth = 2;
         ctx.beginPath();
-        const thresholdY = height * (1 - threshold * 2);  // Scale threshold to 0-0.5 range
-        ctx.moveTo(0, thresholdY);
-        ctx.lineTo(width, thresholdY);
+        ctx.moveTo(thresholdX, 0);
+        ctx.lineTo(thresholdX, height);
         ctx.stroke();
 
-        // Draw current energy level - scale to 0-0.5 range
-        const energyHeight = Math.min(energy * height * 2, height);
+        // Draw energy level (horizontal bar)
+        const energyWidth = Math.min(energy * width * 2, width); // Scale to 0-0.5 range
         ctx.fillStyle = energy > threshold ? '#4CAF50' : '#2196F3';
-        ctx.fillRect(0, height - energyHeight, width, energyHeight);
+        ctx.fillRect(0, 0, energyWidth, height);
 
-        // Draw energy value text
-        ctx.fillStyle = '#666';
-        ctx.font = '12px Arial';
-        ctx.fillText(`Energy: ${energy.toFixed(4)}`, 5, 15);
-        ctx.fillText(`Threshold: ${threshold.toFixed(4)}`, 5, 30);
+        // Draw scale markers (less frequent)
+        ctx.strokeStyle = '#e5e5e5';
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= 0.5; i += 0.1) {
+            const x = width * (i / 0.5);
+            ctx.beginPath();
+            ctx.moveTo(x, height);
+            ctx.lineTo(x, height - 5);
+            ctx.stroke();
+        }
+
+        // Draw values with less frequency
+        if (Math.random() < 0.2) { // Update text only 20% of the time
+            ctx.fillStyle = '#666';
+            ctx.font = '12px Arial';
+            ctx.fillText(`${(energy).toFixed(3)}`, 5, height - 5);
+        }
     }, []);
 
     useEffect(() => {
         if (!chunks.length || !energyCanvasRef.current) return;
 
-        const now = Date.now();
+        const now = performance.now(); // Use performance.now() for better precision
         if (now - lastEnergyUpdateRef.current < ENERGY_UPDATE_INTERVAL) return;
-        lastEnergyUpdateRef.current = now;
-
+        
+        // Debounce energy updates
         const energyCtx = energyCanvasRef.current.getContext('2d', {
             alpha: false,
             desynchronized: true
         });
 
-        // Calculate current energy level from the most recent chunk
+        // Calculate energy less frequently
         const latestChunk = chunks[chunks.length - 1];
         if (latestChunk) {
             let energy = 0;
-            for (let i = 0; i < latestChunk.length; i++) {
+            // Sample only every Nth value for performance
+            const skipFactor = 4;
+            for (let i = 0; i < latestChunk.length; i += skipFactor) {
                 energy += latestChunk[i] * latestChunk[i];
             }
-            energy = Math.sqrt(energy / latestChunk.length);
-            setCurrentEnergy(energy);
+            energy = Math.sqrt(energy / (latestChunk.length / skipFactor));
             
-            // Draw energy level
-            drawEnergyLevel(energyCtx, energyCanvasRef.current, energy, threshold);
+            // Use RAF for smoother updates
+            requestAnimationFrame(() => {
+                setCurrentEnergy(energy);
+                drawEnergyLevel(energyCtx, energyCanvasRef.current, energy, threshold);
+            });
         }
+
+        lastEnergyUpdateRef.current = now;
     }, [chunks, threshold]);
 
     useEffect(() => {
@@ -217,11 +220,11 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], energ
 
     return (
         <div className="flex flex-col gap-2">
-            {/* Energy level visualizer - increased height from 60 to 120 */}
+            {/* Simplified horizontal energy meter */}
             <canvas 
                 ref={energyCanvasRef}
                 width={480}
-                height={96}
+                height={32}  // Reduced height for horizontal meter
                 className="w-full border rounded bg-[#f5f5f5]"
             />
             
