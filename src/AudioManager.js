@@ -18,7 +18,7 @@ export class AudioManager {
         this.initialized = false;
         
         this.parameters = {
-            threshold: 0.02,
+            threshold: 0.125,
             silenceLength: 0.8,
             minSpeechDuration: 0.3
         };
@@ -265,7 +265,7 @@ export class AudioManager {
     }
 
     // Update trimSilence method to use known padding durations
-    trimSilence(audioData, sampleRate, threshold = 0.01, lookbackDuration = 0.5, overlapDuration = 0.3) {
+    trimSilence(audioData, sampleRate, threshold = null, lookbackDuration = 0.5, overlapDuration = 0.3) {
         if (!audioData || audioData.length === 0) return audioData;
 
         // Use half of the padding durations for trimming to be conservative
@@ -281,6 +281,9 @@ export class AudioManager {
         let startIndex = lookbackSamples;  // Start from lookback point
         let endIndex = audioData.length - overlapSamples - 1; // End before overlap point
 
+        // Use instance threshold if none provided
+        const effectiveThreshold = threshold ?? this.parameters.threshold;
+
         // Find start index (trim leading silence)
         for (let i = lookbackSamples; i < audioData.length - windowSize - overlapSamples; i += windowSize) {
             let windowEnergy = 0;
@@ -289,7 +292,7 @@ export class AudioManager {
             }
             windowEnergy /= windowSize;
 
-            if (windowEnergy > threshold) {
+            if (windowEnergy > effectiveThreshold) {
                 startIndex = Math.max(lookbackSamples, i - windowSize); // Keep at least lookback samples
                 break;
             }
@@ -303,7 +306,7 @@ export class AudioManager {
             }
             windowEnergy /= windowSize;
 
-            if (windowEnergy > threshold) {
+            if (windowEnergy > effectiveThreshold) {
                 endIndex = Math.min(audioData.length - overlapSamples, i + windowSize * 2);
                 break;
             }
@@ -404,9 +407,12 @@ export class AudioManager {
         
         // Update processor parameters if processor exists
         if (this.processor) {
-            // Only call methods that exist on the processor
             if (params.threshold !== undefined) {
-                this.processor.setThreshold?.(this.parameters.threshold);
+                this.processor.setThreshold?.(params.threshold);
+                // Also update processor options directly
+                if (this.processor.options) {
+                    this.processor.options.energyThreshold = params.threshold;
+                }
             }
             if (params.silenceLength !== undefined) {
                 this.processor.setSilenceLength?.(this.parameters.silenceLength);
@@ -423,8 +429,7 @@ export class AudioManager {
             }
         }
         
-        // Log parameter updates for debugging
-        console.log('Updated parameters:', this.parameters);
+        console.log('Updated threshold:', this.parameters.threshold);
     }
 
     mergeOverlappingSegments(segments) {

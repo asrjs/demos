@@ -7,7 +7,7 @@ export class AudioSegmentProcessor {
             windowSize: 1600,
             minSpeechDuration: 0.3,
             silenceThreshold: 0.8,
-            energyThreshold: 0.02,
+            energyThreshold: 0.125,
             smaLength: 6,
             lookbackChunks: 3,
             overlapDuration: 0.2,
@@ -179,6 +179,7 @@ export class AudioSegmentProcessor {
 
     setThreshold(threshold) {
         this.options.energyThreshold = threshold;
+        this.log('Updated energy threshold:', threshold);
     }
 
     setSilenceLength(length) {

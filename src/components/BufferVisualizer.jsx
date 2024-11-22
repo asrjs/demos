@@ -94,13 +94,18 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], energ
         const height = canvas.height;
         const width = canvas.width;
 
-        // Draw background grid
+        // Draw background grid - adjust grid lines to match 0.5 max scale
         ctx.strokeStyle = '#e5e5e5';
         ctx.beginPath();
-        for (let i = 0; i <= 1; i += 0.2) {
-            const y = height * (1 - i);
+        for (let i = 0; i <= 0.5; i += 0.1) {  // Changed from 1 to 0.5 to match max scale
+            const y = height * (1 - i * 2);  // Multiply by 2 to scale 0-0.5 range to full height
             ctx.moveTo(0, y);
             ctx.lineTo(width, y);
+            
+            // Add grid labels
+            ctx.fillStyle = '#666';
+            ctx.font = '10px Arial';
+            ctx.fillText(i.toFixed(1), 2, y - 2);
         }
         ctx.stroke();
 
@@ -108,13 +113,13 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], energ
         ctx.strokeStyle = '#ff6b6b';
         ctx.lineWidth = 2;
         ctx.beginPath();
-        const thresholdY = height * (1 - threshold);
+        const thresholdY = height * (1 - threshold * 2);  // Scale threshold to 0-0.5 range
         ctx.moveTo(0, thresholdY);
         ctx.lineTo(width, thresholdY);
         ctx.stroke();
 
-        // Draw current energy level
-        const energyHeight = Math.min(energy * height, height);
+        // Draw current energy level - scale to 0-0.5 range
+        const energyHeight = Math.min(energy * height * 2, height);
         ctx.fillStyle = energy > threshold ? '#4CAF50' : '#2196F3';
         ctx.fillRect(0, height - energyHeight, width, energyHeight);
 
@@ -203,11 +208,11 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], energ
 
     return (
         <div className="flex flex-col gap-2">
-            {/* Energy level visualizer */}
+            {/* Energy level visualizer - increased height from 60 to 120 */}
             <canvas 
                 ref={energyCanvasRef}
                 width={480}
-                height={60}
+                height={96}
                 className="w-full border rounded bg-[#f5f5f5]"
             />
             
