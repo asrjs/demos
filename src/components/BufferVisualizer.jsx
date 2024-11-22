@@ -1,7 +1,7 @@
 import { useRef, useEffect, useCallback } from "react";
 import { audioManager } from "../AudioManager";
 
-export function BufferVisualizer({ chunks, audioContextRef, segments = [], energyValues }) {
+export function BufferVisualizer({ chunks, audioContextRef, segments = [], onEnergyUpdate }) {
     const canvasRef = useRef(null);
     const lastUpdateRef = useRef(0);
     const lastChunksLengthRef = useRef(0);
@@ -106,6 +106,29 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], energ
                 offset += chunk.length;
             }
 
+            // Calculate energy values from the most recent chunk
+            const recentChunk = chunks[chunks.length - 1];
+            if (recentChunk && onEnergyUpdate) {
+                const windowSize = 1024;
+                let energy = 0;
+                let peak = 0;
+                
+                // Calculate RMS energy and peak
+                for (let i = 0; i < recentChunk.length; i++) {
+                    const value = Math.abs(recentChunk[i]);
+                    energy += value * value;
+                    peak = Math.max(peak, value);
+                }
+                
+                energy = Math.sqrt(energy / recentChunk.length);
+                
+                // Calculate moving average
+                const avgEnergy = energy; // You can implement a proper moving average if needed
+                
+                // Send energy updates
+                onEnergyUpdate(energy, avgEnergy, peak, peak);
+            }
+
             const totalDuration = totalLength / audioContextRef.current.sampleRate;
 
             // Clear canvas ONCE
@@ -119,7 +142,7 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], energ
         };
 
         processAudioData().catch(console.error);
-    }, [chunks, segments, drawSegments, drawWaveform]);
+    }, [chunks, segments, drawSegments, drawWaveform, onEnergyUpdate]);
 
     const drawTimeMarkers = (ctx, totalDuration, canvas) => {
         const isBufferFull = totalDuration > MAX_DURATION;
