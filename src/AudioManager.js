@@ -202,6 +202,12 @@ export class AudioManager {
         // Add to segments array
         this.segments.push(segment);
         
+        // Limit the number of segments to prevent memory leaks
+        const MAX_SEGMENTS = 100; // Adjust as needed
+        if (this.segments.length > MAX_SEGMENTS) {
+            this.segments.shift(); // Remove the oldest segment
+        }
+        
         // Find overlapping segments
         const recentSegments = this.segments
             .filter(s => !s.isPartOfMerged && 

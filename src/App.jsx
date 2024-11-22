@@ -661,7 +661,10 @@ function App() {
     });
   }, [minEnergyIntegral]);
 
-  // Update the effect that handles audio chunks
+  // Define a maximum number of chunks to store
+  const MAX_CHUNKS = 1000; // Adjust as needed
+
+  // Update the useEffect that handles audio chunks
   useEffect(() => {
     if (!recorderRef.current) return;
     if (!recording) return;
@@ -669,6 +672,11 @@ function App() {
     if (status !== 'ready') return;
 
     if (chunks.length > 0) {
+        // Limit the number of stored chunks
+        if (chunks.length > MAX_CHUNKS) {
+            setChunks(prev => prev.slice(-MAX_CHUNKS));
+        }
+
         const blob = new Blob(chunks, { type: recorderRef.current.mimeType });
         const fileReader = new FileReader();
 
@@ -725,6 +733,21 @@ function App() {
           handleLanguageChange('en');
       }
   };
+
+  // Ensure all intervals are cleared
+  useEffect(() => {
+      let processInterval = null;
+
+      if (recording) {
+          processInterval = setInterval(async () => {
+              // ... existing processing code ...
+          }, PROCESS_INTERVAL);
+      }
+
+      return () => {
+          if (processInterval) clearInterval(processInterval);
+      };
+  }, [recording]); // Run only when recording state changes
 
   return (
     <div className="flex flex-col min-h-screen max-h-screen w-screen mx-auto text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-900">

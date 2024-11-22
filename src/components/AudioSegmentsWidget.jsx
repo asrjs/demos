@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { WaveFile } from 'wavefile';
+import { FixedSizeList as List } from 'react-window';
 
 export function AudioSegmentsWidget({ segments, worker, language }) {
     const playSegment = async (segment) => {
@@ -134,48 +135,56 @@ export function AudioSegmentsWidget({ segments, worker, language }) {
             <h3 className="font-semibold mb-2">Detected Speech Segments ({segments.length})</h3>
             
             {/* List of segments */}
-            <div className="space-y-2">
-                {segments.map((segment, index) => (
-                    <div key={segment.isMerged ? segment.id : index} 
-                         className={`flex flex-col p-2 rounded ${
-                             segment.isMerged 
-                                 ? 'bg-purple-100 dark:bg-purple-900' 
-                                 : 'bg-white dark:bg-gray-700'
-                         }`}>
-                        <div className="flex items-center space-x-4">
-                            <span className="text-sm">
-                                {segment.isMerged ? '🔄 ' : ''}{`Segment ${index + 1}: ${segment.startTime.toFixed(2)}s - ${segment.endTime.toFixed(2)}s (${(segment.endTime - segment.startTime).toFixed(2)}s)`}
-                            </span>
-                            <button
-                                onClick={() => playSegment(segment)}
-                                className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                            >
-                                Play
-                            </button>
-                            <button
-                                onClick={() => downloadSegment(segment, index + 1)}
-                                className="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600"
-                            >
-                                Download
-                            </button>
-                            <button
-                                onClick={() => handleTranscribe(segment)}
-                                className="px-2 py-1 bg-purple-500 text-white rounded hover:bg-purple-600"
-                                disabled={segment.isProcessed}
-                            >
-                                {segment.isProcessed ? 'Transcribed' : 'Transcribe'}
-                            </button>
-                        </div>
-                        {segment.transcription && (
-                            <div className="mt-2 ml-4 text-sm">
-                                {typeof segment.transcription === 'string' 
-                                    ? segment.transcription 
-                                    : segment.transcription.text || segment.transcription.toString()}
+            <List
+                height={400}
+                itemCount={segments.length}
+                itemSize={80} // Adjust based on item height
+                width={'100%'}
+            >
+                {({ index, style }) => {
+                    const segment = segments[index];
+                    return (
+                        <div style={style} key={segment.isMerged ? segment.id : index} 
+                             className={`flex flex-col p-2 rounded ${
+                                 segment.isMerged 
+                                     ? 'bg-purple-100 dark:bg-purple-900' 
+                                     : 'bg-white dark:bg-gray-700'
+                             }`}>
+                            <div className="flex items-center space-x-4">
+                                <span className="text-sm">
+                                    {segment.isMerged ? '🔄 ' : ''}{`Segment ${index + 1}: ${segment.startTime.toFixed(2)}s - ${segment.endTime.toFixed(2)}s (${(segment.endTime - segment.startTime).toFixed(2)}s)`}
+                                </span>
+                                <button
+                                    onClick={() => playSegment(segment)}
+                                    className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                >
+                                    Play
+                                </button>
+                                <button
+                                    onClick={() => downloadSegment(segment, index + 1)}
+                                    className="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                                >
+                                    Download
+                                </button>
+                                <button
+                                    onClick={() => handleTranscribe(segment)}
+                                    className="px-2 py-1 bg-purple-500 text-white rounded hover:bg-purple-600"
+                                    disabled={segment.isProcessed}
+                                >
+                                    {segment.isProcessed ? 'Transcribed' : 'Transcribe'}
+                                </button>
                             </div>
-                        )}
-                    </div>
-                ))}
-            </div>
+                            {segment.transcription && (
+                                <div className="mt-2 ml-4 text-sm">
+                                    {typeof segment.transcription === 'string' 
+                                        ? segment.transcription 
+                                        : segment.transcription.text || segment.transcription.toString()}
+                                </div>
+                            )}
+                        </div>
+                    );
+                }}
+            </List>
         </div>
     );
 } 

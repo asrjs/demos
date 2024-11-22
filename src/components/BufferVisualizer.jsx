@@ -7,7 +7,7 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], energ
     const lastChunksLengthRef = useRef(0);
     const lastBufferStateRef = useRef({ isBufferFull: false });
     const UPDATE_INTERVAL = 100;
-    const ENERGY_UPDATE_INTERVAL = 25;
+    const ENERGY_UPDATE_INTERVAL = 50;
     const MAX_DURATION = 30;
     const SKIP_POINTS = 16;
 
@@ -203,6 +203,23 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], energ
 
         processAudioData().catch(console.error);
     }, [chunks, segments, drawSegments, drawWaveform, threshold]);
+
+    useEffect(() => {
+        let animationFrameId;
+
+        const render = () => {
+            // Trigger any necessary redraws here
+            // For example, if you have dynamic elements outside useEffect
+
+            animationFrameId = requestAnimationFrame(render);
+        };
+
+        render();
+
+        return () => {
+            cancelAnimationFrame(animationFrameId);
+        };
+    }, []);
 
     const drawTimeMarkers = (ctx, totalDuration, canvas) => {
         const isBufferFull = totalDuration > MAX_DURATION;
