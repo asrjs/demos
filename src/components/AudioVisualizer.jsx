@@ -1,7 +1,6 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { BufferVisualizer } from './BufferVisualizer';
 import { StatsWidget } from './StatsWidget';
-import VUMeter from './VUMeter';
 
 /**
  * Component for visualizing audio data and controls
@@ -42,16 +41,6 @@ export function AudioVisualizer({
     const [peakEnergy, setPeakEnergy] = useState(0);
     const [rawPeakValue, setRawPeakValue] = useState(0);
 
-    // Enhanced energy update handler with proper scaling
-    const handleEnergyUpdate = useCallback((energy, avg, peak, rawPeak) => {
-        // Scale energy values based on energyScale
-        const scale = energyScale || 1.0;
-        setCurrentEnergy(energy * scale);
-        setAverageEnergy(avg * scale);
-        setPeakEnergy(peak * scale);
-        setRawPeakValue(rawPeak);
-    }, [energyScale]);
-
     return (
         <div className={className}>
             {/* BufferVisualizer */}
@@ -60,37 +49,16 @@ export function AudioVisualizer({
                     chunks={chunks}
                     audioContextRef={audioContextRef}
                     segments={segments}
-                    onEnergyUpdate={handleEnergyUpdate}
+                    threshold={threshold}
+                    onEnergyUpdate={(energy, avg, peak, rawPeak) => {
+                        setCurrentEnergy(energy);
+                        setAverageEnergy(avg);
+                        setPeakEnergy(peak);
+                        setRawPeakValue(rawPeak);
+                    }}
                 />
             </div>
             
-            {/* VU Meters with enhanced display */}
-            <div className="mb-4 space-y-2 p-2 bg-gray-50 dark:bg-gray-800 rounded">
-                <VUMeter 
-                    value={currentEnergy} 
-                    max={energyScale || 1.0}
-                    label="Current"
-                    className="mb-1"
-                />
-                <VUMeter 
-                    value={averageEnergy}
-                    max={energyScale || 1.0}
-                    label="Average"
-                    className="mb-1"
-                />
-                <VUMeter 
-                    value={peakEnergy} 
-                    max={energyScale || 1.0}
-                    label="Peak"
-                />
-                
-                {/* Display numerical values for debugging */}
-                <div className="mt-1 text-xs grid grid-cols-2 gap-1">
-                    <div>Raw Peak: {rawPeakValue.toFixed(4)}</div>
-                    <div>Threshold: {threshold.toFixed(4)}</div>
-                </div>
-            </div>
-
             {/* Change from flex to grid layout */}
             <div className="grid grid-cols-1 gap-4">
                 {/* Parameters Panel */}

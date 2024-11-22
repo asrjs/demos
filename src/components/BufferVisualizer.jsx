@@ -1,7 +1,7 @@
-import { useRef, useEffect, useCallback } from "react";
+import { useRef, useEffect, useCallback, useState } from "react";
 import { audioManager } from "../AudioManager";
 
-export function BufferVisualizer({ chunks, audioContextRef, segments = [], onEnergyUpdate }) {
+export function BufferVisualizer({ chunks, audioContextRef, segments = [], energyValues, threshold = 0.02 }) {
     const canvasRef = useRef(null);
     const lastUpdateRef = useRef(0);
     const lastChunksLengthRef = useRef(0);
@@ -9,6 +9,9 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], onEne
     const UPDATE_INTERVAL = 100;
     const MAX_DURATION = 30;
     const SKIP_POINTS = 16;
+
+    const [currentEnergy, setCurrentEnergy] = useState(0);
+    const energyCanvasRef = useRef(null);
 
     const drawSegments = useCallback((ctx, segments, totalDuration, canvas) => {
         const isBufferFull = totalDuration > MAX_DURATION;
@@ -81,6 +84,47 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], onEne
         ctx.stroke();
     }, []);
 
+    const drawEnergyLevel = useCallback((ctx, canvas, energy, threshold) => {
+        if (!ctx || !canvas || typeof energy !== 'number') return;
+
+        // Clear the energy canvas
+        ctx.fillStyle = '#f5f5f5';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        const height = canvas.height;
+        const width = canvas.width;
+
+        // Draw background grid
+        ctx.strokeStyle = '#e5e5e5';
+        ctx.beginPath();
+        for (let i = 0; i <= 1; i += 0.2) {
+            const y = height * (1 - i);
+            ctx.moveTo(0, y);
+            ctx.lineTo(width, y);
+        }
+        ctx.stroke();
+
+        // Draw threshold line
+        ctx.strokeStyle = '#ff6b6b';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        const thresholdY = height * (1 - threshold);
+        ctx.moveTo(0, thresholdY);
+        ctx.lineTo(width, thresholdY);
+        ctx.stroke();
+
+        // Draw current energy level
+        const energyHeight = Math.min(energy * height, height);
+        ctx.fillStyle = energy > threshold ? '#4CAF50' : '#2196F3';
+        ctx.fillRect(0, height - energyHeight, width, energyHeight);
+
+        // Draw energy value text
+        ctx.fillStyle = '#666';
+        ctx.font = '12px Arial';
+        ctx.fillText(`Energy: ${energy.toFixed(4)}`, 5, 15);
+        ctx.fillText(`Threshold: ${threshold.toFixed(4)}`, 5, 30);
+    }, []);
+
     useEffect(() => {
         const now = Date.now();
         if (now - lastUpdateRef.current < UPDATE_INTERVAL) return;
@@ -91,7 +135,15 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], onEne
         lastChunksLengthRef.current = chunks.length;
 
         const canvas = canvasRef.current;
+        const energyCanvas = energyCanvasRef.current;
+        if (!canvas || !energyCanvas) return;
+
         const ctx = canvas.getContext('2d', {
+            alpha: false,
+            desynchronized: true
+        });
+
+        const energyCtx = energyCanvas.getContext('2d', {
             alpha: false,
             desynchronized: true
         });
@@ -106,29 +158,6 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], onEne
                 offset += chunk.length;
             }
 
-            // Calculate energy values from the most recent chunk
-            const recentChunk = chunks[chunks.length - 1];
-            if (recentChunk && onEnergyUpdate) {
-                const windowSize = 1024;
-                let energy = 0;
-                let peak = 0;
-                
-                // Calculate RMS energy and peak
-                for (let i = 0; i < recentChunk.length; i++) {
-                    const value = Math.abs(recentChunk[i]);
-                    energy += value * value;
-                    peak = Math.max(peak, value);
-                }
-                
-                energy = Math.sqrt(energy / recentChunk.length);
-                
-                // Calculate moving average
-                const avgEnergy = energy; // You can implement a proper moving average if needed
-                
-                // Send energy updates
-                onEnergyUpdate(energy, avgEnergy, peak, peak);
-            }
-
             const totalDuration = totalLength / audioContextRef.current.sampleRate;
 
             // Clear canvas ONCE
@@ -139,10 +168,24 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], onEne
             drawWaveform(ctx, audioData, canvas, totalDuration);
             drawSegments(ctx, segments, totalDuration, canvas);
             drawTimeMarkers(ctx, totalDuration, canvas);
+
+            // Calculate current energy level from the most recent chunk
+            if (chunks.length > 0) {
+                const latestChunk = chunks[chunks.length - 1];
+                let energy = 0;
+                for (let i = 0; i < latestChunk.length; i++) {
+                    energy += latestChunk[i] * latestChunk[i];
+                }
+                energy = Math.sqrt(energy / latestChunk.length);
+                setCurrentEnergy(energy);
+                
+                // Draw energy level
+                drawEnergyLevel(energyCtx, energyCanvas, energy, threshold);
+            }
         };
 
         processAudioData().catch(console.error);
-    }, [chunks, segments, drawSegments, drawWaveform, onEnergyUpdate]);
+    }, [chunks, segments, drawSegments, drawWaveform, drawEnergyLevel, threshold]);
 
     const drawTimeMarkers = (ctx, totalDuration, canvas) => {
         const isBufferFull = totalDuration > MAX_DURATION;
@@ -159,11 +202,22 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], onEne
     };
 
     return (
-        <canvas 
-            ref={canvasRef} 
-            width={480} 
-            height={160}
-            className="w-full border rounded bg-[#f5f5f5]"
-        />
+        <div className="flex flex-col gap-2">
+            {/* Energy level visualizer */}
+            <canvas 
+                ref={energyCanvasRef}
+                width={480}
+                height={60}
+                className="w-full border rounded bg-[#f5f5f5]"
+            />
+            
+            {/* Existing waveform canvas */}
+            <canvas 
+                ref={canvasRef} 
+                width={480} 
+                height={160}
+                className="w-full border rounded bg-[#f5f5f5]"
+            />
+        </div>
     );
 }

@@ -1,15 +1,6 @@
-import React from 'react';
-
-const VUMeter = ({ 
-    value = 0, 
-    min = 0, 
-    max = 1.0, 
-    label = 'VU',
-    className = ''
-}) => {
-    // Ensure value is a number and clamp it
-    const safeValue = typeof value === 'number' ? value : 0;
-    const percentage = Math.min(100, Math.max(0, ((safeValue - min) / (max - min)) * 100));
+const VUMeter = ({ value, min = 0, max = 1.0 }) => {
+    // Normalize value between 0 and 100
+    const percentage = Math.min(100, Math.max(0, ((value - min) / (max - min)) * 100));
     
     // Calculate color based on value
     const getColor = (percent) => {
@@ -19,9 +10,9 @@ const VUMeter = ({
     };
 
     return (
-        <div className={`flex items-center gap-2 ${className}`}>
-            <div className="text-xs w-14">{label}: {safeValue.toFixed(3)}</div>
-            <div className="h-4 flex-1 bg-gray-200 rounded-full overflow-hidden">
+        <div className="flex items-center gap-2">
+            <div className="text-xs w-14">VU: {value.toFixed(3)}</div>
+            <div className="h-4 w-full bg-gray-200 rounded-full overflow-hidden">
                 <div 
                     className={`h-full transition-all duration-100 ${getColor(percentage)}`}
                     style={{ width: `${percentage}%` }}
