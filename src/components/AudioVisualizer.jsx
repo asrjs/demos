@@ -10,8 +10,21 @@ import { StatsWidget } from './StatsWidget';
  * @param {MediaStream} props.stream - Audio stream
  * @param {number} props.threshold - Energy threshold
  * @param {Function} props.onThresholdChange - Threshold change handler
- * @param {Array<Float32Array>} props.chunks - Audio chunks
+ * @param {number} props.silenceLength - Min silence length
+ * @param {Function} props.onSilenceLengthChange - Silence length change handler
+ * @param {number} props.speechHangover - Speech hangover time
+ * @param {Function} props.onHangoverChange - Hangover change handler
+ * @param {AudioContext} props.audioContextRef - Audio context reference
  * @param {Array<Object>} props.segments - Detected segments
+ * @param {number} props.energyScale - Energy scale
+ * @param {Function} props.onEnergyScaleChange - Energy scale change handler
+ * @param {number} props.hysteresisRatio - Hysteresis ratio
+ * @param {Function} props.onHysteresisChange - Hysteresis change handler
+ * @param {number} props.minSpeechDuration - Min speech duration
+ * @param {Function} props.onMinSpeechDurationChange - Min speech duration change handler
+ * @param {Object} props.processor - Audio processor
+ * @param {number} props.minEnergyIntegral - Min energy integral
+ * @param {Function} props.onMinEnergyIntegralChange - Min energy integral change handler
  */
 export function AudioVisualizer({ 
     className, 
@@ -22,7 +35,6 @@ export function AudioVisualizer({
     onSilenceLengthChange,
     speechHangover,
     onHangoverChange,
-    chunks = [],
     audioContextRef,
     segments = [],
     energyScale,
@@ -35,27 +47,13 @@ export function AudioVisualizer({
     minEnergyIntegral,
     onMinEnergyIntegralChange
 }) {
-    // Add state for displaying current values
-    const [currentEnergy, setCurrentEnergy] = useState(0);
-    const [averageEnergy, setAverageEnergy] = useState(0);
-    const [peakEnergy, setPeakEnergy] = useState(0);
-    const [rawPeakValue, setRawPeakValue] = useState(0);
-
     return (
         <div className={className}>
             {/* BufferVisualizer */}
             <div className="mb-2">
                 <BufferVisualizer 
-                    chunks={chunks}
-                    audioContextRef={audioContextRef}
-                    segments={segments}
                     threshold={threshold}
-                    onEnergyUpdate={(energy, avg, peak, rawPeak) => {
-                        setCurrentEnergy(energy);
-                        setAverageEnergy(avg);
-                        setPeakEnergy(peak);
-                        setRawPeakValue(rawPeak);
-                    }}
+                    segments={segments}
                 />
             </div>
             
@@ -164,25 +162,11 @@ export function AudioVisualizer({
                             />
                         </div>
                     </div>
-
-                    {/* Current Values Display */}
-                    <div className="mt-2 text-xs grid grid-cols-4 gap-1">
-                        <div>Current: {currentEnergy.toFixed(4)}</div>
-                        <div>Avg: {averageEnergy.toFixed(4)}</div>
-                        <div>Peak: {peakEnergy.toFixed(4)}</div>
-                        <div>Raw: {rawPeakValue.toFixed(4)}</div>
-                    </div>
                 </div>
 
                 {/* Stats Widget */}
                 <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                    <StatsWidget 
-                        chunks={chunks}
-                        audioContextRef={audioContextRef}
-                        segments={segments}
-                        threshold={threshold}
-                        processor={processor}
-                    />
+                    <StatsWidget />
                 </div>
             </div>
         </div>

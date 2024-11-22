@@ -37,6 +37,20 @@ export class AudioManager {
         
         this._nextSegmentId = 0;
         
+        // Add metrics state
+        this._metrics = {
+            currentEnergy: 0,
+            averageEnergy: 0,
+            peakEnergy: 0,
+            rawPeakValue: 0,
+            bufferDuration: 0,
+            recentAudioData: new Float32Array(48000) // 3 seconds at 16kHz
+        };
+        
+        // Add ring buffer for visualization
+        this._visualizationBuffer = new Float32Array(16000 * 30); // 30 seconds
+        this._visualizationBufferPosition = 0;
+        
         AudioManager.instance = this;
     }
 
@@ -87,6 +101,16 @@ export class AudioManager {
      */
     processNewChunk(chunk, energy) {
         if (!chunk || !chunk.length) return;
+
+        // Update visualization buffer
+        this.updateVisualizationBuffer(chunk);
+
+        // Update metrics
+        this._metrics.currentEnergy = energy;
+        this._metrics.averageEnergy = (this._metrics.averageEnergy * 0.95) + (energy * 0.05);
+        this._metrics.peakEnergy = Math.max(this._metrics.peakEnergy * 0.99, energy);
+        this._metrics.rawPeakValue = Math.max(...Array.from(chunk).map(Math.abs));
+        this._metrics.bufferDuration = this.audioBuffer.length / this.options.sampleRate;
 
         // Add to main buffer
         const newBuffer = new Float32Array(this.audioBuffer.length + chunk.length);
@@ -481,6 +505,47 @@ export class AudioManager {
         this.language = language;
         // Notify subscribers
         this.notifyListeners('languageUpdated', language);
+    }
+
+    // Add method to update visualization buffer
+    updateVisualizationBuffer(chunk) {
+        if (!chunk || !chunk.length) return;
+        
+        const bufferLength = this._visualizationBuffer.length;
+        const chunkLength = chunk.length;
+        
+        // Calculate where to start writing in the ring buffer
+        const writeStart = this._visualizationBufferPosition;
+        const writeEnd = (writeStart + chunkLength) % bufferLength;
+        
+        if (writeEnd > writeStart) {
+            // Simple case: just write the chunk
+            this._visualizationBuffer.set(chunk, writeStart);
+        } else {
+            // Split case: write chunk across buffer boundary
+            const firstPart = bufferLength - writeStart;
+            this._visualizationBuffer.set(chunk.slice(0, firstPart), writeStart);
+            this._visualizationBuffer.set(chunk.slice(firstPart), 0);
+        }
+        
+        this._visualizationBufferPosition = writeEnd;
+    }
+
+    // Add method to get visualization data
+    getVisualizationData() {
+        // Return a copy of the visualization buffer arranged in chronological order
+        const buffer = new Float32Array(this._visualizationBuffer.length);
+        const pos = this._visualizationBufferPosition;
+        
+        buffer.set(this._visualizationBuffer.slice(pos), 0);
+        buffer.set(this._visualizationBuffer.slice(0, pos), this._visualizationBuffer.length - pos);
+        
+        return buffer;
+    }
+
+    // Add method to get current metrics
+    getMetrics() {
+        return { ...this._metrics };
     }
 }
 

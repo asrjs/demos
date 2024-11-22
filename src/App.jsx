@@ -89,7 +89,6 @@ function App() {
   const lastProcessedTimeRef = useRef(0);
   const lastProcessTimeRef = useRef(0);
   const processingIntervalRef = useRef(null);
-  const chunksRef = useRef([]);
 
   // Model and processing state
   const [status, setStatus] = useState('initialized'); // Change default state
@@ -110,7 +109,6 @@ function App() {
   const [endingEnergyThreshold, setEndingEnergyThreshold] = useState(0.6);
 
   // Audio data state
-  const [chunks, setChunks] = useState([]);
   const [stream, setStream] = useState(null);
   const [segments, setSegments] = useState([]);
   const [text, setText] = useState('');
@@ -204,7 +202,6 @@ function App() {
                 const chunk = event.data.audioData;
                 const energy = event.data.energy;
                 
-                setChunks(prev => [...prev, chunk]);
                 audioManager.processNewChunk(chunk, energy);
             }
         };
@@ -231,153 +228,40 @@ function App() {
     }
   };
 
-  // Process buffer useEffect'ini güncelle - sadece recording durumuna bağlı olsun
-  useEffect(() => {
-    if (recording) {
-        console.log('Setting up process interval');
-        let lastProcessTime = 0;
-        
-        const processInterval = setInterval(async () => {
-            const currentTime = Date.now();
-            if (currentTime - lastProcessTime < PROCESS_INTERVAL) {
-                return;
-            }
-            
-            const currentChunks = chunksRef.current;
-            if (!currentChunks.length) return;
-
-            try {
-                const samplesFor30Sec = 30 * audioContextRef.current.sampleRate;
-                const audioData = new Float32Array(samplesFor30Sec);
-                let writeOffset = audioData.length;
-
-                for (let i = currentChunks.length - 1; i >= 0 && writeOffset > 0; i--) {
-                    const chunk = currentChunks[i];
-                    if (!(chunk instanceof Float32Array)) continue;
-
-                    const copySize = Math.min(writeOffset, chunk.length);
-                    const startPos = chunk.length - copySize;
-                    
-                    audioData.set(
-                        chunk.slice(startPos, startPos + copySize),
-                        writeOffset - copySize
-                    );
-                    writeOffset -= copySize;
-                }
-
-                const maxValue = Math.max(...Array.from(audioData.slice(0, 1000)).map(Math.abs));
-                if (maxValue > 0.1) {
-                    await audioManager.processNewChunk(audioData);
-                }
-
-                lastProcessTime = currentTime;
-            } catch (error) {
-                console.error('Error in process interval:', error);
-            }
-        }, PROCESS_INTERVAL);
-
-        return () => clearInterval(processInterval);
+  // Update handleReset
+  const handleReset = useCallback(() => {
+    addLog('Reset requested');
+    if (recorderRef.current) {
+      if (recorderRef.current.state === 'recording') {
+        recorderRef.current.stop();
+      }
+      audioManager.reset();
+      
+      setTimeout(() => {
+        if (status === 'ready' && recorderRef.current) {
+          try {
+            recorderRef.current.start();
+            addLog('Started new recording after reset');
+          } catch (error) {
+            addLog('Failed to start after reset: ' + error.message, 'error');
+          }
+        }
+      }, 100);
     }
-  }, [recording]); // Sadece recording'e bağlı
+  }, [status]);
 
-  // Initialize worker and handle model loading - sadece model yükleme
+  // Update cleanup effect
   useEffect(() => {
-    if (!worker.current) {
-        worker.current = new Worker(new URL('./worker.js', import.meta.url), {
-            type: 'module'
-        });
-
-        // Pass worker to AudioManager
-        audioManager.setWorker(worker.current);
-
-        const onMessageReceived = (e) => {
-            switch (e.data.status) {
-                case 'loading':
-                    setStatus('loading');
-                    setLoadingMessage(e.data.data);
-                    break;
-
-                case 'initiate':
-                    setProgressItems(prev => [...prev, e.data]);
-                    break;
-
-                case 'progress':
-                    setProgressItems(
-                        prev => prev.map(item => {
-                            if (item.file === e.data.file) {
-                                return { ...item, ...e.data }
-                            }
-                            return item;
-                        })
-                    );
-                    break;
-
-                case 'done':
-                    setProgressItems(
-                        prev => prev.filter(item => item.file !== e.data.file)
-                    );
-                    break;
-
-                case 'ready':
-                    setStatus('ready');
-                    break;
-
-                case 'start':
-                    setIsProcessing(true);
-                    break;
-
-                case 'update':
-                    setTps(e.data.tps);
-                    break;
-
-                case 'complete':
-                    setIsProcessing(false);
-                    const transcription = e.data.output;
-                    const segmentId = e.data.segmentId;
-                    const isMerged = e.data.segmentId.startsWith('merged_');
-
-                    // Update transcription history
-                    setTranscriptionHistory(prev => {
-                        // Create new transcription entry
-                        const newEntry = {
-                            id: segmentId,
-                            text: transcription,
-                            timestamp: Date.now(),
-                            isMerged,
-                            containedSegments: isMerged ? 
-                                audioManager.segments.find(s => s.id === segmentId)?.originalSegments?.map(s => s.id) : 
-                                [],
-                            isPartOfMerged: !isMerged && audioManager.segments.find(s => s.id === segmentId)?.isPartOfMerged,
-                            mergedId: !isMerged ? audioManager.segments.find(s => s.id === segmentId)?.mergedId : null
-                        };
-
-                        // Filter out transcriptions that are now part of this merged segment
-                        const filteredHistory = prev.filter(entry => 
-                            !newEntry.containedSegments?.includes(entry.id)
-                        );
-
-                        return [...filteredHistory, newEntry];
-                    });
-
-                    // Update AudioManager
-                    audioManager.handleTranscriptionResult({
-                        segmentId,
-                        output: transcription,
-                        isMerged
-                    });
-                    break;
-            }
-        };
-
-        worker.current.addEventListener('message', onMessageReceived);
-
-        return () => {
-            worker.current.removeEventListener('message', onMessageReceived);
-            worker.current.terminate();
-            worker.current = null;
-        };
-    }
-}, []); // Empty dependency array - only run once on mount
+    return () => {
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+      }
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+      audioManager.reset();
+    };
+  }, [stream]);
 
   // Create addLog callback that uses the ref
   const addLog = useCallback((message, type = 'info') => {
@@ -440,28 +324,6 @@ function App() {
         });
     }
 }, [audioThreshold, silenceLength, speechHangover]);
-
-  // Handle reset button click
-  const handleReset = useCallback(() => {
-    addLog('Reset requested');
-    if (recorderRef.current) {
-      if (recorderRef.current.state === 'recording') {
-        recorderRef.current.stop();
-      }
-      audioManagerRef.current?.reset();
-      
-      setTimeout(() => {
-        if (status === 'ready' && recorderRef.current) {
-          try {
-            recorderRef.current.start();
-            addLog('Started new recording after reset');
-          } catch (error) {
-            addLog('Failed to start after reset: ' + error.message, 'error');
-          }
-        }
-      }, 100);
-    }
-  }, [status]);
 
   // Separate effect for periodic processing
   useEffect(() => {
@@ -537,17 +399,6 @@ function App() {
         };
     }
 }, [status, recording, segments]); // Add segments to dependencies
-
-  // Also verify that chunks are being added
-  useEffect(() => {
-      if (recorderRef.current) {
-          recorderRef.current.ondataavailable = (e) => {
-              if (e.data.size > 0) {
-                  setChunks(prev => [...prev, e.data]);
-              }
-          };
-      }
-  }, []);
 
   // Add effect to update processor settings
   useEffect(() => {
@@ -664,45 +515,41 @@ function App() {
   // Define a maximum number of chunks to store
   const MAX_CHUNKS = 1000; // Adjust as needed
 
-  // Update the useEffect that handles audio chunks
+  // Replace the chunks-based transcription effect with a new one that uses AudioManager
   useEffect(() => {
-    if (!recorderRef.current) return;
-    if (!recording) return;
-    if (isProcessing) return;
-    if (status !== 'ready') return;
+    if (!worker.current || !recording || isProcessing || status !== 'ready') return;
 
-    if (chunks.length > 0) {
-        // Limit the number of stored chunks
-        if (chunks.length > MAX_CHUNKS) {
-            setChunks(prev => prev.slice(-MAX_CHUNKS));
-        }
+    const processInterval = setInterval(() => {
+        // Get detected segments that haven't been processed yet
+        const unprocessedSegments = audioManager.segments.filter(
+            segment => !segment.isProcessed && !segment.isPartOfMerged
+        );
 
-        const blob = new Blob(chunks, { type: recorderRef.current.mimeType });
-        const fileReader = new FileReader();
-
-        fileReader.onloadend = async () => {
-            const arrayBuffer = fileReader.result;
-            const decoded = await audioContextRef.current.decodeAudioData(arrayBuffer);
-            let audio = decoded.getChannelData(0);
-            if (audio.length > MAX_SAMPLES) {
-                audio = audio.slice(-MAX_SAMPLES);
+        // Process each unprocessed segment
+        unprocessedSegments.forEach(segment => {
+            if (!segment.audioData) {
+                console.warn('Segment has no audio data:', segment);
+                return;
             }
 
-            // Pass the current language to the worker
+            // Mark as processed to prevent duplicate processing
+            segment.isProcessed = true;
+
+            // Send to worker for transcription
             worker.current.postMessage({ 
                 type: 'transcribe', 
                 data: { 
-                    audioData: audio, 
-                    language,  // Pass current language
-                    segmentId: Date.now().toString() // Add unique ID for the segment
+                    audioData: segment.audioData,
+                    language,
+                    segmentId: segment.id,
+                    isMerged: segment.isMerged
                 } 
             });
-        };
-        fileReader.readAsArrayBuffer(blob);
-    } else {
-        recorderRef.current?.requestData();
-    }
-}, [status, recording, isProcessing, chunks, language]); // Add language to dependencies
+        });
+    }, 500); // Check every 500ms
+
+    return () => clearInterval(processInterval);
+}, [status, recording, isProcessing, language]);
 
   // Update the language selection handler to be less disruptive
   const handleLanguageChange = (newLanguage) => {
@@ -748,6 +595,100 @@ function App() {
           if (processInterval) clearInterval(processInterval);
       };
   }, [recording]); // Run only when recording state changes
+
+  // Initialize worker and handle model loading
+  useEffect(() => {
+      if (!worker.current) {
+          worker.current = new Worker(new URL('./worker.js', import.meta.url), {
+              type: 'module'
+          });
+
+          // Pass worker to AudioManager
+          audioManager.setWorker(worker.current);
+
+          worker.current.addEventListener('message', (e) => {
+              switch (e.data.status) {
+                  case 'loading':
+                      setStatus('loading');
+                      setLoadingMessage(e.data.data);
+                      break;
+
+                  case 'initiate':
+                      setProgressItems(prev => [...prev, e.data]);
+                      break;
+
+                  case 'progress':
+                      setProgressItems(
+                          prev => prev.map(item => {
+                              if (item.file === e.data.file) {
+                                  return { ...item, ...e.data }
+                              }
+                              return item;
+                          })
+                      );
+                      break;
+
+                  case 'done':
+                      setProgressItems(
+                          prev => prev.filter(item => item.file !== e.data.file)
+                      );
+                      break;
+
+                  case 'ready':
+                      setStatus('ready');
+                      break;
+
+                  case 'start':
+                      setIsProcessing(true);
+                      break;
+
+                  case 'update':
+                      setTps(e.data.tps);
+                      break;
+
+                  case 'complete':
+                      setIsProcessing(false);
+                      const transcription = e.data.output;
+                      const segmentId = e.data.segmentId;
+                      const isMerged = e.data.segmentId.startsWith('merged_');
+
+                      // Update transcription history
+                      setTranscriptionHistory(prev => {
+                          const newEntry = {
+                              id: segmentId,
+                              text: transcription,
+                              timestamp: Date.now(),
+                              isMerged,
+                              containedSegments: isMerged ? 
+                                  audioManager.segments.find(s => s.id === segmentId)?.originalSegments?.map(s => s.id) : 
+                                  [],
+                              isPartOfMerged: !isMerged && audioManager.segments.find(s => s.id === segmentId)?.isPartOfMerged,
+                              mergedId: !isMerged ? audioManager.segments.find(s => s.id === segmentId)?.mergedId : null
+                          };
+
+                          const filteredHistory = prev.filter(entry => 
+                              !newEntry.containedSegments?.includes(entry.id)
+                          );
+
+                          return [...filteredHistory, newEntry];
+                      });
+
+                      // Update AudioManager
+                      audioManager.handleTranscriptionResult({
+                          segmentId,
+                          output: transcription,
+                          isMerged
+                      });
+                      break;
+              }
+          });
+
+          return () => {
+              worker.current.terminate();
+              worker.current = null;
+          };
+      }
+  }, []); // Empty dependency array - only run once on mount
 
   return (
     <div className="flex flex-col min-h-screen max-h-screen w-screen mx-auto text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-900">
@@ -814,7 +755,6 @@ function App() {
                         onSilenceLengthChange={setSilenceLength}
                         speechHangover={speechHangover}
                         onHangoverChange={setSpeechHangover}
-                        chunks={chunks}
                         audioContextRef={audioContextRef}
                         segments={segments}
                         energyScale={energyScale}
