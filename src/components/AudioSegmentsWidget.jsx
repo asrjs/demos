@@ -1,8 +1,14 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef, useEffect } from 'react';
 import { WaveFile } from 'wavefile';
 import { FixedSizeList as List } from 'react-window';
 
 export function AudioSegmentsWidget({ segments, worker, language }) {
+    const audioDataRef = useRef([]);
+
+    useEffect(() => {
+        audioDataRef.current = segments.map(segment => segment.audioData);
+    }, [segments]);
+
     const playSegment = async (segment) => {
         if (!segment.audioData || segment.audioData.length === 0) {
             console.error('Invalid segment audio data');
@@ -134,22 +140,16 @@ export function AudioSegmentsWidget({ segments, worker, language }) {
         <div className="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
             <h3 className="font-semibold mb-2">Detected Speech Segments ({segments.length})</h3>
             
-            {/* List of segments */}
             <List
                 height={400}
                 itemCount={segments.length}
-                itemSize={80} // Adjust based on item height
+                itemSize={80}
                 width={'100%'}
             >
                 {({ index, style }) => {
                     const segment = segments[index];
                     return (
-                        <div style={style} key={segment.isMerged ? segment.id : index} 
-                             className={`flex flex-col p-2 rounded ${
-                                 segment.isMerged 
-                                     ? 'bg-purple-100 dark:bg-purple-900' 
-                                     : 'bg-white dark:bg-gray-700'
-                             }`}>
+                        <div style={style} key={segment.id} className={`flex flex-col p-2 rounded ${segment.isMerged ? 'bg-purple-100 dark:bg-purple-900' : 'bg-white dark:bg-gray-700'}`}>
                             <div className="flex items-center space-x-4">
                                 <span className="text-sm">
                                     {segment.isMerged ? '🔄 ' : ''}{`Segment ${index + 1}: ${segment.startTime.toFixed(2)}s - ${segment.endTime.toFixed(2)}s (${(segment.endTime - segment.startTime).toFixed(2)}s)`}
