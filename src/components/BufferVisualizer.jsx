@@ -7,11 +7,13 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], energ
     const lastChunksLengthRef = useRef(0);
     const lastBufferStateRef = useRef({ isBufferFull: false });
     const UPDATE_INTERVAL = 100;
+    const ENERGY_UPDATE_INTERVAL = 25;
     const MAX_DURATION = 30;
     const SKIP_POINTS = 16;
 
     const [currentEnergy, setCurrentEnergy] = useState(0);
     const energyCanvasRef = useRef(null);
+    const lastEnergyUpdateRef = useRef(0);
 
     const drawSegments = useCallback((ctx, segments, totalDuration, canvas) => {
         const isBufferFull = totalDuration > MAX_DURATION;
@@ -131,6 +133,33 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], energ
     }, []);
 
     useEffect(() => {
+        if (!chunks.length || !energyCanvasRef.current) return;
+
+        const now = Date.now();
+        if (now - lastEnergyUpdateRef.current < ENERGY_UPDATE_INTERVAL) return;
+        lastEnergyUpdateRef.current = now;
+
+        const energyCtx = energyCanvasRef.current.getContext('2d', {
+            alpha: false,
+            desynchronized: true
+        });
+
+        // Calculate current energy level from the most recent chunk
+        const latestChunk = chunks[chunks.length - 1];
+        if (latestChunk) {
+            let energy = 0;
+            for (let i = 0; i < latestChunk.length; i++) {
+                energy += latestChunk[i] * latestChunk[i];
+            }
+            energy = Math.sqrt(energy / latestChunk.length);
+            setCurrentEnergy(energy);
+            
+            // Draw energy level
+            drawEnergyLevel(energyCtx, energyCanvasRef.current, energy, threshold);
+        }
+    }, [chunks, threshold]);
+
+    useEffect(() => {
         const now = Date.now();
         if (now - lastUpdateRef.current < UPDATE_INTERVAL) return;
         if (!chunks.length || !canvasRef.current) return;
@@ -140,15 +169,9 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], energ
         lastChunksLengthRef.current = chunks.length;
 
         const canvas = canvasRef.current;
-        const energyCanvas = energyCanvasRef.current;
-        if (!canvas || !energyCanvas) return;
+        if (!canvas) return;
 
         const ctx = canvas.getContext('2d', {
-            alpha: false,
-            desynchronized: true
-        });
-
-        const energyCtx = energyCanvas.getContext('2d', {
             alpha: false,
             desynchronized: true
         });
@@ -173,24 +196,10 @@ export function BufferVisualizer({ chunks, audioContextRef, segments = [], energ
             drawWaveform(ctx, audioData, canvas, totalDuration);
             drawSegments(ctx, segments, totalDuration, canvas);
             drawTimeMarkers(ctx, totalDuration, canvas);
-
-            // Calculate current energy level from the most recent chunk
-            if (chunks.length > 0) {
-                const latestChunk = chunks[chunks.length - 1];
-                let energy = 0;
-                for (let i = 0; i < latestChunk.length; i++) {
-                    energy += latestChunk[i] * latestChunk[i];
-                }
-                energy = Math.sqrt(energy / latestChunk.length);
-                setCurrentEnergy(energy);
-                
-                // Draw energy level
-                drawEnergyLevel(energyCtx, energyCanvas, energy, threshold);
-            }
         };
 
         processAudioData().catch(console.error);
-    }, [chunks, segments, drawSegments, drawWaveform, drawEnergyLevel, threshold]);
+    }, [chunks, segments, drawSegments, drawWaveform, threshold]);
 
     const drawTimeMarkers = (ctx, totalDuration, canvas) => {
         const isBufferFull = totalDuration > MAX_DURATION;
