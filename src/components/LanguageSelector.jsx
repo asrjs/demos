@@ -12,6 +12,7 @@ function titleCase(str) {
 // https://github.com/openai/whisper/blob/248b6cb124225dd263bb9bd32d060b6517e067f8/whisper/tokenizer.py#L79
 const LANGUAGES = {
     en: "english",
+    tr: "turkish",
     zh: "chinese",
     de: "german",
     es: "spanish/castilian",
@@ -20,7 +21,6 @@ const LANGUAGES = {
     fr: "french",
     ja: "japanese",
     pt: "portuguese",
-    tr: "turkish",
     pl: "polish",
     ca: "catalan/valencian",
     nl: "dutch/flemish",
