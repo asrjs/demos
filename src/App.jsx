@@ -651,12 +651,39 @@ function App() {
                       const transcription = e.data.output;
                       const segmentId = e.data.segmentId;
                       const isMerged = e.data.segmentId.startsWith('merged_');
+                      
+                      // Debug log the incoming data
+                      console.log('Received transcription data:', {
+                          transcription,
+                          segmentId,
+                          hasWords: !!e.data.words,
+                          wordCount: e.data.words?.length
+                      });
+                      
+                      // Log word probabilities with formatting
+                      if (e.data.words && e.data.words.length > 0) {
+                          console.group('Transcription Details');
+                          console.log('Full text:', transcription);
+                          console.log('Words with probabilities:');
+                          e.data.words.forEach(word => {
+                              const confidence = (word.probability * 100).toFixed(2);
+                              const confidenceColor = 
+                                  word.probability > 0.9 ? 'color: green' :
+                                  word.probability > 0.7 ? 'color: orange' : 
+                                  'color: red';
+                              console.log(`%c${word.text}: ${confidence}%`, confidenceColor);
+                          });
+                          console.groupEnd();
+                      } else {
+                          console.warn('No word probabilities received for segment:', segmentId);
+                      }
 
                       // Update transcription history
                       setTranscriptionHistory(prev => {
                           const newEntry = {
                               id: segmentId,
                               text: transcription,
+                              words: e.data.words, // Store word probabilities
                               timestamp: Date.now(),
                               isMerged,
                               containedSegments: isMerged ? 
@@ -677,6 +704,7 @@ function App() {
                       audioManager.handleTranscriptionResult({
                           segmentId,
                           output: transcription,
+                          words: e.data.words,
                           isMerged
                       });
                       break;
