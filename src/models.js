@@ -6,7 +6,8 @@ const models = {
     'Whisper Base En': 'onnx-community/whisper-base.en',
     'Whisper Tiny En': 'onnx-community/whisper-tiny.en',
     'Whisper Base Tr': 'ysdede/whisper-base-dsntt1-tr-onnx',
-    'Whisper Small Tr': 'ysdede/whisper-small-dsntt1-tr-onnx'
+    'Whisper Small Tr': 'ysdede/whisper-small-dsntt1-tr-onnx',
+    'Whisper Small TR Q': 'ysdede/whisper-small-dsntt1-tr-Q'
 };
 
 export default models;
