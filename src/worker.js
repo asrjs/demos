@@ -95,100 +95,158 @@ async function transcribeAudio(audioData, options) {
         
         // Process audio data
         const inputs = await processor(audioData);
-        console.log('Processor outputs:', {
-            hasInputFeatures: !!inputs.input_features,
-            inputFeatureType: inputs.input_features ? inputs.input_features.constructor.name : null,
-            tensorShape: inputs.input_features?.dims || null
-        });
 
-        // Skip direct model call and use generate with return_dict
+        // Following Xenova's example for generation config
         const generateConfig = {
+            // Basic generation config
             max_new_tokens: MAX_NEW_TOKENS,
+            return_dict_in_generate: true,
+            output_scores: true,
+            
+            // Input features
+            input_features: inputs.input_features,
+            
+            // Sampling settings
+            do_sample: false,  // Use greedy decoding
             num_beams: 1,
             temperature: 0.0,
-            return_dict_in_generate: true,
-            output_hidden_states: true, // Enable hidden states output
-            input_features: inputs.input_features
         };
 
-        // Add language and task only for multilingual models
+        // Add language and task for multilingual models
         if (!AutomaticSpeechRecognitionPipeline.model_id.endsWith('.en')) {
-            generateConfig.language = options.language;
+            // Get language token ID using the tokenizer's vocabulary
+            const language_code = options.language || 'en';
+            
+            // Map language codes to Whisper's language tokens
+            const languageTokenMap = {
+                'en': '<|en|>',
+                'tr': '<|tr|>',
+                // Add other languages as needed
+            };
+            
+            const langToken = languageTokenMap[language_code] || '<|en|>';
+            const taskToken = '<|transcribe|>';
+            
+            // **Removed 'await' as tokenizer.encode is synchronous**
+            const langTokenId = tokenizer.encode(langToken);
+            const taskTokenId = tokenizer.encode(taskToken);
+            
+            // Set forced decoder IDs
+            generateConfig.forced_decoder_ids = [
+                [0, langTokenId[0]],  // Language token
+                [1, taskTokenId[0]]   // Task token
+            ];
+            
+            // Add task and language to config
+            generateConfig.language = language_code;
             generateConfig.task = 'transcribe';
         }
 
-        // Generate text and get hidden states
+        console.log('Generation config:', generateConfig);
+
+        // Generate text
         const outputs = await model.generate(generateConfig);
         
+        // Debug output structure
         console.log('Generation outputs:', {
+            type: outputs?.constructor?.name,
+            keys: Object.keys(outputs),
             hasSequences: !!outputs.sequences,
-            hasHiddenStates: !!outputs.decoder_hidden_states,
-            outputKeys: Object.keys(outputs)
+            hasScores: !!outputs.scores,
+            hasPastKeyValues: !!outputs.past_key_values,
+            sequences: outputs.sequences?.dims,
+            scores: outputs.scores?.dims,
+            // Try to access scores differently
+            scoresArray: Array.isArray(outputs.scores),
+            scoresFirst: outputs.scores?.[0]?.dims,
+            // Log raw scores if available
+            rawScores: outputs.scores,
         });
 
-        // Get sequences from generate output
+        // Get sequences
         const sequences = outputs.sequences;
         if (!sequences) {
             console.error('No sequences in model outputs');
             return { text: '', words: [] };
         }
 
-        // Get hidden states for confidence calculation
-        const hiddenStates = outputs.decoder_hidden_states;
-        
         // Decode the full text
         const transcription = tokenizer.batch_decode(sequences, { 
             skip_special_tokens: true 
         })[0];
+
+        // **Handle absence of scores gracefully**
+        let scores;
+        if (outputs.scores) {
+            scores = outputs.scores;
+        } else if (outputs.decoder_attentions) {
+            // Try using attention weights as confidence scores (if available)
+            scores = outputs.decoder_attentions.map(attention => {
+                const attentionWeights = Array.from(attention[0]);
+                return attentionWeights.map(w => Math.max(...w));
+            });
+        } else {
+            console.warn('No scores or decoder attentions available for confidence estimation.');
+        }
 
         // Process tokens and compute word probabilities
         const words = [];
         let currentWord = '';
         let currentProb = 1.0;
         
-        // Convert token IDs to array if it's a tensor
+        // Convert token IDs to array
         const tokenArray = Array.isArray(sequences[0]) ? sequences[0] : Array.from(sequences[0]);
         
         console.log('Processing tokens:', {
-            numTokens: tokenArray.length,
-            hasHiddenStates: !!hiddenStates,
-            hiddenStatesLength: hiddenStates?.length || 0
+            count: tokenArray.length,
+            hasScores: !!scores,
+            scoresType: scores?.constructor?.name,
+            firstTokenId: tokenArray[0],
+            // Log first few tokens and their text
+            sampleTokens: tokenArray.slice(0, 3).map(id => ({
+                id,
+                text: tokenizer.decode([id], { skip_special_tokens: true })
+            }))
         });
 
+        // Process each token
         for (let i = 0; i < tokenArray.length; i++) {
             const token = tokenArray[i];
             const tokenText = tokenizer.decode([token], { skip_special_tokens: true });
 
             if (!tokenText) continue;
 
-            // Compute token probability using hidden states
+            // Calculate token probability
             let tokenProb = 0.7; // Default probability
-            if (hiddenStates && hiddenStates[i]) {
-                // Use L2 norm of hidden state as confidence score
-                const hiddenState = Array.from(hiddenStates[i][0]); // Get hidden state for current token
-                const norm = Math.sqrt(hiddenState.reduce((sum, val) => sum + val * val, 0));
-                tokenProb = Math.max(0.1, Math.min(0.99, norm / Math.sqrt(hiddenState.length)));
-                
-                console.log(`Token "${tokenText}":`, {
-                    id: token,
-                    probability: tokenProb.toFixed(4),
-                    norm: norm.toFixed(4)
-                });
+            if (scores && scores[i]) {
+                try {
+                    const scoreArray = Array.from(scores[i]);
+                    const probs = softmax(scoreArray);
+                    tokenProb = probs[token] || 0.7; // Fallback to 0.7 if index not found
+                    
+                    console.log(`Token "${tokenText}":`, {
+                        id: token,
+                        probability: tokenProb.toFixed(4),
+                        scoreArrayLength: scoreArray.length
+                    });
+                } catch (error) {
+                    console.warn('Error processing score for token:', {
+                        error,
+                        token,
+                        tokenText,
+                        scoreType: typeof scores[i],
+                        score: scores[i]
+                    });
+                }
             }
 
             // Handle word boundaries
             if (tokenText.startsWith(' ') || tokenText.includes('\n')) {
                 if (currentWord) {
-                    // Calculate word probability as geometric mean of token probabilities
                     const finalProb = Math.pow(currentProb, 1/currentWord.length);
                     words.push({
                         text: currentWord,
                         probability: finalProb
-                    });
-                    console.log('Completed Word:', {
-                        word: currentWord,
-                        rawProb: currentProb.toFixed(4),
-                        normalizedProb: finalProb.toFixed(4)
                     });
                     currentWord = '';
                     currentProb = 1.0;
@@ -208,14 +266,7 @@ async function transcribeAudio(audioData, options) {
                 text: currentWord,
                 probability: finalProb
             });
-            console.log('Final Word:', {
-                word: currentWord,
-                rawProb: currentProb.toFixed(4),
-                normalizedProb: finalProb.toFixed(4)
-            });
         }
-
-        console.log('Word-level probabilities:', words);
 
         return {
             text: transcription,
@@ -223,7 +274,10 @@ async function transcribeAudio(audioData, options) {
         };
 
     } catch (error) {
-        console.error('Transcription error:', error);
+        console.error('Transcription error:', error, {
+            modelId: AutomaticSpeechRecognitionPipeline.model_id,
+            language: options.language
+        });
         throw error;
     }
 }
