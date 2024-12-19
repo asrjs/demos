@@ -21,7 +21,7 @@ class AutomaticSpeechRecognitionPipeline {
     static model = null;
     static isInitialized = false;
 
-    static async getInstance(modelId, progress_callback = null) {
+    static async getInstance(modelId, config = {}, progress_callback = null) {
         if (this.isInitialized && this.model_id === modelId) {
             return [this.tokenizer, this.processor, this.model];
         }
@@ -51,13 +51,11 @@ class AutomaticSpeechRecognitionPipeline {
                 }
             });
 
-            // Load model
-            this.model = await WhisperForConditionalGeneration.from_pretrained(modelId, {
+            // Configure model loading options based on backend and quantization
+            const modelConfig = {
                 local: false,
-                device: 'webgpu',
-                dtype: 'fp32',   // Change to int8 for quantization
-                quantized: false, // Enable quantization
-                // revision: 'main',
+                device: config.backend || 'webgpu',
+                quantized: config.quantization !== 'fp32',
                 progress_callback: (progress) => {
                     progress_callback?.({
                         status: 'initiate',
@@ -65,7 +63,14 @@ class AutomaticSpeechRecognitionPipeline {
                         ...progress
                     });
                 },
-            });
+                dtype: config.quantization || 'fp32'  // Use the quantization value directly as dtype
+            };
+
+            // Load model with configuration
+            this.model = await WhisperForConditionalGeneration.from_pretrained(
+                modelId, 
+                modelConfig
+            );
 
             this.isInitialized = true;
             return [this.tokenizer, this.processor, this.model];
@@ -326,14 +331,14 @@ async function processQueue() {
     }
 }
 
-async function load(modelId) {
+async function load(modelId, config) {
     if (isLoaded) {
         console.log('Model already loaded');
         self.postMessage({ status: 'ready' });
         return;
     }
 
-    console.log('Loading Whisper model:', modelId);
+    console.log('Loading Whisper model:', modelId, 'with config:', config);
     
     self.postMessage({
         status: 'loading',
@@ -341,11 +346,15 @@ async function load(modelId) {
     });
 
     try {
-        pipeline = AutomaticSpeechRecognitionPipeline.getInstance(modelId, progress => {
-            self.postMessage(progress);
-        });
+        pipeline = AutomaticSpeechRecognitionPipeline.getInstance(
+            modelId, 
+            config,
+            progress => {
+                self.postMessage(progress);
+            }
+        );
 
-        await pipeline; // Wait for initialization
+        await pipeline;
 
         // Model warm-up
         console.log('Warming up model...');
@@ -386,7 +395,10 @@ self.addEventListener('message', async (e) => {
 
     switch (type) {
         case 'load':
-            await load(data.modelId);
+            await load(data.modelId, {
+                backend: data.backend,
+                quantization: data.quantization
+            });
             break;
 
         case 'transcribe':

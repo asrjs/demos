@@ -114,15 +114,15 @@ const LANGUAGES = {
 export function LanguageSelector({ language, setLanguage, disabled }) {
     return (
         <select
-            className={`border rounded-lg p-2 ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`border rounded-lg p-2 mr-2 ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
             value={language}
             onChange={(e) => setLanguage(e.target.value)}
             disabled={disabled}
             title={disabled ? "Language locked to English for this model" : "Select language"}
         >
-            {Object.keys(LANGUAGES).map((key, i) => (
-                <option key={key} value={key}>
-                    {Object.values(LANGUAGES).map(titleCase)[i]}
+            {Object.entries(LANGUAGES).map(([code, name]) => (
+                <option key={code} value={code}>
+                    {titleCase(name)}
                 </option>
             ))}
         </select>

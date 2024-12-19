@@ -9,7 +9,7 @@ import { AudioSegmentProcessor } from './AudioSegmentProcessor';
 import { AudioManager, audioManager } from './AudioManager';
 import { AudioSegmentsWidget } from './components/AudioSegmentsWidget';
 import { LanguageSelector } from './components/LanguageSelector';
-import { ModelSelector } from './components/ModelSelector';
+import ModelLoader from './components/ModelLoader';
 import models from './models';
 import audioProcessorUrl from './audio-processor.js?url';
 
@@ -739,22 +739,23 @@ function App() {
                 
                 {status === 'initialized' && (
                     <>
-                        <ModelSelector 
-                            model={selectedModel} 
-                            setModel={handleModelChange}
-                        />
-                        <button
-                            className="px-3 py-1 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                            onClick={() => {
+                        <ModelLoader 
+                            onLoadModel={({ modelId, backend, quantization }) => {
                                 worker.current?.postMessage({ 
                                     type: 'load',
-                                    data: { modelId: selectedModel }
+                                    data: { 
+                                        modelId,
+                                        backend,
+                                        quantization
+                                    }
                                 });
                                 setStatus('loading');
+                                // If model ends with .en, automatically set language to English
+                                if (modelId.endsWith('.en')) {
+                                    handleLanguageChange('en');
+                                }
                             }}
-                        >
-                            Load Model
-                        </button>
+                        />
                     </>
                 )}
                 
