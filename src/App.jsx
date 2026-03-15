@@ -1,12 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  ParakeetModel,
   collectParakeetLocalEntries,
   createParakeetLocalEntries,
-  getParakeetModel,
   inspectParakeetLocalEntries,
   loadParakeetModelFromLocalEntries,
-  MODELS,
   LANGUAGE_NAMES
 } from '@asrjs/speech-recognition/presets/parakeet';
 import { fetchRandomSample, hasTestSamples, SPEECH_DATASETS } from './utils/speechDatasets';
@@ -15,12 +12,13 @@ import {
   getAvailableQuantModes,
   pickPreferredQuant,
 } from './shared/modelSelection.js';
-import { formatResolvedQuantization, loadModelWithFallback } from './shared/modelLoader.js';
+import { disposeHubDemoPipeline, loadHubDemoModel } from './shared/modelLoader.js';
+import { DEMO_MODELS, MODEL_OPTIONS } from './shared/modelCatalog.js';
 import warmupAudioUrl from './assets/Harvard-L2-1.ogg?url';
 import './App.css';
 
-const SETTINGS_STORAGE_KEY = 'parakeet.demo.settings.v1';
-const LOCAL_MODEL_DB_NAME = 'parakeet-demo-local-model';
+const SETTINGS_STORAGE_KEY = 'asrjs.browser-demo.settings.v2';
+const LOCAL_MODEL_DB_NAME = 'asrjs-browser-demo-local-model';
 const LOCAL_MODEL_STORE_NAME = 'handles';
 const LOCAL_MODEL_DIR_KEY = 'directory-handle';
 const MODEL_SOURCE_OPTIONS = {
@@ -247,17 +245,9 @@ function saveSettings(settings) {
   }
 }
 
-// Available models for selection
-const MODEL_OPTIONS = Object.entries(MODELS).map(([key, config]) => ({
-  key,
-  repoId: config.repoId,
-  displayName: config.displayName,
-  languages: config.languages,
-}));
-
 // Cache audio file (remote or local URL) to IndexedDB
 async function getCachedAudioFile(url, cacheKey) {
-  const dbName = 'parakeet-demo-cache';
+  const dbName = 'asrjs-browser-demo-cache';
   const storeName = 'audio-files';
 
   return new Promise((resolve, reject) => {
@@ -352,7 +342,7 @@ export default function App() {
   const initialSettings = loadSettings();
   const initialSelectedModel = initialSettings.selectedModel;
   const initialModelSource = initialSettings.modelSource;
-  const resolvedInitialModel = MODELS[initialSelectedModel] ? initialSelectedModel : 'parakeet-tdt-0.6b-v2';
+  const resolvedInitialModel = DEMO_MODELS[initialSelectedModel] ? initialSelectedModel : 'parakeet-tdt-0.6b-v2';
   const [modelSource, setModelSource] = useState(
     initialModelSource === MODEL_SOURCE_OPTIONS.LOCAL && !isInIframe
       ? MODEL_SOURCE_OPTIONS.LOCAL
@@ -360,7 +350,7 @@ export default function App() {
   );
   const [selectedModel, setSelectedModel] = useState(resolvedInitialModel);
   const [modelRevision, setModelRevision] = useState(getCanonicalRevision(resolvedInitialModel));
-  const modelConfig = MODELS[selectedModel];
+  const modelConfig = DEMO_MODELS[selectedModel];
   const [selectedLanguage, setSelectedLanguage] = useState(initialSettings.selectedLanguage || 'en');
   // Use hybrid mode by default (WebGPU encoder + WASM decoder)
   const [backend, setBackend] = useState(initialSettings.backend || 'webgpu-hybrid');
@@ -388,6 +378,7 @@ export default function App() {
   const [status, setStatus] = useState('Idle');
   const [progressText, setProgressText] = useState('');
   const [progressPct, setProgressPct] = useState(null);
+  const [loadedFromCache, setLoadedFromCache] = useState(false);
   const [text, setText] = useState('');
   const [referenceText, setReferenceText] = useState('');
   const [latestMetrics, setLatestMetrics] = useState(null);
@@ -421,12 +412,17 @@ export default function App() {
 
   const isModelReady = modelLoaded;
   const isLoading = isModelLoading;
+  const supportsLocalSource = modelConfig?.supportsLocalSource !== false;
+  const supportsSplitQuantization = modelConfig?.supportsSplitQuantization !== false;
+  const supportsPreprocessorBackend = modelConfig?.supportsPreprocessorBackend !== false;
 
   // Get available languages for test samples
-  const testLanguageOptions = Object.entries(SPEECH_DATASETS).map(([code, config]) => ({
-    code,
-    displayName: config.displayName,
-  }));
+  const testLanguageOptions = Object.entries(SPEECH_DATASETS)
+    .filter(([code]) => !modelConfig?.languages?.length || modelConfig.languages.includes(code))
+    .map(([code, config]) => ({
+      code,
+      displayName: config.displayName,
+    }));
 
   // Auto-adjust quant presets when backend changes (within available options).
   useEffect(() => {
@@ -444,11 +440,31 @@ export default function App() {
     setModelRevision(getCanonicalRevision(selectedModel));
   }, [selectedModel, modelSource]);
 
+  useEffect(() => {
+    if (supportsLocalSource || modelSource !== MODEL_SOURCE_OPTIONS.LOCAL) return;
+    setModelSource(MODEL_SOURCE_OPTIONS.HUGGINGFACE);
+    setStatus('This model is available through HuggingFace only.');
+  }, [modelSource, supportsLocalSource]);
+
+  useEffect(() => {
+    if (!testLanguageOptions.length) return;
+    if (testLanguageOptions.some((option) => option.code === selectedLanguage)) return;
+    setSelectedLanguage(testLanguageOptions[0].code);
+  }, [selectedLanguage, testLanguageOptions]);
+
   // Inspect selected repo+branch files and filter quantization options accordingly.
   useEffect(() => {
     if (modelSource !== MODEL_SOURCE_OPTIONS.HUGGINGFACE) return;
+    if (!supportsSplitQuantization) {
+      setEncoderQuantOptions(['fp32']);
+      setDecoderQuantOptions(['fp32']);
+      setEncoderQuant('fp32');
+      setDecoderQuant('fp32');
+      return () => {};
+    }
+
     let cancelled = false;
-    const repoId = MODELS[selectedModel]?.repoId;
+    const repoId = DEMO_MODELS[selectedModel]?.repoId;
     const revision = modelRevision || getCanonicalRevision(selectedModel);
 
     (async () => {
@@ -470,7 +486,7 @@ export default function App() {
     return () => {
       cancelled = true;
     };
-  }, [selectedModel, modelRevision, modelSource]);
+  }, [selectedModel, modelRevision, modelSource, supportsSplitQuantization]);
 
   // Detect SharedArrayBuffer and threading capabilities
   useEffect(() => {
@@ -651,6 +667,7 @@ export default function App() {
     if (nextModel === selectedModel) return;
     setSelectedModel(nextModel);
     setModelRevision(getCanonicalRevision(nextModel));
+    setLoadedFromCache(false);
   }
 
   function applyLocalEntries(entries, folderName = '') {
@@ -901,14 +918,13 @@ export default function App() {
     const isLocalSource = modelSource === MODEL_SOURCE_OPTIONS.LOCAL;
     setIsModelLoading(true);
     setStatus(isLocalSource ? 'Preparing local model…' : 'Downloading model…');
-    setProgressText('');
-    setProgressPct(isLocalSource ? null : 0);
+    setProgressText(isLocalSource ? '' : 'Resolving model request…');
+    setProgressPct(null);
+    setLoadedFromCache(false);
     console.time('LoadModel');
 
     try {
-      if (modelRef.current?.dispose) {
-        await modelRef.current.dispose();
-      }
+      await releaseCurrentModel();
 
       if (isLocalSource) {
         console.log('[LocalFolder] Starting model load from local artifacts');
@@ -941,46 +957,69 @@ export default function App() {
           preprocessor: localLoadResult.selection.preprocessorName ?? null,
         });
         modelRef.current = localLoadResult.model;
+        setLoadedFromCache(false);
         console.log('[LocalFolder] Model sessions created from local artifacts');
       } else {
         console.log('[Hub] Starting model load from HuggingFace');
-        const progressCallback = ({ loaded, total, file }) => {
-          const pct = total > 0 ? Math.round((loaded / total) * 100) : 0;
-          setProgressText(`${file}: ${pct}%`);
-          setProgressPct(pct);
+        const progressCallback = (event) => {
+          if (event.phase === 'asset:download') {
+            const pct = event.percent ?? (event.total > 0 ? Math.round((event.loaded / event.total) * 100) : 0);
+            setProgressText(event.file ? `${event.file}: ${pct}%` : event.message || 'Downloading model assets');
+            setProgressPct(pct);
+            return;
+          }
+
+          if (event.phase === 'resolve:start') {
+            setProgressText(event.message || 'Resolving model request…');
+            setProgressPct(null);
+            return;
+          }
+          if (event.phase === 'resolve:complete') {
+            setProgressText(event.message || 'Model request resolved.');
+            setProgressPct(null);
+            return;
+          }
+          if (event.phase === 'model-load:start' || event.phase === 'session-create:start') {
+            setStatus('Compiling model…');
+            setProgressPct(null);
+            setProgressText(event.message || 'Compiling model…');
+            return;
+          }
+          if (event.phase === 'model-load:complete' || event.phase === 'session-create:complete') {
+            setProgressText(event.message || 'Model compile step complete.');
+            setProgressPct(null);
+            return;
+          }
+          if (event.phase === 'ready') {
+            setProgressText(event.message || 'Model runtime ready.');
+            setProgressPct(null);
+            return;
+          }
+          if (event.message) {
+            setProgressText(event.message);
+          }
         };
 
-        const modelLoadResult = await loadModelWithFallback({
-          repoIdOrModelKey: selectedModel,
-          options: {
-            revision: modelRevision,
-            encoderQuant,
-            decoderQuant,
-            preprocessor,
-            preprocessorBackend,
-            backend,
-            progress: progressCallback,
-            verbose: verboseLog,
-            cpuThreads,
-          },
-          getParakeetModelFn: getParakeetModel,
-          fromUrlsFn: ParakeetModel.fromUrls,
-          onBeforeCompile: ({ attempt, modelUrls }) => {
-            const resolvedQuant = formatResolvedQuantization(modelUrls.quantisation);
-            console.log(`[App] ${resolvedQuant}`);
-
-            if (attempt === 2) {
-              setStatus('Retrying compile with FP32…');
-              setProgressText(`${resolvedQuant} · retrying after FP16 compile failure`);
-            } else {
-              setStatus('Compiling model…');
-              setProgressText(`${resolvedQuant} · compiling may take ~10s on first load`);
-            }
-            setProgressPct(null);
-          },
+        const modelLoadResult = await loadHubDemoModel({
+          modelId: selectedModel,
+          revision: modelRevision,
+          encoderQuant,
+          decoderQuant,
+          preprocessor,
+          preprocessorBackend,
+          backend,
+          cpuThreads,
+          enableProfiling,
+          onProgress: progressCallback,
         });
 
         modelRef.current = modelLoadResult.model;
+        setLoadedFromCache(Boolean(modelLoadResult.fromCache));
+        if (modelLoadResult.fromCache) {
+          setStatus('Reusing cached model…');
+          setProgressText('Loaded from cache. Running warm-up verification…');
+          setProgressPct(null);
+        }
         console.log('[Hub] Model sessions created from HuggingFace artifacts');
       }
 
@@ -1022,9 +1061,10 @@ export default function App() {
         const normalize = (str) => str.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
 
         const normalizedUtterance = normalize(utterance_text);
-        const matchedExpectedText = expectedTexts.find((text) =>
-          normalizedUtterance.includes(normalize(text))
-        );
+        const matchedExpectedText =
+          modelConfig?.warmupMode === 'non-empty'
+            ? normalizedUtterance.length > 0
+            : expectedTexts.some((text) => normalizedUtterance.includes(normalize(text)));
 
         if (matchedExpectedText) {
           console.log('[App] Model verification successful.');
@@ -1034,15 +1074,15 @@ export default function App() {
           console.error(`[App] Verification failed! Expected one of: "${expectedTexts.join('" | "')}", Got: "${utterance_text}"`);
           setStatus('Verification failed');
           setModelLoaded(false);
-          await modelRef.current?.dispose?.();
-          modelRef.current = null;
+          setLoadedFromCache(false);
+          await releaseCurrentModel({ evictHub: true });
         }
       } catch (err) {
         console.error('[App] Warm-up failed', err);
         setStatus('Warm-up failed');
         setModelLoaded(false);
-        await modelRef.current?.dispose?.();
-        modelRef.current = null;
+        setLoadedFromCache(false);
+        await releaseCurrentModel({ evictHub: true });
       }
 
       console.timeEnd('LoadModel');
@@ -1052,8 +1092,8 @@ export default function App() {
       console.error(e);
       setStatus(`Failed: ${e.message}`);
       setModelLoaded(false);
-      await modelRef.current?.dispose?.();
-      modelRef.current = null;
+      setLoadedFromCache(false);
+      await releaseCurrentModel({ evictHub: true });
     } finally {
       setIsModelLoading(false);
     }
@@ -1086,7 +1126,7 @@ export default function App() {
       console.timeEnd(`Transcribe-${file.name}`);
 
       if (dumpDetail) {
-        console.log('[Parakeet] Result:', res);
+        console.log('[ASRJS Demo] Result:', res);
       }
       setLatestMetrics(res.metrics);
 
@@ -1132,6 +1172,34 @@ export default function App() {
   function copyToClipboard(text) {
     navigator.clipboard.writeText(text);
   }
+
+  async function releaseCurrentModel({ evictHub = false } = {}) {
+    const current = modelRef.current;
+    if (!current) return;
+
+    try {
+      if (current.kind === 'hub-pipeline') {
+        if (evictHub && current.evict) {
+          await current.evict();
+        }
+      } else if (current.dispose) {
+        await current.dispose();
+      }
+    } finally {
+      modelRef.current = null;
+    }
+  }
+
+  useEffect(() => {
+    return () => {
+      Promise.resolve()
+        .then(() => releaseCurrentModel())
+        .then(() => disposeHubDemoPipeline())
+        .catch((error) => {
+          console.warn('[App] Cleanup failed:', error);
+        });
+    };
+  }, []);
 
   const asrjsVersion = typeof __ASRJS_VERSION__ !== 'undefined' ? __ASRJS_VERSION__ : 'unknown';
   const asrjsSource = typeof __ASRJS_SOURCE__ !== 'undefined' ? __ASRJS_SOURCE__ : 'unknown';
@@ -1195,7 +1263,9 @@ export default function App() {
                       className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-primary focus:border-primary dark:text-white appearance-none"
                     >
                       <option value={MODEL_SOURCE_OPTIONS.HUGGINGFACE}>HuggingFace</option>
-                      {!isInIframe && <option value={MODEL_SOURCE_OPTIONS.LOCAL}>Local folder</option>}
+                      {!isInIframe && supportsLocalSource && (
+                        <option value={MODEL_SOURCE_OPTIONS.LOCAL}>Local folder</option>
+                      )}
                     </select>
                     <span className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
                       expand_more
@@ -1336,92 +1406,103 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Encoder */}
-                <div>
-                  <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-                    Encoder
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={encoderQuant}
-                      onChange={e => setEncoderQuant(e.target.value)}
-                      disabled={isLoading || isModelReady}
-                      className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-primary focus:border-primary dark:text-white appearance-none"
-                    >
-                      {encoderQuantOptions.map((quant) => (
-                        <option key={quant} value={quant}>{quant}</option>
-                      ))}
-                    </select>
-                    <span className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
-                      expand_more
-                    </span>
-                  </div>
-                </div>
+                {supportsSplitQuantization ? (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                        Encoder
+                      </label>
+                      <div className="relative">
+                        <select
+                          value={encoderQuant}
+                          onChange={e => setEncoderQuant(e.target.value)}
+                          disabled={isLoading || isModelReady}
+                          className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-primary focus:border-primary dark:text-white appearance-none"
+                        >
+                          {encoderQuantOptions.map((quant) => (
+                            <option key={quant} value={quant}>{quant}</option>
+                          ))}
+                        </select>
+                        <span className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
+                          expand_more
+                        </span>
+                      </div>
+                    </div>
 
-                {/* Decoder */}
-                <div>
-                  <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-                    Decoder
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={decoderQuant}
-                      onChange={e => setDecoderQuant(e.target.value)}
-                      disabled={isLoading || isModelReady}
-                      className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-primary focus:border-primary dark:text-white appearance-none"
-                    >
-                      {decoderQuantOptions.map((quant) => (
-                        <option key={quant} value={quant}>{quant}</option>
-                      ))}
-                    </select>
-                    <span className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
-                      expand_more
-                    </span>
+                    <div>
+                      <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                        Decoder
+                      </label>
+                      <div className="relative">
+                        <select
+                          value={decoderQuant}
+                          onChange={e => setDecoderQuant(e.target.value)}
+                          disabled={isLoading || isModelReady}
+                          className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-primary focus:border-primary dark:text-white appearance-none"
+                        >
+                          {decoderQuantOptions.map((quant) => (
+                            <option key={quant} value={quant}>{quant}</option>
+                          ))}
+                        </select>
+                        <span className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
+                          expand_more
+                        </span>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-3 text-sm text-gray-600 dark:text-gray-300">
+                    This model ships as a single ONNX bundle. Separate encoder/decoder quantization is not exposed in the demo UI.
                   </div>
-                </div>
+                )}
 
-                {/* Preprocessor */}
-                <div>
-                  <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-                    Preprocessor
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={preprocessorBackend}
-                      onChange={e => setPreprocessorBackend(e.target.value)}
-                      disabled={isLoading || isModelReady}
-                      className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-primary focus:border-primary dark:text-white appearance-none"
-                    >
-                      <option value="js">JS (mel.js)</option>
-                      <option value="onnx">ONNX (nemo128.onnx)</option>
-                    </select>
-                    <span className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
-                      expand_more
-                    </span>
-                  </div>
-                  {modelSource === MODEL_SOURCE_OPTIONS.LOCAL && preprocessorBackend === 'onnx' && localPreprocessorOptions.length > 0 && (
-                    <div className="relative mt-2">
+                {supportsPreprocessorBackend ? (
+                  <div>
+                    <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                      Preprocessor
+                    </label>
+                    <div className="relative">
                       <select
-                        value={preprocessor}
-                        onChange={(e) => setPreprocessor(e.target.value)}
+                        value={preprocessorBackend}
+                        onChange={e => setPreprocessorBackend(e.target.value)}
                         disabled={isLoading || isModelReady}
                         className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-primary focus:border-primary dark:text-white appearance-none"
                       >
-                        {localPreprocessorOptions.map((name) => (
-                          <option key={name} value={name}>{name}.onnx</option>
-                        ))}
+                        <option value="js">JS (mel.js)</option>
+                        <option value="onnx">ONNX (nemo128.onnx)</option>
                       </select>
                       <span className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
                         expand_more
                       </span>
                     </div>
-                  )}
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                    {preprocessorBackend === 'js'
-                      ? 'Pure JS: no ONNX download, supports streaming caching'
-                      : 'ONNX WASM+SIMD: slightly faster per-call, requires nemo128.onnx download'}
-                  </p>
-                </div>
+                    {modelSource === MODEL_SOURCE_OPTIONS.LOCAL && preprocessorBackend === 'onnx' && localPreprocessorOptions.length > 0 && (
+                      <div className="relative mt-2">
+                        <select
+                          value={preprocessor}
+                          onChange={(e) => setPreprocessor(e.target.value)}
+                          disabled={isLoading || isModelReady}
+                          className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-primary focus:border-primary dark:text-white appearance-none"
+                        >
+                          {localPreprocessorOptions.map((name) => (
+                            <option key={name} value={name}>{name}.onnx</option>
+                          ))}
+                        </select>
+                        <span className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
+                          expand_more
+                        </span>
+                      </div>
+                    )}
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                      {preprocessorBackend === 'js'
+                        ? 'Pure JS: no ONNX download, supports streaming caching'
+                        : 'ONNX WASM+SIMD: slightly faster per-call, requires nemo128.onnx download'}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-3 text-sm text-gray-600 dark:text-gray-300">
+                    MedASR uses the built-in LASR CTC frontend path in this demo. There is no separate preprocessor backend toggle.
+                  </div>
+                )}
 
                 {modelSource === MODEL_SOURCE_OPTIONS.LOCAL && (
                   <div>
@@ -1535,6 +1616,12 @@ export default function App() {
               <span className={`font-medium ${isModelReady ? 'text-primary' : 'text-gray-600 dark:text-gray-400'}`}>
                 {status}
               </span>
+              {modelSource === MODEL_SOURCE_OPTIONS.HUGGINGFACE && loadedFromCache && isModelReady && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
+                  <span className="material-icons-outlined text-xs">cached</span>
+                  Loaded from cache
+                </span>
+              )}
             </div>
 
             {/* Threading Status Indicator */}

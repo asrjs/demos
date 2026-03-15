@@ -2,14 +2,65 @@
 
 Unified React demo for local `@asrjs/speech-recognition` development and validation.
 
+The demo now uses the centralized ASRJS high-level pipeline API for hosted models, so the same interface can load multiple model families from one UI.
+
+## Model Catalog
+
+### HuggingFace models
+
+The model picker now includes:
+
+- `Parakeet TDT 0.6B v2`
+- `Parakeet TDT 0.6B v3`
+- `Google MedASR (Medical English)`
+
+Parakeet and MedASR are loaded through the same `createSpeechPipeline()` path in the library. The demo adapts their results into one shared UI contract for transcription text, timings, confidences, and performance metrics.
+
+### Local folder models
+
+Local folder loading is currently aimed at Parakeet-style split artifacts:
+
+- encoder ONNX
+- decoder ONNX
+- tokenizer text file
+- optional preprocessor ONNX
+
+MedASR is currently exposed in the demo through HuggingFace-hosted artifacts only.
+
 ## What's New
 
 - Added **Model Source** switch: `HuggingFace` or `Local folder`.
+- Added multi-model HuggingFace selection through a shared `createSpeechPipeline()` instance.
+- Added MedASR as a selectable hosted model beside the existing Parakeet presets.
+- Added visible hosted-load progress phases from runtime callbacks (resolve/download/compile/session ready).
+- Added a `Loaded from cache` badge when a hosted model is reused from pipeline cache.
 - Added local-folder model loading from browser-selected files.
 - Added local folder artifact detection (encoder/decoder quant modes, tokenizer files, optional preprocessors).
 - Added persisted local folder handle restore (where browser permissions allow it).
 - Added automatic fallback of preprocessor backend from ONNX to JS when local `nemo*.onnx` is not present.
 - Added stronger local blob URL cleanup on failure paths.
+
+## High-Level API Example
+
+Hosted model loading in the demo is intentionally model-agnostic. It keeps one pipeline instance and lets the runtime reuse loaded models across model switches:
+
+```js
+import { createSpeechPipeline, PcmAudioBuffer } from '@asrjs/speech-recognition';
+
+const pipeline = createSpeechPipeline({ cacheModels: true });
+
+const loaded = await pipeline.loadModel({
+  modelId: 'google/medasr', // or 'parakeet-tdt-0.6b-v3'
+  backend: 'wasm',
+});
+
+const response = await loaded.transcribe(PcmAudioBuffer.fromMono(pcm, 16000), {
+  responseFlavor: 'canonical+native',
+  detail: 'detailed',
+});
+
+console.log(response.canonical.text);
+```
 
 ## Quick Start
 
@@ -45,15 +96,19 @@ That is fine while the package is still being iterated locally. Once `@asrjs/spe
 ### HuggingFace
 
 - Select model in the UI.
-- Demo uses pinned canonical revisions per model.
+- Demo uses pinned or manifest-defined revisions per model.
+- Hosted models share one loading surface in the UI even when their internal architectures differ.
 
 Canonical branches are pinned in code:
 - `parakeet-tdt-0.6b-v2` -> `feat/fp16-canonical-v2`
 - `parakeet-tdt-0.6b-v3` -> `feat/fp16-canonical-v3`
 
+MedASR is resolved through the library preset manifest and loaded from its configured HuggingFace artifact source.
+
 ### Local Folder
 
 - Pick a folder containing local model artifacts.
+- This mode currently targets Parakeet split artifacts.
 - Expected minimum artifacts:
   - encoder ONNX (e.g. `encoder-model.onnx` or quantized variants)
   - decoder ONNX (e.g. `decoder_joint-model.onnx` or quantized variants)
@@ -127,6 +182,11 @@ Required for `SharedArrayBuffer` / multithreaded WASM.
 - Check required encoder/decoder/tokenizer files exist.
 - Confirm selected quantization exists in your folder.
 - If using ONNX preprocessor, confirm `nemo*.onnx` exists; otherwise switch to JS preprocessor.
+
+### MedASR is not offered in Local folder mode
+
+- Expected today. The demo currently exposes MedASR through HuggingFace-hosted artifacts only.
+- Use `Model Source = HuggingFace` and pick `Google MedASR (Medical English)`.
 
 ### Model load memory pressure
 
