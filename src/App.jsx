@@ -11,6 +11,7 @@ import {
   getBuiltInModelLanguageName,
   resolveBuiltInModelComponentBackends,
 } from '@asrjs/speech-recognition/presets';
+import { startMicrophoneCapture as startBrowserMicrophoneCapture } from '@asrjs/speech-recognition/browser';
 import { fetchRandomSample, hasTestSamples, SPEECH_DATASETS } from './utils/speechDatasets';
 import { pickPreferredQuant } from './shared/modelSelection.js';
 import { disposeHubDemoPipeline, loadHubDemoModel } from './shared/modelLoader.js';
@@ -592,10 +593,7 @@ export default function App() {
   const fileInputRef = useRef(null);
   const modelFolderInputRef = useRef(null);
   const audioRef = useRef(null);
-  const micStreamRef = useRef(null);
-  const micAudioContextRef = useRef(null);
-  const micSourceRef = useRef(null);
-  const micProcessorRef = useRef(null);
+  const micCaptureHandleRef = useRef(null);
   const micPendingQueueRef = useRef(Promise.resolve());
   const micPendingJobsRef = useRef(0);
   const micActiveRef = useRef(false);
@@ -1045,13 +1043,20 @@ export default function App() {
     );
   }
 
-  function handleMicrophoneAudioProcess(event) {
-    const channelData = event.inputBuffer.getChannelData(0);
-    if (!channelData || !channelData.length) return;
+  function handleMicrophoneAudioProcess(input) {
+    const chunk =
+      input?.pcm instanceof Float32Array
+        ? input.pcm
+        : input?.inputBuffer?.getChannelData
+          ? new Float32Array(input.inputBuffer.getChannelData(0))
+          : null;
+    if (!chunk || !chunk.length) return;
 
-    const chunk = new Float32Array(channelData.length);
-    chunk.set(channelData);
-    const sampleRate = event.inputBuffer.sampleRate || micSampleRateRef.current || 16000;
+    const sampleRate =
+      input?.sampleRate ||
+      input?.inputBuffer?.sampleRate ||
+      micSampleRateRef.current ||
+      16000;
     micSampleRateRef.current = sampleRate;
 
     if (!isRealtimeEouModel) {
@@ -1087,34 +1092,14 @@ export default function App() {
   }
 
   async function stopMicrophoneCapture({ flush = true } = {}) {
-    const processor = micProcessorRef.current;
-    const source = micSourceRef.current;
-    const audioContext = micAudioContextRef.current;
-    const stream = micStreamRef.current;
+    const micCaptureHandle = micCaptureHandleRef.current;
 
     micActiveRef.current = false;
     setIsMicActive(false);
 
-    if (processor) {
-      processor.onaudioprocess = null;
-      processor.disconnect();
-      micProcessorRef.current = null;
-    }
-    if (source) {
-      source.disconnect();
-      micSourceRef.current = null;
-    }
-    if (stream) {
-      stream.getTracks().forEach((track) => track.stop());
-      micStreamRef.current = null;
-    }
-    if (audioContext) {
-      try {
-        await audioContext.close();
-      } catch {
-        // Ignore close errors from already-closed contexts.
-      }
-      micAudioContextRef.current = null;
+    if (micCaptureHandle) {
+      micCaptureHandleRef.current = null;
+      await micCaptureHandle.stop();
     }
 
     if (flush) {
@@ -1170,30 +1155,25 @@ export default function App() {
           autoGainControl: true,
         },
       });
-      const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContextCtor) {
-        throw new Error('AudioContext is not available in this browser.');
-      }
+      const captureHandle = await startBrowserMicrophoneCapture({
+        stream,
+        targetSampleRate: 16000,
+        stopTracksOnStop: true,
+        onChunk: handleMicrophoneAudioProcess,
+        onError: (error) => {
+          console.error('[Mic] Capture error:', error);
+          setMicError(error instanceof Error ? error.message : String(error));
+        },
+      });
 
-      const audioContext = new AudioContextCtor();
-      await audioContext.resume();
-      const source = audioContext.createMediaStreamSource(stream);
-      const processor = audioContext.createScriptProcessor(4096, 1, 1);
-      processor.onaudioprocess = handleMicrophoneAudioProcess;
-      source.connect(processor);
-      processor.connect(audioContext.destination);
-
-      micStreamRef.current = stream;
-      micAudioContextRef.current = audioContext;
-      micSourceRef.current = source;
-      micProcessorRef.current = processor;
-      micSampleRateRef.current = audioContext.sampleRate || 16000;
+      micCaptureHandleRef.current = captureHandle;
+      micSampleRateRef.current = captureHandle.sampleRate || 16000;
       micActiveRef.current = true;
       setIsMicActive(true);
       updateMicStatus(
         isRealtimeEouModel
-          ? 'Listening for speech…'
-          : 'Recording microphone. Stop to transcribe the captured audio.',
+          ? `Listening for speech at ${micSampleRateRef.current} Hz…`
+          : `Recording microphone at ${micSampleRateRef.current} Hz. Stop to transcribe the captured audio.`,
       );
       setStatus('Microphone active');
     } catch (error) {
