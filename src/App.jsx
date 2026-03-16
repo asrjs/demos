@@ -420,6 +420,68 @@ function getChunkRms(chunk) {
   return Math.sqrt(sum / chunk.length);
 }
 
+function normalizeWarmupText(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/[^a-z0-9\s]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function compactWarmupText(value) {
+  return normalizeWarmupText(value).replace(/\s+/g, '');
+}
+
+function matchesWarmupPhrase(actualNormalized, actualCompact, expectedText) {
+  const expectedNormalized = normalizeWarmupText(expectedText);
+  if (!expectedNormalized) return false;
+  return (
+    actualNormalized.includes(expectedNormalized) ||
+    actualCompact.includes(expectedNormalized.replace(/\s+/g, ''))
+  );
+}
+
+function matchesWarmupKeywordGroups(actualNormalized, actualCompact, requiredKeywordGroups = []) {
+  if (!requiredKeywordGroups.length) return false;
+
+  return requiredKeywordGroups.every((group) =>
+    group.every((keyword) => {
+      const normalizedKeyword = normalizeWarmupText(keyword);
+      if (!normalizedKeyword) return false;
+      return (
+        actualNormalized.includes(normalizedKeyword) ||
+        actualCompact.includes(normalizedKeyword.replace(/\s+/g, ''))
+      );
+    }),
+  );
+}
+
+function matchesWarmupResult(modelConfig, candidates) {
+  const warmup = modelConfig?.warmup;
+  const expectedTexts = warmup?.expectedTexts || [];
+  const requiredKeywordGroups = warmup?.requiredKeywordGroups || [];
+
+  return candidates.some((candidate) => {
+    const actualNormalized = normalizeWarmupText(candidate);
+    const actualCompact = actualNormalized.replace(/\s+/g, '');
+    if (!actualNormalized) return false;
+
+    if (warmup?.mode === 'non-empty') {
+      return true;
+    }
+
+    const phraseMatch = expectedTexts.some((expectedText) =>
+      matchesWarmupPhrase(actualNormalized, actualCompact, expectedText),
+    );
+    if (phraseMatch) {
+      return true;
+    }
+
+    return matchesWarmupKeywordGroups(actualNormalized, actualCompact, requiredKeywordGroups);
+  });
+}
+
 export default function App() {
   const initialSettings = loadSettings();
   const initialSelectedModel = initialSettings.selectedModel;
@@ -1610,6 +1672,7 @@ export default function App() {
       setProgressText('Running test transcription');
       console.log('[LoadModel] Running warm-up verification transcription');
       const expectedTexts = modelConfig?.warmup?.expectedTexts || [];
+      const requiredKeywordGroups = modelConfig?.warmup?.requiredKeywordGroups || [];
 
       try {
         const warmupUrls = [
@@ -1637,21 +1700,26 @@ export default function App() {
         const decoded = await audioCtx.decodeAudioData(buf);
         const pcm = decoded.getChannelData(0);
 
-        const { utterance_text } = await modelRef.current.transcribe(pcm, 16000, { enableProfiling });
-        const normalize = (str) => str.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
-
-        const normalizedUtterance = normalize(utterance_text);
-        const matchedExpectedText =
-          modelConfig?.warmup?.mode === 'non-empty'
-            ? normalizedUtterance.length > 0
-            : expectedTexts.some((text) => normalizedUtterance.includes(normalize(text)));
+        const warmupResult = await modelRef.current.transcribe(pcm, 16000, { enableProfiling });
+        const utteranceText = warmupResult?.utterance_text ?? '';
+        const warmupCandidates = [
+          utteranceText,
+          warmupResult?.native?.rawUtteranceText,
+          warmupResult?.native?.utteranceText,
+        ].filter((value, index, all) => Boolean(value) && all.indexOf(value) === index);
+        const matchedExpectedText = matchesWarmupResult(modelConfig, warmupCandidates);
 
         if (matchedExpectedText) {
           console.log('[App] Model verification successful.');
           setStatus('Model ready');
           setModelLoaded(true);
         } else {
-          console.error(`[App] Verification failed! Expected one of: "${expectedTexts.join('" | "')}", Got: "${utterance_text}"`);
+          console.error(
+            `[App] Verification failed! Expected one of: "${expectedTexts.join('" | "')}"` +
+            `${requiredKeywordGroups.length ? ` or keyword groups ${JSON.stringify(requiredKeywordGroups)}` : ''}, ` +
+            `Got: "${utteranceText}"`,
+            warmupResult,
+          );
           setStatus('Verification failed');
           setModelLoaded(false);
           setLoadedFromCache(false);
