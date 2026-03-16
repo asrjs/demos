@@ -43,6 +43,7 @@ MedASR is currently exposed in the demo through HuggingFace-hosted artifacts onl
 - Added persisted local folder handle restore (where browser permissions allow it).
 - Added automatic fallback of preprocessor backend from ONNX to JS when local `nemo*.onnx` is not present.
 - Added model-aware JS-first frontend defaults so RNNT models do not assume `nemo128.onnx`.
+- Added a simple live-microphone capture path using Web Audio `AudioContext`.
 - Added stronger local blob URL cleanup on failure paths.
 
 ## High-Level API Example
@@ -195,6 +196,12 @@ Required for `SharedArrayBuffer` / multithreaded WASM.
 - Expected today. `parakeet-realtime-eou-120m-v1` is configured to use the shared JS NeMo mel frontend.
 - Do not assume a hosted `nemo80.onnx` or `nemo128.onnx` exists for this model.
 - In local-folder mode, ONNX frontend selection is only useful if you explicitly add a compatible `nemo*.onnx` artifact yourself.
+
+### Live microphone capture
+
+- The demo includes a simple microphone capture path built on `getUserMedia()` and `AudioContext`.
+- For `parakeet-realtime-eou-120m-v1`, microphone mode keeps listening and auto-submits a turn after roughly 800 ms of silence.
+- For other models, microphone mode behaves as a basic record-then-transcribe flow when you stop capture.
 
 ### MedASR is not offered in Local folder mode
 

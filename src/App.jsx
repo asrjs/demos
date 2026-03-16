@@ -26,6 +26,11 @@ const MODEL_SOURCE_OPTIONS = {
   HUGGINGFACE: 'huggingface',
   LOCAL: 'local',
 };
+const REALTIME_EOU_MODEL_ID = 'parakeet-realtime-eou-120m-v1';
+const MIC_SILENCE_THRESHOLD = 0.015;
+const MIC_SILENCE_MS = 800;
+const MIC_PREROLL_MS = 250;
+const MIC_MIN_UTTERANCE_MS = 250;
 
 // showDirectoryPicker is blocked in cross-origin iframes (e.g. HF Spaces)
 const isInIframe = (() => {
@@ -395,6 +400,26 @@ function pcmToWavBlob(pcm, sampleRate = 16000) {
   return new Blob([buffer], { type: 'audio/wav' });
 }
 
+function concatFloat32Chunks(chunks) {
+  const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+  const merged = new Float32Array(totalLength);
+  let offset = 0;
+  for (const chunk of chunks) {
+    merged.set(chunk, offset);
+    offset += chunk.length;
+  }
+  return merged;
+}
+
+function getChunkRms(chunk) {
+  if (!chunk.length) return 0;
+  let sum = 0;
+  for (let i = 0; i < chunk.length; i += 1) {
+    sum += chunk[i] * chunk[i];
+  }
+  return Math.sqrt(sum / chunk.length);
+}
+
 export default function App() {
   const initialSettings = loadSettings();
   const initialSelectedModel = initialSettings.selectedModel;
@@ -492,6 +517,9 @@ export default function App() {
   const [modelLoaded, setModelLoaded] = useState(false);
   const [isModelLoading, setIsModelLoading] = useState(false);
   const [compareMode, setCompareMode] = useState(false);
+  const [isMicActive, setIsMicActive] = useState(false);
+  const [micStatus, setMicStatus] = useState('Microphone idle');
+  const [micError, setMicError] = useState('');
   const maxCores = navigator.hardwareConcurrency || 8;
   const [cpuThreads, setCpuThreads] = useState(
     Number.isInteger(initialSettings.cpuThreads)
@@ -502,6 +530,18 @@ export default function App() {
   const fileInputRef = useRef(null);
   const modelFolderInputRef = useRef(null);
   const audioRef = useRef(null);
+  const micStreamRef = useRef(null);
+  const micAudioContextRef = useRef(null);
+  const micSourceRef = useRef(null);
+  const micProcessorRef = useRef(null);
+  const micPendingQueueRef = useRef(Promise.resolve());
+  const micPendingJobsRef = useRef(0);
+  const micActiveRef = useRef(false);
+  const micSampleRateRef = useRef(16000);
+  const micUtteranceChunksRef = useRef([]);
+  const micPrerollChunksRef = useRef([]);
+  const micSpeechActiveRef = useRef(false);
+  const micSilenceMsRef = useRef(0);
 
   const isModelReady = modelLoaded;
   const isLoading = isModelLoading;
@@ -514,6 +554,11 @@ export default function App() {
   const hostedModelUsesJsFrontend =
     modelSource === MODEL_SOURCE_OPTIONS.HUGGINGFACE &&
     defaultPreprocessorBackend === 'js';
+  const isRealtimeEouModel = selectedModel === REALTIME_EOU_MODEL_ID;
+  const supportsMicrophoneInput =
+    typeof navigator !== 'undefined' &&
+    navigator.mediaDevices &&
+    typeof navigator.mediaDevices.getUserMedia === 'function';
   const supportsCanaryPrompting = modelConfig?.capabilities?.supportsPromptControls === true;
   const effectiveCanaryTargetLanguage =
     canaryTask === 'asr' ? selectedLanguage : canaryTargetLanguage;
@@ -825,6 +870,279 @@ export default function App() {
       cancelled = true;
     };
   }, [modelSource, localHandlePersistenceSupported, localEntries.length]);
+
+  function updateMicStatus(nextStatus) {
+    setMicStatus((current) => (current === nextStatus ? current : nextStatus));
+  }
+
+  function resetMicCaptureState({ clearPreroll = false } = {}) {
+    micUtteranceChunksRef.current = [];
+    micSpeechActiveRef.current = false;
+    micSilenceMsRef.current = 0;
+    if (clearPreroll) {
+      micPrerollChunksRef.current = [];
+    }
+  }
+
+  function pushMicPrerollChunk(chunk, sampleRate) {
+    const nextChunks = [...micPrerollChunksRef.current, chunk];
+    const maxSamples = Math.ceil(sampleRate * (MIC_PREROLL_MS / 1000));
+    let totalSamples = nextChunks.reduce((sum, currentChunk) => sum + currentChunk.length, 0);
+    while (totalSamples > maxSamples && nextChunks.length > 0) {
+      totalSamples -= nextChunks[0].length;
+      nextChunks.shift();
+    }
+    micPrerollChunksRef.current = nextChunks;
+  }
+
+  function queueMicrophoneTranscription(pcm, sampleRate, sourceLabel) {
+    if (!pcm.length || !modelRef.current) return;
+
+    const durationSeconds = pcm.length / sampleRate;
+    if (durationSeconds * 1000 < MIC_MIN_UTTERANCE_MS) {
+      if (micActiveRef.current) {
+        updateMicStatus('Listening for speech…');
+      } else {
+        updateMicStatus('Microphone stopped');
+      }
+      return;
+    }
+
+    micPendingJobsRef.current += 1;
+    setIsTranscribing(true);
+    setReferenceText('');
+    setSampleDownload(null);
+    setStatus(`Transcribing ${sourceLabel}…`);
+
+    micPendingQueueRef.current = micPendingQueueRef.current
+      .then(async () => {
+        const result = await modelRef.current.transcribe(pcm, sampleRate, buildTranscriptionOptions());
+
+        if (dumpDetail) {
+          console.log('[Mic] Transcription result:', result);
+        }
+
+        setLatestMetrics(result.metrics);
+        setText(result.utterance_text);
+        setTranscriptions((prev) => [
+          {
+            id: Date.now() + Math.random(),
+            filename: sourceLabel,
+            text: result.utterance_text,
+            timestamp: new Date().toLocaleTimeString(),
+            duration: durationSeconds,
+            wordCount: result.words?.length || 0,
+            confidence: result.confidence_scores?.token_avg ?? result.confidence_scores?.word_avg ?? null,
+            metrics: result.metrics,
+            language: result.native?.language ?? selectedLanguage,
+            task: supportsCanaryPrompting ? canaryTask : 'asr',
+            targetLanguage: supportsCanaryPrompting ? effectiveCanaryTargetLanguage : null,
+          },
+          ...prev,
+        ]);
+      })
+      .catch((error) => {
+        console.error('[Mic] Transcription failed:', error);
+        setStatus(`Microphone transcription failed: ${error.message}`);
+        setMicError(error.message);
+      })
+      .finally(() => {
+        micPendingJobsRef.current = Math.max(0, micPendingJobsRef.current - 1);
+        if (micPendingJobsRef.current === 0) {
+          setIsTranscribing(false);
+        }
+        if (micActiveRef.current) {
+          updateMicStatus('Listening for speech…');
+          setStatus('Microphone active');
+        } else {
+          updateMicStatus('Microphone stopped');
+          setStatus('Model ready');
+        }
+      });
+  }
+
+  function flushMicrophoneUtterance(reason = 'pause') {
+    const chunks = micUtteranceChunksRef.current;
+    if (!chunks.length) {
+      resetMicCaptureState({ clearPreroll: true });
+      return;
+    }
+
+    const sampleRate = micSampleRateRef.current;
+    const utterance = concatFloat32Chunks(chunks);
+    resetMicCaptureState({ clearPreroll: true });
+    updateMicStatus(
+      micActiveRef.current
+        ? `Detected ${reason}. Transcribing captured utterance…`
+        : 'Transcribing captured microphone audio…',
+    );
+    queueMicrophoneTranscription(
+      utterance,
+      sampleRate,
+      `microphone-${reason}-${new Date().toLocaleTimeString()}`,
+    );
+  }
+
+  function handleMicrophoneAudioProcess(event) {
+    const channelData = event.inputBuffer.getChannelData(0);
+    if (!channelData || !channelData.length) return;
+
+    const chunk = new Float32Array(channelData.length);
+    chunk.set(channelData);
+    const sampleRate = event.inputBuffer.sampleRate || micSampleRateRef.current || 16000;
+    micSampleRateRef.current = sampleRate;
+
+    if (!isRealtimeEouModel) {
+      micUtteranceChunksRef.current.push(chunk);
+      return;
+    }
+
+    const rms = getChunkRms(chunk);
+    const chunkMs = (chunk.length / sampleRate) * 1000;
+
+    if (!micSpeechActiveRef.current) {
+      pushMicPrerollChunk(chunk, sampleRate);
+      if (rms >= MIC_SILENCE_THRESHOLD) {
+        micSpeechActiveRef.current = true;
+        micSilenceMsRef.current = 0;
+        micUtteranceChunksRef.current = [...micPrerollChunksRef.current];
+        micPrerollChunksRef.current = [];
+        updateMicStatus('Speech detected. Waiting for a natural pause…');
+      }
+      return;
+    }
+
+    micUtteranceChunksRef.current.push(chunk);
+    if (rms >= MIC_SILENCE_THRESHOLD) {
+      micSilenceMsRef.current = 0;
+      return;
+    }
+
+    micSilenceMsRef.current += chunkMs;
+    if (micSilenceMsRef.current >= MIC_SILENCE_MS) {
+      flushMicrophoneUtterance('silence');
+    }
+  }
+
+  async function stopMicrophoneCapture({ flush = true } = {}) {
+    const processor = micProcessorRef.current;
+    const source = micSourceRef.current;
+    const audioContext = micAudioContextRef.current;
+    const stream = micStreamRef.current;
+
+    micActiveRef.current = false;
+    setIsMicActive(false);
+
+    if (processor) {
+      processor.onaudioprocess = null;
+      processor.disconnect();
+      micProcessorRef.current = null;
+    }
+    if (source) {
+      source.disconnect();
+      micSourceRef.current = null;
+    }
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+      micStreamRef.current = null;
+    }
+    if (audioContext) {
+      try {
+        await audioContext.close();
+      } catch {
+        // Ignore close errors from already-closed contexts.
+      }
+      micAudioContextRef.current = null;
+    }
+
+    if (flush) {
+      if (isRealtimeEouModel) {
+        flushMicrophoneUtterance('stop');
+      } else if (micUtteranceChunksRef.current.length > 0) {
+        const sampleRate = micSampleRateRef.current;
+        const utterance = concatFloat32Chunks(micUtteranceChunksRef.current);
+        resetMicCaptureState({ clearPreroll: true });
+        queueMicrophoneTranscription(
+          utterance,
+          sampleRate,
+          `microphone-stop-${new Date().toLocaleTimeString()}`,
+        );
+      } else {
+        resetMicCaptureState({ clearPreroll: true });
+      }
+    } else {
+      resetMicCaptureState({ clearPreroll: true });
+    }
+
+    updateMicStatus('Microphone stopped');
+    if (!flush || micPendingJobsRef.current === 0) {
+      setStatus('Model ready');
+    }
+  }
+
+  async function startMicrophoneCapture() {
+    if (!modelRef.current) {
+      alert('Load model first');
+      return;
+    }
+    if (!supportsMicrophoneInput) {
+      alert('Microphone capture is not available in this browser.');
+      return;
+    }
+
+    try {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      setIsPlaying(false);
+      setMicError('');
+      setReferenceText('');
+      setSampleDownload(null);
+      resetMicCaptureState({ clearPreroll: true });
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          channelCount: 1,
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      });
+      const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextCtor) {
+        throw new Error('AudioContext is not available in this browser.');
+      }
+
+      const audioContext = new AudioContextCtor();
+      await audioContext.resume();
+      const source = audioContext.createMediaStreamSource(stream);
+      const processor = audioContext.createScriptProcessor(4096, 1, 1);
+      processor.onaudioprocess = handleMicrophoneAudioProcess;
+      source.connect(processor);
+      processor.connect(audioContext.destination);
+
+      micStreamRef.current = stream;
+      micAudioContextRef.current = audioContext;
+      micSourceRef.current = source;
+      micProcessorRef.current = processor;
+      micSampleRateRef.current = audioContext.sampleRate || 16000;
+      micActiveRef.current = true;
+      setIsMicActive(true);
+      updateMicStatus(
+        isRealtimeEouModel
+          ? 'Listening for speech…'
+          : 'Recording microphone. Stop to transcribe the captured audio.',
+      );
+      setStatus('Microphone active');
+    } catch (error) {
+      console.error('[Mic] Failed to start microphone:', error);
+      micActiveRef.current = false;
+      setIsMicActive(false);
+      setMicError(error.message);
+      updateMicStatus('Microphone unavailable');
+      setStatus(`Microphone error: ${error.message}`);
+    }
+  }
 
   function playAudio() {
     if (audioRef.current) {
@@ -1453,6 +1771,7 @@ export default function App() {
   useEffect(() => {
     return () => {
       Promise.resolve()
+        .then(() => stopMicrophoneCapture({ flush: false }))
         .then(() => releaseCurrentModel())
         .then(() => disposeHubDemoPipeline())
         .catch((error) => {
@@ -2162,6 +2481,52 @@ export default function App() {
                   Drag & drop audio file here, or click to select
                 </p>
                 <p className="text-xs text-gray-400 mt-1">Supports .wav, .mp3, .ogg</p>
+              </div>
+
+              <div className="mt-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 p-4">
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+                      Live Microphone
+                    </h3>
+                    <p className="mt-1 text-xs leading-relaxed text-gray-500 dark:text-gray-400">
+                      {isRealtimeEouModel
+                        ? 'For the realtime RNNT model, the demo keeps listening and auto-transcribes after about 800 ms of silence.'
+                        : 'For non-realtime models, the demo records microphone audio and transcribes it when you stop capture.'}
+                    </p>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      {micStatus}
+                    </p>
+                    {micError && (
+                      <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                        {micError}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={isMicActive ? () => stopMicrophoneCapture({ flush: true }) : startMicrophoneCapture}
+                      disabled={!isModelReady || isLoadingSample || !supportsMicrophoneInput}
+                      className={`rounded-lg px-4 py-2 text-sm font-medium shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                        isMicActive
+                          ? 'bg-red-500 hover:bg-red-600 text-white'
+                          : 'bg-emerald-500 hover:bg-emerald-600 text-white'
+                      }`}
+                    >
+                      {isMicActive ? 'Stop Mic' : 'Start Mic'}
+                    </button>
+                    {isMicActive && (
+                      <button
+                        type="button"
+                        onClick={() => flushMicrophoneUtterance('manual')}
+                        className="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-100 shadow-sm transition-all"
+                      >
+                        Send Now
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
 
