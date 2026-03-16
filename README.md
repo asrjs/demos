@@ -12,18 +12,21 @@ The model picker now includes:
 
 - `Parakeet TDT 0.6B v2`
 - `Parakeet TDT 0.6B v3`
+- `Parakeet Realtime EOU 120M v1`
 - `Google MedASR (Medical English)`
 
 Parakeet and MedASR are loaded through the same `createSpeechPipeline()` path in the library. The demo adapts their results into one shared UI contract for transcription text, timings, confidences, and performance metrics.
 
+The realtime Parakeet RNNT model uses the shared pure-JS NeMo frontend by default. That is the intended integration path for this demo and does not require a separate `nemo80.onnx` or `nemo128.onnx` preprocessor artifact.
+
 ### Local folder models
 
-Local folder loading is currently aimed at Parakeet-style split artifacts:
+Local folder loading supports Parakeet-style split artifacts for both TDT and RNNT presets:
 
 - encoder ONNX
 - decoder ONNX
 - tokenizer text file
-- optional preprocessor ONNX
+- optional frontend ONNX
 
 MedASR is currently exposed in the demo through HuggingFace-hosted artifacts only.
 
@@ -32,12 +35,14 @@ MedASR is currently exposed in the demo through HuggingFace-hosted artifacts onl
 - Added **Model Source** switch: `HuggingFace` or `Local folder`.
 - Added multi-model HuggingFace selection through a shared `createSpeechPipeline()` instance.
 - Added MedASR as a selectable hosted model beside the existing Parakeet presets.
+- Added Parakeet Realtime EOU 120M v1 through the shared built-in model catalog.
 - Added visible hosted-load progress phases from runtime callbacks (resolve/download/compile/session ready).
 - Added a `Loaded from cache` badge when a hosted model is reused from pipeline cache.
 - Added local-folder model loading from browser-selected files.
-- Added local folder artifact detection (encoder/decoder quant modes, tokenizer files, optional preprocessors).
+- Added local folder artifact detection (encoder/decoder quant modes, tokenizer files, optional frontend ONNX artifacts).
 - Added persisted local folder handle restore (where browser permissions allow it).
 - Added automatic fallback of preprocessor backend from ONNX to JS when local `nemo*.onnx` is not present.
+- Added model-aware JS-first frontend defaults so RNNT models do not assume `nemo128.onnx`.
 - Added stronger local blob URL cleanup on failure paths.
 
 ## High-Level API Example
@@ -50,7 +55,7 @@ import { createSpeechPipeline, PcmAudioBuffer } from '@asrjs/speech-recognition'
 const pipeline = createSpeechPipeline({ cacheModels: true });
 
 const loaded = await pipeline.loadModel({
-  modelId: 'google/medasr', // or 'parakeet-tdt-0.6b-v3'
+  modelId: 'parakeet-realtime-eou-120m-v1', // or 'parakeet-tdt-0.6b-v3', 'google/medasr'
   backend: 'wasm',
 });
 
@@ -105,19 +110,21 @@ Canonical branches are pinned in code:
 
 MedASR is resolved through the library preset manifest and loaded from its configured HuggingFace artifact source.
 
+Parakeet Realtime EOU 120M v1 is resolved through `ysdede/parakeet-realtime-eou-120m-v1-onnx` and defaults to the shared JS frontend path.
+
 ### Local Folder
 
 - Pick a folder containing local model artifacts.
-- This mode currently targets Parakeet split artifacts.
+- This mode targets Parakeet split artifacts, including RNNT packages like `parakeet-realtime-eou-120m-v1`.
 - Expected minimum artifacts:
   - encoder ONNX (e.g. `encoder-model.onnx` or quantized variants)
   - decoder ONNX (e.g. `decoder_joint-model.onnx` or quantized variants)
 - tokenizer text file (`vocab.txt`)
 - Optional:
-  - preprocessor ONNX (`nemo128.onnx` / `nemo80.onnx`)
+  - frontend ONNX (`nemo128.onnx` / `nemo80.onnx`)
   - external ONNX data files (`*.data`)
 
-If no local `nemo*.onnx` is found, the demo automatically switches preprocessor backend to JS.
+If no local `nemo*.onnx` is found, the demo automatically switches frontend backend to JS. This is expected for newer NeMo model ports.
 
 ### Folder Access Persistence
 
@@ -181,7 +188,13 @@ Required for `SharedArrayBuffer` / multithreaded WASM.
 
 - Check required encoder/decoder/tokenizer files exist.
 - Confirm selected quantization exists in your folder.
-- If using ONNX preprocessor, confirm `nemo*.onnx` exists; otherwise switch to JS preprocessor.
+- If using ONNX frontend, confirm `nemo*.onnx` exists; otherwise use the JS frontend.
+
+### Realtime Parakeet uses JS frontend by default
+
+- Expected today. `parakeet-realtime-eou-120m-v1` is configured to use the shared JS NeMo mel frontend.
+- Do not assume a hosted `nemo80.onnx` or `nemo128.onnx` exists for this model.
+- In local-folder mode, ONNX frontend selection is only useful if you explicitly add a compatible `nemo*.onnx` artifact yourself.
 
 ### MedASR is not offered in Local folder mode
 

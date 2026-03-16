@@ -57,6 +57,7 @@ export default defineConfig({
       { find: /^@asrjs\/speech-recognition\/realtime$/, replacement: path.resolve(repoRoot, 'src/realtime.ts') },
       { find: /^@asrjs\/speech-recognition\/bench$/, replacement: path.resolve(repoRoot, 'src/bench.ts') },
       { find: /^@asrjs\/speech-recognition\/datasets$/, replacement: path.resolve(repoRoot, 'src/datasets.ts') },
+      { find: /^@asrjs\/speech-recognition\/presets$/, replacement: path.resolve(repoRoot, 'src/presets/index.ts') },
       { find: /^@asrjs\/speech-recognition\/models\/(.+)$/, replacement: path.resolve(repoRoot, 'src/models/$1.ts') },
       { find: /^@asrjs\/speech-recognition\/presets\/(.+)$/, replacement: path.resolve(repoRoot, 'src/presets/$1.ts') },
     ],

@@ -4,14 +4,15 @@ import {
   createParakeetLocalEntries,
   inspectParakeetLocalEntries,
   loadParakeetModelFromLocalEntries,
-  LANGUAGE_NAMES
 } from '@asrjs/speech-recognition/presets/parakeet';
-import { fetchRandomSample, hasTestSamples, SPEECH_DATASETS } from './utils/speechDatasets';
 import {
-  fetchModelFiles,
-  getAvailableQuantModes,
-  pickPreferredQuant,
-} from './shared/modelSelection.js';
+  buildBuiltInTranscriptionOptions,
+  detectBuiltInModelRepoQuantizations,
+  getBuiltInModelLanguageName,
+  resolveBuiltInModelComponentBackends,
+} from '@asrjs/speech-recognition/presets';
+import { fetchRandomSample, hasTestSamples, SPEECH_DATASETS } from './utils/speechDatasets';
+import { pickPreferredQuant } from './shared/modelSelection.js';
 import { disposeHubDemoPipeline, loadHubDemoModel } from './shared/modelLoader.js';
 import { DEMO_MODELS, MODEL_OPTIONS } from './shared/modelCatalog.js';
 import warmupAudioUrl from './assets/Harvard-L2-1.ogg?url';
@@ -30,13 +31,69 @@ const MODEL_SOURCE_OPTIONS = {
 const isInIframe = (() => {
   try { return window.self !== window.top; } catch { return true; }
 })();
-const MODEL_CANONICAL_REVISIONS = {
-  'parakeet-tdt-0.6b-v2': 'feat/fp16-canonical-v2',
-  'parakeet-tdt-0.6b-v3': 'feat/fp16-canonical-v3',
-};
-
 function getCanonicalRevision(modelKey) {
-  return MODEL_CANONICAL_REVISIONS[modelKey] || 'main';
+  return DEMO_MODELS[modelKey]?.loading?.defaultRevision || 'main';
+}
+
+function getDescriptorEncoderQuantOptions(modelKey) {
+  return DEMO_MODELS[modelKey]?.loading?.availableEncoderQuantizations || ['fp16', 'int8', 'fp32'];
+}
+
+function getDescriptorDecoderQuantOptions(modelKey) {
+  return DEMO_MODELS[modelKey]?.loading?.availableDecoderQuantizations || ['fp16', 'int8', 'fp32'];
+}
+
+function getDescriptorDefaultEncoderQuant(modelKey) {
+  return DEMO_MODELS[modelKey]?.loading?.defaultEncoderQuantization || 'fp32';
+}
+
+function getDescriptorDefaultDecoderQuant(modelKey) {
+  return DEMO_MODELS[modelKey]?.loading?.defaultDecoderQuantization || 'int8';
+}
+
+function getDescriptorEncoderBackendOptions(modelKey) {
+  return DEMO_MODELS[modelKey]?.loading?.availableEncoderBackends || ['webgpu', 'wasm'];
+}
+
+function getDescriptorDecoderBackendOptions(modelKey) {
+  return DEMO_MODELS[modelKey]?.loading?.availableDecoderBackends || ['webgpu', 'wasm'];
+}
+
+function getDescriptorPreprocessorBackendOptions(modelKey) {
+  return DEMO_MODELS[modelKey]?.loading?.preprocessorBackends || ['js', 'onnx'];
+}
+
+function getDescriptorDefaultPreprocessorName(modelKey) {
+  return DEMO_MODELS[modelKey]?.loading?.defaultPreprocessorName || 'nemo128';
+}
+
+function getDescriptorDefaultPreprocessorBackend(modelKey) {
+  const availableBackends = getDescriptorPreprocessorBackendOptions(modelKey);
+  const preferredBackend = DEMO_MODELS[modelKey]?.loading?.defaultPreprocessorBackend || availableBackends[0] || 'js';
+  return availableBackends.includes(preferredBackend) ? preferredBackend : (availableBackends[0] || 'js');
+}
+
+function resolvePreprocessorBackendForSource(
+  modelKey,
+  requestedBackend,
+  {
+    modelSource = MODEL_SOURCE_OPTIONS.HUGGINGFACE,
+    localPreprocessorCount = 0,
+  } = {},
+) {
+  const availableBackends = getDescriptorPreprocessorBackendOptions(modelKey);
+  const fallbackBackend = getDescriptorDefaultPreprocessorBackend(modelKey);
+  const candidate = availableBackends.includes(requestedBackend) ? requestedBackend : fallbackBackend;
+
+  if (
+    modelSource === MODEL_SOURCE_OPTIONS.LOCAL &&
+    candidate === 'onnx' &&
+    localPreprocessorCount === 0
+  ) {
+    return availableBackends.includes('js') ? 'js' : fallbackBackend;
+  }
+
+  return candidate;
 }
 
 function supportsDirectoryHandlePersistence() {
@@ -343,22 +400,58 @@ export default function App() {
   const initialSelectedModel = initialSettings.selectedModel;
   const initialModelSource = initialSettings.modelSource;
   const resolvedInitialModel = DEMO_MODELS[initialSelectedModel] ? initialSelectedModel : 'parakeet-tdt-0.6b-v2';
-  const [modelSource, setModelSource] = useState(
+  const resolvedInitialModelSource =
     initialModelSource === MODEL_SOURCE_OPTIONS.LOCAL && !isInIframe
       ? MODEL_SOURCE_OPTIONS.LOCAL
-      : MODEL_SOURCE_OPTIONS.HUGGINGFACE
+      : MODEL_SOURCE_OPTIONS.HUGGINGFACE;
+  const initialDefaultPreprocessorName = getDescriptorDefaultPreprocessorName(resolvedInitialModel);
+  const initialDefaultPreprocessorBackend = resolvePreprocessorBackendForSource(
+    resolvedInitialModel,
+    initialSettings.preprocessorBackend,
+    { modelSource: resolvedInitialModelSource },
+  );
+  const [modelSource, setModelSource] = useState(
+    resolvedInitialModelSource
   );
   const [selectedModel, setSelectedModel] = useState(resolvedInitialModel);
   const [modelRevision, setModelRevision] = useState(getCanonicalRevision(resolvedInitialModel));
   const modelConfig = DEMO_MODELS[selectedModel];
   const [selectedLanguage, setSelectedLanguage] = useState(initialSettings.selectedLanguage || 'en');
+  const [canaryTask, setCanaryTask] = useState(initialSettings.canaryTask || 'asr');
+  const [canaryTargetLanguage, setCanaryTargetLanguage] = useState(
+    initialSettings.canaryTargetLanguage || modelConfig?.defaultTargetLanguage || 'en'
+  );
+  const [canaryPnc, setCanaryPnc] = useState(
+    initialSettings.canaryPnc === undefined ? true : Boolean(initialSettings.canaryPnc)
+  );
+  const [canaryTimestamps, setCanaryTimestamps] = useState(Boolean(initialSettings.canaryTimestamps));
   // Use hybrid mode by default (WebGPU encoder + WASM decoder)
   const [backend, setBackend] = useState(initialSettings.backend || 'webgpu-hybrid');
+  const [encoderBackend, setEncoderBackend] = useState(
+    initialSettings.encoderBackend || getDescriptorEncoderBackendOptions(resolvedInitialModel)[0] || 'webgpu'
+  );
+  const [decoderBackend, setDecoderBackend] = useState(
+    initialSettings.decoderBackend || getDescriptorDecoderBackendOptions(resolvedInitialModel)[0] || 'wasm'
+  );
+  const [encoderBackendOptions, setEncoderBackendOptions] = useState(
+    getDescriptorEncoderBackendOptions(resolvedInitialModel)
+  );
+  const [decoderBackendOptions, setDecoderBackendOptions] = useState(
+    getDescriptorDecoderBackendOptions(resolvedInitialModel)
+  );
   const [threadingStatus, setThreadingStatus] = useState({ sab: false, threads: 1 });
-  const [encoderQuant, setEncoderQuant] = useState(initialSettings.encoderQuant || 'fp32');
-  const [decoderQuant, setDecoderQuant] = useState(initialSettings.decoderQuant || 'int8');
-  const [encoderQuantOptions, setEncoderQuantOptions] = useState(['fp16', 'int8', 'fp32']);
-  const [decoderQuantOptions, setDecoderQuantOptions] = useState(['fp16', 'int8', 'fp32']);
+  const [encoderQuant, setEncoderQuant] = useState(
+    initialSettings.encoderQuant || getDescriptorDefaultEncoderQuant(resolvedInitialModel)
+  );
+  const [decoderQuant, setDecoderQuant] = useState(
+    initialSettings.decoderQuant || getDescriptorDefaultDecoderQuant(resolvedInitialModel)
+  );
+  const [encoderQuantOptions, setEncoderQuantOptions] = useState(
+    getDescriptorEncoderQuantOptions(resolvedInitialModel)
+  );
+  const [decoderQuantOptions, setDecoderQuantOptions] = useState(
+    getDescriptorDecoderQuantOptions(resolvedInitialModel)
+  );
   const [localEntries, setLocalEntries] = useState([]);
   const [localFolderName, setLocalFolderName] = useState('');
   const [hasPersistedLocalHandle, setHasPersistedLocalHandle] = useState(false);
@@ -366,15 +459,15 @@ export default function App() {
   const [localHandlePersistenceSupported] = useState(supportsDirectoryHandlePersistence());
   const [localTokenizerOptions, setLocalTokenizerOptions] = useState(['vocab.txt']);
   const [localTokenizerName, setLocalTokenizerName] = useState('vocab.txt');
-  const [localPreprocessorOptions, setLocalPreprocessorOptions] = useState(['nemo128']);
+  const [localPreprocessorOptions, setLocalPreprocessorOptions] = useState([]);
   const [localDetectedArtifacts, setLocalDetectedArtifacts] = useState({
     encoder: [],
     decoder: [],
     tokenizers: [],
     preprocessors: [],
   });
-  const [preprocessor, setPreprocessor] = useState(initialSettings.preprocessor || 'nemo128');
-  const [preprocessorBackend, setPreprocessorBackend] = useState(initialSettings.preprocessorBackend || 'onnx');
+  const [preprocessor, setPreprocessor] = useState(initialSettings.preprocessor || initialDefaultPreprocessorName);
+  const [preprocessorBackend, setPreprocessorBackend] = useState(initialDefaultPreprocessorBackend);
   const [status, setStatus] = useState('Idle');
   const [progressText, setProgressText] = useState('');
   const [progressPct, setProgressPct] = useState(null);
@@ -412,9 +505,22 @@ export default function App() {
 
   const isModelReady = modelLoaded;
   const isLoading = isModelLoading;
-  const supportsLocalSource = modelConfig?.supportsLocalSource !== false;
-  const supportsSplitQuantization = modelConfig?.supportsSplitQuantization !== false;
-  const supportsPreprocessorBackend = modelConfig?.supportsPreprocessorBackend !== false;
+  const supportsLocalSource = modelConfig?.loading?.supportsLocalSource === true;
+  const supportsSplitQuantization = modelConfig?.loading?.supportsSplitQuantization !== false;
+  const supportsPreprocessorBackend = modelConfig?.loading?.supportsPreprocessorBackend !== false;
+  const preprocessorBackendOptions = getDescriptorPreprocessorBackendOptions(selectedModel);
+  const defaultPreprocessorName = getDescriptorDefaultPreprocessorName(selectedModel);
+  const defaultPreprocessorBackend = getDescriptorDefaultPreprocessorBackend(selectedModel);
+  const hostedModelUsesJsFrontend =
+    modelSource === MODEL_SOURCE_OPTIONS.HUGGINGFACE &&
+    defaultPreprocessorBackend === 'js';
+  const supportsCanaryPrompting = modelConfig?.capabilities?.supportsPromptControls === true;
+  const effectiveCanaryTargetLanguage =
+    canaryTask === 'asr' ? selectedLanguage : canaryTargetLanguage;
+  const isCanaryTranslationMode =
+    supportsCanaryPrompting &&
+    canaryTask !== 'asr' &&
+    effectiveCanaryTargetLanguage !== selectedLanguage;
 
   // Get available languages for test samples
   const testLanguageOptions = Object.entries(SPEECH_DATASETS)
@@ -452,6 +558,96 @@ export default function App() {
     setSelectedLanguage(testLanguageOptions[0].code);
   }, [selectedLanguage, testLanguageOptions]);
 
+  useEffect(() => {
+    const nextEncOptions = modelConfig?.loading?.availableEncoderBackends || ['webgpu', 'wasm'];
+    const nextDecOptions = modelConfig?.loading?.availableDecoderBackends || ['webgpu', 'wasm'];
+    const resolvedBackends = resolveBuiltInModelComponentBackends(selectedModel, {
+      backend,
+      encoderBackend,
+      decoderBackend,
+    });
+
+    setEncoderBackendOptions(nextEncOptions);
+    setDecoderBackendOptions(nextDecOptions);
+    setEncoderBackend(resolvedBackends.encoderBackend);
+    setDecoderBackend(resolvedBackends.decoderBackend);
+  }, [backend, decoderBackend, encoderBackend, modelConfig, selectedModel]);
+
+  useEffect(() => {
+    const nextEncOptions = modelConfig?.loading?.availableEncoderQuantizations || ['fp32'];
+    const nextDecOptions = modelConfig?.loading?.availableDecoderQuantizations || ['fp32'];
+    const nextDefaultEnc = modelConfig?.loading?.defaultEncoderQuantization || nextEncOptions[0] || 'fp32';
+    const nextDefaultDec = modelConfig?.loading?.defaultDecoderQuantization || nextDecOptions[0] || 'fp32';
+
+    setEncoderQuantOptions(nextEncOptions);
+    setDecoderQuantOptions(nextDecOptions);
+    setEncoderQuant((current) => (nextEncOptions.includes(current) ? current : nextDefaultEnc));
+    setDecoderQuant((current) => (nextDecOptions.includes(current) ? current : nextDefaultDec));
+  }, [modelConfig]);
+
+  useEffect(() => {
+    if (!supportsCanaryPrompting || !modelConfig?.languages?.length) return;
+
+    if (canaryTask === 'asr') {
+      if (canaryTargetLanguage !== selectedLanguage) {
+        setCanaryTargetLanguage(selectedLanguage);
+      }
+      return;
+    }
+
+    if (
+      !modelConfig.languages.includes(canaryTargetLanguage) ||
+      canaryTargetLanguage === selectedLanguage
+    ) {
+      const fallbackTarget =
+        modelConfig.languages.find((language) => language !== selectedLanguage) ??
+        modelConfig.defaultTargetLanguage ??
+        selectedLanguage;
+      if (fallbackTarget !== canaryTargetLanguage) {
+        setCanaryTargetLanguage(fallbackTarget);
+      }
+    }
+  }, [
+    canaryTargetLanguage,
+    canaryTask,
+    modelConfig,
+    selectedLanguage,
+    supportsCanaryPrompting,
+  ]);
+
+  useEffect(() => {
+    if (!supportsPreprocessorBackend) return;
+
+    setPreprocessor((current) => {
+      if (modelSource === MODEL_SOURCE_OPTIONS.LOCAL) {
+        if (localPreprocessorOptions.length > 0) {
+          return localPreprocessorOptions.includes(current) ? current : localPreprocessorOptions[0];
+        }
+        return defaultPreprocessorName;
+      }
+
+      return defaultPreprocessorName;
+    });
+
+    setPreprocessorBackend((current) =>
+      resolvePreprocessorBackendForSource(
+        selectedModel,
+        modelSource === MODEL_SOURCE_OPTIONS.HUGGINGFACE ? defaultPreprocessorBackend : current,
+        {
+          modelSource,
+          localPreprocessorCount: localPreprocessorOptions.length,
+        },
+      ),
+    );
+  }, [
+    defaultPreprocessorBackend,
+    defaultPreprocessorName,
+    localPreprocessorOptions,
+    modelSource,
+    selectedModel,
+    supportsPreprocessorBackend,
+  ]);
+
   // Inspect selected repo+branch files and filter quantization options accordingly.
   useEffect(() => {
     if (modelSource !== MODEL_SOURCE_OPTIONS.HUGGINGFACE) return;
@@ -464,29 +660,38 @@ export default function App() {
     }
 
     let cancelled = false;
-    const repoId = DEMO_MODELS[selectedModel]?.repoId;
     const revision = modelRevision || getCanonicalRevision(selectedModel);
 
     (async () => {
-      const files = await fetchModelFiles(repoId, revision);
+      const detected = await detectBuiltInModelRepoQuantizations(selectedModel, { revision });
       if (cancelled) return;
+      const encOptions = [...detected.encoder];
+      const decOptions = [...detected.decoder];
+      const nextEncOptions =
+        encOptions.length || !modelConfig?.loading?.availableEncoderQuantizations?.length
+          ? encOptions
+          : modelConfig.loading.availableEncoderQuantizations;
+      const nextDecOptions =
+        decOptions.length || !modelConfig?.loading?.availableDecoderQuantizations?.length
+          ? decOptions
+          : modelConfig.loading.availableDecoderQuantizations;
+      const nextDefaultEnc = modelConfig?.loading?.defaultEncoderQuantization || nextEncOptions[0] || 'fp32';
+      const nextDefaultDec = modelConfig?.loading?.defaultDecoderQuantization || nextDecOptions[0] || 'fp32';
 
-      const encOptions = getAvailableQuantModes(files, 'encoder-model');
-      const decOptions = getAvailableQuantModes(files, 'decoder_joint-model');
-      setEncoderQuantOptions(encOptions);
-      setDecoderQuantOptions(decOptions);
+      setEncoderQuantOptions(nextEncOptions);
+      setDecoderQuantOptions(nextDecOptions);
       setEncoderQuant((current) =>
-        encOptions.includes(current) ? current : pickPreferredQuant(encOptions, backend, 'encoder')
+        nextEncOptions.includes(current) ? current : pickPreferredQuant(nextEncOptions, backend, 'encoder') || nextDefaultEnc
       );
       setDecoderQuant((current) =>
-        decOptions.includes(current) ? current : pickPreferredQuant(decOptions, backend, 'decoder')
+        nextDecOptions.includes(current) ? current : pickPreferredQuant(nextDecOptions, backend, 'decoder') || nextDefaultDec
       );
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [selectedModel, modelRevision, modelSource, supportsSplitQuantization]);
+  }, [modelConfig, modelRevision, modelSource, selectedModel, supportsSplitQuantization]);
 
   // Detect SharedArrayBuffer and threading capabilities
   useEffect(() => {
@@ -501,7 +706,13 @@ export default function App() {
       selectedModel,
       modelRevision,
       selectedLanguage,
+      canaryTask,
+      canaryTargetLanguage,
+      canaryPnc,
+      canaryTimestamps,
       backend,
+      encoderBackend,
+      decoderBackend,
       encoderQuant,
       decoderQuant,
       preprocessor,
@@ -518,7 +729,13 @@ export default function App() {
     selectedModel,
     modelRevision,
     selectedLanguage,
+    canaryTask,
+    canaryTargetLanguage,
+    canaryPnc,
+    canaryTimestamps,
     backend,
+    encoderBackend,
+    decoderBackend,
     encoderQuant,
     decoderQuant,
     preprocessor,
@@ -665,9 +882,51 @@ export default function App() {
 
   function handleModelChange(nextModel) {
     if (nextModel === selectedModel) return;
+    const nextConfig = DEMO_MODELS[nextModel];
     setSelectedModel(nextModel);
     setModelRevision(getCanonicalRevision(nextModel));
     setLoadedFromCache(false);
+    setPreprocessor(getDescriptorDefaultPreprocessorName(nextModel));
+    setPreprocessorBackend(
+      resolvePreprocessorBackendForSource(nextModel, getDescriptorDefaultPreprocessorBackend(nextModel), {
+        modelSource,
+        localPreprocessorCount: localPreprocessorOptions.length,
+      }),
+    );
+    if (nextConfig?.capabilities?.supportsPromptControls) {
+      setCanaryTargetLanguage(nextConfig.defaultTargetLanguage || 'en');
+    }
+  }
+
+  function handleModelSourceChange(nextSource) {
+    if (nextSource === modelSource) return;
+    setModelSource(nextSource);
+    if (nextSource === MODEL_SOURCE_OPTIONS.HUGGINGFACE) {
+      setPreprocessor(getDescriptorDefaultPreprocessorName(selectedModel));
+      setPreprocessorBackend(getDescriptorDefaultPreprocessorBackend(selectedModel));
+      return;
+    }
+
+    setPreprocessor(defaultPreprocessorName);
+    setPreprocessorBackend(
+      resolvePreprocessorBackendForSource(selectedModel, preprocessorBackend, {
+        modelSource: nextSource,
+        localPreprocessorCount: localPreprocessorOptions.length,
+      }),
+    );
+  }
+
+  function buildTranscriptionOptions() {
+    return buildBuiltInTranscriptionOptions(selectedModel, {
+      sourceLanguage: selectedLanguage,
+      targetLanguage: effectiveCanaryTargetLanguage,
+      task: canaryTask,
+      punctuate: canaryPnc,
+      timestamps: supportsCanaryPrompting ? canaryTimestamps : true,
+      frameStride,
+      returnConfidences: true,
+      enableProfiling,
+    });
   }
 
   function applyLocalEntries(entries, folderName = '') {
@@ -705,7 +964,11 @@ export default function App() {
       setPreprocessor((current) => (dedupedPreprocessor.includes(current) ? current : dedupedPreprocessor[0]));
     } else {
       setLocalPreprocessorOptions([]);
-      if (preprocessorBackend === 'onnx') {
+      setPreprocessor(getDescriptorDefaultPreprocessorName(selectedModel));
+      if (resolvePreprocessorBackendForSource(selectedModel, preprocessorBackend, {
+        modelSource: MODEL_SOURCE_OPTIONS.LOCAL,
+        localPreprocessorCount: 0,
+      }) !== preprocessorBackend) {
         setPreprocessorBackend('js');
         console.log('[LocalFolder] No local nemo*.onnx detected; falling back preprocessorBackend to js');
       }
@@ -832,7 +1095,7 @@ export default function App() {
     if (!modelRef.current) return;
 
     if (!hasTestSamples(selectedLanguage)) {
-      alert(`No test dataset available for ${LANGUAGE_NAMES[selectedLanguage] || selectedLanguage}.`);
+      alert(`No test dataset available for ${getBuiltInModelLanguageName(selectedLanguage)}.`);
       return;
     }
 
@@ -866,19 +1129,15 @@ export default function App() {
         sourceUrl: sample.sourceAudioUrl,
       });
 
-      setReferenceText(sample.transcription);
+      const canCompareAgainstReference = !isCanaryTranslationMode;
+      setReferenceText(canCompareAgainstReference ? sample.transcription : '');
       console.log(`[Dataset] Reference: "${sample.transcription}"`);
 
       setStatus('Transcribing…');
       setIsTranscribing(true);
 
       console.time('Transcribe-Sample');
-      const res = await modelRef.current.transcribe(sample.pcm, 16000, {
-        returnTimestamps: true,
-        returnConfidences: true,
-        frameStride,
-        enableProfiling
-      });
+      const res = await modelRef.current.transcribe(sample.pcm, 16000, buildTranscriptionOptions());
       console.timeEnd('Transcribe-Sample');
 
       if (dumpDetail) {
@@ -888,19 +1147,21 @@ export default function App() {
       setText(res.utterance_text);
       setLatestMetrics(res.metrics);
 
-      const langName = LANGUAGE_NAMES[selectedLanguage] || selectedLanguage;
+      const langName = getBuiltInModelLanguageName(selectedLanguage);
       const datasetName = sample.dataset.split('/').pop();
       const newTranscription = {
         id: Date.now(),
         filename: `${datasetName}-${langName}-#${sample.sampleIndex}`,
         text: res.utterance_text,
-        reference: sample.transcription,
+        reference: canCompareAgainstReference ? sample.transcription : '',
         timestamp: new Date().toLocaleTimeString(),
         duration: sample.duration,
         wordCount: res.words?.length || 0,
         confidence: res.confidence_scores?.token_avg ?? res.confidence_scores?.word_avg ?? null,
         metrics: res.metrics,
-        language: selectedLanguage
+        language: res.native?.language ?? selectedLanguage,
+        task: supportsCanaryPrompting ? canaryTask : 'asr',
+        targetLanguage: supportsCanaryPrompting ? effectiveCanaryTargetLanguage : null,
       };
       setTranscriptions(prev => [newTranscription, ...prev]);
       setStatus('Model ready');
@@ -938,6 +1199,8 @@ export default function App() {
 
         const localLoadResult = await loadParakeetModelFromLocalEntries(localEntries, {
           modelId: selectedModel,
+          encoderBackend,
+          decoderBackend,
           encoderQuant,
           decoderQuant,
           tokenizerName: localTokenizerName,
@@ -1003,6 +1266,8 @@ export default function App() {
         const modelLoadResult = await loadHubDemoModel({
           modelId: selectedModel,
           revision: modelRevision,
+          encoderBackend,
+          decoderBackend,
           encoderQuant,
           decoderQuant,
           preprocessor,
@@ -1026,10 +1291,7 @@ export default function App() {
       setStatus('Verifying…');
       setProgressText('Running test transcription');
       console.log('[LoadModel] Running warm-up verification transcription');
-      const expectedTexts = [
-        'The boy was there when the sun rose.',
-        'The boy was there when the sun rose. A rod is used to catch pink salmon.',
-      ];
+      const expectedTexts = modelConfig?.warmup?.expectedTexts || [];
 
       try {
         const warmupUrls = [
@@ -1062,7 +1324,7 @@ export default function App() {
 
         const normalizedUtterance = normalize(utterance_text);
         const matchedExpectedText =
-          modelConfig?.warmupMode === 'non-empty'
+          modelConfig?.warmup?.mode === 'non-empty'
             ? normalizedUtterance.length > 0
             : expectedTexts.some((text) => normalizedUtterance.includes(normalize(text)));
 
@@ -1117,12 +1379,7 @@ export default function App() {
       const pcm = decoded.getChannelData(0);
 
       console.time(`Transcribe-${file.name}`);
-      const res = await modelRef.current.transcribe(pcm, 16_000, {
-        returnTimestamps: true,
-        returnConfidences: true,
-        frameStride,
-        enableProfiling
-      });
+      const res = await modelRef.current.transcribe(pcm, 16_000, buildTranscriptionOptions());
       console.timeEnd(`Transcribe-${file.name}`);
 
       if (dumpDetail) {
@@ -1138,7 +1395,10 @@ export default function App() {
         duration: pcm.length / 16000,
         wordCount: res.words?.length || 0,
         confidence: res.confidence_scores?.token_avg ?? res.confidence_scores?.word_avg ?? null,
-        metrics: res.metrics
+        metrics: res.metrics,
+        language: res.native?.language ?? selectedLanguage,
+        task: supportsCanaryPrompting ? canaryTask : 'asr',
+        targetLanguage: supportsCanaryPrompting ? effectiveCanaryTargetLanguage : null,
       };
 
       setTranscriptions(prev => [newTranscription, ...prev]);
@@ -1258,7 +1518,7 @@ export default function App() {
                   <div className="relative">
                     <select
                       value={modelSource}
-                      onChange={(e) => setModelSource(e.target.value)}
+                      onChange={(e) => handleModelSourceChange(e.target.value)}
                       disabled={isLoading || isModelReady}
                       className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-primary focus:border-primary dark:text-white appearance-none"
                     >
@@ -1339,7 +1599,7 @@ export default function App() {
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       {localEntries.length
                         ? `Selected ${localEntries.length} files${localFolderName ? ` from "${localFolderName}"` : ''}.`
-                        : 'Pick a folder containing encoder/decoder ONNX files and tokenizer text.'}
+                        : 'Pick a folder containing encoder/decoder ONNX files and tokenizer text. Optional nemo*.onnx frontend files are detected automatically when present.'}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       {localHandlePersistenceSupported
@@ -1351,16 +1611,25 @@ export default function App() {
                         <p>Encoder dtypes: {localDetectedArtifacts.encoder.length ? localDetectedArtifacts.encoder.join(', ') : 'none'}</p>
                         <p>Decoder dtypes: {localDetectedArtifacts.decoder.length ? localDetectedArtifacts.decoder.join(', ') : 'none'}</p>
                         <p>Tokenizers: {localDetectedArtifacts.tokenizers.length ? localDetectedArtifacts.tokenizers.join(', ') : 'none'}</p>
-                        <p>Preprocessors: {localDetectedArtifacts.preprocessors.length ? localDetectedArtifacts.preprocessors.join(', ') : 'none'}</p>
+                        <p>Frontend ONNX: {localDetectedArtifacts.preprocessors.length ? localDetectedArtifacts.preprocessors.join(', ') : 'none'}</p>
                       </div>
                     )}
+                  </div>
+                )}
+
+                {modelConfig?.description && (
+                  <div className="rounded-xl border border-amber-200/70 bg-[linear-gradient(135deg,rgba(251,191,36,0.12),rgba(249,115,22,0.08))] px-4 py-3 text-sm text-gray-700 dark:border-amber-900/60 dark:bg-[linear-gradient(135deg,rgba(120,53,15,0.38),rgba(67,20,7,0.18))] dark:text-gray-200">
+                    <div className="font-semibold text-gray-900 dark:text-white">
+                      {modelConfig.displayName}
+                    </div>
+                    <p className="mt-1 leading-relaxed">{modelConfig.description}</p>
                   </div>
                 )}
                 {/* Backend and Precision */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="col-span-2">
                     <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-                      Backend
+                      Runtime Backend
                     </label>
                     <div className="relative">
                       <select
@@ -1371,6 +1640,48 @@ export default function App() {
                       >
                         <option value="webgpu-hybrid">WebGPU</option>
                         <option value="wasm">WASM</option>
+                      </select>
+                      <span className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
+                        expand_more
+                      </span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                      Encoder Backend
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={encoderBackend}
+                        onChange={e => setEncoderBackend(e.target.value)}
+                        disabled={isLoading || isModelReady}
+                        className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-primary focus:border-primary dark:text-white appearance-none"
+                      >
+                        {encoderBackendOptions.map((option) => (
+                          <option key={option} value={option}>{option}</option>
+                        ))}
+                      </select>
+                      <span className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
+                        expand_more
+                      </span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                      Decoder Backend
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={decoderBackend}
+                        onChange={e => setDecoderBackend(e.target.value)}
+                        disabled={isLoading || isModelReady}
+                        className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-primary focus:border-primary dark:text-white appearance-none"
+                      >
+                        {decoderBackendOptions.map((option) => (
+                          <option key={option} value={option}>{option}</option>
+                        ))}
                       </select>
                       <span className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
                         expand_more
@@ -1459,7 +1770,7 @@ export default function App() {
                 {supportsPreprocessorBackend ? (
                   <div>
                     <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-                      Preprocessor
+                      Frontend
                     </label>
                     <div className="relative">
                       <select
@@ -1468,8 +1779,20 @@ export default function App() {
                         disabled={isLoading || isModelReady}
                         className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-primary focus:border-primary dark:text-white appearance-none"
                       >
-                        <option value="js">JS (mel.js)</option>
-                        <option value="onnx">ONNX (nemo128.onnx)</option>
+                        {preprocessorBackendOptions.includes('js') && (
+                          <option value="js">JS frontend</option>
+                        )}
+                        {preprocessorBackendOptions.includes('onnx') && (
+                          <option
+                            value="onnx"
+                            disabled={
+                              modelSource === MODEL_SOURCE_OPTIONS.LOCAL &&
+                              localPreprocessorOptions.length === 0
+                            }
+                          >
+                            ONNX frontend
+                          </option>
+                        )}
                       </select>
                       <span className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
                         expand_more
@@ -1494,13 +1817,119 @@ export default function App() {
                     )}
                     <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                       {preprocessorBackend === 'js'
-                        ? 'Pure JS: no ONNX download, supports streaming caching'
-                        : 'ONNX WASM+SIMD: slightly faster per-call, requires nemo128.onnx download'}
+                        ? 'Shared pure-JS NeMo frontend. This is the expected path for hosted RNNT models and for local folders without nemo*.onnx frontend assets.'
+                        : 'Optional ONNX frontend. Use this only when the selected repo or local folder actually includes a compatible nemo*.onnx asset.'}
                     </p>
+                    {hostedModelUsesJsFrontend && (
+                      <p className="text-xs text-amber-700 dark:text-amber-300 mt-2">
+                        This hosted model is configured for the shared JS frontend by default. Separate nemo80/nemo128 ONNX preprocessors are optional, not required.
+                      </p>
+                    )}
                   </div>
                 ) : (
                   <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-3 text-sm text-gray-600 dark:text-gray-300">
                     MedASR uses the built-in LASR CTC frontend path in this demo. There is no separate preprocessor backend toggle.
+                  </div>
+                )}
+
+                {supportsCanaryPrompting && (
+                  <div className="rounded-2xl border border-sky-200 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.18),transparent_55%),linear-gradient(135deg,rgba(14,165,233,0.08),rgba(59,130,246,0.03))] p-4 dark:border-sky-900/60 dark:bg-[radial-gradient(circle_at_top_left,rgba(12,74,110,0.62),transparent_55%),linear-gradient(135deg,rgba(8,47,73,0.72),rgba(15,23,42,0.4))]">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+                          Canary Prompt Controls
+                        </h3>
+                        <p className="mt-1 text-xs leading-relaxed text-gray-600 dark:text-gray-300">
+                          Source language follows the test sample or uploaded audio language. Target language, task,
+                          timestamps, and punctuation are injected as decoder prompt tokens.
+                        </p>
+                      </div>
+                      <span className="rounded-full border border-sky-300/70 bg-white/70 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-sky-700 shadow-sm dark:border-sky-700 dark:bg-sky-950/50 dark:text-sky-200">
+                        canary2
+                      </span>
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-[0.16em] text-gray-500 dark:text-gray-400">
+                          Task
+                        </label>
+                        <div className="relative mt-1">
+                          <select
+                            value={canaryTask}
+                            onChange={(e) => setCanaryTask(e.target.value)}
+                            disabled={isLoading || isModelReady}
+                            className="w-full rounded-xl border border-sky-200 bg-white/85 px-3 py-2 text-sm text-gray-900 shadow-sm backdrop-blur dark:border-sky-800 dark:bg-slate-900/70 dark:text-white"
+                          >
+                            <option value="asr">ASR</option>
+                            <option value="translation">Speech Translation</option>
+                          </select>
+                          <span className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
+                            expand_more
+                          </span>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-[0.16em] text-gray-500 dark:text-gray-400">
+                          Target
+                        </label>
+                        <div className="relative mt-1">
+                          <select
+                            value={effectiveCanaryTargetLanguage}
+                            onChange={(e) => setCanaryTargetLanguage(e.target.value)}
+                            disabled={isLoading || isModelReady || canaryTask === 'asr'}
+                            className="w-full rounded-xl border border-sky-200 bg-white/85 px-3 py-2 text-sm text-gray-900 shadow-sm backdrop-blur dark:border-sky-800 dark:bg-slate-900/70 dark:text-white disabled:opacity-60"
+                          >
+                            {(modelConfig?.languages || []).map((languageCode) => (
+                              <option key={languageCode} value={languageCode}>
+                              {getBuiltInModelLanguageName(languageCode)}
+                              </option>
+                            ))}
+                          </select>
+                          <span className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
+                            expand_more
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setCanaryPnc((current) => !current)}
+                        disabled={isLoading || isModelReady}
+                        className={`rounded-2xl border px-4 py-3 text-left transition-all ${
+                          canaryPnc
+                            ? 'border-emerald-300 bg-emerald-50 text-emerald-900 dark:border-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-100'
+                            : 'border-gray-200 bg-white/80 text-gray-700 dark:border-gray-700 dark:bg-slate-900/50 dark:text-gray-200'
+                        }`}
+                      >
+                        <div className="text-xs font-semibold uppercase tracking-[0.16em]">PnC</div>
+                        <div className="mt-1 text-sm">{canaryPnc ? 'Enabled' : 'Disabled'}</div>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setCanaryTimestamps((current) => !current)}
+                        disabled={isLoading || isModelReady}
+                        className={`rounded-2xl border px-4 py-3 text-left transition-all ${
+                          canaryTimestamps
+                            ? 'border-violet-300 bg-violet-50 text-violet-900 dark:border-violet-700 dark:bg-violet-950/40 dark:text-violet-100'
+                            : 'border-gray-200 bg-white/80 text-gray-700 dark:border-gray-700 dark:bg-slate-900/50 dark:text-gray-200'
+                        }`}
+                      >
+                        <div className="text-xs font-semibold uppercase tracking-[0.16em]">Timestamps</div>
+                        <div className="mt-1 text-sm">{canaryTimestamps ? 'Requested' : 'Hidden'}</div>
+                      </button>
+                    </div>
+
+                    <div className="mt-3 text-xs text-gray-600 dark:text-gray-300">
+                      <strong className="text-gray-900 dark:text-white">Prompt route:</strong>{' '}
+                      {getBuiltInModelLanguageName(selectedLanguage)} audio {'\u2192'}{' '}
+                      {getBuiltInModelLanguageName(effectiveCanaryTargetLanguage)}{' '}
+                      {canaryTask === 'asr' ? 'transcription' : 'translation'}
+                    </div>
                   </div>
                 )}
 
@@ -1652,7 +2081,7 @@ export default function App() {
               <div className="flex flex-col md:flex-row gap-4 mb-6 items-end">
                 <div className="flex-grow w-full md:w-auto">
                   <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-                    Language
+                    {supportsCanaryPrompting ? 'Input Language' : 'Language'}
                   </label>
                   <div className="relative">
                     <select
@@ -1711,7 +2140,7 @@ export default function App() {
                     disabled={!isModelReady || isLoadingSample || isTranscribing || isDownloadingSample}
                     className="bg-primary hover:bg-opacity-90 text-white font-medium py-2 px-4 rounded-lg whitespace-nowrap shadow-sm transition-all text-sm h-[38px] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isLoadingSample ? 'Loading…' : `Load ${LANGUAGE_NAMES[selectedLanguage]} Sample`}
+                    {isLoadingSample ? 'Loading…' : `Load ${getBuiltInModelLanguageName(selectedLanguage)} Sample`}
                   </button>
                 </div>
               </div>
@@ -1788,6 +2217,13 @@ export default function App() {
                     className="w-full min-h-[160px] bg-white dark:bg-gray-900/50 rounded-lg p-4 border border-primary dark:border-primary/50 text-lg leading-relaxed text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-primary focus:border-primary placeholder-gray-400 dark:placeholder-gray-600 resize-y"
                     placeholder="Paste or type reference text here for comparison..."
                   />
+                  {isCanaryTranslationMode && (
+                    <p className="mt-2 text-xs text-amber-700 dark:text-amber-300">
+                      Reference comparison is hidden while Canary is translating from{' '}
+                      {getBuiltInModelLanguageName(selectedLanguage)} to{' '}
+                      {getBuiltInModelLanguageName(effectiveCanaryTargetLanguage)}.
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -1826,7 +2262,7 @@ export default function App() {
                           {trans.filename}
                           {trans.language && (
                             <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
-                              ({LANGUAGE_NAMES[trans.language]})
+                              ({getBuiltInModelLanguageName(trans.language)})
                             </span>
                           )}
                         </span>
@@ -1838,6 +2274,7 @@ export default function App() {
                         {trans.duration.toFixed(1)}s · {trans.wordCount} words
                         {trans.confidence && ` · ${(trans.confidence * 100).toFixed(0)}% conf`}
                         {trans.metrics && ` · RTF ${trans.metrics.rtf?.toFixed(2)}x`}
+                        {trans.targetLanguage && ` · -> ${getBuiltInModelLanguageName(trans.targetLanguage)}`}
                       </div>
                       {trans.reference && (
                         <div className="mb-2 p-2 bg-emerald-50 dark:bg-emerald-900/20 rounded text-sm text-emerald-800 dark:text-emerald-300">

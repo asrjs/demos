@@ -1,8 +1,7 @@
 import { PcmAudioBuffer, createSpeechPipeline } from '@asrjs/speech-recognition';
 import {
-  resolveParakeetArtifactSource,
-} from '@asrjs/speech-recognition/presets/parakeet';
-import { resolveMedAsrPresetManifest } from '@asrjs/speech-recognition/presets/medasr';
+  buildBuiltInHubLoadOptions,
+} from '@asrjs/speech-recognition/presets';
 import { getDemoModelConfig } from './modelCatalog.js';
 
 let activeHubProgressCallback = null;
@@ -90,10 +89,11 @@ function createDemoSpeechModelAdapter(loaded, cacheKey) {
     kind: 'hub-pipeline',
     cacheKey,
     info: loaded.model.info,
-    async transcribe(pcm, sampleRate, _options = {}) {
+    async transcribe(pcm, sampleRate, options = {}) {
       const response = await loaded.transcribe(PcmAudioBuffer.fromMono(pcm, sampleRate), {
         detail: 'detailed',
         responseFlavor: 'canonical+native',
+        ...options,
       });
 
       return adaptEnvelopeToLegacyDemoResult(response);
@@ -108,69 +108,6 @@ function createDemoSpeechModelAdapter(loaded, cacheKey) {
   };
 }
 
-function buildParakeetLoadOptions({
-  modelId,
-  revision,
-  backend,
-  encoderQuant,
-  decoderQuant,
-  preprocessor,
-  preprocessorBackend,
-  cpuThreads,
-  enableProfiling,
-}) {
-  const source = resolveParakeetArtifactSource(modelId);
-  if (!source || source.kind !== 'huggingface') {
-    throw new Error(`Could not resolve Parakeet artifact source for "${modelId}".`);
-  }
-
-  return {
-    preset: 'parakeet',
-    modelId,
-    backend,
-    options: {
-      source: {
-        ...source,
-        revision: revision || source.revision,
-        encoderQuant,
-        decoderQuant,
-        preprocessorName: preprocessor,
-        preprocessorBackend,
-        cpuThreads,
-        enableProfiling,
-      },
-    },
-  };
-}
-
-function buildMedAsrLoadOptions({
-  modelId,
-  revision,
-  backend,
-  cpuThreads,
-  enableProfiling,
-}) {
-  const manifest = resolveMedAsrPresetManifest(modelId);
-  const source = manifest?.source;
-  if (!source || source.kind !== 'huggingface') {
-    throw new Error(`Could not resolve MedASR artifact source for "${modelId}".`);
-  }
-
-  return {
-    preset: 'medasr',
-    modelId,
-    backend,
-    options: {
-      source: {
-        ...source,
-        revision: revision || source.revision,
-        cpuThreads,
-        enableProfiling,
-      },
-    },
-  };
-}
-
 function buildHubCacheKey(modelConfig, options) {
   const optionSignature = JSON.stringify(options.options?.source ?? {});
   return `hub:${modelConfig.preset}:${options.modelId}:${options.backend ?? 'auto'}:${optionSignature}`;
@@ -180,6 +117,8 @@ export async function loadHubDemoModel({
   modelId,
   revision,
   backend,
+  encoderBackend,
+  decoderBackend,
   encoderQuant,
   decoderQuant,
   preprocessor,
@@ -193,26 +132,19 @@ export async function loadHubDemoModel({
     throw new Error(`Unknown demo model "${modelId}".`);
   }
 
-  const loadOptions =
-    modelConfig.preset === 'medasr'
-      ? buildMedAsrLoadOptions({
-          modelId,
-          revision,
-          backend,
-          cpuThreads,
-          enableProfiling,
-        })
-      : buildParakeetLoadOptions({
-          modelId,
-          revision,
-          backend,
-          encoderQuant,
-          decoderQuant,
-          preprocessor,
-          preprocessorBackend,
-          cpuThreads,
-          enableProfiling,
-        });
+  const loadOptions = buildBuiltInHubLoadOptions({
+    modelId,
+    revision,
+    backend,
+    encoderBackend,
+    decoderBackend,
+    encoderQuant,
+    decoderQuant,
+    preprocessorName: preprocessor,
+    preprocessorBackend,
+    cpuThreads,
+    enableProfiling,
+  });
 
   const cacheKey = buildHubCacheKey(modelConfig, loadOptions);
   const wasCached = hubPipeline.listLoadedModels().includes(cacheKey);
