@@ -59,6 +59,43 @@ function getDescriptorDecoderBackendOptions(modelKey) {
   return DEMO_MODELS[modelKey]?.loading?.availableDecoderBackends || ['webgpu', 'wasm'];
 }
 
+function getDescriptorPreprocessorBackendOptions(modelKey) {
+  return DEMO_MODELS[modelKey]?.loading?.preprocessorBackends || ['js', 'onnx'];
+}
+
+function getDescriptorDefaultPreprocessorName(modelKey) {
+  return DEMO_MODELS[modelKey]?.loading?.defaultPreprocessorName || 'nemo128';
+}
+
+function getDescriptorDefaultPreprocessorBackend(modelKey) {
+  const availableBackends = getDescriptorPreprocessorBackendOptions(modelKey);
+  const preferredBackend = DEMO_MODELS[modelKey]?.loading?.defaultPreprocessorBackend || availableBackends[0] || 'js';
+  return availableBackends.includes(preferredBackend) ? preferredBackend : (availableBackends[0] || 'js');
+}
+
+function resolvePreprocessorBackendForSource(
+  modelKey,
+  requestedBackend,
+  {
+    modelSource = MODEL_SOURCE_OPTIONS.HUGGINGFACE,
+    localPreprocessorCount = 0,
+  } = {},
+) {
+  const availableBackends = getDescriptorPreprocessorBackendOptions(modelKey);
+  const fallbackBackend = getDescriptorDefaultPreprocessorBackend(modelKey);
+  const candidate = availableBackends.includes(requestedBackend) ? requestedBackend : fallbackBackend;
+
+  if (
+    modelSource === MODEL_SOURCE_OPTIONS.LOCAL &&
+    candidate === 'onnx' &&
+    localPreprocessorCount === 0
+  ) {
+    return availableBackends.includes('js') ? 'js' : fallbackBackend;
+  }
+
+  return candidate;
+}
+
 function supportsDirectoryHandlePersistence() {
   if (typeof window === 'undefined' || typeof window.showDirectoryPicker !== 'function' || typeof indexedDB === 'undefined') return false;
   // showDirectoryPicker is blocked in cross-origin iframes (e.g. HF Spaces)
@@ -363,10 +400,18 @@ export default function App() {
   const initialSelectedModel = initialSettings.selectedModel;
   const initialModelSource = initialSettings.modelSource;
   const resolvedInitialModel = DEMO_MODELS[initialSelectedModel] ? initialSelectedModel : 'parakeet-tdt-0.6b-v2';
-  const [modelSource, setModelSource] = useState(
+  const resolvedInitialModelSource =
     initialModelSource === MODEL_SOURCE_OPTIONS.LOCAL && !isInIframe
       ? MODEL_SOURCE_OPTIONS.LOCAL
-      : MODEL_SOURCE_OPTIONS.HUGGINGFACE
+      : MODEL_SOURCE_OPTIONS.HUGGINGFACE;
+  const initialDefaultPreprocessorName = getDescriptorDefaultPreprocessorName(resolvedInitialModel);
+  const initialDefaultPreprocessorBackend = resolvePreprocessorBackendForSource(
+    resolvedInitialModel,
+    initialSettings.preprocessorBackend,
+    { modelSource: resolvedInitialModelSource },
+  );
+  const [modelSource, setModelSource] = useState(
+    resolvedInitialModelSource
   );
   const [selectedModel, setSelectedModel] = useState(resolvedInitialModel);
   const [modelRevision, setModelRevision] = useState(getCanonicalRevision(resolvedInitialModel));
@@ -414,15 +459,15 @@ export default function App() {
   const [localHandlePersistenceSupported] = useState(supportsDirectoryHandlePersistence());
   const [localTokenizerOptions, setLocalTokenizerOptions] = useState(['vocab.txt']);
   const [localTokenizerName, setLocalTokenizerName] = useState('vocab.txt');
-  const [localPreprocessorOptions, setLocalPreprocessorOptions] = useState(['nemo128']);
+  const [localPreprocessorOptions, setLocalPreprocessorOptions] = useState([]);
   const [localDetectedArtifacts, setLocalDetectedArtifacts] = useState({
     encoder: [],
     decoder: [],
     tokenizers: [],
     preprocessors: [],
   });
-  const [preprocessor, setPreprocessor] = useState(initialSettings.preprocessor || 'nemo128');
-  const [preprocessorBackend, setPreprocessorBackend] = useState(initialSettings.preprocessorBackend || 'onnx');
+  const [preprocessor, setPreprocessor] = useState(initialSettings.preprocessor || initialDefaultPreprocessorName);
+  const [preprocessorBackend, setPreprocessorBackend] = useState(initialDefaultPreprocessorBackend);
   const [status, setStatus] = useState('Idle');
   const [progressText, setProgressText] = useState('');
   const [progressPct, setProgressPct] = useState(null);
@@ -463,6 +508,12 @@ export default function App() {
   const supportsLocalSource = modelConfig?.loading?.supportsLocalSource === true;
   const supportsSplitQuantization = modelConfig?.loading?.supportsSplitQuantization !== false;
   const supportsPreprocessorBackend = modelConfig?.loading?.supportsPreprocessorBackend !== false;
+  const preprocessorBackendOptions = getDescriptorPreprocessorBackendOptions(selectedModel);
+  const defaultPreprocessorName = getDescriptorDefaultPreprocessorName(selectedModel);
+  const defaultPreprocessorBackend = getDescriptorDefaultPreprocessorBackend(selectedModel);
+  const hostedModelUsesJsFrontend =
+    modelSource === MODEL_SOURCE_OPTIONS.HUGGINGFACE &&
+    defaultPreprocessorBackend === 'js';
   const supportsCanaryPrompting = modelConfig?.capabilities?.supportsPromptControls === true;
   const effectiveCanaryTargetLanguage =
     canaryTask === 'asr' ? selectedLanguage : canaryTargetLanguage;
@@ -562,6 +613,39 @@ export default function App() {
     modelConfig,
     selectedLanguage,
     supportsCanaryPrompting,
+  ]);
+
+  useEffect(() => {
+    if (!supportsPreprocessorBackend) return;
+
+    setPreprocessor((current) => {
+      if (modelSource === MODEL_SOURCE_OPTIONS.LOCAL) {
+        if (localPreprocessorOptions.length > 0) {
+          return localPreprocessorOptions.includes(current) ? current : localPreprocessorOptions[0];
+        }
+        return defaultPreprocessorName;
+      }
+
+      return defaultPreprocessorName;
+    });
+
+    setPreprocessorBackend((current) =>
+      resolvePreprocessorBackendForSource(
+        selectedModel,
+        modelSource === MODEL_SOURCE_OPTIONS.HUGGINGFACE ? defaultPreprocessorBackend : current,
+        {
+          modelSource,
+          localPreprocessorCount: localPreprocessorOptions.length,
+        },
+      ),
+    );
+  }, [
+    defaultPreprocessorBackend,
+    defaultPreprocessorName,
+    localPreprocessorOptions,
+    modelSource,
+    selectedModel,
+    supportsPreprocessorBackend,
   ]);
 
   // Inspect selected repo+branch files and filter quantization options accordingly.
@@ -802,12 +886,34 @@ export default function App() {
     setSelectedModel(nextModel);
     setModelRevision(getCanonicalRevision(nextModel));
     setLoadedFromCache(false);
-    if (nextConfig?.loading?.defaultPreprocessorBackend) {
-      setPreprocessorBackend(nextConfig.loading.defaultPreprocessorBackend);
-    }
+    setPreprocessor(getDescriptorDefaultPreprocessorName(nextModel));
+    setPreprocessorBackend(
+      resolvePreprocessorBackendForSource(nextModel, getDescriptorDefaultPreprocessorBackend(nextModel), {
+        modelSource,
+        localPreprocessorCount: localPreprocessorOptions.length,
+      }),
+    );
     if (nextConfig?.capabilities?.supportsPromptControls) {
       setCanaryTargetLanguage(nextConfig.defaultTargetLanguage || 'en');
     }
+  }
+
+  function handleModelSourceChange(nextSource) {
+    if (nextSource === modelSource) return;
+    setModelSource(nextSource);
+    if (nextSource === MODEL_SOURCE_OPTIONS.HUGGINGFACE) {
+      setPreprocessor(getDescriptorDefaultPreprocessorName(selectedModel));
+      setPreprocessorBackend(getDescriptorDefaultPreprocessorBackend(selectedModel));
+      return;
+    }
+
+    setPreprocessor(defaultPreprocessorName);
+    setPreprocessorBackend(
+      resolvePreprocessorBackendForSource(selectedModel, preprocessorBackend, {
+        modelSource: nextSource,
+        localPreprocessorCount: localPreprocessorOptions.length,
+      }),
+    );
   }
 
   function buildTranscriptionOptions() {
@@ -858,7 +964,11 @@ export default function App() {
       setPreprocessor((current) => (dedupedPreprocessor.includes(current) ? current : dedupedPreprocessor[0]));
     } else {
       setLocalPreprocessorOptions([]);
-      if (preprocessorBackend === 'onnx') {
+      setPreprocessor(getDescriptorDefaultPreprocessorName(selectedModel));
+      if (resolvePreprocessorBackendForSource(selectedModel, preprocessorBackend, {
+        modelSource: MODEL_SOURCE_OPTIONS.LOCAL,
+        localPreprocessorCount: 0,
+      }) !== preprocessorBackend) {
         setPreprocessorBackend('js');
         console.log('[LocalFolder] No local nemo*.onnx detected; falling back preprocessorBackend to js');
       }
@@ -1408,7 +1518,7 @@ export default function App() {
                   <div className="relative">
                     <select
                       value={modelSource}
-                      onChange={(e) => setModelSource(e.target.value)}
+                      onChange={(e) => handleModelSourceChange(e.target.value)}
                       disabled={isLoading || isModelReady}
                       className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-primary focus:border-primary dark:text-white appearance-none"
                     >
@@ -1489,7 +1599,7 @@ export default function App() {
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       {localEntries.length
                         ? `Selected ${localEntries.length} files${localFolderName ? ` from "${localFolderName}"` : ''}.`
-                        : 'Pick a folder containing encoder/decoder ONNX files and tokenizer text.'}
+                        : 'Pick a folder containing encoder/decoder ONNX files and tokenizer text. Optional nemo*.onnx frontend files are detected automatically when present.'}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       {localHandlePersistenceSupported
@@ -1501,7 +1611,7 @@ export default function App() {
                         <p>Encoder dtypes: {localDetectedArtifacts.encoder.length ? localDetectedArtifacts.encoder.join(', ') : 'none'}</p>
                         <p>Decoder dtypes: {localDetectedArtifacts.decoder.length ? localDetectedArtifacts.decoder.join(', ') : 'none'}</p>
                         <p>Tokenizers: {localDetectedArtifacts.tokenizers.length ? localDetectedArtifacts.tokenizers.join(', ') : 'none'}</p>
-                        <p>Preprocessors: {localDetectedArtifacts.preprocessors.length ? localDetectedArtifacts.preprocessors.join(', ') : 'none'}</p>
+                        <p>Frontend ONNX: {localDetectedArtifacts.preprocessors.length ? localDetectedArtifacts.preprocessors.join(', ') : 'none'}</p>
                       </div>
                     )}
                   </div>
@@ -1660,7 +1770,7 @@ export default function App() {
                 {supportsPreprocessorBackend ? (
                   <div>
                     <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-                      Preprocessor
+                      Frontend
                     </label>
                     <div className="relative">
                       <select
@@ -1669,8 +1779,20 @@ export default function App() {
                         disabled={isLoading || isModelReady}
                         className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-primary focus:border-primary dark:text-white appearance-none"
                       >
-                        <option value="js">JS (mel.js)</option>
-                        <option value="onnx">ONNX (nemo128.onnx)</option>
+                        {preprocessorBackendOptions.includes('js') && (
+                          <option value="js">JS frontend</option>
+                        )}
+                        {preprocessorBackendOptions.includes('onnx') && (
+                          <option
+                            value="onnx"
+                            disabled={
+                              modelSource === MODEL_SOURCE_OPTIONS.LOCAL &&
+                              localPreprocessorOptions.length === 0
+                            }
+                          >
+                            ONNX frontend
+                          </option>
+                        )}
                       </select>
                       <span className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
                         expand_more
@@ -1695,9 +1817,14 @@ export default function App() {
                     )}
                     <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                       {preprocessorBackend === 'js'
-                        ? 'Pure JS: no ONNX download, supports streaming caching'
-                        : 'ONNX WASM+SIMD: slightly faster per-call, requires nemo128.onnx download'}
+                        ? 'Shared pure-JS NeMo frontend. This is the expected path for hosted RNNT models and for local folders without nemo*.onnx frontend assets.'
+                        : 'Optional ONNX frontend. Use this only when the selected repo or local folder actually includes a compatible nemo*.onnx asset.'}
                     </p>
+                    {hostedModelUsesJsFrontend && (
+                      <p className="text-xs text-amber-700 dark:text-amber-300 mt-2">
+                        This hosted model is configured for the shared JS frontend by default. Separate nemo80/nemo128 ONNX preprocessors are optional, not required.
+                      </p>
+                    )}
                   </div>
                 ) : (
                   <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-3 text-sm text-gray-600 dark:text-gray-300">
