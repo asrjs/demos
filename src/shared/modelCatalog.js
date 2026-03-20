@@ -1,17 +1,17 @@
 import {
-  getBuiltInModelDescriptor,
-  listBuiltInModelDescriptors,
-  listBuiltInModelOptions,
-} from '@asrjs/speech-recognition/presets';
+  getSpeechModelDescriptor,
+  listSpeechModels,
+  listSpeechModelOptions,
+} from '@asrjs/speech-recognition';
 
 export const DEMO_MODELS = Object.fromEntries(
-  listBuiltInModelDescriptors()
+  listSpeechModels()
     .filter((descriptor) => descriptor.loading.repoId)
     .map((descriptor) => [descriptor.modelId, descriptor]),
 );
 
-export const MODEL_OPTIONS = listBuiltInModelOptions().filter((option) => option.repoId);
+export const MODEL_OPTIONS = listSpeechModelOptions().filter((option) => option.repoId);
 
 export function getDemoModelConfig(modelId) {
-  return getBuiltInModelDescriptor(modelId);
+  return getSpeechModelDescriptor(modelId);
 }

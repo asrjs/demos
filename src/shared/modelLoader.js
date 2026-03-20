@@ -1,7 +1,8 @@
-import { PcmAudioBuffer, createSpeechPipeline } from '@asrjs/speech-recognition';
 import {
-  buildBuiltInHubLoadOptions,
-} from '@asrjs/speech-recognition/presets';
+  PcmAudioBuffer,
+  buildSpeechModelLoadOptions,
+  createSpeechPipeline,
+} from '@asrjs/speech-recognition';
 import { getDemoModelConfig } from './modelCatalog.js';
 
 let activeHubProgressCallback = null;
@@ -84,9 +85,12 @@ function adaptEnvelopeToLegacyDemoResult(response) {
   };
 }
 
-function createDemoSpeechModelAdapter(loaded, cacheKey) {
+export function createDemoSpeechModelAdapter(loaded, options = {}) {
+  const cacheKey = options.cacheKey ?? null;
+  const cacheManaged = options.cacheManaged ?? false;
+
   return {
-    kind: 'hub-pipeline',
+    kind: cacheManaged ? 'hub-pipeline' : 'loaded-model',
     cacheKey,
     info: loaded.model.info,
     async transcribe(pcm, sampleRate, options = {}) {
@@ -99,10 +103,16 @@ function createDemoSpeechModelAdapter(loaded, cacheKey) {
       return adaptEnvelopeToLegacyDemoResult(response);
     },
     async dispose() {
-      // Hub models are cached at pipeline level for reuse across model switches.
-      return undefined;
+      if (cacheManaged) {
+        // Hub models are cached at pipeline level for reuse across model switches.
+        return undefined;
+      }
+      await loaded.dispose();
     },
     async evict() {
+      if (!cacheKey) {
+        return;
+      }
       await hubPipeline.disposeModel(cacheKey);
     },
   };
@@ -132,7 +142,7 @@ export async function loadHubDemoModel({
     throw new Error(`Unknown demo model "${modelId}".`);
   }
 
-  const loadOptions = buildBuiltInHubLoadOptions({
+  const loadOptions = buildSpeechModelLoadOptions({
     modelId,
     revision,
     backend,
@@ -158,7 +168,10 @@ export async function loadHubDemoModel({
     });
 
     return {
-      model: createDemoSpeechModelAdapter(loaded, cacheKey),
+      model: createDemoSpeechModelAdapter(loaded, {
+        cacheKey,
+        cacheManaged: true,
+      }),
       info: loaded.model.info,
       fromCache: wasCached,
       cacheKey,
