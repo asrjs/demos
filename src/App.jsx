@@ -1,22 +1,35 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  collectParakeetLocalEntries,
-  createParakeetLocalEntries,
-  inspectParakeetLocalEntries,
-  loadParakeetModelFromLocalEntries,
-} from '@asrjs/speech-recognition/presets/parakeet';
+  buildSpeechTranscriptionOptions,
+  detectSpeechModelRepoQuantizations,
+  getSpeechModelLanguageName,
+  listSpeechModelOptions,
+  listSpeechModels,
+  resolveSpeechModelComponentBackends,
+} from '@asrjs/speech-recognition';
 import {
-  buildBuiltInTranscriptionOptions,
-  detectBuiltInModelRepoQuantizations,
-  getBuiltInModelLanguageName,
-  resolveBuiltInModelComponentBackends,
-} from '@asrjs/speech-recognition/presets';
+  collectSpeechModelLocalEntries,
+  createSpeechModelLocalEntries,
+  inspectSpeechModelLocalEntries,
+  loadSpeechModelFromLocalEntries,
+  encodeMonoPcmToWavBlob,
+} from '@asrjs/speech-recognition/browser';
 import { fetchRandomSample, hasTestSamples, SPEECH_DATASETS } from './utils/speechDatasets';
-import { pickPreferredQuant } from './shared/modelSelection.js';
-import { disposeHubDemoPipeline, loadHubDemoModel } from './shared/modelLoader.js';
-import { DEMO_MODELS, MODEL_OPTIONS } from './shared/modelCatalog.js';
+import { pickPreferredQuant } from '@asrjs/speech-recognition/io';
+import {
+  disposeHubDemoPipeline,
+  loadHubDemoModel,
+} from './shared/modelLoader.js';
 import warmupAudioUrl from './assets/Harvard-L2-1.ogg?url';
 import './App.css';
+
+const DEMO_MODELS = Object.fromEntries(
+  listSpeechModels()
+    .filter((descriptor) => descriptor.loading.repoId)
+    .map((descriptor) => [descriptor.modelId, descriptor]),
+);
+
+const MODEL_OPTIONS = listSpeechModelOptions().filter((option) => option.repoId);
 
 const SETTINGS_STORAGE_KEY = 'asrjs.browser-demo.settings.v2';
 const LOCAL_MODEL_DB_NAME = 'asrjs-browser-demo-local-model';
@@ -356,43 +369,33 @@ async function getCachedAudioFile(url, cacheKey) {
   });
 }
 
-// Convert Float32Array PCM to WAV blob for playback
-function pcmToWavBlob(pcm, sampleRate = 16000) {
-  const numChannels = 1;
-  const bitsPerSample = 16;
-  const byteRate = sampleRate * numChannels * bitsPerSample / 8;
-  const blockAlign = numChannels * bitsPerSample / 8;
-  const dataSize = pcm.length * 2;
-  const buffer = new ArrayBuffer(44 + dataSize);
-  const view = new DataView(buffer);
+function getCanonicalResult(response) {
+  return response?.canonical ?? response ?? null;
+}
 
-  // WAV header
-  const writeString = (offset, str) => {
-    for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
-  };
-  writeString(0, 'RIFF');
-  view.setUint32(4, 36 + dataSize, true);
-  writeString(8, 'WAVE');
-  writeString(12, 'fmt ');
-  view.setUint32(16, 16, true);
-  view.setUint16(20, 1, true);
-  view.setUint16(22, numChannels, true);
-  view.setUint32(24, sampleRate, true);
-  view.setUint32(28, byteRate, true);
-  view.setUint16(32, blockAlign, true);
-  view.setUint16(34, bitsPerSample, true);
-  writeString(36, 'data');
-  view.setUint32(40, dataSize, true);
+function getResultText(response) {
+  return getCanonicalResult(response)?.text ?? '';
+}
 
-  // PCM data
-  let offset = 44;
-  for (let i = 0; i < pcm.length; i++) {
-    const s = Math.max(-1, Math.min(1, pcm[i]));
-    view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
-    offset += 2;
-  }
+function getResultMetrics(response) {
+  return getCanonicalResult(response)?.meta?.metrics ?? null;
+}
 
-  return new Blob([buffer], { type: 'audio/wav' });
+function getResultWordCount(response) {
+  return getCanonicalResult(response)?.words?.length || 0;
+}
+
+function getResultConfidence(response) {
+  const canonical = getCanonicalResult(response);
+  return (
+    canonical?.meta?.averageTokenConfidence ??
+    canonical?.meta?.averageWordConfidence ??
+    canonical?.meta?.averageConfidence ??
+    response?.native?.confidence?.tokenAverage ??
+    response?.native?.confidence?.wordAverage ??
+    response?.native?.confidence?.utterance ??
+    null
+  );
 }
 
 export default function App() {
@@ -561,7 +564,7 @@ export default function App() {
   useEffect(() => {
     const nextEncOptions = modelConfig?.loading?.availableEncoderBackends || ['webgpu', 'wasm'];
     const nextDecOptions = modelConfig?.loading?.availableDecoderBackends || ['webgpu', 'wasm'];
-    const resolvedBackends = resolveBuiltInModelComponentBackends(selectedModel, {
+    const resolvedBackends = resolveSpeechModelComponentBackends(selectedModel, {
       backend,
       encoderBackend,
       decoderBackend,
@@ -663,7 +666,7 @@ export default function App() {
     const revision = modelRevision || getCanonicalRevision(selectedModel);
 
     (async () => {
-      const detected = await detectBuiltInModelRepoQuantizations(selectedModel, { revision });
+      const detected = await detectSpeechModelRepoQuantizations(selectedModel, { revision });
       if (cancelled) return;
       const encOptions = [...detected.encoder];
       const decOptions = [...detected.decoder];
@@ -896,6 +899,13 @@ export default function App() {
     if (nextConfig?.capabilities?.supportsPromptControls) {
       setCanaryTargetLanguage(nextConfig.defaultTargetLanguage || 'en');
     }
+    if (localEntries.length > 0) {
+      applyLocalEntries(localEntries, localFolderName, {
+        modelId: nextModel,
+        modelSource,
+        updateStatus: false,
+      });
+    }
   }
 
   function handleModelSourceChange(nextSource) {
@@ -914,10 +924,17 @@ export default function App() {
         localPreprocessorCount: localPreprocessorOptions.length,
       }),
     );
+    if (localEntries.length > 0) {
+      applyLocalEntries(localEntries, localFolderName, {
+        modelId: selectedModel,
+        modelSource: nextSource,
+        updateStatus: false,
+      });
+    }
   }
 
   function buildTranscriptionOptions() {
-    return buildBuiltInTranscriptionOptions(selectedModel, {
+    return buildSpeechTranscriptionOptions(selectedModel, {
       sourceLanguage: selectedLanguage,
       targetLanguage: effectiveCanaryTargetLanguage,
       task: canaryTask,
@@ -929,12 +946,20 @@ export default function App() {
     });
   }
 
-  function applyLocalEntries(entries, folderName = '') {
+  function applyLocalEntries(
+    entries,
+    folderName = '',
+    {
+      modelId = selectedModel,
+      modelSource: nextModelSource = MODEL_SOURCE_OPTIONS.LOCAL,
+      updateStatus = true,
+    } = {},
+  ) {
     console.log('[LocalFolder] Parsing selected local folder entries…', { count: entries.length, folderName });
     setLocalEntries(entries);
     setLocalFolderName(folderName);
 
-    const inspection = inspectParakeetLocalEntries(entries);
+    const inspection = inspectSpeechModelLocalEntries(modelId, entries);
     const encOptions = [...inspection.encoderQuantizations];
     const decOptions = [...inspection.decoderQuantizations];
     const nextEncOptions = encOptions.length ? encOptions : ['fp32'];
@@ -964,9 +989,9 @@ export default function App() {
       setPreprocessor((current) => (dedupedPreprocessor.includes(current) ? current : dedupedPreprocessor[0]));
     } else {
       setLocalPreprocessorOptions([]);
-      setPreprocessor(getDescriptorDefaultPreprocessorName(selectedModel));
-      if (resolvePreprocessorBackendForSource(selectedModel, preprocessorBackend, {
-        modelSource: MODEL_SOURCE_OPTIONS.LOCAL,
+      setPreprocessor(getDescriptorDefaultPreprocessorName(modelId));
+      if (resolvePreprocessorBackendForSource(modelId, preprocessorBackend, {
+        modelSource: nextModelSource,
         localPreprocessorCount: 0,
       }) !== preprocessorBackend) {
         setPreprocessorBackend('js');
@@ -987,7 +1012,9 @@ export default function App() {
       tokenizers: dedupedTokenizer,
       preprocessors: dedupedPreprocessor,
     });
-    setStatus(`Local folder selected (${entries.length} files)`);
+    if (updateStatus) {
+      setStatus(`Local folder selected (${entries.length} files)`);
+    }
   }
 
   async function restorePersistedLocalFolder({ requestPermission = false } = {}) {
@@ -1017,7 +1044,7 @@ export default function App() {
       }
 
       console.log('[LocalFolder] Restoring persisted directory handle', { name: dirHandle.name });
-      const entries = await collectParakeetLocalEntries(dirHandle);
+      const entries = await collectSpeechModelLocalEntries(dirHandle);
       applyLocalEntries(entries, dirHandle.name || '');
       setNeedsLocalHandleReconnect(false);
       setStatus(`Restored local folder "${dirHandle.name || ''}"`);
@@ -1041,7 +1068,7 @@ export default function App() {
       if (typeof window !== 'undefined' && typeof window.showDirectoryPicker === 'function') {
         const dirHandle = await window.showDirectoryPicker({ mode: 'read' });
         console.log('[LocalFolder] Directory handle acquired', { name: dirHandle.name });
-        const entries = await collectParakeetLocalEntries(dirHandle);
+        const entries = await collectSpeechModelLocalEntries(dirHandle);
         applyLocalEntries(entries, dirHandle.name || '');
         if (localHandlePersistenceSupported) {
           try {
@@ -1074,7 +1101,7 @@ export default function App() {
     const files = Array.from(event.target.files || []);
     if (!files.length) return;
     console.log('[LocalFolder] Folder input fallback selected files', { count: files.length });
-    const entries = createParakeetLocalEntries(files);
+    const entries = createSpeechModelLocalEntries(files);
     const folderName = entries[0]?.path?.split('/')?.[0] || '';
     applyLocalEntries(entries, folderName);
     if (!localHandlePersistenceSupported) {
@@ -1095,7 +1122,7 @@ export default function App() {
     if (!modelRef.current) return;
 
     if (!hasTestSamples(selectedLanguage)) {
-      alert(`No test dataset available for ${getBuiltInModelLanguageName(selectedLanguage)}.`);
+      alert(`No test dataset available for ${getSpeechModelLanguageName(selectedLanguage)}.`);
       return;
     }
 
@@ -1119,7 +1146,7 @@ export default function App() {
       });
 
       // Create audio blob for playback
-      const wavBlob = pcmToWavBlob(sample.pcm, 16000);
+      const wavBlob = encodeMonoPcmToWavBlob(sample.pcm, { sampleRate: 16000 });
       const url = URL.createObjectURL(wavBlob);
       setAudioUrl(url);
       setSampleDownload({
@@ -1137,28 +1164,32 @@ export default function App() {
       setIsTranscribing(true);
 
       console.time('Transcribe-Sample');
-      const res = await modelRef.current.transcribe(sample.pcm, 16000, buildTranscriptionOptions());
+      const res = await modelRef.current.transcribeMonoPcm(
+        sample.pcm,
+        16000,
+        buildTranscriptionOptions(),
+      );
       console.timeEnd('Transcribe-Sample');
 
       if (dumpDetail) {
         console.log('[Dataset] Transcription result:', res);
       }
 
-      setText(res.utterance_text);
-      setLatestMetrics(res.metrics);
+      setText(getResultText(res));
+      setLatestMetrics(getResultMetrics(res));
 
-      const langName = getBuiltInModelLanguageName(selectedLanguage);
+      const langName = getSpeechModelLanguageName(selectedLanguage);
       const datasetName = sample.dataset.split('/').pop();
       const newTranscription = {
         id: Date.now(),
         filename: `${datasetName}-${langName}-#${sample.sampleIndex}`,
-        text: res.utterance_text,
+        text: getResultText(res),
         reference: canCompareAgainstReference ? sample.transcription : '',
         timestamp: new Date().toLocaleTimeString(),
         duration: sample.duration,
-        wordCount: res.words?.length || 0,
-        confidence: res.confidence_scores?.token_avg ?? res.confidence_scores?.word_avg ?? null,
-        metrics: res.metrics,
+        wordCount: getResultWordCount(res),
+        confidence: getResultConfidence(res),
+        metrics: getResultMetrics(res),
         language: res.native?.language ?? selectedLanguage,
         task: supportsCanaryPrompting ? canaryTask : 'asr',
         targetLanguage: supportsCanaryPrompting ? effectiveCanaryTargetLanguage : null,
@@ -1197,8 +1228,9 @@ export default function App() {
         setProgressText('Compiling local model artifacts');
         setProgressPct(null);
 
-        const localLoadResult = await loadParakeetModelFromLocalEntries(localEntries, {
+        const localLoadResult = await loadSpeechModelFromLocalEntries({
           modelId: selectedModel,
+          entries: localEntries,
           encoderBackend,
           decoderBackend,
           encoderQuant,
@@ -1209,7 +1241,7 @@ export default function App() {
           backend,
           verbose: verboseLog,
           cpuThreads,
-          enableProfiling
+          enableProfiling,
         });
 
         console.log('[LocalFolder] Selected artifacts', {
@@ -1219,7 +1251,10 @@ export default function App() {
           preprocessorBackend,
           preprocessor: localLoadResult.selection.preprocessorName ?? null,
         });
-        modelRef.current = localLoadResult.model;
+        modelRef.current = {
+          ...localLoadResult,
+          kind: 'loaded-model',
+        };
         setLoadedFromCache(false);
         console.log('[LocalFolder] Model sessions created from local artifacts');
       } else {
@@ -1319,10 +1354,13 @@ export default function App() {
         const decoded = await audioCtx.decodeAudioData(buf);
         const pcm = decoded.getChannelData(0);
 
-        const { utterance_text } = await modelRef.current.transcribe(pcm, 16000, { enableProfiling });
+        const response = await modelRef.current.transcribeMonoPcm(pcm, 16000, {
+          enableProfiling,
+        });
         const normalize = (str) => str.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
 
-        const normalizedUtterance = normalize(utterance_text);
+        const transcriptText = getResultText(response);
+        const normalizedUtterance = normalize(transcriptText);
         const matchedExpectedText =
           modelConfig?.warmup?.mode === 'non-empty'
             ? normalizedUtterance.length > 0
@@ -1333,7 +1371,7 @@ export default function App() {
           setStatus('Model ready');
           setModelLoaded(true);
         } else {
-          console.error(`[App] Verification failed! Expected one of: "${expectedTexts.join('" | "')}", Got: "${utterance_text}"`);
+          console.error(`[App] Verification failed! Expected one of: "${expectedTexts.join('" | "')}", Got: "${transcriptText}"`);
           setStatus('Verification failed');
           setModelLoaded(false);
           setLoadedFromCache(false);
@@ -1379,30 +1417,34 @@ export default function App() {
       const pcm = decoded.getChannelData(0);
 
       console.time(`Transcribe-${file.name}`);
-      const res = await modelRef.current.transcribe(pcm, 16_000, buildTranscriptionOptions());
+      const res = await modelRef.current.transcribeMonoPcm(
+        pcm,
+        16_000,
+        buildTranscriptionOptions(),
+      );
       console.timeEnd(`Transcribe-${file.name}`);
 
       if (dumpDetail) {
         console.log('[ASRJS Demo] Result:', res);
       }
-      setLatestMetrics(res.metrics);
+      setLatestMetrics(getResultMetrics(res));
 
       const newTranscription = {
         id: Date.now(),
         filename: file.name,
-        text: res.utterance_text,
+        text: getResultText(res),
         timestamp: new Date().toLocaleTimeString(),
         duration: pcm.length / 16000,
-        wordCount: res.words?.length || 0,
-        confidence: res.confidence_scores?.token_avg ?? res.confidence_scores?.word_avg ?? null,
-        metrics: res.metrics,
+        wordCount: getResultWordCount(res),
+        confidence: getResultConfidence(res),
+        metrics: getResultMetrics(res),
         language: res.native?.language ?? selectedLanguage,
         task: supportsCanaryPrompting ? canaryTask : 'asr',
         targetLanguage: supportsCanaryPrompting ? effectiveCanaryTargetLanguage : null,
       };
 
       setTranscriptions(prev => [newTranscription, ...prev]);
-      setText(res.utterance_text);
+      setText(getResultText(res));
       setStatus('Model ready');
 
     } catch (error) {
@@ -1883,7 +1925,7 @@ export default function App() {
                           >
                             {(modelConfig?.languages || []).map((languageCode) => (
                               <option key={languageCode} value={languageCode}>
-                              {getBuiltInModelLanguageName(languageCode)}
+                              {getSpeechModelLanguageName(languageCode)}
                               </option>
                             ))}
                           </select>
@@ -1926,8 +1968,8 @@ export default function App() {
 
                     <div className="mt-3 text-xs text-gray-600 dark:text-gray-300">
                       <strong className="text-gray-900 dark:text-white">Prompt route:</strong>{' '}
-                      {getBuiltInModelLanguageName(selectedLanguage)} audio {'\u2192'}{' '}
-                      {getBuiltInModelLanguageName(effectiveCanaryTargetLanguage)}{' '}
+                      {getSpeechModelLanguageName(selectedLanguage)} audio {'\u2192'}{' '}
+                      {getSpeechModelLanguageName(effectiveCanaryTargetLanguage)}{' '}
                       {canaryTask === 'asr' ? 'transcription' : 'translation'}
                     </div>
                   </div>
@@ -2140,7 +2182,7 @@ export default function App() {
                     disabled={!isModelReady || isLoadingSample || isTranscribing || isDownloadingSample}
                     className="bg-primary hover:bg-opacity-90 text-white font-medium py-2 px-4 rounded-lg whitespace-nowrap shadow-sm transition-all text-sm h-[38px] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isLoadingSample ? 'Loading…' : `Load ${getBuiltInModelLanguageName(selectedLanguage)} Sample`}
+                    {isLoadingSample ? 'Loading…' : `Load ${getSpeechModelLanguageName(selectedLanguage)} Sample`}
                   </button>
                 </div>
               </div>
@@ -2220,8 +2262,8 @@ export default function App() {
                   {isCanaryTranslationMode && (
                     <p className="mt-2 text-xs text-amber-700 dark:text-amber-300">
                       Reference comparison is hidden while Canary is translating from{' '}
-                      {getBuiltInModelLanguageName(selectedLanguage)} to{' '}
-                      {getBuiltInModelLanguageName(effectiveCanaryTargetLanguage)}.
+                      {getSpeechModelLanguageName(selectedLanguage)} to{' '}
+                      {getSpeechModelLanguageName(effectiveCanaryTargetLanguage)}.
                     </p>
                   )}
                 </div>
@@ -2232,9 +2274,9 @@ export default function App() {
                 <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
                   <div className="flex flex-wrap gap-4 text-xs font-mono text-gray-600 dark:text-gray-400">
                     <span><strong className="text-gray-900 dark:text-white">RTF:</strong> {latestMetrics.rtf?.toFixed(2)}x</span>
-                    <span><strong className="text-gray-900 dark:text-white">Total:</strong> {latestMetrics.total_ms?.toFixed(0)}ms</span>
-                    <span><strong className="text-gray-900 dark:text-white">Encode:</strong> {latestMetrics.encode_ms?.toFixed(0)}ms</span>
-                    <span><strong className="text-gray-900 dark:text-white">Decode:</strong> {latestMetrics.decode_ms?.toFixed(0)}ms</span>
+                    <span><strong className="text-gray-900 dark:text-white">Total:</strong> {latestMetrics.totalMs?.toFixed(0)}ms</span>
+                    <span><strong className="text-gray-900 dark:text-white">Encode:</strong> {latestMetrics.encodeMs?.toFixed(0)}ms</span>
+                    <span><strong className="text-gray-900 dark:text-white">Decode:</strong> {latestMetrics.decodeMs?.toFixed(0)}ms</span>
                   </div>
                 </div>
               )}
@@ -2262,7 +2304,7 @@ export default function App() {
                           {trans.filename}
                           {trans.language && (
                             <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
-                              ({getBuiltInModelLanguageName(trans.language)})
+                              ({getSpeechModelLanguageName(trans.language)})
                             </span>
                           )}
                         </span>
@@ -2274,7 +2316,7 @@ export default function App() {
                         {trans.duration.toFixed(1)}s · {trans.wordCount} words
                         {trans.confidence && ` · ${(trans.confidence * 100).toFixed(0)}% conf`}
                         {trans.metrics && ` · RTF ${trans.metrics.rtf?.toFixed(2)}x`}
-                        {trans.targetLanguage && ` · -> ${getBuiltInModelLanguageName(trans.targetLanguage)}`}
+                        {trans.targetLanguage && ` · -> ${getSpeechModelLanguageName(trans.targetLanguage)}`}
                       </div>
                       {trans.reference && (
                         <div className="mb-2 p-2 bg-emerald-50 dark:bg-emerald-900/20 rounded text-sm text-emerald-800 dark:text-emerald-300">

@@ -1,207 +1,89 @@
 # @asrjs/browser-demo
 
-Unified React demo for local `@asrjs/speech-recognition` development and validation.
+Classic file-transcription demo for local `@asrjs/speech-recognition` development.
 
-The demo now uses the centralized ASRJS high-level pipeline API for hosted models, so the same interface can load multiple model families from one UI.
+This app is intentionally focused on the simple browser workflow:
 
-## Model Catalog
+- choose a built-in speech model
+- load a random dataset sample or upload an audio file
+- transcribe it
+- compare the output against reference text
+- optionally load a supported local model folder
 
-### HuggingFace models
+Live microphone streaming and realtime-debug tooling now live in `../streaming-demo`.
 
-The model picker now includes:
+## Scope
 
-- `Parakeet TDT 0.6B v2`
-- `Parakeet TDT 0.6B v3`
-- `Parakeet Realtime EOU 120M v1`
-- `Google MedASR (Medical English)`
+`browser-demo` is the classic app for:
 
-Parakeet and MedASR are loaded through the same `createSpeechPipeline()` path in the library. The demo adapts their results into one shared UI contract for transcription text, timings, confidences, and performance metrics.
+- hosted model loading through the library's high-level built-in pipeline surface
+- browser file upload and dataset sample playback
+- transcript/reference comparison
+- local folder loading for built-in models that support local browser artifacts
 
-The realtime Parakeet RNNT model uses the shared pure-JS NeMo frontend by default. That is the intended integration path for this demo and does not require a separate `nemo80.onnx` or `nemo128.onnx` preprocessor artifact.
+Today, local folder loading is primarily aimed at built-in Parakeet models.
 
-### Local folder models
+## Library Surfaces Used
 
-Local folder loading supports Parakeet-style split artifacts for both TDT and RNNT presets:
+Hosted model loading uses the built-in catalog and high-level pipeline helpers from `@asrjs/speech-recognition`.
 
-- encoder ONNX
-- decoder ONNX
-- tokenizer text file
-- optional frontend ONNX
+Local folder loading uses the browser-local library surface, including:
 
-MedASR is currently exposed in the demo through HuggingFace-hosted artifacts only.
+- `createSpeechModelLocalEntries`
+- `collectSpeechModelLocalEntries`
+- `inspectSpeechModelLocalEntries`
+- `loadSpeechModelFromLocalEntries`
 
-## What's New
-
-- Added **Model Source** switch: `HuggingFace` or `Local folder`.
-- Added multi-model HuggingFace selection through a shared `createSpeechPipeline()` instance.
-- Added MedASR as a selectable hosted model beside the existing Parakeet presets.
-- Added Parakeet Realtime EOU 120M v1 through the shared built-in model catalog.
-- Added visible hosted-load progress phases from runtime callbacks (resolve/download/compile/session ready).
-- Added a `Loaded from cache` badge when a hosted model is reused from pipeline cache.
-- Added local-folder model loading from browser-selected files.
-- Added local folder artifact detection (encoder/decoder quant modes, tokenizer files, optional frontend ONNX artifacts).
-- Added persisted local folder handle restore (where browser permissions allow it).
-- Added automatic fallback of preprocessor backend from ONNX to JS when local `nemo*.onnx` is not present.
-- Added model-aware JS-first frontend defaults so RNNT models do not assume `nemo128.onnx`.
-- Added stronger local blob URL cleanup on failure paths.
-
-## High-Level API Example
-
-Hosted model loading in the demo is intentionally model-agnostic. It keeps one pipeline instance and lets the runtime reuse loaded models across model switches:
-
-```js
-import { createSpeechPipeline, PcmAudioBuffer } from '@asrjs/speech-recognition';
-
-const pipeline = createSpeechPipeline({ cacheModels: true });
-
-const loaded = await pipeline.loadModel({
-  modelId: 'parakeet-realtime-eou-120m-v1', // or 'parakeet-tdt-0.6b-v3', 'google/medasr'
-  backend: 'wasm',
-});
-
-const response = await loaded.transcribe(PcmAudioBuffer.fromMono(pcm, 16000), {
-  responseFlavor: 'canonical+native',
-  detail: 'detailed',
-});
-
-console.log(response.canonical.text);
-```
+That keeps local artifact inspection and loading in the library rather than buried in demo-only app code.
 
 ## Quick Start
 
 ```bash
 cd browser-demo
 npm install
+npm run dev
 ```
 
-## Development Modes
-
-### Local Source Mode
+## Local Library Development
 
 ```bash
 npm run dev:local
 ```
 
-Runs against the sibling `speech-recognition` source tree through the Vite aliases in `vite.config.js`.
+The Vite config aliases `@asrjs/speech-recognition` to the sibling source tree so changes in the library are exercised directly in the demo.
 
-Use this for library development and pre-publish validation.
+## Main Flows
 
-### NPM Package Mode
+### Hosted Models
 
-```bash
-npm run dev
-```
+- select a built-in model
+- load it from Hugging Face
+- transcribe dataset samples or uploaded files
 
-Currently this demo also resolves to the local `speech-recognition` source tree.
+### Local Folder Models
 
-That is fine while the package is still being iterated locally. Once `@asrjs/speech-recognition` is published, `dev` can be switched to the installed package path if needed.
+- choose a local folder with compatible model artifacts
+- inspect available quantizations, tokenizer files, and optional preprocessors
+- load the model directly from browser-managed file handles
 
-## Model Sources in UI
+## What This Demo Is Not
 
-### HuggingFace
+`browser-demo` is no longer the place for:
 
-- Select model in the UI.
-- Demo uses pinned or manifest-defined revisions per model.
-- Hosted models share one loading surface in the UI even when their internal architectures differ.
+- live microphone streaming
+- realtime speech-segmentation tuning
+- TEN-VAD debugging
+- waveform/debug HUD work
 
-Canonical branches are pinned in code:
-- `parakeet-tdt-0.6b-v2` -> `feat/fp16-canonical-v2`
-- `parakeet-tdt-0.6b-v3` -> `feat/fp16-canonical-v3`
-
-MedASR is resolved through the library preset manifest and loaded from its configured HuggingFace artifact source.
-
-Parakeet Realtime EOU 120M v1 is resolved through `ysdede/parakeet-realtime-eou-120m-v1-onnx` and defaults to the shared JS frontend path.
-
-### Local Folder
-
-- Pick a folder containing local model artifacts.
-- This mode targets Parakeet split artifacts, including RNNT packages like `parakeet-realtime-eou-120m-v1`.
-- Expected minimum artifacts:
-  - encoder ONNX (e.g. `encoder-model.onnx` or quantized variants)
-  - decoder ONNX (e.g. `decoder_joint-model.onnx` or quantized variants)
-- tokenizer text file (`vocab.txt`)
-- Optional:
-  - frontend ONNX (`nemo128.onnx` / `nemo80.onnx`)
-  - external ONNX data files (`*.data`)
-
-If no local `nemo*.onnx` is found, the demo automatically switches frontend backend to JS. This is expected for newer NeMo model ports.
-
-### Folder Access Persistence
-
-- On supported browsers, selected folder access can be persisted and restored.
-- If permission is not granted on revisit, the UI offers **Restore Saved Folder**.
-- On unsupported browsers, users must re-select the folder next visit.
-
-## Version Display
-
-Header shows the active `@asrjs/speech-recognition` source/version:
-
-- Local mode: repo version (with short commit hash when available).
-- Package mode later: installed package version when that path is introduced.
+Use `../streaming-demo` for those flows.
 
 ## Build
 
 ```bash
 npm run build
-npm run build:local
 ```
 
-## Deployment
+## Notes
 
-### HuggingFace Spaces
-
-Run:
-
-```bash
-node scripts/deploy-to-hf.js
-```
-
-This script builds and pushes demo artifacts using the space template config.
-
-### GitHub Pages
-
-Automated with GitHub Actions (local-source build path).
-
-Manual trigger:
-
-```bash
-gh workflow run deploy-gh-pages.yml
-```
-
-## Cross-Origin Isolation
-
-Required for `SharedArrayBuffer` / multithreaded WASM.
-
-- Local dev server sets COOP/COEP headers.
-- HF Spaces headers are configured in `space_template/README.md`.
-- GitHub Pages uses `public/coi-serviceworker.js`.
-
-## Troubleshooting
-
-### SharedArrayBuffer unavailable
-
-- Local: verify dev server is used and headers are present.
-- HF Spaces: verify custom headers in space template.
-- GitHub Pages: ensure `coi-serviceworker.js` is deployed.
-
-### Local folder model fails to load
-
-- Check required encoder/decoder/tokenizer files exist.
-- Confirm selected quantization exists in your folder.
-- If using ONNX frontend, confirm `nemo*.onnx` exists; otherwise use the JS frontend.
-
-### Realtime Parakeet uses JS frontend by default
-
-- Expected today. `parakeet-realtime-eou-120m-v1` is configured to use the shared JS NeMo mel frontend.
-- Do not assume a hosted `nemo80.onnx` or `nemo128.onnx` exists for this model.
-- In local-folder mode, ONNX frontend selection is only useful if you explicitly add a compatible `nemo*.onnx` artifact yourself.
-
-### MedASR is not offered in Local folder mode
-
-- Expected today. The demo currently exposes MedASR through HuggingFace-hosted artifacts only.
-- Use `Model Source = HuggingFace` and pick `Google MedASR (Medical English)`.
-
-### Model load memory pressure
-
-- Close extra tabs/processes.
-- Prefer smaller quant modes (`fp16`/`int8`) where possible.
+- The app still includes the COI service-worker bootstrap used for static hosting where cross-origin isolation headers are not available directly.
+- Classic file transcription stays intentionally simpler than the kitchen-sink app in `../playground`.
