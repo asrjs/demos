@@ -408,6 +408,35 @@ function pcmToWavBlob(pcm, sampleRate = 16000) {
   return new Blob([buffer], { type: 'audio/wav' });
 }
 
+function getCanonicalResult(response) {
+  return response?.canonical ?? response ?? null;
+}
+
+function getResultText(response) {
+  return getCanonicalResult(response)?.text ?? '';
+}
+
+function getResultMetrics(response) {
+  return getCanonicalResult(response)?.meta?.metrics ?? null;
+}
+
+function getResultWordCount(response) {
+  return getCanonicalResult(response)?.words?.length || 0;
+}
+
+function getResultConfidence(response) {
+  const canonical = getCanonicalResult(response);
+  return (
+    canonical?.meta?.averageTokenConfidence ??
+    canonical?.meta?.averageWordConfidence ??
+    canonical?.meta?.averageConfidence ??
+    response?.native?.confidence?.tokenAverage ??
+    response?.native?.confidence?.wordAverage ??
+    response?.native?.confidence?.utterance ??
+    null
+  );
+}
+
 export default function App() {
   const initialSettings = loadSettings();
   const initialSelectedModel = initialSettings.selectedModel;
@@ -1157,21 +1186,21 @@ export default function App() {
         console.log('[Dataset] Transcription result:', res);
       }
 
-      setText(res.utterance_text);
-      setLatestMetrics(res.metrics);
+      setText(getResultText(res));
+      setLatestMetrics(getResultMetrics(res));
 
       const langName = getSpeechModelLanguageName(selectedLanguage);
       const datasetName = sample.dataset.split('/').pop();
       const newTranscription = {
         id: Date.now(),
         filename: `${datasetName}-${langName}-#${sample.sampleIndex}`,
-        text: res.utterance_text,
+        text: getResultText(res),
         reference: canCompareAgainstReference ? sample.transcription : '',
         timestamp: new Date().toLocaleTimeString(),
         duration: sample.duration,
-        wordCount: res.words?.length || 0,
-        confidence: res.confidence_scores?.token_avg ?? res.confidence_scores?.word_avg ?? null,
-        metrics: res.metrics,
+        wordCount: getResultWordCount(res),
+        confidence: getResultConfidence(res),
+        metrics: getResultMetrics(res),
         language: res.native?.language ?? selectedLanguage,
         task: supportsCanaryPrompting ? canaryTask : 'asr',
         targetLanguage: supportsCanaryPrompting ? effectiveCanaryTargetLanguage : null,
@@ -1333,10 +1362,11 @@ export default function App() {
         const decoded = await audioCtx.decodeAudioData(buf);
         const pcm = decoded.getChannelData(0);
 
-        const { utterance_text } = await modelRef.current.transcribe(pcm, 16000, { enableProfiling });
+        const response = await modelRef.current.transcribe(pcm, 16000, { enableProfiling });
         const normalize = (str) => str.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
 
-        const normalizedUtterance = normalize(utterance_text);
+        const transcriptText = getResultText(response);
+        const normalizedUtterance = normalize(transcriptText);
         const matchedExpectedText =
           modelConfig?.warmup?.mode === 'non-empty'
             ? normalizedUtterance.length > 0
@@ -1347,7 +1377,7 @@ export default function App() {
           setStatus('Model ready');
           setModelLoaded(true);
         } else {
-          console.error(`[App] Verification failed! Expected one of: "${expectedTexts.join('" | "')}", Got: "${utterance_text}"`);
+          console.error(`[App] Verification failed! Expected one of: "${expectedTexts.join('" | "')}", Got: "${transcriptText}"`);
           setStatus('Verification failed');
           setModelLoaded(false);
           setLoadedFromCache(false);
@@ -1399,24 +1429,24 @@ export default function App() {
       if (dumpDetail) {
         console.log('[ASRJS Demo] Result:', res);
       }
-      setLatestMetrics(res.metrics);
+      setLatestMetrics(getResultMetrics(res));
 
       const newTranscription = {
         id: Date.now(),
         filename: file.name,
-        text: res.utterance_text,
+        text: getResultText(res),
         timestamp: new Date().toLocaleTimeString(),
         duration: pcm.length / 16000,
-        wordCount: res.words?.length || 0,
-        confidence: res.confidence_scores?.token_avg ?? res.confidence_scores?.word_avg ?? null,
-        metrics: res.metrics,
+        wordCount: getResultWordCount(res),
+        confidence: getResultConfidence(res),
+        metrics: getResultMetrics(res),
         language: res.native?.language ?? selectedLanguage,
         task: supportsCanaryPrompting ? canaryTask : 'asr',
         targetLanguage: supportsCanaryPrompting ? effectiveCanaryTargetLanguage : null,
       };
 
       setTranscriptions(prev => [newTranscription, ...prev]);
-      setText(res.utterance_text);
+      setText(getResultText(res));
       setStatus('Model ready');
 
     } catch (error) {
@@ -2246,9 +2276,9 @@ export default function App() {
                 <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
                   <div className="flex flex-wrap gap-4 text-xs font-mono text-gray-600 dark:text-gray-400">
                     <span><strong className="text-gray-900 dark:text-white">RTF:</strong> {latestMetrics.rtf?.toFixed(2)}x</span>
-                    <span><strong className="text-gray-900 dark:text-white">Total:</strong> {latestMetrics.total_ms?.toFixed(0)}ms</span>
-                    <span><strong className="text-gray-900 dark:text-white">Encode:</strong> {latestMetrics.encode_ms?.toFixed(0)}ms</span>
-                    <span><strong className="text-gray-900 dark:text-white">Decode:</strong> {latestMetrics.decode_ms?.toFixed(0)}ms</span>
+                    <span><strong className="text-gray-900 dark:text-white">Total:</strong> {latestMetrics.totalMs?.toFixed(0)}ms</span>
+                    <span><strong className="text-gray-900 dark:text-white">Encode:</strong> {latestMetrics.encodeMs?.toFixed(0)}ms</span>
+                    <span><strong className="text-gray-900 dark:text-white">Decode:</strong> {latestMetrics.decodeMs?.toFixed(0)}ms</span>
                   </div>
                 </div>
               )}
