@@ -1,0 +1,187 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ========================================
+   ASRJS Streaming Demo - Custom Styles
+   ======================================== */
+
+:root {
+  --demo-font-body: "IBM Plex Sans", sans-serif;
+  --demo-font-display: "Sora", sans-serif;
+}
+
+/* Toggle switch styles */
+.toggle-checkbox:checked {
+  right: 0;
+  border-color: #10b981;
+}
+
+.toggle-checkbox:checked + .toggle-label {
+  background-color: #10b981;
+}
+
+/* Remove native select arrow so custom expand_more icon is the only one */
+select,
+select.appearance-none {
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  background-image: none;
+}
+select::-ms-expand {
+  display: none;
+}
+
+/* Smooth transitions */
+input,
+select,
+textarea {
+  transition: all 0.2s ease-in-out;
+}
+
+body {
+  font-family: var(--demo-font-body);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.font-display {
+  font-family: var(--demo-font-display);
+}
+
+.dashboard-mesh,
+.dashboard-grid-overlay {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+}
+
+.dashboard-mesh {
+  background:
+    radial-gradient(circle at top left, rgba(16, 185, 129, 0.18), transparent 28%),
+    radial-gradient(circle at 85% 15%, rgba(14, 165, 233, 0.16), transparent 24%),
+    radial-gradient(circle at 50% 100%, rgba(56, 189, 248, 0.12), transparent 30%);
+  filter: blur(18px);
+  opacity: 0.95;
+}
+
+.dashboard-grid-overlay {
+  background-image:
+    linear-gradient(rgba(15, 23, 42, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.045) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.58), transparent 95%);
+}
+
+.dark .dashboard-grid-overlay {
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+}
+
+/* Custom scrollbar for dark mode */
+.dark ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Waveform animation */
+@keyframes pulse-wave {
+  0%, 100% {
+    transform: scaleY(0.5);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.wave-bar {
+  animation: pulse-wave 1s ease-in-out infinite;
+}
+
+/* Loading spinner */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* File input styling */
+input[type="file"]::file-selector-button {
+  padding: 0.5rem 1rem;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+input[type="file"]::file-selector-button:hover {
+  background: #059669;
+}
+
+.streaming-debug-hud {
+  max-height: none;
+  min-height: 360px;
+}
+
+.streaming-debug-hud::-webkit-scrollbar {
+  width: 8px;
+}
+
+.streaming-debug-hud::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 999px;
+}
+
+.streaming-waveform-canvas {
+  image-rendering: crisp-edges;
+}
+
+.streaming-debug-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(320px, 0.9fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.streaming-log-list {
+  max-height: 320px;
+}
+
+.streaming-control-list {
+  max-height: 520px;
+}
+
+@media (max-width: 900px) {
+  .streaming-debug-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .streaming-log-list {
+    max-height: 200px;
+  }
+
+  .streaming-control-list {
+    max-height: 320px;
+  }
+}
