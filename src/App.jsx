@@ -12,11 +12,11 @@ import {
   createSpeechModelLocalEntries,
   inspectSpeechModelLocalEntries,
   loadSpeechModelFromLocalEntries,
+  encodeMonoPcmToWavBlob,
 } from '@asrjs/speech-recognition/browser';
 import { fetchRandomSample, hasTestSamples, SPEECH_DATASETS } from './utils/speechDatasets';
 import { pickPreferredQuant } from '@asrjs/speech-recognition/io';
 import {
-  createDemoSpeechModelAdapter,
   disposeHubDemoPipeline,
   loadHubDemoModel,
 } from './shared/modelLoader.js';
@@ -367,45 +367,6 @@ async function getCachedAudioFile(url, cacheKey) {
       }
     };
   });
-}
-
-// Convert Float32Array PCM to WAV blob for playback
-function pcmToWavBlob(pcm, sampleRate = 16000) {
-  const numChannels = 1;
-  const bitsPerSample = 16;
-  const byteRate = sampleRate * numChannels * bitsPerSample / 8;
-  const blockAlign = numChannels * bitsPerSample / 8;
-  const dataSize = pcm.length * 2;
-  const buffer = new ArrayBuffer(44 + dataSize);
-  const view = new DataView(buffer);
-
-  // WAV header
-  const writeString = (offset, str) => {
-    for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
-  };
-  writeString(0, 'RIFF');
-  view.setUint32(4, 36 + dataSize, true);
-  writeString(8, 'WAVE');
-  writeString(12, 'fmt ');
-  view.setUint32(16, 16, true);
-  view.setUint16(20, 1, true);
-  view.setUint16(22, numChannels, true);
-  view.setUint32(24, sampleRate, true);
-  view.setUint32(28, byteRate, true);
-  view.setUint16(32, blockAlign, true);
-  view.setUint16(34, bitsPerSample, true);
-  writeString(36, 'data');
-  view.setUint32(40, dataSize, true);
-
-  // PCM data
-  let offset = 44;
-  for (let i = 0; i < pcm.length; i++) {
-    const s = Math.max(-1, Math.min(1, pcm[i]));
-    view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
-    offset += 2;
-  }
-
-  return new Blob([buffer], { type: 'audio/wav' });
 }
 
 function getCanonicalResult(response) {
@@ -938,6 +899,13 @@ export default function App() {
     if (nextConfig?.capabilities?.supportsPromptControls) {
       setCanaryTargetLanguage(nextConfig.defaultTargetLanguage || 'en');
     }
+    if (localEntries.length > 0) {
+      applyLocalEntries(localEntries, localFolderName, {
+        modelId: nextModel,
+        modelSource,
+        updateStatus: false,
+      });
+    }
   }
 
   function handleModelSourceChange(nextSource) {
@@ -956,6 +924,13 @@ export default function App() {
         localPreprocessorCount: localPreprocessorOptions.length,
       }),
     );
+    if (localEntries.length > 0) {
+      applyLocalEntries(localEntries, localFolderName, {
+        modelId: selectedModel,
+        modelSource: nextSource,
+        updateStatus: false,
+      });
+    }
   }
 
   function buildTranscriptionOptions() {
@@ -971,12 +946,20 @@ export default function App() {
     });
   }
 
-  function applyLocalEntries(entries, folderName = '') {
+  function applyLocalEntries(
+    entries,
+    folderName = '',
+    {
+      modelId = selectedModel,
+      modelSource: nextModelSource = MODEL_SOURCE_OPTIONS.LOCAL,
+      updateStatus = true,
+    } = {},
+  ) {
     console.log('[LocalFolder] Parsing selected local folder entries…', { count: entries.length, folderName });
     setLocalEntries(entries);
     setLocalFolderName(folderName);
 
-    const inspection = inspectSpeechModelLocalEntries(selectedModel, entries);
+    const inspection = inspectSpeechModelLocalEntries(modelId, entries);
     const encOptions = [...inspection.encoderQuantizations];
     const decOptions = [...inspection.decoderQuantizations];
     const nextEncOptions = encOptions.length ? encOptions : ['fp32'];
@@ -1006,9 +989,9 @@ export default function App() {
       setPreprocessor((current) => (dedupedPreprocessor.includes(current) ? current : dedupedPreprocessor[0]));
     } else {
       setLocalPreprocessorOptions([]);
-      setPreprocessor(getDescriptorDefaultPreprocessorName(selectedModel));
-      if (resolvePreprocessorBackendForSource(selectedModel, preprocessorBackend, {
-        modelSource: MODEL_SOURCE_OPTIONS.LOCAL,
+      setPreprocessor(getDescriptorDefaultPreprocessorName(modelId));
+      if (resolvePreprocessorBackendForSource(modelId, preprocessorBackend, {
+        modelSource: nextModelSource,
         localPreprocessorCount: 0,
       }) !== preprocessorBackend) {
         setPreprocessorBackend('js');
@@ -1029,7 +1012,9 @@ export default function App() {
       tokenizers: dedupedTokenizer,
       preprocessors: dedupedPreprocessor,
     });
-    setStatus(`Local folder selected (${entries.length} files)`);
+    if (updateStatus) {
+      setStatus(`Local folder selected (${entries.length} files)`);
+    }
   }
 
   async function restorePersistedLocalFolder({ requestPermission = false } = {}) {
@@ -1161,7 +1146,7 @@ export default function App() {
       });
 
       // Create audio blob for playback
-      const wavBlob = pcmToWavBlob(sample.pcm, 16000);
+      const wavBlob = encodeMonoPcmToWavBlob(sample.pcm, { sampleRate: 16000 });
       const url = URL.createObjectURL(wavBlob);
       setAudioUrl(url);
       setSampleDownload({
@@ -1179,7 +1164,11 @@ export default function App() {
       setIsTranscribing(true);
 
       console.time('Transcribe-Sample');
-      const res = await modelRef.current.transcribe(sample.pcm, 16000, buildTranscriptionOptions());
+      const res = await modelRef.current.transcribeMonoPcm(
+        sample.pcm,
+        16000,
+        buildTranscriptionOptions(),
+      );
       console.timeEnd('Transcribe-Sample');
 
       if (dumpDetail) {
@@ -1262,7 +1251,10 @@ export default function App() {
           preprocessorBackend,
           preprocessor: localLoadResult.selection.preprocessorName ?? null,
         });
-        modelRef.current = createDemoSpeechModelAdapter(localLoadResult);
+        modelRef.current = {
+          ...localLoadResult,
+          kind: 'loaded-model',
+        };
         setLoadedFromCache(false);
         console.log('[LocalFolder] Model sessions created from local artifacts');
       } else {
@@ -1362,7 +1354,9 @@ export default function App() {
         const decoded = await audioCtx.decodeAudioData(buf);
         const pcm = decoded.getChannelData(0);
 
-        const response = await modelRef.current.transcribe(pcm, 16000, { enableProfiling });
+        const response = await modelRef.current.transcribeMonoPcm(pcm, 16000, {
+          enableProfiling,
+        });
         const normalize = (str) => str.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
 
         const transcriptText = getResultText(response);
@@ -1423,7 +1417,11 @@ export default function App() {
       const pcm = decoded.getChannelData(0);
 
       console.time(`Transcribe-${file.name}`);
-      const res = await modelRef.current.transcribe(pcm, 16_000, buildTranscriptionOptions());
+      const res = await modelRef.current.transcribeMonoPcm(
+        pcm,
+        16_000,
+        buildTranscriptionOptions(),
+      );
       console.timeEnd(`Transcribe-${file.name}`);
 
       if (dumpDetail) {

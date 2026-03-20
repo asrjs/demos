@@ -1,5 +1,4 @@
 import {
-  PcmAudioBuffer,
   buildSpeechModelLoadOptions,
   createSpeechPipeline,
   getSpeechModelDescriptor,
@@ -15,37 +14,6 @@ const hubPipeline = createSpeechPipeline({
     },
   },
 });
-
-export function createDemoSpeechModelAdapter(loaded, options = {}) {
-  const cacheKey = options.cacheKey ?? null;
-  const cacheManaged = options.cacheManaged ?? false;
-
-  return {
-    kind: cacheManaged ? 'hub-pipeline' : 'loaded-model',
-    cacheKey,
-    info: loaded.model.info,
-    async transcribe(pcm, sampleRate, options = {}) {
-      return await loaded.transcribe(PcmAudioBuffer.fromMono(pcm, sampleRate), {
-        detail: 'detailed',
-        responseFlavor: 'canonical+native',
-        ...options,
-      });
-    },
-    async dispose() {
-      if (cacheManaged) {
-        // Hub models are cached at pipeline level for reuse across model switches.
-        return undefined;
-      }
-      await loaded.dispose();
-    },
-    async evict() {
-      if (!cacheKey) {
-        return;
-      }
-      await hubPipeline.disposeModel(cacheKey);
-    },
-  };
-}
 
 function buildHubCacheKey(modelConfig, options) {
   const optionSignature = JSON.stringify(options.options?.source ?? {});
@@ -97,10 +65,14 @@ export async function loadHubDemoModel({
     });
 
     return {
-      model: createDemoSpeechModelAdapter(loaded, {
+      model: {
+        ...loaded,
+        kind: 'hub-pipeline',
         cacheKey,
-        cacheManaged: true,
-      }),
+        async evict() {
+          await hubPipeline.disposeModel(cacheKey);
+        },
+      },
       info: loaded.model.info,
       fromCache: wasCached,
       cacheKey,
