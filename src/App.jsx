@@ -1,26 +1,35 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
+  buildSpeechTranscriptionOptions,
+  detectSpeechModelRepoQuantizations,
+  getSpeechModelLanguageName,
+  listSpeechModelOptions,
+  listSpeechModels,
+  resolveSpeechModelComponentBackends,
+} from '@asrjs/speech-recognition';
+import {
   collectSpeechModelLocalEntries,
   createSpeechModelLocalEntries,
   inspectSpeechModelLocalEntries,
   loadSpeechModelFromLocalEntries,
 } from '@asrjs/speech-recognition/browser';
-import {
-  buildBuiltInTranscriptionOptions,
-  detectBuiltInModelRepoQuantizations,
-  getBuiltInModelLanguageName,
-  resolveBuiltInModelComponentBackends,
-} from '@asrjs/speech-recognition/presets';
 import { fetchRandomSample, hasTestSamples, SPEECH_DATASETS } from './utils/speechDatasets';
-import { pickPreferredQuant } from './shared/modelSelection.js';
+import { pickPreferredQuant } from '@asrjs/speech-recognition/io';
 import {
   createDemoSpeechModelAdapter,
   disposeHubDemoPipeline,
   loadHubDemoModel,
 } from './shared/modelLoader.js';
-import { DEMO_MODELS, MODEL_OPTIONS } from './shared/modelCatalog.js';
 import warmupAudioUrl from './assets/Harvard-L2-1.ogg?url';
 import './App.css';
+
+const DEMO_MODELS = Object.fromEntries(
+  listSpeechModels()
+    .filter((descriptor) => descriptor.loading.repoId)
+    .map((descriptor) => [descriptor.modelId, descriptor]),
+);
+
+const MODEL_OPTIONS = listSpeechModelOptions().filter((option) => option.repoId);
 
 const SETTINGS_STORAGE_KEY = 'asrjs.browser-demo.settings.v2';
 const LOCAL_MODEL_DB_NAME = 'asrjs-browser-demo-local-model';
@@ -565,7 +574,7 @@ export default function App() {
   useEffect(() => {
     const nextEncOptions = modelConfig?.loading?.availableEncoderBackends || ['webgpu', 'wasm'];
     const nextDecOptions = modelConfig?.loading?.availableDecoderBackends || ['webgpu', 'wasm'];
-    const resolvedBackends = resolveBuiltInModelComponentBackends(selectedModel, {
+    const resolvedBackends = resolveSpeechModelComponentBackends(selectedModel, {
       backend,
       encoderBackend,
       decoderBackend,
@@ -667,7 +676,7 @@ export default function App() {
     const revision = modelRevision || getCanonicalRevision(selectedModel);
 
     (async () => {
-      const detected = await detectBuiltInModelRepoQuantizations(selectedModel, { revision });
+      const detected = await detectSpeechModelRepoQuantizations(selectedModel, { revision });
       if (cancelled) return;
       const encOptions = [...detected.encoder];
       const decOptions = [...detected.decoder];
@@ -921,7 +930,7 @@ export default function App() {
   }
 
   function buildTranscriptionOptions() {
-    return buildBuiltInTranscriptionOptions(selectedModel, {
+    return buildSpeechTranscriptionOptions(selectedModel, {
       sourceLanguage: selectedLanguage,
       targetLanguage: effectiveCanaryTargetLanguage,
       task: canaryTask,
@@ -1099,7 +1108,7 @@ export default function App() {
     if (!modelRef.current) return;
 
     if (!hasTestSamples(selectedLanguage)) {
-      alert(`No test dataset available for ${getBuiltInModelLanguageName(selectedLanguage)}.`);
+      alert(`No test dataset available for ${getSpeechModelLanguageName(selectedLanguage)}.`);
       return;
     }
 
@@ -1151,7 +1160,7 @@ export default function App() {
       setText(res.utterance_text);
       setLatestMetrics(res.metrics);
 
-      const langName = getBuiltInModelLanguageName(selectedLanguage);
+      const langName = getSpeechModelLanguageName(selectedLanguage);
       const datasetName = sample.dataset.split('/').pop();
       const newTranscription = {
         id: Date.now(),
@@ -1888,7 +1897,7 @@ export default function App() {
                           >
                             {(modelConfig?.languages || []).map((languageCode) => (
                               <option key={languageCode} value={languageCode}>
-                              {getBuiltInModelLanguageName(languageCode)}
+                              {getSpeechModelLanguageName(languageCode)}
                               </option>
                             ))}
                           </select>
@@ -1931,8 +1940,8 @@ export default function App() {
 
                     <div className="mt-3 text-xs text-gray-600 dark:text-gray-300">
                       <strong className="text-gray-900 dark:text-white">Prompt route:</strong>{' '}
-                      {getBuiltInModelLanguageName(selectedLanguage)} audio {'\u2192'}{' '}
-                      {getBuiltInModelLanguageName(effectiveCanaryTargetLanguage)}{' '}
+                      {getSpeechModelLanguageName(selectedLanguage)} audio {'\u2192'}{' '}
+                      {getSpeechModelLanguageName(effectiveCanaryTargetLanguage)}{' '}
                       {canaryTask === 'asr' ? 'transcription' : 'translation'}
                     </div>
                   </div>
@@ -2145,7 +2154,7 @@ export default function App() {
                     disabled={!isModelReady || isLoadingSample || isTranscribing || isDownloadingSample}
                     className="bg-primary hover:bg-opacity-90 text-white font-medium py-2 px-4 rounded-lg whitespace-nowrap shadow-sm transition-all text-sm h-[38px] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isLoadingSample ? 'Loading…' : `Load ${getBuiltInModelLanguageName(selectedLanguage)} Sample`}
+                    {isLoadingSample ? 'Loading…' : `Load ${getSpeechModelLanguageName(selectedLanguage)} Sample`}
                   </button>
                 </div>
               </div>
@@ -2225,8 +2234,8 @@ export default function App() {
                   {isCanaryTranslationMode && (
                     <p className="mt-2 text-xs text-amber-700 dark:text-amber-300">
                       Reference comparison is hidden while Canary is translating from{' '}
-                      {getBuiltInModelLanguageName(selectedLanguage)} to{' '}
-                      {getBuiltInModelLanguageName(effectiveCanaryTargetLanguage)}.
+                      {getSpeechModelLanguageName(selectedLanguage)} to{' '}
+                      {getSpeechModelLanguageName(effectiveCanaryTargetLanguage)}.
                     </p>
                   )}
                 </div>
@@ -2267,7 +2276,7 @@ export default function App() {
                           {trans.filename}
                           {trans.language && (
                             <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
-                              ({getBuiltInModelLanguageName(trans.language)})
+                              ({getSpeechModelLanguageName(trans.language)})
                             </span>
                           )}
                         </span>
@@ -2279,7 +2288,7 @@ export default function App() {
                         {trans.duration.toFixed(1)}s · {trans.wordCount} words
                         {trans.confidence && ` · ${(trans.confidence * 100).toFixed(0)}% conf`}
                         {trans.metrics && ` · RTF ${trans.metrics.rtf?.toFixed(2)}x`}
-                        {trans.targetLanguage && ` · -> ${getBuiltInModelLanguageName(trans.targetLanguage)}`}
+                        {trans.targetLanguage && ` · -> ${getSpeechModelLanguageName(trans.targetLanguage)}`}
                       </div>
                       {trans.reference && (
                         <div className="mb-2 p-2 bg-emerald-50 dark:bg-emerald-900/20 rounded text-sm text-emerald-800 dark:text-emerald-300">

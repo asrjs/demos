@@ -2,8 +2,8 @@ import {
   PcmAudioBuffer,
   buildSpeechModelLoadOptions,
   createSpeechPipeline,
+  getSpeechModelDescriptor,
 } from '@asrjs/speech-recognition';
-import { getDemoModelConfig } from './modelCatalog.js';
 
 let activeHubProgressCallback = null;
 
@@ -137,7 +137,7 @@ export async function loadHubDemoModel({
   enableProfiling,
   onProgress,
 }) {
-  const modelConfig = getDemoModelConfig(modelId);
+  const modelConfig = getSpeechModelDescriptor(modelId);
   if (!modelConfig) {
     throw new Error(`Unknown demo model "${modelId}".`);
   }
