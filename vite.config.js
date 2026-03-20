@@ -47,6 +47,7 @@ export default defineConfig({
       // Allow serving files from the repo root (needed for PARAKEET_LOCAL mode).
       allow: [
         searchForWorkspaceRoot(process.cwd()),
+        repoRoot,
       ],
     },
   },

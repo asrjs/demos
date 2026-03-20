@@ -39,15 +39,20 @@ export function createTranscriptionRecordFromResult({
   timestamp,
   id,
 }) {
+  const canonical = result?.canonical ?? result ?? null;
   return createTranscriptionRecord({
     id: id ?? Date.now() + Math.random(),
     filename,
-    text: result?.utterance_text ?? '',
+    text: canonical?.text ?? '',
     timestamp,
     duration,
-    wordCount: result?.words?.length || 0,
-    confidence: result?.confidence_scores?.token_avg ?? result?.confidence_scores?.word_avg ?? null,
-    metrics: result?.metrics,
+    wordCount: canonical?.words?.length || 0,
+    confidence:
+      canonical?.meta?.averageTokenConfidence ??
+      canonical?.meta?.averageWordConfidence ??
+      canonical?.meta?.averageConfidence ??
+      null,
+    metrics: canonical?.meta?.metrics ?? null,
     language: result?.native?.language ?? language,
     task,
     targetLanguage,

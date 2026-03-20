@@ -6,7 +6,7 @@ import {
   mergeStreamingConfig,
   resolveDefaultMicMode,
   resolveStreamingProfileId,
-} from './presets.js';
+} from '@asrjs/speech-recognition/realtime';
 
 const STORAGE_KEY = 'asrjs-streaming-demo-streaming-mic-settings';
 const STORAGE_VERSION = 3;

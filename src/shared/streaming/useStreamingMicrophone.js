@@ -1,7 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { startMicrophoneCapture as startBrowserMicrophoneCapture } from '@asrjs/speech-recognition/browser';
-import { StreamingSpeechDetector } from './detector.js';
-import { listStreamingPresets } from './presets.js';
+import {
+  createBrowserRealtimeStarter,
+  startMicrophoneCapture as startBrowserMicrophoneCapture,
+  STREAMING_PROCESSING_SAMPLE_RATE,
+  STREAMING_TIMELINE_CHUNK_FRAMES,
+  STREAMING_TIMELINE_CHUNK_MS,
+} from '@asrjs/speech-recognition/browser';
+import { listStreamingPresets } from '@asrjs/speech-recognition/realtime';
 import { usePersistentStreamingSettings } from './usePersistentStreamingSettings.js';
 
 function concatFloat32Chunks(chunks) {
@@ -13,16 +18,6 @@ function concatFloat32Chunks(chunks) {
     offset += chunk.length;
   }
   return result;
-}
-
-function resolveTargetChunkSize(config) {
-  const windowMs = config?.analysisWindowMs ?? 80;
-  const targetFrames = Math.max(256, Math.round((windowMs / 1000) * 16000));
-  let bufferSize = 256;
-  while (bufferSize < targetFrames && bufferSize < 16384) {
-    bufferSize *= 2;
-  }
-  return bufferSize;
 }
 
 export function useStreamingMicrophone({
@@ -53,11 +48,14 @@ export function useStreamingMicrophone({
   const [micError, setMicError] = useState('');
   const [snapshot, setSnapshot] = useState(null);
 
-  const detectorRef = useRef(null);
+  const starterRef = useRef(null);
   const captureHandleRef = useRef(null);
   const activeRef = useRef(false);
-  const sampleRateRef = useRef(16000);
+  const sampleRateRef = useRef(STREAMING_PROCESSING_SAMPLE_RATE);
   const inputSampleRateRef = useRef(null);
+  const contextSampleRateRef = useRef(null);
+  const chunkFramesRef = useRef(STREAMING_TIMELINE_CHUNK_FRAMES);
+  const chunkDurationMsRef = useRef(STREAMING_TIMELINE_CHUNK_MS);
   const inputDeviceLabelRef = useRef('');
   const manualChunksRef = useRef([]);
   const onUtteranceRef = useRef(onUtterance);
@@ -72,18 +70,19 @@ export function useStreamingMicrophone({
   }, [onStatus]);
 
   useEffect(() => {
-    const detector = new StreamingSpeechDetector({
+    const starter = createBrowserRealtimeStarter({
       profileId,
       config: resolvedConfig,
       isRealtimeEouModel,
     });
-    detectorRef.current = detector;
-    setSnapshot(enrichSnapshot(detector.getSnapshot()));
+    starterRef.current = starter;
+    setSnapshot(enrichSnapshot(starter.getSnapshot()));
 
-    const unsubscribe = detector.subscribe((event) => {
+    const unsubscribe = starter.subscribe((event) => {
       if (event.type === 'metrics') {
-        setSnapshot(enrichSnapshot(event.payload));
-        const tenVadState = event.payload?.tenVad?.state;
+        const nextSnapshot = starterRef.current?.getSnapshot?.() ?? event.payload;
+        setSnapshot(enrichSnapshot(nextSnapshot));
+        const tenVadState = nextSnapshot?.tenVad?.state;
         if (activeRef.current && tenVadState === 'degraded') {
           setMicStatus('Listening with rough gate fallback…');
         }
@@ -112,28 +111,31 @@ export function useStreamingMicrophone({
 
     return () => {
       unsubscribe();
-      detector.dispose();
-      detectorRef.current = null;
+      void starter.dispose();
+      starterRef.current = null;
     };
   }, [isRealtimeEouModel, profileId, resolvedConfig]);
 
   useEffect(() => {
-    if (!detectorRef.current) return;
-    detectorRef.current.updateConfig({
+    if (!starterRef.current) return;
+    starterRef.current.updateConfig({
       ...resolvedConfig,
       profileId,
     });
-    setSnapshot(enrichSnapshot(detectorRef.current.getSnapshot()));
+    setSnapshot(enrichSnapshot(starterRef.current.getSnapshot()));
   }, [profileId, resolvedConfig]);
 
   function enrichSnapshot(baseSnapshot) {
     return {
       ...baseSnapshot,
-      capture: {
-        inputSampleRate: inputSampleRateRef.current,
-        processingSampleRate: sampleRateRef.current,
-        deviceLabel: inputDeviceLabelRef.current,
-      },
+        capture: {
+          inputSampleRate: inputSampleRateRef.current,
+          contextSampleRate: contextSampleRateRef.current,
+          processingSampleRate: sampleRateRef.current,
+          chunkFrames: chunkFramesRef.current,
+          chunkDurationMs: chunkDurationMsRef.current,
+          deviceLabel: inputDeviceLabelRef.current,
+        },
     };
   }
 
@@ -151,7 +153,7 @@ export function useStreamingMicrophone({
           : null;
     if (!chunk?.length) return;
 
-    sampleRateRef.current = input?.sampleRate || sampleRateRef.current || 16000;
+    sampleRateRef.current = input?.sampleRate || sampleRateRef.current || STREAMING_PROCESSING_SAMPLE_RATE;
 
     if (micMode === 'manual') {
       manualChunksRef.current.push(chunk);
@@ -162,7 +164,7 @@ export function useStreamingMicrophone({
       return;
     }
 
-    detectorRef.current?.processChunk(chunk, {
+    starterRef.current?.processChunk(chunk, {
       startFrame: input?.startFrame,
       endFrame: input?.endFrame,
     });
@@ -192,8 +194,8 @@ export function useStreamingMicrophone({
 
     const captureHandle = await startBrowserMicrophoneCapture({
       stream,
-      bufferSize: resolveTargetChunkSize(resolvedConfig),
-      targetSampleRate: 16000,
+      chunkFrames: STREAMING_TIMELINE_CHUNK_FRAMES,
+      targetSampleRate: STREAMING_PROCESSING_SAMPLE_RATE,
       stopTracksOnStop: true,
       onChunk: handleChunk,
       onError: (error) => {
@@ -203,14 +205,23 @@ export function useStreamingMicrophone({
     });
 
     captureHandleRef.current = captureHandle;
-    sampleRateRef.current = captureHandle.sampleRate || 16000;
+    sampleRateRef.current = captureHandle.sampleRate || STREAMING_PROCESSING_SAMPLE_RATE;
+    inputSampleRateRef.current =
+      captureHandle.deviceSampleRate ?? inputSampleRateRef.current;
+    contextSampleRateRef.current =
+      captureHandle.contextSampleRate ?? contextSampleRateRef.current;
+    chunkFramesRef.current = captureHandle.chunkFrames ?? STREAMING_TIMELINE_CHUNK_FRAMES;
+    chunkDurationMsRef.current = captureHandle.chunkDurationMs ?? STREAMING_TIMELINE_CHUNK_MS;
     setSnapshot((current) =>
       current
         ? {
             ...current,
             capture: {
               inputSampleRate: inputSampleRateRef.current,
+              contextSampleRate: contextSampleRateRef.current,
               processingSampleRate: sampleRateRef.current,
+              chunkFrames: chunkFramesRef.current,
+              chunkDurationMs: chunkDurationMsRef.current,
               deviceLabel: inputDeviceLabelRef.current,
             },
           }
@@ -220,8 +231,8 @@ export function useStreamingMicrophone({
     setIsMicActive(true);
 
     if (micMode === 'speech-detect') {
-      await detectorRef.current?.start({ sampleRate: sampleRateRef.current });
-      const tenVadState = detectorRef.current?.getSnapshot()?.tenVad?.state;
+      await starterRef.current?.start({ sampleRate: sampleRateRef.current });
+      const tenVadState = starterRef.current?.getSnapshot()?.tenVad?.state;
       updateStatus(
         tenVadState === 'degraded'
           ? `Listening for speech at ${sampleRateRef.current} Hz with rough gate fallback…`
@@ -246,10 +257,11 @@ export function useStreamingMicrophone({
       await captureHandle.stop();
     }
     inputSampleRateRef.current = null;
+    contextSampleRateRef.current = null;
     inputDeviceLabelRef.current = '';
 
     if (micMode === 'speech-detect') {
-      await detectorRef.current?.stop({ flush });
+      await starterRef.current?.stop({ flush });
     } else if (flush && manualChunksRef.current.length > 0) {
       const pcm = concatFloat32Chunks(manualChunksRef.current);
       manualChunksRef.current = [];
@@ -272,7 +284,10 @@ export function useStreamingMicrophone({
             ...current,
             capture: {
               inputSampleRate: null,
+              contextSampleRate: null,
               processingSampleRate: sampleRateRef.current,
+              chunkFrames: chunkFramesRef.current,
+              chunkDurationMs: chunkDurationMsRef.current,
               deviceLabel: '',
             },
           }
@@ -282,7 +297,7 @@ export function useStreamingMicrophone({
 
   function flush(reason = 'manual') {
     if (micMode === 'speech-detect') {
-      detectorRef.current?.flush(reason);
+      starterRef.current?.flush(reason);
       return;
     }
 

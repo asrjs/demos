@@ -1,4 +1,4 @@
-import { loadParakeetModelFromLocalEntries } from '@asrjs/speech-recognition/presets/parakeet';
+import { loadSpeechModelFromLocalEntries } from '@asrjs/speech-recognition/browser';
 import { fetchRandomSample, hasTestSamples } from '../utils/speechDatasets';
 import { loadHubDemoModel } from '../shared/modelLoader.js';
 import { decodeAudioBufferToMonoPcm, encodeMonoPcmToWavBlob, getCachedAudioFile } from './audioUtils.js';
@@ -77,7 +77,7 @@ export async function loadRandomSampleFlow({
     setIsTranscribing(true);
 
     console.time('Transcribe-Sample');
-    const result = await model.transcribe(
+    const result = await model.transcribeMonoPcm(
       sample.pcm,
       16000,
       buildTranscriptionOptions(selectedModel, {
@@ -96,8 +96,8 @@ export async function loadRandomSampleFlow({
       console.log('[Dataset] Transcription result:', result);
     }
 
-    setText(result.utterance_text);
-    setLatestMetrics(result.metrics);
+    setText(result.text ?? '');
+    setLatestMetrics(result.meta?.metrics ?? null);
 
     const langName = getBuiltInModelLanguageName(selectedLanguage);
     const datasetName = sample.dataset.split('/').pop();
@@ -169,8 +169,9 @@ export async function loadModelFlow({
       setProgressText('Compiling local model artifacts');
       setProgressPct(null);
 
-      const localLoadResult = await loadParakeetModelFromLocalEntries(localEntries, {
+      const localLoadResult = await loadSpeechModelFromLocalEntries({
         modelId: selectedModel,
+        entries: localEntries,
         encoderBackend,
         decoderBackend,
         encoderQuant,
@@ -191,7 +192,7 @@ export async function loadModelFlow({
         preprocessorBackend,
         preprocessor: localLoadResult.selection.preprocessorName ?? null,
       });
-      modelRef.current = localLoadResult.model;
+      modelRef.current = localLoadResult;
       setLoadedFromCache(false);
       console.log('[LocalFolder] Model sessions created from local artifacts');
     } else {
@@ -289,8 +290,10 @@ export async function loadModelFlow({
       const buffer = await audioBlob.arrayBuffer();
       const pcm = (await decodeAudioBufferToMonoPcm(buffer, { targetSampleRate: 16000 })).pcm;
 
-      const warmupResult = await modelRef.current.transcribe(pcm, 16000, { enableProfiling });
-      const utteranceText = warmupResult?.utterance_text ?? '';
+      const warmupResult = await modelRef.current.transcribeMonoPcm(pcm, 16000, {
+        enableProfiling,
+      });
+      const utteranceText = warmupResult?.text ?? '';
       const warmupCandidates = [
         utteranceText,
         warmupResult?.native?.rawUtteranceText,
@@ -380,7 +383,7 @@ export async function transcribeUploadedFileFlow({
     const pcm = decoded.pcm;
 
     console.time(`Transcribe-${file.name}`);
-    const result = await model.transcribe(
+    const result = await model.transcribeMonoPcm(
       pcm,
       16_000,
       buildTranscriptionOptions(selectedModel, {
@@ -399,7 +402,7 @@ export async function transcribeUploadedFileFlow({
       console.log('[ASRJS Demo] Result:', result);
     }
 
-    setLatestMetrics(result.metrics);
+    setLatestMetrics(result.meta?.metrics ?? null);
     setTranscriptions((previous) => [
       createTranscriptionRecordFromResult({
         result,
@@ -411,7 +414,7 @@ export async function transcribeUploadedFileFlow({
       }),
       ...previous,
     ]);
-    setText(result.utterance_text);
+    setText(result.text ?? '');
     setStatus('Model ready');
   } catch (error) {
     console.error('Transcription failed:', error);

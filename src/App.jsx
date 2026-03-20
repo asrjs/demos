@@ -224,7 +224,7 @@ export default function App() {
 
     micPendingQueueRef.current = micPendingQueueRef.current
       .then(async () => {
-        const result = await modelRef.current.transcribe(
+        const result = await modelRef.current.transcribeMonoPcm(
           pcm,
           sampleRate,
           buildTranscriptionOptions(selectedModel, {
@@ -242,8 +242,8 @@ export default function App() {
           console.log('[Mic] Transcription result:', result);
         }
 
-        setLatestMetrics(result.metrics);
-        setText(result.utterance_text);
+        setLatestMetrics(result.meta?.metrics ?? null);
+        setText(result.text ?? '');
         setTranscriptions((prev) => [
           createTranscriptionRecordFromResult({
             result,
