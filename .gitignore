@@ -23,3 +23,7 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# generated perf artifacts
+/perf/__pycache__/
+/perf/traces/
