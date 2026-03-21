@@ -1,6 +1,7 @@
 import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { describe, expect, it } from 'vitest';
+import { getStreamingPreset } from '@asrjs/speech-recognition/realtime';
 import { usePersistentStreamingSettings } from './usePersistentStreamingSettings.js';
 
 function Harness({ modelId, isRealtimeEouModel, onRender }) {
@@ -10,6 +11,8 @@ function Harness({ modelId, isRealtimeEouModel, onRender }) {
 }
 
 describe('usePersistentStreamingSettings', () => {
+  const realtimeRnntDefaults = getStreamingPreset('realtime-rnnt').config;
+
   it('persists HUD visibility and custom config in localStorage', async () => {
     globalThis.IS_REACT_ACT_ENVIRONMENT = true;
     localStorage.clear();
@@ -117,7 +120,9 @@ describe('usePersistentStreamingSettings', () => {
     });
 
     expect(latest.profileId).toBe('realtime-rnnt');
-    expect(latest.resolvedConfig.minSpeechDurationMs).toBe(240);
+    expect(latest.resolvedConfig.minSpeechDurationMs).toBe(
+      realtimeRnntDefaults.minSpeechDurationMs,
+    );
 
     await act(async () => {
       root.unmount();

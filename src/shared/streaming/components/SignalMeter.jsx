@@ -1,3 +1,5 @@
+import { useStreamingMonitor } from '../useStreamingMonitor.js';
+
 function formatDbfs(value) {
   return Number.isFinite(value) ? `${value.toFixed(1)} dBFS` : '--';
 }
@@ -37,10 +39,37 @@ function Line({ label, value, note }) {
   );
 }
 
-export function SignalMeter({ rough, tenVad, vadBuffer }) {
-  const vadSpeechHopCount = vadBuffer?.speechHopCount ?? 0;
-  const vadTotalHops = vadBuffer?.totalHops ?? 0;
-  const vadMaxProbability = vadBuffer?.maxProbability ?? 0;
+function selectSignalMeterState(snapshot) {
+  if (!snapshot) {
+    return null;
+  }
+  return {
+    gate: snapshot.gate ?? null,
+    rough: snapshot.rough ?? null,
+    tenVad: snapshot.tenVad ?? null,
+    vadBuffer: snapshot.vadBuffer ?? null,
+  };
+}
+
+export function SignalMeter({
+  monitor = null,
+  capture = null,
+  rough = null,
+  tenVad = null,
+  vadBuffer = null,
+}) {
+  const monitorState = useStreamingMonitor({
+    monitor,
+    captureInfo: capture,
+    selector: selectSignalMeterState,
+  });
+  const effectiveRough = monitor ? monitorState?.rough ?? null : rough;
+  const effectiveGate = monitor ? monitorState?.gate ?? null : null;
+  const effectiveTenVad = monitor ? monitorState?.tenVad ?? null : tenVad;
+  const effectiveVadBuffer = monitor ? monitorState?.vadBuffer ?? null : vadBuffer;
+  const vadSpeechHopCount = effectiveVadBuffer?.speechHopCount ?? 0;
+  const vadTotalHops = effectiveVadBuffer?.totalHops ?? 0;
+  const vadMaxProbability = effectiveVadBuffer?.maxProbability ?? 0;
 
   return (
     <section className="space-y-2">
@@ -48,28 +77,33 @@ export function SignalMeter({ rough, tenVad, vadBuffer }) {
       <div className="space-y-1 rounded-[10px] border border-slate-200 bg-[#fbfcfd] px-3 py-2.5">
         <Line
           label="level"
-          value={formatDbfs(rough?.levelDbfs)}
-          note={`window ${formatDbfs(rough?.levelWindowDbfs)}`}
+          value={formatDbfs(effectiveRough?.levelDbfs)}
+          note={`window ${formatDbfs(effectiveRough?.levelWindowDbfs)}`}
         />
         <Line
           label="threshold"
-          value={formatDbfs(rough?.thresholdDbfs)}
-          note={`noise ${formatDbfs(rough?.noiseFloorDbfs)}`}
+          value={formatDbfs(effectiveRough?.thresholdDbfs)}
+          note={`noise ${formatDbfs(effectiveRough?.noiseFloorDbfs)}`}
         />
         <Line
           label="snr"
-          value={formatSigned(rough?.snr, ' dB')}
-          note={rough?.useSnrGate ? `min ${formatSigned(rough?.minSnrThreshold, ' dB')}` : 'diagnostic only'}
+          value={formatSigned(effectiveRough?.snr, ' dB')}
+          note={effectiveRough?.useSnrGate ? `min ${formatSigned(effectiveRough?.minSnrThreshold, ' dB')}` : 'diagnostic only'}
+        />
+        <Line
+          label="gate_mode"
+          value={effectiveGate?.effectiveMode ?? '--'}
+          note={effectiveGate?.requestedMode ? `req ${effectiveGate.requestedMode}` : null}
         />
         <Line
           label="ten_vad"
-          value={formatFixed(tenVad?.probability)}
-          note={tenVad?.speaking ? 'speaking' : 'idle'}
+          value={formatFixed(effectiveTenVad?.probability)}
+          note={effectiveTenVad?.speaking ? 'speaking' : 'idle'}
         />
         <Line
           label="energy_gate"
-          value={resolveEnergyGateState(rough)}
-          note={resolveEnergyGateNote(rough)}
+          value={resolveEnergyGateState(effectiveRough)}
+          note={resolveEnergyGateNote(effectiveRough)}
         />
         <Line
           label="vad_buffer"

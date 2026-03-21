@@ -38,7 +38,8 @@ import {
 } from './app/transcriptionFlows.js';
 import { disposeHubDemoPipeline } from './shared/modelLoader.js';
 import { DEMO_MODELS, MODEL_OPTIONS } from './shared/modelCatalog.js';
-import { useStreamingMicrophone } from './shared/streaming/useStreamingMicrophone.js';
+import { useStreamingCaptureController } from './shared/streaming/useStreamingCaptureController.js';
+import { useStreamingMonitor } from './shared/streaming/useStreamingMonitor.js';
 import { BrowserConsoleLayout } from './BrowserConsoleLayout.jsx';
 import warmupAudioUrl from './assets/Harvard-L2-1.ogg?url';
 import './App.css';
@@ -281,12 +282,13 @@ export default function App() {
     updateConfig: updateStreamingConfig,
     resetToDefaults: resetStreamingDefaults,
     defaultMode,
-    snapshot: streamingSnapshot,
+    monitor: streamingMonitor,
+    captureInfo: streamingCaptureInfo,
     start: startMicrophoneCapture,
     stop: stopMicrophoneCapture,
     flush: flushMicrophoneUtterance,
     presets: streamingPresets,
-  } = useStreamingMicrophone({
+  } = useStreamingCaptureController({
     modelId: selectedModel,
     isRealtimeEouModel,
     supportsMicrophoneInput,
@@ -294,6 +296,10 @@ export default function App() {
       queueMicrophoneTranscription(pcm, sampleRate, sourceLabel);
     },
     onStatus: (nextStatus) => setStatus(resolveAppStatus(nextStatus)),
+  });
+  const streamingSnapshot = useStreamingMonitor({
+    monitor: streamingMonitor,
+    captureInfo: streamingCaptureInfo,
   });
 
   useEffect(() => {
@@ -908,6 +914,8 @@ export default function App() {
     flushMicrophoneUtterance,
     hudVisible,
     setHudVisible,
+    streamingMonitor,
+    streamingCaptureInfo,
     streamingSnapshot,
     profileId,
     defaultMode,

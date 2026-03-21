@@ -1,5 +1,8 @@
 import React from 'react';
-import { STREAMING_TIMELINE_CHUNK_MS } from '@asrjs/speech-recognition/realtime';
+import {
+  STREAMING_GATE_MODES,
+  STREAMING_TIMELINE_CHUNK_MS,
+} from '@asrjs/speech-recognition/realtime';
 import { StreamingDebugHud } from './shared/streaming/components/StreamingDebugHud.jsx';
 import { WaveformCanvas } from './shared/streaming/components/WaveformCanvas.jsx';
 import { SignalMeter } from './shared/streaming/components/SignalMeter.jsx';
@@ -16,8 +19,17 @@ const STREAMING_CONTROL_FIELDS = [
   ['tenVadThreshold', 'ten_threshold', 0.05, 0.95, 0.01],
   ['tenVadConfirmationWindowMs', 'ten_confirm', 64, 800, 16],
   ['tenVadHangoverMs', 'ten_hangover', 64, 1200, 16],
+  ['tenVadMinSpeechDurationMs', 'ten_min_speech', 48, 640, STREAMING_TIMELINE_CHUNK_MS],
+  ['tenVadMinSilenceDurationMs', 'ten_min_silence', 32, 640, STREAMING_TIMELINE_CHUNK_MS],
   ['maxSegmentDurationMs', 'max_segment', 400, 12000, 100],
 ];
+
+function resolveStreamingControlStep(field, defaultStep, chunkDurationMs) {
+  if (field.endsWith('Ms')) {
+    return Math.max(1, Math.round(chunkDurationMs || STREAMING_TIMELINE_CHUNK_MS));
+  }
+  return defaultStep;
+}
 
 function formatFixed(value, digits = 2) {
   return typeof value === 'number' && Number.isFinite(value) ? value.toFixed(digits) : '--';
@@ -227,6 +239,8 @@ export function BrowserConsoleLayout({ app }) {
     flushMicrophoneUtterance,
     hudVisible,
     setHudVisible,
+    streamingMonitor,
+    streamingCaptureInfo,
     streamingSnapshot,
     profileId,
     activeProfileLabel,
@@ -257,6 +271,8 @@ export function BrowserConsoleLayout({ app }) {
     transcribeFile,
     isTranscribing,
   } = streamingPanel;
+  const streamingChunkDurationMs =
+    streamingSnapshot?.config?.chunkDurationMs ?? STREAMING_TIMELINE_CHUNK_MS;
 
   const {
     text,
@@ -590,8 +606,8 @@ export function BrowserConsoleLayout({ app }) {
                 <Widget title="Capture">
                   <div className="space-y-3">
                     <div className="space-y-2">
-                      <WaveformCanvas snapshot={streamingSnapshot} />
-                      <SignalMeter rough={streamingSnapshot?.rough} tenVad={streamingSnapshot?.tenVad} vadBuffer={streamingSnapshot?.vadBuffer} />
+                      <WaveformCanvas monitor={streamingMonitor} capture={streamingCaptureInfo} />
+                      <SignalMeter monitor={streamingMonitor} capture={streamingCaptureInfo} />
                     </div>
 
                     <div className="grid gap-3 xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
@@ -663,6 +679,23 @@ export function BrowserConsoleLayout({ app }) {
                               default {defaultMode}
                             </div>
                           </div>
+                          <div className="mb-3 grid gap-2 md:grid-cols-2">
+                            <div className="demo-soft-box">
+                              <label className="mb-1 block font-mono text-[10px] text-slate-500">gate mode</label>
+                              <select
+                                value={streamingSnapshot?.config?.gateMode ?? STREAMING_GATE_MODES.ROUGH_AND_TEN_VAD}
+                                onChange={(event) => updateStreamingConfig({ gateMode: event.target.value })}
+                                className="compact-control"
+                              >
+                                <option value={STREAMING_GATE_MODES.ROUGH_ONLY}>rough only</option>
+                                <option value={STREAMING_GATE_MODES.TEN_VAD_ONLY}>ten-vad only</option>
+                                <option value={STREAMING_GATE_MODES.ROUGH_AND_TEN_VAD}>rough + ten-vad</option>
+                              </select>
+                            </div>
+                            <div className="demo-soft-box font-mono text-[10px] text-slate-500">
+                              effective {streamingSnapshot?.gate?.effectiveMode ?? '--'}
+                            </div>
+                          </div>
                           <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
                             {STREAMING_CONTROL_FIELDS.map(([field, label, min, max, step]) => (
                               <SliderRow
@@ -671,7 +704,7 @@ export function BrowserConsoleLayout({ app }) {
                                 value={streamingSnapshot?.config?.[field]}
                                 min={min}
                                 max={max}
-                                step={step}
+                                step={resolveStreamingControlStep(field, step, streamingChunkDurationMs)}
                                 onChange={(value) => updateStreamingConfig({ [field]: value })}
                               />
                             ))}

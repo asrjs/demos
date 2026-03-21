@@ -215,11 +215,13 @@ body {
 }
 
 .streaming-waveform-canvas {
+  display: block;
   image-rendering: crisp-edges;
 }
 
 .streaming-waveform-wrap {
   @apply rounded-[10px] border border-slate-200 bg-[#f8fafc] p-2;
+  overflow-x: auto;
 }
 
 @media (max-width: 900px) {
