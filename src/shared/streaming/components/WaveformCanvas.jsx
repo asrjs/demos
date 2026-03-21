@@ -1,10 +1,14 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useStreamingMonitor } from '../useStreamingMonitor.js';
 import {
-  renderWaveformFrame,
-  WAVEFORM_CANVAS_HEIGHT,
-  WAVEFORM_CANVAS_MAX_DPR,
-} from './waveformCanvasRenderer.js';
+  BROWSER_WAVEFORM_CANVAS_HEIGHT as WAVEFORM_CANVAS_HEIGHT,
+  BROWSER_WAVEFORM_CANVAS_MAX_DPR as WAVEFORM_CANVAS_MAX_DPR,
+  renderBrowserRealtimeWaveformFrame as renderWaveformFrame,
+} from '@asrjs/speech-recognition/browser';
+import { useStreamingMonitor } from '../useStreamingMonitor.js';
+
+// The current plot payload is object-heavy and expensive to structured-clone into a worker.
+// Keep painting on the main thread until the raster payload is typed-array based.
+const ENABLE_OFFSCREEN_CANVAS = false;
 
 function formatSeconds(value) {
   return typeof value === 'number' && Number.isFinite(value) ? `${value.toFixed(2)} s` : '--';
@@ -114,6 +118,8 @@ function selectWaveformFrame(snapshot) {
     sampleRate: snapshot.sampleRate,
     waveform: snapshot.waveform ?? null,
     plot: snapshot.plot ?? null,
+    config: snapshot.config ?? null,
+    gate: snapshot.gate ?? null,
     recentSegments: snapshot.recentSegments ?? [],
     activeSegment: snapshot.activeSegment ?? null,
     capture: snapshot.capture ?? null,
@@ -122,6 +128,7 @@ function selectWaveformFrame(snapshot) {
 
 function canUseOffscreenCanvas() {
   return (
+    ENABLE_OFFSCREEN_CANVAS &&
     typeof window !== 'undefined' &&
     typeof Worker === 'function' &&
     typeof HTMLCanvasElement !== 'undefined' &&
@@ -129,7 +136,20 @@ function canUseOffscreenCanvas() {
   );
 }
 
-export function WaveformCanvas({ monitor = null, ringCapture = null, capture = null }) {
+function formatDbfs(value) {
+  return typeof value === 'number' && Number.isFinite(value) ? `${value.toFixed(0)} dBFS` : '--';
+}
+
+function formatThreshold(value) {
+  return typeof value === 'number' && Number.isFinite(value) ? value.toFixed(2) : '--';
+}
+
+export function WaveformCanvas({
+  monitor = null,
+  ringCapture = null,
+  capture = null,
+  scaleMode = 'adaptive',
+}) {
   const canvasRef = useRef(null);
   const frameRef = useRef(0);
   const workerRef = useRef(null);
@@ -168,6 +188,7 @@ export function WaveformCanvas({ monitor = null, ringCapture = null, capture = n
         ? {
             waveform: frame.waveform,
             plot: frame.plot,
+            config: frame.config,
             activeSegment: frame.activeSegment,
             recentSegments: frame.recentSegments,
           }
@@ -266,7 +287,11 @@ export function WaveformCanvas({ monitor = null, ringCapture = null, capture = n
     frameRef.current = window.requestAnimationFrame(() => {
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
       paintCountRef.current += 1;
-      renderWaveformFrame(context, renderFrame, width, height);
+      renderWaveformFrame(context, renderFrame, width, height, {
+        waveformScaleMode: scaleMode,
+        showSpeechThreshold: typeof renderFrame?.config?.minSpeechLevelDbfs === 'number',
+        speechThresholdDbfs: renderFrame?.config?.minSpeechLevelDbfs ?? null,
+      });
     });
 
     return () => {
@@ -296,6 +321,10 @@ export function WaveformCanvas({ monitor = null, ringCapture = null, capture = n
         <span>
           {plot ? `live ${Math.max(0, plot.livePointIndex + 1)}/${plot.pointCount} · pad ${plot.padPoints}` : '--'}
         </span>
+        <span>{`speech ${formatDbfs(frame?.config?.minSpeechLevelDbfs)}`}</span>
+        <span>{`ten ${formatThreshold(frame?.config?.tenVadThreshold)}`}</span>
+        <span>{`gate ${frame?.gate?.effectiveMode ?? plot?.gateMode ?? '--'}`}</span>
+        <span>{`scale ${scaleMode}`}</span>
         <span>{`pub ${perfStats.publishHz}/s · paint ${perfStats.paintHz}/s`}</span>
       </div>
     </div>

@@ -159,7 +159,7 @@ export function useStreamingCaptureController({
       starterRef.current = null;
       setMonitor(null);
     };
-  }, [isRealtimeEouModel, profileId, resolvedConfig]);
+  }, [isRealtimeEouModel]);
 
   useEffect(() => {
     if (!starterRef.current) return;

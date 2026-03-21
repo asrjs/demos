@@ -1,4 +1,4 @@
-import { startTransition, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 function enrichSnapshot(baseSnapshot, captureInfo) {
   if (!baseSnapshot) {
@@ -34,9 +34,7 @@ export function useStreamingMonitor({
       const nextValue = selectorRef.current(
         enrichSnapshot(baseSnapshot, captureInfoRef.current),
       );
-      startTransition(() => {
-        setValue(nextValue);
-      });
+      setValue(nextValue);
     };
 
     if (!monitor) {
@@ -53,9 +51,7 @@ export function useStreamingMonitor({
   useEffect(() => {
     const nextBaseSnapshot = monitor?.getSnapshot?.() ?? null;
     const nextValue = selectorRef.current(enrichSnapshot(nextBaseSnapshot, captureInfo));
-    startTransition(() => {
-      setValue(nextValue);
-    });
+    setValue(nextValue);
   }, [monitor, captureInfo]);
 
   return value;

@@ -1,7 +1,7 @@
 import {
-  renderWaveformFrame,
-  WAVEFORM_CANVAS_HEIGHT,
-} from './waveformCanvasRenderer.js';
+  BROWSER_WAVEFORM_CANVAS_HEIGHT as WAVEFORM_CANVAS_HEIGHT,
+  renderBrowserRealtimeWaveformFrame as renderWaveformFrame,
+} from '@asrjs/speech-recognition/browser';
 
 let canvas = null;
 let context = null;

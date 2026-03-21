@@ -134,6 +134,7 @@ function SliderRow({ label, value, min, max, step, onChange }) {
 }
 
 export function BrowserConsoleLayout({ app }) {
+  const [waveformScaleMode, setWaveformScaleMode] = React.useState('adaptive');
   const {
     asrjsVersion,
     asrjsSource,
@@ -605,8 +606,31 @@ export function BrowserConsoleLayout({ app }) {
               <div className="space-y-4">
                 <Widget title="Capture">
                   <div className="space-y-3">
+                    <div className="demo-soft-box">
+                      <div className="flex flex-wrap items-end gap-3">
+                        <div className="w-full sm:w-[180px]">
+                          <Field label="Waveform scale">
+                            <select
+                              value={waveformScaleMode}
+                              onChange={(event) => setWaveformScaleMode(event.target.value)}
+                              className="compact-control"
+                            >
+                              <option value="adaptive">adaptive</option>
+                              <option value="physical">physical</option>
+                            </select>
+                          </Field>
+                        </div>
+                        <div className="font-mono text-[10px] text-slate-500">
+                          speech {formatDbfsValue(streamingSnapshot?.config?.minSpeechLevelDbfs)} · ten {formatFixed(streamingSnapshot?.config?.tenVadThreshold)} · gate {streamingSnapshot?.gate?.effectiveMode ?? '--'}
+                        </div>
+                      </div>
+                    </div>
                     <div className="space-y-2">
-                      <WaveformCanvas monitor={streamingMonitor} capture={streamingCaptureInfo} />
+                      <WaveformCanvas
+                        monitor={streamingMonitor}
+                        capture={streamingCaptureInfo}
+                        scaleMode={waveformScaleMode}
+                      />
                       <SignalMeter monitor={streamingMonitor} capture={streamingCaptureInfo} />
                     </div>
 
