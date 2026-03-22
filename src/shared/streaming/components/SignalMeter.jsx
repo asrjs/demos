@@ -86,6 +86,16 @@ export function SignalMeter({
           note={`noise ${formatDbfs(effectiveRough?.noiseFloorDbfs)}`}
         />
         <Line
+          label="bg_model"
+          value={formatDbfs(effectiveRough?.backgroundAverageDbfs)}
+          note={`floor ${formatDbfs(effectiveRough?.noiseFloorDbfs)}`}
+        />
+        <Line
+          label="bg_sources"
+          value={`sil ${formatDbfs(effectiveRough?.confirmedSilenceAverageDbfs)}`}
+          note={`rej ${formatDbfs(effectiveRough?.rejectedCandidateAverageDbfs)}`}
+        />
+        <Line
           label="snr"
           value={formatSigned(effectiveRough?.snr, ' dB')}
           note={effectiveRough?.useSnrGate ? `min ${formatSigned(effectiveRough?.minSnrThreshold, ' dB')}` : 'diagnostic only'}

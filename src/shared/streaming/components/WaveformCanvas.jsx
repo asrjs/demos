@@ -149,6 +149,8 @@ export function WaveformCanvas({
   ringCapture = null,
   capture = null,
   scaleMode = 'adaptive',
+  showTenVadThreshold = false,
+  showPreVadOverlay = false,
 }) {
   const canvasRef = useRef(null);
   const frameRef = useRef(0);
@@ -291,6 +293,9 @@ export function WaveformCanvas({
         waveformScaleMode: scaleMode,
         showSpeechThreshold: typeof renderFrame?.config?.minSpeechLevelDbfs === 'number',
         speechThresholdDbfs: renderFrame?.config?.minSpeechLevelDbfs ?? null,
+        showTenVadThreshold,
+        tenVadThreshold: renderFrame?.config?.tenVadThreshold ?? null,
+        showPreVadOverlay,
       });
     });
 
@@ -299,7 +304,7 @@ export function WaveformCanvas({
         window.cancelAnimationFrame(frameRef.current);
       }
     };
-  }, [paintMode, plot, renderFrame]);
+  }, [paintMode, plot, renderFrame, scaleMode, showPreVadOverlay, showTenVadThreshold]);
 
   return (
     <div className="streaming-waveform-wrap">
@@ -325,6 +330,8 @@ export function WaveformCanvas({
         <span>{`ten ${formatThreshold(frame?.config?.tenVadThreshold)}`}</span>
         <span>{`gate ${frame?.gate?.effectiveMode ?? plot?.gateMode ?? '--'}`}</span>
         <span>{`scale ${scaleMode}`}</span>
+        <span>{`ten_thr ${showTenVadThreshold ? 'on' : 'off'}`}</span>
+        <span>{`rms_overlay ${showPreVadOverlay ? 'on' : 'off'}`}</span>
         <span>{`pub ${perfStats.publishHz}/s · paint ${perfStats.paintHz}/s`}</span>
       </div>
     </div>

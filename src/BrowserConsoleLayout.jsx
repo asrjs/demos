@@ -1,35 +1,18 @@
 import React from 'react';
 import {
+  clampStreamingControlValue,
+  formatStreamingControlHint,
+  formatStreamingControlValue,
+  listStreamingControls,
+  normalizeStreamingControlValue,
+  resolveStreamingControlConstraints,
+  resolveStreamingControlStep,
   STREAMING_GATE_MODES,
   STREAMING_TIMELINE_CHUNK_MS,
 } from '@asrjs/speech-recognition/realtime';
 import { StreamingDebugHud } from './shared/streaming/components/StreamingDebugHud.jsx';
 import { WaveformCanvas } from './shared/streaming/components/WaveformCanvas.jsx';
 import { SignalMeter } from './shared/streaming/components/SignalMeter.jsx';
-
-const STREAMING_CONTROL_FIELDS = [
-  ['analysisWindowMs', 'analysis', STREAMING_TIMELINE_CHUNK_MS, 160, STREAMING_TIMELINE_CHUNK_MS],
-  ['prerollMs', 'preroll', 80, 1200, 20],
-  ['minSilenceDurationMs', 'silence', 200, 2000, 20],
-  ['minSpeechDurationMs', 'min_speech', 80, 640, 40],
-  ['minSpeechLevelDbfs', 'speech_dbfs', -72, -12, 1],
-  ['levelWindowMs', 'level_window', 200, 2000, 100],
-  ['energyRiseThreshold', 'energy_rise', 0.01, 0.4, 0.01],
-  ['maxOnsetLookbackChunks', 'lookback', 1, 12, 1],
-  ['tenVadThreshold', 'ten_threshold', 0.05, 0.95, 0.01],
-  ['tenVadConfirmationWindowMs', 'ten_confirm', 64, 800, 16],
-  ['tenVadHangoverMs', 'ten_hangover', 64, 1200, 16],
-  ['tenVadMinSpeechDurationMs', 'ten_min_speech', 48, 640, STREAMING_TIMELINE_CHUNK_MS],
-  ['tenVadMinSilenceDurationMs', 'ten_min_silence', 32, 640, STREAMING_TIMELINE_CHUNK_MS],
-  ['maxSegmentDurationMs', 'max_segment', 400, 12000, 100],
-];
-
-function resolveStreamingControlStep(field, defaultStep, chunkDurationMs) {
-  if (field.endsWith('Ms')) {
-    return Math.max(1, Math.round(chunkDurationMs || STREAMING_TIMELINE_CHUNK_MS));
-  }
-  return defaultStep;
-}
 
 function formatFixed(value, digits = 2) {
   return typeof value === 'number' && Number.isFinite(value) ? value.toFixed(digits) : '--';
@@ -113,28 +96,52 @@ function MonoStat({ label, value, note }) {
   );
 }
 
-function SliderRow({ label, value, min, max, step, onChange }) {
+function SliderRow({ definition, value, onChange, resolvedConfig }) {
+  const resolvedControlStep = resolveStreamingControlStep(definition, resolvedConfig);
+  const resolvedConstraints = resolveStreamingControlConstraints(definition, resolvedConfig);
+  const clampedValue = clampStreamingControlValue(
+    definition,
+    typeof value === 'number' ? value : definition.min,
+    resolvedConfig,
+  );
   return (
-    <label className="demo-soft-box block">
+    <label className="demo-soft-box block" title={`${definition.description} ${definition.guide}`}>
       <div className="mb-2 flex items-center justify-between gap-2 font-mono text-[10px] text-slate-500">
-        <span>{label}</span>
-        <span>{formatFixed(value)}</span>
+        <span>{definition.label}</span>
+        <span>{formatStreamingControlValue(definition, value)}</span>
       </div>
       <input
         type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value ?? min}
-        onChange={(event) => onChange(Number(event.target.value))}
+        min={resolvedConstraints.min}
+        max={resolvedConstraints.max}
+        step={resolvedControlStep}
+        value={clampedValue}
+        onChange={(event) =>
+          onChange(
+            normalizeStreamingControlValue(
+              definition,
+              Number(event.target.value),
+              resolvedConfig,
+            ),
+          )
+        }
         className="w-full accent-[#5d7387]"
       />
+      <div className="mt-2 font-mono text-[10px] leading-4 text-slate-500">
+        {formatStreamingControlHint(definition, resolvedConfig)}
+      </div>
+      <div className="mt-1 text-[11px] leading-4 text-slate-600">{definition.description}</div>
+      <div className="mt-1 text-[10px] leading-4 text-slate-400">{definition.guide}</div>
     </label>
   );
 }
 
 export function BrowserConsoleLayout({ app }) {
+  const [modelSidebarCollapsed, setModelSidebarCollapsed] = React.useState(false);
   const [waveformScaleMode, setWaveformScaleMode] = React.useState('adaptive');
+  const [showTenVadThreshold, setShowTenVadThreshold] = React.useState(true);
+  const [showPreVadOverlay, setShowPreVadOverlay] = React.useState(false);
+  const streamingControlDefinitions = React.useMemo(() => listStreamingControls(), []);
   const {
     asrjsVersion,
     asrjsSource,
@@ -274,6 +281,22 @@ export function BrowserConsoleLayout({ app }) {
   } = streamingPanel;
   const streamingChunkDurationMs =
     streamingSnapshot?.config?.chunkDurationMs ?? STREAMING_TIMELINE_CHUNK_MS;
+  const estimatedRoughSmoothMs = streamingSnapshot?.config?.energySmoothingDurationMs ?? null;
+  const estimatedRoughSilenceMs = streamingSnapshot?.config?.minSilenceDurationMs ?? null;
+  const estimatedTenSilenceMs =
+    typeof streamingSnapshot?.config?.tenVadConfirmationWindowMs === 'number' &&
+    typeof streamingSnapshot?.config?.tenVadMinSilenceDurationMs === 'number'
+      ? Math.max(
+          streamingSnapshot.config.tenVadConfirmationWindowMs,
+          streamingSnapshot.config.tenVadMinSilenceDurationMs,
+        )
+      : null;
+  const estimatedTailBudgetMs =
+    typeof estimatedRoughSmoothMs === 'number' &&
+    typeof estimatedRoughSilenceMs === 'number' &&
+    typeof estimatedTenSilenceMs === 'number'
+      ? estimatedRoughSmoothMs + estimatedRoughSilenceMs + estimatedTenSilenceMs
+      : null;
 
   const {
     text,
@@ -294,6 +317,15 @@ export function BrowserConsoleLayout({ app }) {
             <span className="demo-tab demo-tab-active">Realtime Lab</span>
           </div>
           <div className="flex flex-wrap items-center gap-3 font-mono text-[11px] text-slate-600">
+            <button
+              type="button"
+              className="compact-button-secondary !px-3 !py-2"
+              onClick={() => setModelSidebarCollapsed((value) => !value)}
+              aria-expanded={!modelSidebarCollapsed}
+              title={modelSidebarCollapsed ? 'Show model sidebar' : 'Hide model sidebar'}
+            >
+              {modelSidebarCollapsed ? 'Show Sidebar' : 'Hide Sidebar'}
+            </button>
             <span>{status}</span>
             {loadedFromCache && modelSource === MODEL_SOURCE_OPTIONS.HUGGINGFACE && isModelReady ? <span>cache</span> : null}
             <span>@asrjs {asrjsVersion}</span>
@@ -304,8 +336,8 @@ export function BrowserConsoleLayout({ app }) {
           </div>
         </header>
 
-        <div className="grid gap-4 xl:grid-cols-[300px_minmax(0,1fr)]">
-          <aside className="space-y-4">
+        <div className={modelSidebarCollapsed ? 'grid gap-4 xl:grid-cols-[minmax(0,1fr)]' : 'grid gap-4 xl:grid-cols-[300px_minmax(0,1fr)]'}>
+          <aside className={modelSidebarCollapsed ? 'hidden' : 'space-y-4'}>
             <Widget
               title="Load"
               titleAttr={modelSource === MODEL_SOURCE_OPTIONS.LOCAL ? 'Loading local artifacts' : `Revision ${modelRevision}`}
@@ -620,6 +652,30 @@ export function BrowserConsoleLayout({ app }) {
                             </select>
                           </Field>
                         </div>
+                        <div className="w-full sm:w-[160px]">
+                          <Field label="TEN-VAD line">
+                            <select
+                              value={showTenVadThreshold ? 'on' : 'off'}
+                              onChange={(event) => setShowTenVadThreshold(event.target.value === 'on')}
+                              className="compact-control"
+                            >
+                              <option value="on">on</option>
+                              <option value="off">off</option>
+                            </select>
+                          </Field>
+                        </div>
+                        <div className="w-full sm:w-[180px]">
+                          <Field label="RMS overlay">
+                            <select
+                              value={showPreVadOverlay ? 'on' : 'off'}
+                              onChange={(event) => setShowPreVadOverlay(event.target.value === 'on')}
+                              className="compact-control"
+                            >
+                              <option value="off">off</option>
+                              <option value="on">on</option>
+                            </select>
+                          </Field>
+                        </div>
                         <div className="font-mono text-[10px] text-slate-500">
                           speech {formatDbfsValue(streamingSnapshot?.config?.minSpeechLevelDbfs)} · ten {formatFixed(streamingSnapshot?.config?.tenVadThreshold)} · gate {streamingSnapshot?.gate?.effectiveMode ?? '--'}
                         </div>
@@ -630,6 +686,8 @@ export function BrowserConsoleLayout({ app }) {
                         monitor={streamingMonitor}
                         capture={streamingCaptureInfo}
                         scaleMode={waveformScaleMode}
+                        showTenVadThreshold={showTenVadThreshold}
+                        showPreVadOverlay={showPreVadOverlay}
                       />
                       <SignalMeter monitor={streamingMonitor} capture={streamingCaptureInfo} />
                     </div>
@@ -720,16 +778,17 @@ export function BrowserConsoleLayout({ app }) {
                               effective {streamingSnapshot?.gate?.effectiveMode ?? '--'}
                             </div>
                           </div>
+                          <div className="mb-3 demo-soft-box font-mono text-[10px] text-slate-600">
+                            tail est {formatMilliseconds(estimatedTailBudgetMs)} = rough_smooth {formatMilliseconds(estimatedRoughSmoothMs)} + rough_silence {formatMilliseconds(estimatedRoughSilenceMs)} + ten_silence {formatMilliseconds(estimatedTenSilenceMs)}
+                          </div>
                           <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
-                            {STREAMING_CONTROL_FIELDS.map(([field, label, min, max, step]) => (
+                            {streamingControlDefinitions.map((definition) => (
                               <SliderRow
-                                key={field}
-                                label={label}
-                                value={streamingSnapshot?.config?.[field]}
-                                min={min}
-                                max={max}
-                                step={resolveStreamingControlStep(field, step, streamingChunkDurationMs)}
-                                onChange={(value) => updateStreamingConfig({ [field]: value })}
+                                key={definition.field}
+                                definition={definition}
+                                value={streamingSnapshot?.config?.[definition.field]}
+                                resolvedConfig={streamingSnapshot?.config ?? { chunkDurationMs: streamingChunkDurationMs }}
+                                onChange={(value) => updateStreamingConfig({ [definition.field]: value })}
                               />
                             ))}
                           </div>
@@ -864,6 +923,27 @@ export function BrowserConsoleLayout({ app }) {
                         {trans.confidence ? <span>{formatPercentValue(trans.confidence)}</span> : null}
                         {trans.metrics ? <span>RTF {formatFixed(trans.metrics.rtf)}x</span> : null}
                       </div>
+                      {trans.clipUrl ? (
+                        <div className="mt-3 space-y-2">
+                          <audio
+                            controls
+                            preload="none"
+                            src={trans.clipUrl}
+                            className="w-full"
+                          />
+                          <div className="flex justify-end">
+                            <a
+                              href={trans.clipUrl}
+                              download={trans.clipFilename ?? `${trans.filename || 'clip'}.wav`}
+                              className="compact-button-secondary !px-3 !py-2 no-underline"
+                              title={trans.clipFilename ? `Download ${trans.clipFilename}` : 'Download clip'}
+                              aria-label={trans.clipFilename ? `Download ${trans.clipFilename}` : 'Download clip'}
+                            >
+                              <span className="material-icons-outlined text-[16px]">download</span>
+                            </a>
+                          </div>
+                        </div>
+                      ) : null}
                       <div className="mt-3 rounded-[10px] border border-slate-200 bg-white px-3 py-3 text-[12px] leading-6 text-slate-800">
                         {trans.text}
                       </div>

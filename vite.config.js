@@ -33,6 +33,9 @@ const asrSource = shortHash ? `dev-${shortHash}` : 'dev';
 
 export default defineConfig({
   plugins: [react()],
+  worker: {
+    format: 'es',
+  },
   test: {
     environment: 'jsdom',
     globals: true,

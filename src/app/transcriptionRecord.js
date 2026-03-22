@@ -11,6 +11,9 @@ export function createTranscriptionRecord({
   task,
   targetLanguage,
   reference = '',
+  clipUrl = null,
+  clipFilename = null,
+  clipMimeType = null,
 }) {
   return {
     id,
@@ -25,6 +28,9 @@ export function createTranscriptionRecord({
     task,
     targetLanguage,
     reference,
+    clipUrl,
+    clipFilename,
+    clipMimeType,
   };
 }
 
@@ -38,6 +44,9 @@ export function createTranscriptionRecordFromResult({
   targetLanguage,
   timestamp,
   id,
+  clipUrl,
+  clipFilename,
+  clipMimeType,
 }) {
   const canonical = result?.canonical ?? result ?? null;
   return createTranscriptionRecord({
@@ -57,5 +66,8 @@ export function createTranscriptionRecordFromResult({
     task,
     targetLanguage,
     reference,
+    clipUrl,
+    clipFilename,
+    clipMimeType,
   });
 }
