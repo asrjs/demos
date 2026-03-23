@@ -15,9 +15,13 @@ export function TranscriptPanel({ app }) {
   return (
     <Widget
       title="Transcript"
-      actions={text ? <button type="button" onClick={() => copyToClipboard(text)} className="compact-button-secondary !py-2">Copy</button> : null}
+      actions={text ? (
+        <button type="button" onClick={() => copyToClipboard(text)} className="compact-button-secondary compact-button--toolbar">
+          Copy
+        </button>
+      ) : null}
     >
-      <div className="demo-soft-box min-h-[220px] text-[15px] leading-8 text-slate-800 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
+      <div className="transcript-body">
         {text || 'No text yet.'}
       </div>
       <div className="mono-grid mt-3">

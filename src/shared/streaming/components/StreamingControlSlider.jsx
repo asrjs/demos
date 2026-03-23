@@ -26,11 +26,11 @@ export function StreamingControlSlider({
   if (compact) {
     return (
       <label
-        className="block rounded-[10px] border border-slate-300 bg-white px-3 py-3"
+        className="slider-control"
         title={`${definition.description} ${definition.guide}`}
       >
-        <div className="grid items-center gap-3 md:grid-cols-[minmax(120px,150px)_minmax(0,1fr)_76px]">
-          <span className="text-[11px] font-medium text-slate-700">{definition.label}</span>
+        <div className="slider-control__grid">
+          <span className="slider-control__label">{definition.label}</span>
           <input
             type="range"
             min={resolvedConstraints.min}
@@ -46,13 +46,13 @@ export function StreamingControlSlider({
                 ),
               )
             }
-            className="w-full accent-slate-700"
+            className="range-input"
           />
-          <span className="text-right font-mono text-[11px] text-slate-900">
+          <span className="slider-control__value">
             {formatStreamingControlValue(definition, value)}
           </span>
         </div>
-        <div className="mt-2 text-[11px] leading-5 text-slate-600">
+        <div className="slider-control__hint">
           {formatStreamingControlHint(definition, resolvedConfig)}
         </div>
       </label>
@@ -60,8 +60,8 @@ export function StreamingControlSlider({
   }
 
   return (
-    <label className="demo-soft-box block" title={`${definition.description} ${definition.guide}`}>
-      <div className="mb-2 flex items-center justify-between gap-2 font-mono text-[10px] text-slate-500">
+    <label className="slider-control slider-control--soft block" title={`${definition.description} ${definition.guide}`}>
+      <div className="slider-control__row">
         <span>{definition.label}</span>
         <span>{formatStreamingControlValue(definition, value)}</span>
       </div>
@@ -80,13 +80,13 @@ export function StreamingControlSlider({
             ),
           )
         }
-        className="w-full accent-[#5d7387]"
+        className="range-input"
       />
-      <div className="mt-2 font-mono text-[10px] leading-4 text-slate-500">
+      <div className="slider-control__meta">
         {formatStreamingControlHint(definition, resolvedConfig)}
       </div>
-      <div className="mt-1 text-[11px] leading-4 text-slate-600">{definition.description}</div>
-      <div className="mt-1 text-[10px] leading-4 text-slate-400">{definition.guide}</div>
+      <div className="slider-control__desc">{definition.description}</div>
+      <div className="slider-control__guide">{definition.guide}</div>
     </label>
   );
 }

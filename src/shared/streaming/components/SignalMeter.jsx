@@ -12,6 +12,10 @@ function formatFixed(value, digits = 2) {
   return Number.isFinite(value) ? value.toFixed(digits) : '--';
 }
 
+function formatRatio(value) {
+  return Number.isFinite(value) ? `${value.toFixed(1)}:1` : '--';
+}
+
 export function resolveEnergyGateState(rough) {
   if (typeof rough?.isSpeech === 'boolean' || typeof rough?.energyPass === 'boolean') {
     if (rough?.isSpeech) {
@@ -49,12 +53,12 @@ export function resolveEnergyGateNote(rough) {
 
 function Line({ label, value, note }) {
   return (
-    <div className="rounded-[10px] border border-slate-200 bg-white px-3 py-2.5">
-      <div className="flex items-center justify-between gap-3">
-        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-slate-500">{label}</span>
-        <span className="text-right font-mono text-[12px] font-semibold text-slate-950">{value}</span>
+    <div className="signal-meter__line">
+      <div className="flex-row flex-row--between gap-3">
+        <span className="signal-meter__label">{label}</span>
+        <span className="signal-meter__value">{value}</span>
       </div>
-      {note ? <span className="mt-1 block text-right font-mono text-[10px] text-slate-600">{note}</span> : null}
+      {note ? <span className="signal-meter__note">{note}</span> : null}
     </div>
   );
 }
@@ -97,14 +101,14 @@ export function SignalMeter({
   const vadMaxProbability = effectiveVadBuffer?.maxProbability ?? 0;
 
   return (
-    <section className="rounded-[10px] border border-slate-300 bg-white p-4">
-      <div className="mb-4 flex items-center justify-between gap-3">
+    <section className="app-rail-section signal-meter signal-meter--flat">
+      <div className="widget-header widget-header--rail">
         <div>
-          <div className="panel-title">Detector Readout</div>
-          <div className="mt-1 text-[11px] text-slate-600">Live foreground metrics and TEN-VAD state.</div>
+          <h2 className="section-heading">Detector readout</h2>
+          <p className="section-subtitle">Live foreground metrics and TEN-VAD state.</p>
         </div>
       </div>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="signal-meter__grid">
         <Line
           label="level"
           value={formatDbfs(effectiveRough?.levelDbfs)}
@@ -113,22 +117,22 @@ export function SignalMeter({
         <Line
           label="noise floor"
           value={formatDbfs(effectiveForeground?.noiseFloorDbfs ?? effectiveRough?.noiseFloorDbfs)}
-          note={`bg ${formatDbfs(effectiveRough?.backgroundAverageDbfs)}`}
+          note={`confirmed ${formatDbfs(effectiveRough?.confirmedSilenceAverageDbfs)} · rejected ${formatDbfs(effectiveRough?.rejectedCandidateAverageDbfs)}`}
         />
         <Line
-          label="foreground"
+          label="speech"
+          value={formatDbfs(effectiveAcceptance?.speechDbfs)}
+          note={`p90 vs floor`}
+        />
+        <Line
+          label="snr"
           value={formatSigned(effectiveAcceptance?.foregroundDb, ' dB')}
           note={`min ${formatSigned(effectiveForeground?.foregroundMinDb, ' dB')}`}
         />
         <Line
-          label="onset"
-          value={formatSigned(effectiveAcceptance?.onsetDb, ' dB')}
-          note={`min ${formatSigned(effectiveForeground?.onsetMinDb, ' dB')}`}
-        />
-        <Line
-          label="long rule"
-          value={formatSigned(effectiveForeground?.longMinDb, ' dB')}
-          note={effectiveAcceptance?.longSpeech ? 'long segment' : 'inactive'}
+          label="speech/noise"
+          value={formatRatio(effectiveAcceptance?.speechNoiseRatio)}
+          note={effectiveAcceptance?.longSpeech ? 'long segment' : 'segment ratio'}
         />
         <Line
           label="detector mode"
@@ -141,7 +145,7 @@ export function SignalMeter({
           note={effectiveTenVad?.speaking ? 'speaking' : 'idle'}
         />
         <Line
-          label="foreground filter"
+          label="filter"
           value={resolveEnergyGateState(effectiveForeground)}
           note={resolveEnergyGateNote(effectiveForeground)}
         />

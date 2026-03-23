@@ -57,6 +57,10 @@ export function BrowserConsoleLayout({ app }) {
     ? resolveStreamingForegroundThresholdDbfs(streamingSnapshot?.config, liveNoiseFloorDbfs)
     : null;
 
+  const layoutClass = modelSidebarCollapsed
+    ? 'app-layout app-layout--sidebar-collapsed'
+    : 'app-layout app-layout--sidebar';
+
   return (
     <div className="demo-shell">
       <div className="demo-container">
@@ -77,11 +81,11 @@ export function BrowserConsoleLayout({ app }) {
           setModelSidebarCollapsed={setModelSidebarCollapsed}
         />
 
-        <div className={modelSidebarCollapsed ? 'grid gap-6 xl:grid-cols-[minmax(0,1fr)]' : 'grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]'}>
+        <div className={layoutClass}>
           <ModelSidebar app={app} hidden={modelSidebarCollapsed} />
 
-          <main className="space-y-6">
-            <div className="space-y-6">
+          <main className="app-main">
+            <div className="app-stack">
               <StreamingCapturePanel
                 waveformDisplay={{
                   scaleMode: waveformScaleMode,
@@ -129,9 +133,9 @@ export function BrowserConsoleLayout({ app }) {
                   setVisible: setHudVisible,
                 }}
               />
-              <div className="grid gap-6 2xl:grid-cols-[minmax(0,1.15fr)_minmax(340px,0.85fr)]">
+              <div className="app-transcript-grid">
                 <TranscriptPanel app={app} />
-                <div className="space-y-6">
+                <div className="app-stack">
                   <ReferencePanel app={app} />
                   <HistoryPanel app={app} />
                 </div>
@@ -139,7 +143,7 @@ export function BrowserConsoleLayout({ app }) {
             </div>
 
             {typeof SharedArrayBuffer === 'undefined' && app.backend === 'wasm' ? (
-              <div className="panel-shell border-amber-200/80 bg-amber-50/90 text-[12px] text-amber-900">
+              <div className="sab-notice">
                 SharedArrayBuffer unavailable. WASM will run single-threaded.
               </div>
             ) : null}

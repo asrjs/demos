@@ -5,6 +5,7 @@ import {
   renderBrowserRealtimeWaveformFrame as renderWaveformFrame,
 } from '@asrjs/speech-recognition/browser';
 import { useStreamingMonitor } from '../useStreamingMonitor.js';
+import { formatDbfsValue, formatMilliseconds } from '../layout/formatters.js';
 
 // The current plot payload is object-heavy and expensive to structured-clone into a worker.
 // Keep painting on the main thread until the raster payload is typed-array based.
@@ -146,11 +147,35 @@ function formatThreshold(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value.toFixed(2) : '--';
 }
 
-function MetaItem({ label, value, title }) {
+function renderMetricRow(segments) {
+  return segments.map((segment, index) => (
+    <React.Fragment key={segment.key}>
+      {index > 0 ? (
+        <span className="waveform-metrics__sep" aria-hidden>
+          ·
+        </span>
+      ) : null}
+      <span className="waveform-metrics__item" title={segment.title}>
+        <span className="waveform-metrics__key">{segment.label}</span>
+        {' '}
+        <span className="waveform-metrics__val">{segment.value}</span>
+      </span>
+    </React.Fragment>
+  ));
+}
+
+function WaveformMetricsStrip({ rows }) {
   return (
-    <div className="rounded-[8px] border border-slate-200 bg-slate-50 px-3 py-2" title={title}>
-      <div className="font-mono text-[10px] uppercase tracking-[0.08em] text-slate-500">{label}</div>
-      <div className="mt-1 font-mono text-[11px] font-semibold text-slate-900">{value}</div>
+    <div className="waveform-metrics" role="status" aria-live="polite" aria-label="Waveform metrics">
+      {rows.map((segments, rowIndex) => (
+        <div
+          key={rowIndex}
+          className="waveform-metrics__row"
+          aria-label={rowIndex === 0 ? 'Capture and timeline' : 'Live gate, thresholds, and display'}
+        >
+          <div className="waveform-metrics__scroll">{renderMetricRow(segments)}</div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -163,6 +188,9 @@ export function WaveformCanvas({
   showSpeechThreshold = false,
   showTenVadThreshold = false,
   showPreVadOverlay = false,
+  liveReleaseMs = null,
+  liveNoiseDbfs = null,
+  liveSpeechDbfs = null,
 }) {
   const canvasRef = useRef(null);
   const frameRef = useRef(0);
@@ -333,32 +361,45 @@ export function WaveformCanvas({
     };
   }, [paintMode, plot, renderFrame, scaleMode, showPreVadOverlay, showSpeechThreshold, showTenVadThreshold, speechThresholdDbfs]);
 
+  const bufferLabel = plot
+    ? `${Math.max(0, plot.livePointIndex + 1)}/${plot.pointCount} pad ${plot.padPoints}`
+    : '--';
+  const chunkLabel = chunkFrames ? `${formatChunkDuration(chunkDurationMs)}/${chunkFrames}f` : '--';
+  const metricsCaptureRow = [
+    { key: 'rate', label: 'rate', value: rateLabel, title: contextRate ? `context ${formatRate(contextRate)}` : undefined },
+    { key: 'chunk', label: 'chunk', value: chunkLabel },
+    { key: 'window', label: 'win', value: formatSeconds(visibleSeconds) },
+    { key: 'segment', label: 'seg', value: frame?.activeSegment ? 'active' : 'inactive' },
+    { key: 'buffer', label: 'buf', value: bufferLabel },
+    { key: 'hz', label: 'pub/paint', value: `${perfStats.publishHz}/s ${perfStats.paintHz}/s` },
+  ];
+  const metricsDetectorRow = [
+    { key: 'mode', label: 'mode', value: String(frame?.gate?.effectiveMode ?? plot?.gateMode ?? '--') },
+    { key: 'release', label: 'release', value: formatMilliseconds(liveReleaseMs) },
+    { key: 'noise', label: 'noise', value: formatDbfsValue(liveNoiseDbfs) },
+    { key: 'speech', label: 'speech', value: formatDbfsValue(liveSpeechDbfs) },
+    { key: 'fg', label: 'fg min', value: formatThreshold(frame?.config?.foregroundMinDb) },
+    { key: 'ten', label: 'ten thr', value: formatThreshold(frame?.config?.tenVadThreshold) },
+    { key: 'scale', label: 'scale', value: scaleMode },
+    { key: 'sp', label: 'sp line', value: showSpeechThreshold ? formatDbfs(speechThresholdDbfs) : 'off' },
+    { key: 'tenln', label: 'ten ln', value: showTenVadThreshold ? 'on' : 'off' },
+  ];
+
   return (
     <div className="streaming-waveform-wrap">
-      <div className="mb-3 flex items-center justify-between font-mono text-[10px] text-slate-600">
-        <span className="font-semibold uppercase tracking-[0.08em] text-slate-700">waveform</span>
-        <span>{frame?.state || 'idle'} · {paintMode}</span>
+      <div className="waveform-strip-head">
+        <span className="waveform-strip-head__title">Waveform</span>
+        <span className="waveform-strip-head__state min-w-0 truncate">
+          {frame?.state || 'idle'} · {paintMode}
+        </span>
       </div>
       <canvas
         ref={canvasRef}
         height={WAVEFORM_CANVAS_HEIGHT}
         style={{ width: `${Math.max(1, plot?.pointCount ?? 1)}px`, height: `${WAVEFORM_CANVAS_HEIGHT}px` }}
-        className="streaming-waveform-canvas rounded-[8px]"
+        className="streaming-waveform-canvas"
       />
-      <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-        <MetaItem label="Rate" value={rateLabel} title={contextRate ? `context ${formatRate(contextRate)}` : undefined} />
-        <MetaItem label="Chunk" value={chunkFrames ? `${formatChunkDuration(chunkDurationMs)} / ${chunkFrames}f` : '--'} />
-        <MetaItem label="Window" value={formatSeconds(visibleSeconds)} />
-        <MetaItem label="Segment" value={frame?.activeSegment ? 'active' : 'inactive'} />
-        <MetaItem label="Live buffer" value={plot ? `${Math.max(0, plot.livePointIndex + 1)}/${plot.pointCount} · pad ${plot.padPoints}` : '--'} />
-        <MetaItem label="FG min" value={formatThreshold(frame?.config?.foregroundMinDb)} />
-        <MetaItem label="TEN thr" value={formatThreshold(frame?.config?.tenVadThreshold)} />
-        <MetaItem label="Mode" value={frame?.gate?.effectiveMode ?? plot?.gateMode ?? '--'} />
-        <MetaItem label="Scale" value={scaleMode} />
-        <MetaItem label="Speech line" value={showSpeechThreshold ? formatDbfs(speechThresholdDbfs) : 'off'} />
-        <MetaItem label="TEN line" value={showTenVadThreshold ? 'on' : 'off'} />
-        <MetaItem label="Publish/Paint" value={`${perfStats.publishHz}/s · ${perfStats.paintHz}/s`} />
-      </div>
+      <WaveformMetricsStrip rows={[metricsCaptureRow, metricsDetectorRow]} />
     </div>
   );
 }

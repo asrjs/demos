@@ -21,22 +21,15 @@ export function StreamingCapturePanel({
   debugHud,
 }) {
   return (
-    <Widget title="Capture" className="overflow-hidden">
-      <div className="space-y-6">
-        <section className="rounded-[10px] border border-slate-300 bg-white p-4">
-          <div className="mb-4 flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
-            <div className="min-w-0">
-              <div className="panel-title">Waveform Workspace</div>
-              <div className="mt-1 max-w-[720px] text-[12px] leading-6 text-slate-600">
-                Tune the detector while watching candidate speech, accepted segments, and the live foreground threshold in one place.
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-2 font-mono text-[10px] text-slate-700">
-              <span className="status-chip status-muted">mode {streaming.snapshot?.gate?.effectiveMode ?? '--'}</span>
-              <span className="status-chip status-muted">release {formatMilliseconds(streaming.estimatedTailBudgetMs)}</span>
-              <span className="status-chip status-muted">noise {formatDbfsValue(streaming.liveNoiseFloorDbfs)}</span>
-              <span className="status-chip status-muted">speech {formatDbfsValue(streaming.liveSpeechThresholdDbfs)}</span>
-            </div>
+    <div className="panel-shell panel-shell--overflow workspace-main">
+      <header className="workspace-main__head">
+        <h1 className="page-title">Capture</h1>
+      </header>
+
+      <div className="workspace-main__body">
+        <section className="app-rail-section app-rail-section--flush-top">
+          <div className="widget-header widget-header--rail">
+            <h2 className="section-heading">Waveform · detector tuning</h2>
           </div>
 
           <WaveformCanvas
@@ -46,77 +39,82 @@ export function StreamingCapturePanel({
             showSpeechThreshold={waveformDisplay.showSpeechThreshold}
             showTenVadThreshold={waveformDisplay.showTenVadThreshold}
             showPreVadOverlay={waveformDisplay.showPreVadOverlay}
+            liveReleaseMs={streaming.estimatedTailBudgetMs}
+            liveNoiseDbfs={streaming.liveNoiseFloorDbfs}
+            liveSpeechDbfs={streaming.liveSpeechThresholdDbfs}
           />
 
-          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-[10px] border border-slate-200 bg-slate-50 p-3">
-              <Field
-                label="View"
-                hint={WAVEFORM_SCALE_OPTIONS.find((option) => option.value === waveformDisplay.scaleMode)?.note}
-              >
+          <div className="toolbar-divider">
+            <div className="waveform-toolbar">
+              <label className="waveform-toolbar__group waveform-toolbar__group--wide">
+                <span className="type-label-caps">View</span>
+                <span className="line-clamp-1 type-micro">
+                  {WAVEFORM_SCALE_OPTIONS.find((option) => option.value === waveformDisplay.scaleMode)?.note ?? '-'}
+                </span>
                 <select
                   value={waveformDisplay.scaleMode}
                   onChange={(event) => waveformDisplay.setScaleMode(event.target.value)}
-                  className="compact-control !px-2.5 !py-2 !text-[11px]"
+                  className="compact-control compact-control--dense mt-1"
                 >
                   {WAVEFORM_SCALE_OPTIONS.map((option) => (
                     <option key={option.value} value={option.value}>{option.label}</option>
                   ))}
                 </select>
-              </Field>
-            </div>
-            <div className="rounded-[10px] border border-slate-200 bg-slate-50 p-3">
-              <Field
-                label="FG line"
-                hint={waveformDisplay.showSpeechThreshold ? formatDbfsValue(streaming.liveSpeechThresholdDbfs) : 'hidden'}
-              >
+              </label>
+              <label className="waveform-toolbar__group">
+                <span className="type-label-caps">FG line</span>
+                <span className="type-mono-micro">
+                  {waveformDisplay.showSpeechThreshold ? formatDbfsValue(streaming.liveSpeechThresholdDbfs) : '-'}
+                </span>
                 <select
                   value={waveformDisplay.showSpeechThreshold ? 'on' : 'off'}
                   onChange={(event) => waveformDisplay.setShowSpeechThreshold(event.target.value === 'on')}
-                  className="compact-control !px-2.5 !py-2 !text-[11px]"
+                  className="compact-control compact-control--dense mt-1"
                 >
                   <option value="on">show</option>
                   <option value="off">hide</option>
                 </select>
-              </Field>
-            </div>
-            <div className="rounded-[10px] border border-slate-200 bg-slate-50 p-3">
-              <Field label="TEN line" hint={formatFixed(streaming.snapshot?.config?.tenVadThreshold)}>
+              </label>
+              <label className="waveform-toolbar__group">
+                <span className="type-label-caps">TEN line</span>
+                <span className="type-mono-micro">
+                  {formatFixed(streaming.snapshot?.config?.tenVadThreshold)}
+                </span>
                 <select
                   value={waveformDisplay.showTenVadThreshold ? 'on' : 'off'}
                   onChange={(event) => waveformDisplay.setShowTenVadThreshold(event.target.value === 'on')}
-                  className="compact-control !px-2.5 !py-2 !text-[11px]"
+                  className="compact-control compact-control--dense mt-1"
                 >
                   <option value="on">show</option>
                   <option value="off">hide</option>
                 </select>
-              </Field>
-            </div>
-            <div className="rounded-[10px] border border-slate-200 bg-slate-50 p-3">
-              <Field label="RMS" hint="diagnostic">
+              </label>
+              <label className="waveform-toolbar__group">
+                <span className="type-label-caps">RMS</span>
+                <span className="type-micro">diagnostic</span>
                 <select
                   value={waveformDisplay.showPreVadOverlay ? 'on' : 'off'}
                   onChange={(event) => waveformDisplay.setShowPreVadOverlay(event.target.value === 'on')}
-                  className="compact-control !px-2.5 !py-2 !text-[11px]"
+                  className="compact-control compact-control--dense mt-1"
                 >
                   <option value="off">hide</option>
                   <option value="on">show</option>
                 </select>
-              </Field>
+              </label>
             </div>
           </div>
         </section>
 
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.32fr)_minmax(320px,0.68fr)]">
-          <Widget title="Detector Tuning">
-            <div className="space-y-4">
-              <div className="grid gap-3 lg:grid-cols-4">
-                <div className="rounded-[10px] border border-slate-200 bg-slate-50 p-3">
+        <div className="capture-columns capture-columns--ruled">
+          <Widget variant="rail" title="Detector tuning" className="app-rail-section--borderless">
+            <div className="app-stack--tight">
+              <div className="grid-4-lg">
+                <div className="detector-card">
                   <Field label="Preset">
                     <select
                       value={streaming.profileId}
                       onChange={(event) => streaming.applyPreset(event.target.value)}
-                      className="compact-control !px-2.5 !py-2 !text-[11px]"
+                      className="compact-control compact-control--dense"
                     >
                       {streaming.presets.map((preset) => (
                         <option key={preset.id} value={preset.id}>{preset.label}</option>
@@ -125,36 +123,36 @@ export function StreamingCapturePanel({
                     </select>
                   </Field>
                 </div>
-                <div className="rounded-[10px] border border-slate-200 bg-slate-50 p-3">
+                <div className="detector-card">
                   <Field label="Foreground Filter" hint={streaming.snapshot?.gate?.effectiveMode ?? '--'}>
                     <select
                       value={streaming.snapshot?.config?.foregroundFilterEnabled ? 'on' : 'off'}
                       onChange={(event) => streaming.updateConfig({ foregroundFilterEnabled: event.target.value === 'on' })}
-                      className="compact-control !px-2.5 !py-2 !text-[11px]"
+                      className="compact-control compact-control--dense"
                     >
                       <option value="on">enabled</option>
                       <option value="off">disabled</option>
                     </select>
                   </Field>
                 </div>
-                <div className="rounded-[10px] border border-slate-200 bg-slate-50 px-3 py-3 font-mono text-[11px] text-slate-700">
-                  <div className="text-[10px] uppercase tracking-[0.08em] text-slate-500">Default mode</div>
+                <div className="detector-card detector-card--mono">
+                  <div className="detector-card__label">Default mode</div>
                   <div className="mt-2">{streaming.defaultMode}</div>
                 </div>
-                <div className="rounded-[10px] border border-slate-200 bg-slate-50 px-3 py-3 font-mono text-[11px] text-slate-700">
-                  <div className="text-[10px] uppercase tracking-[0.08em] text-slate-500">Release / speech line</div>
+                <div className="detector-card detector-card--mono">
+                  <div className="detector-card__label">Release / speech line</div>
                   <div className="mt-2">{formatMilliseconds(streaming.estimatedTailBudgetMs)}</div>
                   <div className="mt-1">{formatDbfsValue(streaming.liveSpeechThresholdDbfs)}</div>
                 </div>
               </div>
 
               {streaming.tuningGroups.map((group) => (
-                <div key={group.id} className="rounded-[10px] border border-slate-200 bg-slate-50 p-4">
-                  <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                <div key={group.id} className="tuning-group">
+                  <div className="tuning-group__head">
                     <div className="panel-title">{group.title}</div>
-                    <div className="text-[11px] text-slate-600">{group.description}</div>
+                    <div className="type-caption">{group.description}</div>
                   </div>
-                  <div className="grid gap-4 xl:grid-cols-2">
+                  <div className="tuning-sliders">
                     {group.controls.map((definition) => (
                       <StreamingControlSlider
                         key={definition.field}
@@ -171,47 +169,49 @@ export function StreamingCapturePanel({
             </div>
           </Widget>
 
-          <div className="space-y-6">
-            <section className="rounded-[10px] border border-slate-300 bg-white p-4">
-              <div className="space-y-4">
-                <div className="min-w-0">
-                  <div className="panel-title">Microphone</div>
-                  <div className="mt-1 text-[11px] leading-5 text-slate-600">
+          <div className="capture-rail">
+            <section className="app-rail-section app-rail-section--flush-top">
+              <div className="widget-header widget-header--rail">
+                <div>
+                  <h2 className="section-heading">Microphone</h2>
+                  <p className="section-subtitle">
                     Start capture, switch mode, and send buffered speech.
-                  </div>
-                  {microphone.error ? <div className="mt-1 text-[11px] text-rose-600">{microphone.error}</div> : null}
+                  </p>
+                  {microphone.error ? <p className="section-subtitle text-danger">{microphone.error}</p> : null}
                 </div>
+              </div>
 
+              <div className="app-stack--sm">
                 <Field label="Mode">
                   <select
                     value={microphone.mode}
                     onChange={(event) => microphone.setMode(event.target.value)}
                     disabled={microphone.isActive}
-                    className="compact-control !px-2.5 !py-2 !text-[11px]"
+                    className="compact-control compact-control--dense"
                   >
                     <option value="manual">Manual</option>
                     <option value="speech-detect">Speech Detect</option>
                   </select>
                 </Field>
 
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="flex-row flex-row--wrap gap-2">
                   <button
                     type="button"
                     onClick={microphone.isActive ? () => microphone.stop({ flush: true }) : microphone.start}
                     disabled={microphone.isLoadingSample || !microphone.supportsInput}
-                    className={microphone.isActive ? 'compact-button-secondary !px-3 !py-2 !text-[11px]' : 'compact-button-dark !px-3 !py-2 !text-[11px]'}
+                    className={microphone.isActive ? 'compact-button-secondary compact-button--sm' : 'compact-button-dark compact-button--sm'}
                   >
                     {microphone.isActive ? 'Stop Mic' : 'Start Mic'}
                   </button>
                   {microphone.isActive || microphone.mode === 'speech-detect' ? (
-                    <button type="button" onClick={() => microphone.flush('manual')} className="compact-button-secondary !px-3 !py-2 !text-[11px]">
+                    <button type="button" onClick={() => microphone.flush('manual')} className="compact-button-secondary compact-button--sm">
                       Send
                     </button>
                   ) : null}
-                  <button type="button" onClick={() => debugHud.setVisible(!debugHud.isVisible)} className="compact-button-secondary !px-3 !py-2 !text-[11px]">
+                  <button type="button" onClick={() => debugHud.setVisible(!debugHud.isVisible)} className="compact-button-secondary compact-button--sm">
                     {debugHud.isVisible ? 'Hide Advanced' : 'Advanced'}
                   </button>
-                  <span className="status-chip status-muted">{microphone.status}</span>
+                  <span className="mic-status-inline">{microphone.status}</span>
                 </div>
               </div>
             </section>
@@ -219,11 +219,11 @@ export function StreamingCapturePanel({
             <SignalMeter monitor={streaming.monitor} capture={streaming.captureInfo} />
 
             {streaming.detectorWarnings.length > 0 ? (
-              <section className="rounded-[10px] border border-rose-200 bg-rose-50 p-4">
-                <div className="mb-2 panel-title !text-rose-700">Warnings</div>
-                <div className="space-y-1.5">
+              <section className="alert-warn-banner">
+                <div className="panel-title title-danger">Warnings</div>
+                <div className="app-stack--2xs mt-2">
                   {streaming.detectorWarnings.map((warning) => (
-                    <div key={warning} className="rounded-[10px] border border-rose-200 bg-white px-3 py-2 text-[11px] text-rose-700">
+                    <div key={warning} className="alert-warn-item">
                       {warning}
                     </div>
                   ))}
@@ -231,36 +231,36 @@ export function StreamingCapturePanel({
               </section>
             ) : null}
 
-            <div className="grid gap-6 lg:grid-cols-2">
-              <Widget title="Decisions">
-                <div className="space-y-1.5">
+            <div className="grid-2-loose grid-2-loose--tight">
+              <Widget variant="rail" title="Decisions" className="app-rail-section--borderless">
+                <div className="app-stack--2xs">
                   {streaming.recentDecisionEntries.length > 0 ? streaming.recentDecisionEntries.map((entry) => (
-                    <div key={entry.id} className="rounded-[10px] border border-slate-200 bg-slate-50 px-3 py-2.5">
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="text-[11px] font-medium text-slate-900">{entry.message}</div>
-                        <div className="font-mono text-[10px] text-slate-600">{entry.at}</div>
+                    <div key={entry.id} className="list-card">
+                      <div className="list-card__row">
+                        <div className="list-card__title">{entry.message}</div>
+                        <div className="list-card__meta">{entry.at}</div>
                       </div>
                     </div>
-                  )) : <div className="text-[11px] text-slate-600">No decisions yet.</div>}
+                  )) : <div className="type-caption">No decisions yet.</div>}
                 </div>
               </Widget>
 
-              <Widget title="Segments">
-                <div className="space-y-1.5">
+              <Widget variant="rail" title="Segments" className="app-rail-section--borderless">
+                <div className="app-stack--2xs">
                   {streaming.recentSegmentEntries.length > 0 ? streaming.recentSegmentEntries.map((segment) => {
                     const duration = getStreamingSegmentDurationSeconds(segment, segment.sampleRate);
                     return (
-                      <div key={`${segment.startFrame}-${segment.endFrame}`} className="rounded-[10px] border border-slate-200 bg-slate-50 px-3 py-2.5">
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="text-[11px] font-medium text-slate-900">{segment.reason || 'segment'}</div>
-                          <div className="font-mono text-[10px] text-slate-700">{formatSecondsValue(duration)}</div>
+                      <div key={`${segment.startFrame}-${segment.endFrame}`} className="list-card">
+                        <div className="list-card__row">
+                          <div className="list-card__title">{segment.reason || 'segment'}</div>
+                          <div className="list-card__meta">{formatSecondsValue(duration)}</div>
                         </div>
-                        <div className="mt-1 font-mono text-[10px] text-slate-600">
+                        <div className="list-card__sub">
                           {formatSampleRate(segment.sampleRate)} · {segment.startFrame} {'->'} {segment.endFrame}
                         </div>
                       </div>
                     );
-                  }) : <div className="text-[11px] text-slate-600">No segments yet.</div>}
+                  }) : <div className="type-caption">No segments yet.</div>}
                 </div>
               </Widget>
             </div>
@@ -283,6 +283,6 @@ export function StreamingCapturePanel({
           </div>
         ) : null}
       </div>
-    </Widget>
+    </div>
   );
 }

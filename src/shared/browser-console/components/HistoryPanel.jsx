@@ -17,49 +17,53 @@ export function HistoryPanel({ app }) {
   return (
     <Widget
       title="History"
-      actions={<button type="button" onClick={clearTranscriptions} className="compact-button-secondary !py-2">Clear All</button>}
+      actions={(
+        <button type="button" onClick={clearTranscriptions} className="compact-button-secondary compact-button--toolbar">
+          Clear All
+        </button>
+      )}
     >
-      <div className="space-y-3">
+      <div className="app-stack--sm">
         {transcriptions.map((trans) => (
           <div key={trans.id} className="demo-soft-box">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="history-card-head">
               <div>
-                <div className="text-[12px] font-semibold text-slate-900">{trans.filename}</div>
-                <div className="mt-1 text-[11px] text-slate-500">
+                <div className="type-body-lg font-semibold">{trans.filename}</div>
+                <div className="mt-1 type-caption">
                   {trans.language ? app.getBuiltInModelLanguageName(trans.language) : 'Unknown language'}
                   {trans.targetLanguage && ` -> ${app.getBuiltInModelLanguageName(trans.targetLanguage)}`}
                 </div>
               </div>
-              <div className="text-[10px] text-slate-400">{trans.timestamp}</div>
+              <div className="type-micro shrink-0">{trans.timestamp}</div>
             </div>
-            <div className="mt-2 flex flex-wrap gap-2 text-[10px] text-slate-500">
+            <div className="flex-row flex-row--wrap gap-2 type-micro mt-2">
               <span>{trans.duration.toFixed(1)}s</span>
               <span>{trans.wordCount} words</span>
               {trans.confidence ? <span>{formatPercentValue(trans.confidence)}</span> : null}
               {trans.metrics ? <span>RTF {formatFixed(trans.metrics.rtf)}x</span> : null}
             </div>
             {trans.clipUrl ? (
-              <div className="mt-3 space-y-2">
+              <div className="app-stack--xs mt-3">
                 <audio
                   controls
                   preload="none"
                   src={trans.clipUrl}
                   className="w-full"
                 />
-                <div className="flex justify-end">
+                <div className="flex-row flex-row--end">
                   <a
                     href={trans.clipUrl}
                     download={trans.clipFilename ?? `${trans.filename || 'clip'}.wav`}
-                    className="compact-button-secondary !px-3 !py-2 no-underline"
+                    className="compact-button-secondary compact-button--icon compact-button--link"
                     title={trans.clipFilename ? `Download ${trans.clipFilename}` : 'Download clip'}
                     aria-label={trans.clipFilename ? `Download ${trans.clipFilename}` : 'Download clip'}
                   >
-                    <span className="material-icons-outlined text-[16px]">download</span>
+                    <span className="material-icons-outlined icon-sm">download</span>
                   </a>
                 </div>
               </div>
             ) : null}
-            <div className="mt-3 rounded-[10px] border border-slate-200 bg-white px-3 py-3 text-[12px] leading-6 text-slate-800">
+            <div className="history-text-block">
               {trans.text}
             </div>
           </div>
