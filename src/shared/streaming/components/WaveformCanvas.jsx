@@ -120,6 +120,8 @@ function selectWaveformFrame(snapshot) {
     plot: snapshot.plot ?? null,
     config: snapshot.config ?? null,
     gate: snapshot.gate ?? null,
+    foreground: snapshot.foreground ?? null,
+    acceptance: snapshot.acceptance ?? null,
     recentSegments: snapshot.recentSegments ?? [],
     activeSegment: snapshot.activeSegment ?? null,
     capture: snapshot.capture ?? null,
@@ -144,11 +146,21 @@ function formatThreshold(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value.toFixed(2) : '--';
 }
 
+function MetaItem({ label, value, title }) {
+  return (
+    <div className="rounded-[8px] border border-slate-200 bg-slate-50 px-3 py-2" title={title}>
+      <div className="font-mono text-[10px] uppercase tracking-[0.08em] text-slate-500">{label}</div>
+      <div className="mt-1 font-mono text-[11px] font-semibold text-slate-900">{value}</div>
+    </div>
+  );
+}
+
 export function WaveformCanvas({
   monitor = null,
   ringCapture = null,
   capture = null,
-  scaleMode = 'adaptive',
+  scaleMode = 'focus',
+  showSpeechThreshold = false,
   showTenVadThreshold = false,
   showPreVadOverlay = false,
 }) {
@@ -191,12 +203,27 @@ export function WaveformCanvas({
             waveform: frame.waveform,
             plot: frame.plot,
             config: frame.config,
+            foreground: frame.foreground,
+            acceptance: frame.acceptance,
             activeSegment: frame.activeSegment,
             recentSegments: frame.recentSegments,
           }
         : null,
     [frame],
   );
+  const foregroundNoiseFloorDbfs =
+    typeof frame?.foreground?.noiseFloorDbfs === 'number'
+    && Number.isFinite(frame.foreground.noiseFloorDbfs)
+      ? frame.foreground.noiseFloorDbfs
+      : null;
+  const speechThresholdDbfs =
+    frame?.config?.foregroundFilterEnabled && showSpeechThreshold
+      ? foregroundNoiseFloorDbfs !== null
+        && typeof frame?.config?.foregroundMinDb === 'number'
+        && Number.isFinite(frame.config.foregroundMinDb)
+          ? foregroundNoiseFloorDbfs + Number(frame.config.foregroundMinDb)
+          : null
+      : null;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -291,8 +318,8 @@ export function WaveformCanvas({
       paintCountRef.current += 1;
       renderWaveformFrame(context, renderFrame, width, height, {
         waveformScaleMode: scaleMode,
-        showSpeechThreshold: typeof renderFrame?.config?.minSpeechLevelDbfs === 'number',
-        speechThresholdDbfs: renderFrame?.config?.minSpeechLevelDbfs ?? null,
+        showSpeechThreshold,
+        speechThresholdDbfs,
         showTenVadThreshold,
         tenVadThreshold: renderFrame?.config?.tenVadThreshold ?? null,
         showPreVadOverlay,
@@ -304,12 +331,12 @@ export function WaveformCanvas({
         window.cancelAnimationFrame(frameRef.current);
       }
     };
-  }, [paintMode, plot, renderFrame, scaleMode, showPreVadOverlay, showTenVadThreshold]);
+  }, [paintMode, plot, renderFrame, scaleMode, showPreVadOverlay, showSpeechThreshold, showTenVadThreshold, speechThresholdDbfs]);
 
   return (
     <div className="streaming-waveform-wrap">
-      <div className="mb-2 flex items-center justify-between font-mono text-[10px] text-slate-500">
-        <span>waveform</span>
+      <div className="mb-3 flex items-center justify-between font-mono text-[10px] text-slate-600">
+        <span className="font-semibold uppercase tracking-[0.08em] text-slate-700">waveform</span>
         <span>{frame?.state || 'idle'} · {paintMode}</span>
       </div>
       <canvas
@@ -318,21 +345,19 @@ export function WaveformCanvas({
         style={{ width: `${Math.max(1, plot?.pointCount ?? 1)}px`, height: `${WAVEFORM_CANVAS_HEIGHT}px` }}
         className="streaming-waveform-canvas rounded-[8px]"
       />
-      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-[10px] text-slate-500">
-        <span title={contextRate ? `context ${formatRate(contextRate)}` : undefined}>{rateLabel}</span>
-        <span>{chunkFrames ? `chunk ${formatChunkDuration(chunkDurationMs)} / ${chunkFrames}f` : '--'}</span>
-        <span>{formatSeconds(visibleSeconds)}</span>
-        <span>{frame?.activeSegment ? 'segment active' : 'no active segment'}</span>
-        <span>
-          {plot ? `live ${Math.max(0, plot.livePointIndex + 1)}/${plot.pointCount} · pad ${plot.padPoints}` : '--'}
-        </span>
-        <span>{`speech ${formatDbfs(frame?.config?.minSpeechLevelDbfs)}`}</span>
-        <span>{`ten ${formatThreshold(frame?.config?.tenVadThreshold)}`}</span>
-        <span>{`gate ${frame?.gate?.effectiveMode ?? plot?.gateMode ?? '--'}`}</span>
-        <span>{`scale ${scaleMode}`}</span>
-        <span>{`ten_thr ${showTenVadThreshold ? 'on' : 'off'}`}</span>
-        <span>{`rms_overlay ${showPreVadOverlay ? 'on' : 'off'}`}</span>
-        <span>{`pub ${perfStats.publishHz}/s · paint ${perfStats.paintHz}/s`}</span>
+      <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+        <MetaItem label="Rate" value={rateLabel} title={contextRate ? `context ${formatRate(contextRate)}` : undefined} />
+        <MetaItem label="Chunk" value={chunkFrames ? `${formatChunkDuration(chunkDurationMs)} / ${chunkFrames}f` : '--'} />
+        <MetaItem label="Window" value={formatSeconds(visibleSeconds)} />
+        <MetaItem label="Segment" value={frame?.activeSegment ? 'active' : 'inactive'} />
+        <MetaItem label="Live buffer" value={plot ? `${Math.max(0, plot.livePointIndex + 1)}/${plot.pointCount} · pad ${plot.padPoints}` : '--'} />
+        <MetaItem label="FG min" value={formatThreshold(frame?.config?.foregroundMinDb)} />
+        <MetaItem label="TEN thr" value={formatThreshold(frame?.config?.tenVadThreshold)} />
+        <MetaItem label="Mode" value={frame?.gate?.effectiveMode ?? plot?.gateMode ?? '--'} />
+        <MetaItem label="Scale" value={scaleMode} />
+        <MetaItem label="Speech line" value={showSpeechThreshold ? formatDbfs(speechThresholdDbfs) : 'off'} />
+        <MetaItem label="TEN line" value={showTenVadThreshold ? 'on' : 'off'} />
+        <MetaItem label="Publish/Paint" value={`${perfStats.publishHz}/s · ${perfStats.paintHz}/s`} />
       </div>
     </div>
   );

@@ -38,7 +38,7 @@ describe('usePersistentStreamingSettings', () => {
     });
 
     const stored = JSON.parse(localStorage.getItem('asrjs-streaming-demo-streaming-mic-settings'));
-    expect(stored.version).toBe(3);
+    expect(stored.version).toBe(4);
     expect(stored.hudVisible).toBe(true);
     expect(stored.profileId).toBe('custom');
     expect(stored.customConfig.prerollMs).toBe(777);
