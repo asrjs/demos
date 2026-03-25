@@ -1,0 +1,73 @@
+name: Feature Request
+description: Propose a demo feature, workflow improvement, or debugging aid for the streaming demo
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Preflight
+      options:
+        - label: I searched existing issues and pull requests for the same request.
+          required: true
+        - label: This request is for the demo app, not only the underlying library.
+          required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What workflow, debugging task, or UI flow is currently blocked or inefficient?
+      placeholder: I need the demo to ...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected Area
+      options:
+        - model loading and setup
+        - realtime lab controls
+        - waveform / signal visualization
+        - microphone capture workflow
+        - transcript / history UX
+        - build / local development
+        - documentation
+        - other
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed Solution
+      description: Describe the desired behavior or UI change.
+      placeholder: |
+        Proposed behavior:
+        Proposed UI:
+        Why it helps:
+    validations:
+      required: true
+
+  - type: textarea
+    id: library_dependency
+    attributes:
+      label: Library Dependency
+      description: Note whether this requires a corresponding change in `@asrjs/speech-recognition`.
+      placeholder: Demo-only / depends on library API / blocked by library runtime work
+    validations:
+      required: false
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Example Workflow
+      description: Show how a user would interact with the feature if it existed.
+      placeholder: |
+        1. Open Realtime Lab
+        2. ...
+        3. ...
+    validations:
+      required: false

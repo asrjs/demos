@@ -8,25 +8,30 @@ The browser demo streaming path is split into:
 
 1. browser microphone capture from `@asrjs/speech-recognition/browser`
 2. rolling PCM ring buffer
-3. rough speech gate
-4. TEN-VAD adapter
-5. streaming speech detector
+3. TEN-VAD adapter
+4. TEN-VAD-first segment builder
+5. segment foreground filter
 6. demo-only debug HUD
 
-The rough gate is intentionally cheap:
+TEN-VAD is the primary detector:
 
-- adaptive noise floor
-- RMS energy threshold
-- SNR threshold
-- rising-energy lookback for speech onset
-- silence hangover for end detection
+- consumes the 16 kHz mono timeline continuously
+- owns segment start and end decisions through thresholding, confirmation, and hangover
+- rewinds accepted speech with pre-roll
+- degrades gracefully to rough-gate-only fallback when worker init fails
 
-TEN-VAD is the confirmation layer:
+The foreground filter runs only after a segment closes:
 
-- consumes the same 16 kHz mono timeline as the rough gate
-- can refine speech start closer to the first speech hop
-- can confirm silence before segment finalization
-- degrades gracefully to rough-gate-only mode when worker init fails
+- computes short-window RMS in dBFS
+- compares segment P90 loudness against the adaptive noise floor
+- compares onset loudness against the noise floor for short segments
+- rejects long quiet background speech with a separate long-segment threshold
+
+The rough gate remains only for:
+
+- diagnostics
+- noise-floor telemetry
+- degraded fallback when TEN-VAD is unavailable
 
 ## Frame Timeline
 
@@ -34,8 +39,8 @@ All stages share one frame timeline at the target sample rate:
 
 - browser capture emits `startFrame` / `endFrame`
 - ring buffer stores PCM by absolute frame offset
-- rough gate tracks chunk onset using the same offsets
 - TEN-VAD returns hop-level flags anchored to the same offsets
+- the segment builder and foreground filter both keep those offsets
 - finalized segments expose `startFrame`, `endFrame`, and `readPcm()`
 
 This is the key extraction boundary for future library work.
@@ -47,12 +52,11 @@ The HUD is demo-only and reads `StreamingSpeechDetectorSnapshot` rather than tou
 It shows:
 
 - waveform from the rolling ring buffer
-- short-window speech level in dBFS
-- rolling 1 second speech level in dBFS
 - noise floor in dBFS
-- calibrated speech threshold in dBFS
-- SNR
 - TEN-VAD probability/state
+- segment foreground dB above floor
+- onset dB above floor
+- accept/reject reason
 - active segment and recent finalized segments
 
 The HUD and tuning values are persisted in local storage under:
@@ -94,6 +98,6 @@ Refresh workflow:
 
 Planned future split:
 
-- detector core -> `speech-recognition/src/runtime`
+- TEN-VAD segmenter and foreground filter -> `speech-recognition/src/runtime`
 - TEN-VAD adapter / browser worker surface -> `speech-recognition` browser/runtime entrypoints
 - debug HUD -> stays in `streaming-demo`

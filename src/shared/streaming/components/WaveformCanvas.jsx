@@ -5,6 +5,7 @@ import {
   renderBrowserRealtimeWaveformFrame as renderWaveformFrame,
 } from '@asrjs/speech-recognition/browser';
 import { useStreamingMonitor } from '../useStreamingMonitor.js';
+import { formatDbfsValue, formatMilliseconds } from '../layout/formatters.js';
 
 // The current plot payload is object-heavy and expensive to structured-clone into a worker.
 // Keep painting on the main thread until the raster payload is typed-array based.
@@ -120,6 +121,8 @@ function selectWaveformFrame(snapshot) {
     plot: snapshot.plot ?? null,
     config: snapshot.config ?? null,
     gate: snapshot.gate ?? null,
+    foreground: snapshot.foreground ?? null,
+    acceptance: snapshot.acceptance ?? null,
     recentSegments: snapshot.recentSegments ?? [],
     activeSegment: snapshot.activeSegment ?? null,
     capture: snapshot.capture ?? null,
@@ -144,13 +147,50 @@ function formatThreshold(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value.toFixed(2) : '--';
 }
 
+function renderMetricRow(segments) {
+  return segments.map((segment, index) => (
+    <React.Fragment key={segment.key}>
+      {index > 0 ? (
+        <span className="waveform-metrics__sep" aria-hidden>
+          ·
+        </span>
+      ) : null}
+      <span className="waveform-metrics__item" title={segment.title}>
+        <span className="waveform-metrics__key">{segment.label}</span>
+        {' '}
+        <span className="waveform-metrics__val">{segment.value}</span>
+      </span>
+    </React.Fragment>
+  ));
+}
+
+function WaveformMetricsStrip({ rows }) {
+  return (
+    <div className="waveform-metrics" role="status" aria-live="polite" aria-label="Waveform metrics">
+      {rows.map((segments, rowIndex) => (
+        <div
+          key={rowIndex}
+          className="waveform-metrics__row"
+          aria-label={rowIndex === 0 ? 'Capture and timeline' : 'Live gate, thresholds, and display'}
+        >
+          <div className="waveform-metrics__scroll">{renderMetricRow(segments)}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function WaveformCanvas({
   monitor = null,
   ringCapture = null,
   capture = null,
-  scaleMode = 'adaptive',
+  scaleMode = 'focus',
+  showSpeechThreshold = false,
   showTenVadThreshold = false,
   showPreVadOverlay = false,
+  liveReleaseMs = null,
+  liveNoiseDbfs = null,
+  liveSpeechDbfs = null,
 }) {
   const canvasRef = useRef(null);
   const frameRef = useRef(0);
@@ -191,12 +231,27 @@ export function WaveformCanvas({
             waveform: frame.waveform,
             plot: frame.plot,
             config: frame.config,
+            foreground: frame.foreground,
+            acceptance: frame.acceptance,
             activeSegment: frame.activeSegment,
             recentSegments: frame.recentSegments,
           }
         : null,
     [frame],
   );
+  const foregroundNoiseFloorDbfs =
+    typeof frame?.foreground?.noiseFloorDbfs === 'number'
+    && Number.isFinite(frame.foreground.noiseFloorDbfs)
+      ? frame.foreground.noiseFloorDbfs
+      : null;
+  const speechThresholdDbfs =
+    frame?.config?.foregroundFilterEnabled && showSpeechThreshold
+      ? foregroundNoiseFloorDbfs !== null
+        && typeof frame?.config?.foregroundMinDb === 'number'
+        && Number.isFinite(frame.config.foregroundMinDb)
+          ? foregroundNoiseFloorDbfs + Number(frame.config.foregroundMinDb)
+          : null
+      : null;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -291,8 +346,8 @@ export function WaveformCanvas({
       paintCountRef.current += 1;
       renderWaveformFrame(context, renderFrame, width, height, {
         waveformScaleMode: scaleMode,
-        showSpeechThreshold: typeof renderFrame?.config?.minSpeechLevelDbfs === 'number',
-        speechThresholdDbfs: renderFrame?.config?.minSpeechLevelDbfs ?? null,
+        showSpeechThreshold,
+        speechThresholdDbfs,
         showTenVadThreshold,
         tenVadThreshold: renderFrame?.config?.tenVadThreshold ?? null,
         showPreVadOverlay,
@@ -304,36 +359,47 @@ export function WaveformCanvas({
         window.cancelAnimationFrame(frameRef.current);
       }
     };
-  }, [paintMode, plot, renderFrame, scaleMode, showPreVadOverlay, showTenVadThreshold]);
+  }, [paintMode, plot, renderFrame, scaleMode, showPreVadOverlay, showSpeechThreshold, showTenVadThreshold, speechThresholdDbfs]);
+
+  const bufferLabel = plot
+    ? `${Math.max(0, plot.livePointIndex + 1)}/${plot.pointCount} pad ${plot.padPoints}`
+    : '--';
+  const chunkLabel = chunkFrames ? `${formatChunkDuration(chunkDurationMs)}/${chunkFrames}f` : '--';
+  const metricsCaptureRow = [
+    { key: 'rate', label: 'rate', value: rateLabel, title: contextRate ? `context ${formatRate(contextRate)}` : undefined },
+    { key: 'chunk', label: 'chunk', value: chunkLabel },
+    { key: 'window', label: 'win', value: formatSeconds(visibleSeconds) },
+    { key: 'segment', label: 'seg', value: frame?.activeSegment ? 'active' : 'inactive' },
+    { key: 'buffer', label: 'buf', value: bufferLabel },
+    { key: 'hz', label: 'pub/paint', value: `${perfStats.publishHz}/s ${perfStats.paintHz}/s` },
+  ];
+  const metricsDetectorRow = [
+    { key: 'mode', label: 'mode', value: String(frame?.gate?.effectiveMode ?? plot?.gateMode ?? '--') },
+    { key: 'release', label: 'release', value: formatMilliseconds(liveReleaseMs) },
+    { key: 'noise', label: 'noise', value: formatDbfsValue(liveNoiseDbfs) },
+    { key: 'speech', label: 'speech', value: formatDbfsValue(liveSpeechDbfs) },
+    { key: 'fg', label: 'fg min', value: formatThreshold(frame?.config?.foregroundMinDb) },
+    { key: 'ten', label: 'ten thr', value: formatThreshold(frame?.config?.tenVadThreshold) },
+    { key: 'scale', label: 'scale', value: scaleMode },
+    { key: 'sp', label: 'sp line', value: showSpeechThreshold ? formatDbfs(speechThresholdDbfs) : 'off' },
+    { key: 'tenln', label: 'ten ln', value: showTenVadThreshold ? 'on' : 'off' },
+  ];
 
   return (
     <div className="streaming-waveform-wrap">
-      <div className="mb-2 flex items-center justify-between font-mono text-[10px] text-slate-500">
-        <span>waveform</span>
-        <span>{frame?.state || 'idle'} · {paintMode}</span>
+      <div className="waveform-strip-head">
+        <span className="waveform-strip-head__title">Waveform</span>
+        <span className="waveform-strip-head__state min-w-0 truncate">
+          {frame?.state || 'idle'} · {paintMode}
+        </span>
       </div>
       <canvas
         ref={canvasRef}
         height={WAVEFORM_CANVAS_HEIGHT}
         style={{ width: `${Math.max(1, plot?.pointCount ?? 1)}px`, height: `${WAVEFORM_CANVAS_HEIGHT}px` }}
-        className="streaming-waveform-canvas rounded-[8px]"
+        className="streaming-waveform-canvas"
       />
-      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-[10px] text-slate-500">
-        <span title={contextRate ? `context ${formatRate(contextRate)}` : undefined}>{rateLabel}</span>
-        <span>{chunkFrames ? `chunk ${formatChunkDuration(chunkDurationMs)} / ${chunkFrames}f` : '--'}</span>
-        <span>{formatSeconds(visibleSeconds)}</span>
-        <span>{frame?.activeSegment ? 'segment active' : 'no active segment'}</span>
-        <span>
-          {plot ? `live ${Math.max(0, plot.livePointIndex + 1)}/${plot.pointCount} · pad ${plot.padPoints}` : '--'}
-        </span>
-        <span>{`speech ${formatDbfs(frame?.config?.minSpeechLevelDbfs)}`}</span>
-        <span>{`ten ${formatThreshold(frame?.config?.tenVadThreshold)}`}</span>
-        <span>{`gate ${frame?.gate?.effectiveMode ?? plot?.gateMode ?? '--'}`}</span>
-        <span>{`scale ${scaleMode}`}</span>
-        <span>{`ten_thr ${showTenVadThreshold ? 'on' : 'off'}`}</span>
-        <span>{`rms_overlay ${showPreVadOverlay ? 'on' : 'off'}`}</span>
-        <span>{`pub ${perfStats.publishHz}/s · paint ${perfStats.paintHz}/s`}</span>
-      </div>
+      <WaveformMetricsStrip rows={[metricsCaptureRow, metricsDetectorRow]} />
     </div>
   );
 }

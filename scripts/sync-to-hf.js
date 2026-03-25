@@ -124,10 +124,6 @@ copyDir(
 // --- Config files (only ones that should be identical) ---
 console.log('\n📂 Syncing config files...');
 copyFile(
-    path.join(PROJECT_ROOT, 'tailwind.config.js'),
-    path.join(HF_REPO_PATH, 'tailwind.config.js'),
-);
-copyFile(
     path.join(PROJECT_ROOT, 'postcss.config.js'),
     path.join(HF_REPO_PATH, 'postcss.config.js'),
 );

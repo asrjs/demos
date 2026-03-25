@@ -9,22 +9,24 @@ import {
 } from '@asrjs/speech-recognition/realtime';
 
 const STORAGE_KEY = 'asrjs-streaming-demo-streaming-mic-settings';
-const STORAGE_VERSION = 3;
+const STORAGE_VERSION = 4;
 
 function migrateStoredConfig(config) {
   if (!config || typeof config !== 'object') {
     return {};
   }
+  const migrated = { ...config };
   if (
-    typeof config.energyThreshold === 'number' &&
-    typeof config.minSpeechLevelDbfs !== 'number'
+    typeof migrated.energyThreshold === 'number' &&
+    typeof migrated.minSpeechLevelDbfs !== 'number'
   ) {
-    return {
-      ...config,
-      minSpeechLevelDbfs: 20 * Math.log10(Math.max(config.energyThreshold, 0.000001)),
-    };
+    migrated.minSpeechLevelDbfs = 20 * Math.log10(Math.max(migrated.energyThreshold, 0.000001));
   }
-  return config;
+  if (migrated.gateMode === 'rough-and-ten-vad') {
+    migrated.gateMode = 'ten-vad-only';
+  }
+  delete migrated.energyThreshold;
+  return migrated;
 }
 
 function loadStoredSettings() {
@@ -35,7 +37,7 @@ function loadStoredSettings() {
     if (!parsed || typeof parsed !== 'object') {
       return null;
     }
-    if (parsed.version !== STORAGE_VERSION && parsed.version !== 2) {
+    if (parsed.version !== STORAGE_VERSION && parsed.version !== 3 && parsed.version !== 2) {
       return null;
     }
     return {

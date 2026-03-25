@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Demo Setup and Usage
+    url: https://github.com/asrjs/streaming-demo#readme
+    about: Check the demo README and setup notes before opening an issue.
+  - name: Existing Issues
+    url: https://github.com/asrjs/streaming-demo/issues
+    about: Search existing issues for the same UI, workflow, or realtime-lab behavior first.
