@@ -38,7 +38,7 @@ describe('usePersistentStreamingSettings', () => {
     });
 
     const stored = JSON.parse(localStorage.getItem('asrjs-streaming-demo-streaming-mic-settings'));
-    expect(stored.version).toBe(4);
+    expect(stored.version).toBe(6);
     expect(stored.hudVisible).toBe(true);
     expect(stored.profileId).toBe('custom');
     expect(stored.customConfig.prerollMs).toBe(777);
@@ -48,7 +48,7 @@ describe('usePersistentStreamingSettings', () => {
     });
   });
 
-  it('migrates legacy energy thresholds to dBFS tuning values', async () => {
+  it('migrates legacy gate settings to the new acceptance schema', async () => {
     globalThis.IS_REACT_ACT_ENVIRONMENT = true;
     localStorage.clear();
     localStorage.setItem(
@@ -60,6 +60,8 @@ describe('usePersistentStreamingSettings', () => {
         profileId: 'custom',
         customConfig: {
           energyThreshold: 0.01,
+          gateMode: 'ten-vad-only',
+          foregroundLongMinDb: 6,
         },
       }),
     );
@@ -80,7 +82,10 @@ describe('usePersistentStreamingSettings', () => {
       );
     });
 
+    expect(latest.resolvedConfig.energyThreshold).toBe(0.01);
     expect(latest.resolvedConfig.minSpeechLevelDbfs).toBeCloseTo(-40, 0);
+    expect(latest.resolvedConfig.gateMode).toBe('rough-only');
+    expect('foregroundLongMinDb' in latest.resolvedConfig).toBe(false);
 
     await act(async () => {
       root.unmount();

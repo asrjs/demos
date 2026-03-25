@@ -1,18 +1,81 @@
 import React from 'react';
+import {
+  BROWSER_BINARY_TOGGLE_OPTIONS,
+  BROWSER_MONITOR_DISPLAY_CONTROL_DEFINITIONS,
+  BROWSER_MONITOR_SURFACE_OPTIONS,
+  BROWSER_REVERSED_BINARY_TOGGLE_OPTIONS,
+  BROWSER_WAVEFORM_SCALE_OPTIONS,
+  shouldDisableBrowserWaveformVisualControls,
+  shouldRenderBrowserCompactStats,
+  shouldRenderBrowserWaveform,
+  shouldRenderBrowserWaveformFooterMetrics,
+} from '@asrjs/speech-recognition/browser';
 import { getStreamingSegmentDurationSeconds } from '@asrjs/speech-recognition/realtime';
 import { StreamingDebugHud } from './StreamingDebugHud.jsx';
 import { WaveformCanvas } from './WaveformCanvas.jsx';
+import { WaveformCompactStats } from './WaveformCompactStats.tsx';
 import { SignalMeter } from './SignalMeter.jsx';
 import { StreamingControlSlider } from './StreamingControlSlider.jsx';
 import { Field, Widget } from '../../ui/PanelPrimitives.jsx';
-import { WAVEFORM_SCALE_OPTIONS } from '../layout/constants.js';
 import {
-  formatDbfsValue,
-  formatFixed,
-  formatMilliseconds,
   formatSampleRate,
   formatSecondsValue,
 } from '../layout/formatters.js';
+
+const ACCEPTANCE_PRESETS = [
+  {
+    id: 'open',
+    label: 'Open',
+    thresholds: {
+      minSpeechDurationMs: 200,
+      minEnergyPerSecond: 4,
+      minEnergyIntegral: 16,
+      adaptiveEnergyPerSecondFactor: 8,
+      adaptiveEnergyIntegralFactor: 20,
+      minAdaptiveEnergyPerSecond: 0.5,
+      minAdaptiveEnergyIntegral: 2,
+    },
+  },
+  {
+    id: 'balanced',
+    label: 'Balanced',
+    thresholds: {
+      minSpeechDurationMs: 240,
+      minEnergyPerSecond: 5,
+      minEnergyIntegral: 22,
+      adaptiveEnergyPerSecondFactor: 10,
+      adaptiveEnergyIntegralFactor: 25,
+      minAdaptiveEnergyPerSecond: 1,
+      minAdaptiveEnergyIntegral: 3,
+    },
+  },
+  {
+    id: 'strict',
+    label: 'Strict',
+    thresholds: {
+      minSpeechDurationMs: 280,
+      minEnergyPerSecond: 6,
+      minEnergyIntegral: 28,
+      adaptiveEnergyPerSecondFactor: 12,
+      adaptiveEnergyIntegralFactor: 30,
+      minAdaptiveEnergyPerSecond: 1.5,
+      minAdaptiveEnergyIntegral: 4,
+    },
+  },
+];
+
+function resolveAcceptancePreset(config) {
+  const match = ACCEPTANCE_PRESETS.find((preset) => (
+    preset.thresholds.minSpeechDurationMs === Number(config?.minSpeechDurationMs)
+    && preset.thresholds.minEnergyPerSecond === Number(config?.minEnergyPerSecond)
+    && preset.thresholds.minEnergyIntegral === Number(config?.minEnergyIntegral)
+    && preset.thresholds.adaptiveEnergyPerSecondFactor === Number(config?.adaptiveEnergyPerSecondFactor)
+    && preset.thresholds.adaptiveEnergyIntegralFactor === Number(config?.adaptiveEnergyIntegralFactor)
+    && preset.thresholds.minAdaptiveEnergyPerSecond === Number(config?.minAdaptiveEnergyPerSecond)
+    && preset.thresholds.minAdaptiveEnergyIntegral === Number(config?.minAdaptiveEnergyIntegral)
+  ));
+  return match?.id ?? 'custom';
+}
 
 export function StreamingCapturePanel({
   waveformDisplay,
@@ -20,6 +83,14 @@ export function StreamingCapturePanel({
   microphone,
   debugHud,
 }) {
+  const acceptancePresetId = resolveAcceptancePreset(streaming.snapshot?.config);
+  const acceptanceGroup = streaming.tuningGroups.find((group) => group.id === 'acceptance') ?? null;
+  const acceptanceAdvancedGroup = streaming.tuningGroups.find((group) => group.id === 'acceptance-advanced') ?? null;
+  const remainingTuningGroups = streaming.tuningGroups.filter(
+    (group) => group.id !== 'acceptance' && group.id !== 'acceptance-advanced',
+  );
+  const [showAdvancedAcceptance, setShowAdvancedAcceptance] = React.useState(false);
+
   return (
     <div className="panel-shell panel-shell--overflow workspace-main">
       <header className="workspace-main__head">
@@ -29,79 +100,206 @@ export function StreamingCapturePanel({
       <div className="workspace-main__body">
         <section className="app-rail-section app-rail-section--flush-top">
           <div className="widget-header widget-header--rail">
-            <h2 className="section-heading">Waveform · detector tuning</h2>
           </div>
 
-          <WaveformCanvas
-            monitor={streaming.monitor}
-            capture={streaming.captureInfo}
-            scaleMode={waveformDisplay.scaleMode}
-            showSpeechThreshold={waveformDisplay.showSpeechThreshold}
-            showTenVadThreshold={waveformDisplay.showTenVadThreshold}
-            showPreVadOverlay={waveformDisplay.showPreVadOverlay}
-            liveReleaseMs={streaming.estimatedTailBudgetMs}
-            liveNoiseDbfs={streaming.liveNoiseFloorDbfs}
-            liveSpeechDbfs={streaming.liveSpeechThresholdDbfs}
-          />
-
-          <div className="toolbar-divider">
-            <div className="waveform-toolbar">
-              <label className="waveform-toolbar__group waveform-toolbar__group--wide">
-                <span className="type-label-caps">View</span>
-                <span className="line-clamp-1 type-micro">
-                  {WAVEFORM_SCALE_OPTIONS.find((option) => option.value === waveformDisplay.scaleMode)?.note ?? '-'}
-                </span>
-                <select
-                  value={waveformDisplay.scaleMode}
-                  onChange={(event) => waveformDisplay.setScaleMode(event.target.value)}
-                  className="compact-control compact-control--dense mt-1"
-                >
-                  {WAVEFORM_SCALE_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>{option.label}</option>
-                  ))}
-                </select>
-              </label>
-              <label className="waveform-toolbar__group">
-                <span className="type-label-caps">FG line</span>
-                <span className="type-mono-micro">
-                  {waveformDisplay.showSpeechThreshold ? formatDbfsValue(streaming.liveSpeechThresholdDbfs) : '-'}
-                </span>
-                <select
-                  value={waveformDisplay.showSpeechThreshold ? 'on' : 'off'}
-                  onChange={(event) => waveformDisplay.setShowSpeechThreshold(event.target.value === 'on')}
-                  className="compact-control compact-control--dense mt-1"
-                >
-                  <option value="on">show</option>
-                  <option value="off">hide</option>
-                </select>
-              </label>
-              <label className="waveform-toolbar__group">
-                <span className="type-label-caps">TEN line</span>
-                <span className="type-mono-micro">
-                  {formatFixed(streaming.snapshot?.config?.tenVadThreshold)}
-                </span>
-                <select
-                  value={waveformDisplay.showTenVadThreshold ? 'on' : 'off'}
-                  onChange={(event) => waveformDisplay.setShowTenVadThreshold(event.target.value === 'on')}
-                  className="compact-control compact-control--dense mt-1"
-                >
-                  <option value="on">show</option>
-                  <option value="off">hide</option>
-                </select>
-              </label>
-              <label className="waveform-toolbar__group">
-                <span className="type-label-caps">RMS</span>
-                <span className="type-micro">diagnostic</span>
-                <select
-                  value={waveformDisplay.showPreVadOverlay ? 'on' : 'off'}
-                  onChange={(event) => waveformDisplay.setShowPreVadOverlay(event.target.value === 'on')}
-                  className="compact-control compact-control--dense mt-1"
-                >
-                  <option value="off">hide</option>
-                  <option value="on">show</option>
-                </select>
-              </label>
+          <div className="waveform-workbench">
+            <div className="waveform-workbench__main">
+              {shouldRenderBrowserCompactStats(waveformDisplay.displayMode) ? (
+                <WaveformCompactStats
+                  monitor={streaming.monitor}
+                  capture={streaming.captureInfo}
+                  liveNoiseDbfs={streaming.liveNoiseFloorDbfs}
+                  liveSpeechDbfs={streaming.liveSpeechThresholdDbfs}
+                />
+              ) : null}
+              {shouldRenderBrowserWaveform(waveformDisplay.displayMode) ? (
+                <WaveformCanvas
+                  monitor={streaming.monitor}
+                  capture={streaming.captureInfo}
+                  scaleMode={waveformDisplay.scaleMode}
+                  showSpeechThreshold={waveformDisplay.showSpeechThreshold}
+                  showTenVadThreshold={waveformDisplay.showTenVadThreshold}
+                  showPreVadOverlay={waveformDisplay.showPreVadOverlay}
+                  liveReleaseMs={streaming.estimatedTailBudgetMs}
+                  liveNoiseDbfs={streaming.liveNoiseFloorDbfs}
+                  liveSpeechDbfs={streaming.liveSpeechThresholdDbfs}
+                  liveOnsetDbfs={streaming.liveOnsetThresholdDbfs}
+                  showFooterMetrics={shouldRenderBrowserWaveformFooterMetrics(waveformDisplay.displayMode)}
+                />
+              ) : null}
             </div>
+
+            {acceptanceGroup ? (
+              <aside className="waveform-workbench__side">
+                <div className="detector-card waveform-display-card">
+                  <div className="detector-card__label">Waveform display</div>
+                  <div className="waveform-toolbar waveform-toolbar--stacked mt-3">
+                    <label className="waveform-toolbar__group waveform-toolbar__group--compact">
+                      <span className="type-label-caps">{BROWSER_MONITOR_DISPLAY_CONTROL_DEFINITIONS.surface.label}</span>
+                      <span className="type-micro">
+                        {BROWSER_MONITOR_SURFACE_OPTIONS.find((option) => option.value === waveformDisplay.displayMode)?.note
+                          ?? BROWSER_MONITOR_DISPLAY_CONTROL_DEFINITIONS.surface.note}
+                      </span>
+                      <select
+                        value={waveformDisplay.displayMode}
+                        onChange={(event) => waveformDisplay.setDisplayMode(event.target.value)}
+                        className="compact-control compact-control--dense mt-1"
+                      >
+                        {BROWSER_MONITOR_SURFACE_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>{option.label}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="waveform-toolbar__group waveform-toolbar__group--compact">
+                      <span className="type-label-caps">{BROWSER_MONITOR_DISPLAY_CONTROL_DEFINITIONS.scale.label}</span>
+                      <span className="line-clamp-1 type-micro">
+                        {BROWSER_WAVEFORM_SCALE_OPTIONS.find((option) => option.value === waveformDisplay.scaleMode)?.note
+                          ?? BROWSER_MONITOR_DISPLAY_CONTROL_DEFINITIONS.scale.note}
+                      </span>
+                      <select
+                        value={waveformDisplay.scaleMode}
+                        onChange={(event) => waveformDisplay.setScaleMode(event.target.value)}
+                        disabled={shouldDisableBrowserWaveformVisualControls(waveformDisplay.displayMode)}
+                        className="compact-control compact-control--dense mt-1"
+                      >
+                        {BROWSER_WAVEFORM_SCALE_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>{option.label}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="waveform-toolbar__group waveform-toolbar__group--compact">
+                      <span className="type-label-caps">{BROWSER_MONITOR_DISPLAY_CONTROL_DEFINITIONS.speechThreshold.label}</span>
+                      <span className="type-micro">{BROWSER_MONITOR_DISPLAY_CONTROL_DEFINITIONS.speechThreshold.note}</span>
+                      <select
+                        value={waveformDisplay.showSpeechThreshold ? 'on' : 'off'}
+                        onChange={(event) => waveformDisplay.setShowSpeechThreshold(event.target.value === 'on')}
+                        disabled={shouldDisableBrowserWaveformVisualControls(waveformDisplay.displayMode)}
+                        className="compact-control compact-control--dense mt-1"
+                      >
+                        {BROWSER_BINARY_TOGGLE_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>{option.label}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="waveform-toolbar__group waveform-toolbar__group--compact">
+                      <span className="type-label-caps">{BROWSER_MONITOR_DISPLAY_CONTROL_DEFINITIONS.tenVadThreshold.label}</span>
+                      <span className="type-mono-micro">{BROWSER_MONITOR_DISPLAY_CONTROL_DEFINITIONS.tenVadThreshold.note}</span>
+                      <select
+                        value={waveformDisplay.showTenVadThreshold ? 'on' : 'off'}
+                        onChange={(event) => waveformDisplay.setShowTenVadThreshold(event.target.value === 'on')}
+                        disabled={shouldDisableBrowserWaveformVisualControls(waveformDisplay.displayMode)}
+                        className="compact-control compact-control--dense mt-1"
+                      >
+                        {BROWSER_BINARY_TOGGLE_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>{option.label}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="waveform-toolbar__group waveform-toolbar__group--compact">
+                      <span className="type-label-caps">{BROWSER_MONITOR_DISPLAY_CONTROL_DEFINITIONS.preVadOverlay.label}</span>
+                      <span className="type-micro">{BROWSER_MONITOR_DISPLAY_CONTROL_DEFINITIONS.preVadOverlay.note}</span>
+                      <select
+                        value={waveformDisplay.showPreVadOverlay ? 'on' : 'off'}
+                        onChange={(event) => waveformDisplay.setShowPreVadOverlay(event.target.value === 'on')}
+                        disabled={shouldDisableBrowserWaveformVisualControls(waveformDisplay.displayMode)}
+                        className="compact-control compact-control--dense mt-1"
+                      >
+                        {BROWSER_REVERSED_BINARY_TOGGLE_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>{option.label}</option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+                </div>
+
+                <div className="tuning-group tuning-group--compact">
+                  <div className="tuning-group__head tuning-group__head--compact">
+                    <div>
+                      <div className="panel-title">{acceptanceGroup.title}</div>
+                      <div className="type-caption">{acceptanceGroup.description}</div>
+                    </div>
+                  </div>
+
+                  <div className="grid-2-loose grid-2-loose--tight">
+                    <div className="detector-card">
+                      <Field label="Final segment gate" hint={streaming.snapshot?.gate?.effectiveMode ?? '--'}>
+                        <select
+                          value={streaming.snapshot?.config?.foregroundFilterEnabled ? 'on' : 'off'}
+                          onChange={(event) => streaming.updateConfig({ foregroundFilterEnabled: event.target.value === 'on' })}
+                          className="compact-control compact-control--dense"
+                        >
+                          <option value="on">enabled</option>
+                          <option value="off">disabled</option>
+                        </select>
+                      </Field>
+                    </div>
+                    <div className="detector-card">
+                      <Field label="Acceptance preset" hint="Updates the final segment acceptance thresholds together.">
+                        <select
+                          value={acceptancePresetId}
+                          onChange={(event) => {
+                            const preset = ACCEPTANCE_PRESETS.find((item) => item.id === event.target.value);
+                            if (!preset) {
+                              return;
+                            }
+                            streaming.updateConfig({ ...preset.thresholds });
+                          }}
+                          className="compact-control compact-control--dense"
+                        >
+                          {ACCEPTANCE_PRESETS.map((preset) => (
+                            <option key={preset.id} value={preset.id}>{preset.label}</option>
+                          ))}
+                          <option value="custom">Custom</option>
+                        </select>
+                      </Field>
+                    </div>
+                  </div>
+
+                  <div className="tuning-sliders tuning-sliders--workbench">
+                    {acceptanceGroup.controls.map((definition) => (
+                      <StreamingControlSlider
+                        key={definition.field}
+                        definition={definition}
+                        value={streaming.snapshot?.config?.[definition.field]}
+                        resolvedConfig={streaming.snapshot?.config ?? { chunkDurationMs: streaming.chunkDurationMs }}
+                        onChange={(value) => streaming.updateConfig({ [definition.field]: value })}
+                        compact
+                      />
+                    ))}
+                  </div>
+                  {acceptanceAdvancedGroup ? (
+                    <div className="app-stack--sm mt-3">
+                      <div className="flex-row flex-row--between gap-2">
+                        <div className="type-caption">
+                          Adaptive noise-scaled acceptance controls.
+                        </div>
+                        <button
+                          type="button"
+                          className="compact-button-secondary compact-button--sm"
+                          onClick={() => setShowAdvancedAcceptance((value) => !value)}
+                        >
+                          {showAdvancedAcceptance ? 'Hide advanced' : 'Show advanced'}
+                        </button>
+                      </div>
+                      {showAdvancedAcceptance ? (
+                        <div className="tuning-sliders tuning-sliders--workbench">
+                          {acceptanceAdvancedGroup.controls.map((definition) => (
+                            <StreamingControlSlider
+                              key={definition.field}
+                              definition={definition}
+                              value={streaming.snapshot?.config?.[definition.field]}
+                              resolvedConfig={streaming.snapshot?.config ?? { chunkDurationMs: streaming.chunkDurationMs }}
+                              onChange={(value) => streaming.updateConfig({ [definition.field]: value })}
+                              compact
+                            />
+                          ))}
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </div>
+              </aside>
+            ) : null}
           </div>
         </section>
 
@@ -123,30 +321,13 @@ export function StreamingCapturePanel({
                     </select>
                   </Field>
                 </div>
-                <div className="detector-card">
-                  <Field label="Foreground Filter" hint={streaming.snapshot?.gate?.effectiveMode ?? '--'}>
-                    <select
-                      value={streaming.snapshot?.config?.foregroundFilterEnabled ? 'on' : 'off'}
-                      onChange={(event) => streaming.updateConfig({ foregroundFilterEnabled: event.target.value === 'on' })}
-                      className="compact-control compact-control--dense"
-                    >
-                      <option value="on">enabled</option>
-                      <option value="off">disabled</option>
-                    </select>
-                  </Field>
-                </div>
                 <div className="detector-card detector-card--mono">
                   <div className="detector-card__label">Default mode</div>
                   <div className="mt-2">{streaming.defaultMode}</div>
                 </div>
-                <div className="detector-card detector-card--mono">
-                  <div className="detector-card__label">Release / speech line</div>
-                  <div className="mt-2">{formatMilliseconds(streaming.estimatedTailBudgetMs)}</div>
-                  <div className="mt-1">{formatDbfsValue(streaming.liveSpeechThresholdDbfs)}</div>
-                </div>
               </div>
 
-              {streaming.tuningGroups.map((group) => (
+              {remainingTuningGroups.map((group) => (
                 <div key={group.id} className="tuning-group">
                   <div className="tuning-group__head">
                     <div className="panel-title">{group.title}</div>

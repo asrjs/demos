@@ -3,9 +3,14 @@ import {
   estimateStreamingReleaseMs,
   resolveStreamingControlGroups,
   resolveStreamingForegroundThresholdDbfs,
+  resolveStreamingOnsetThresholdDbfs,
   resolveStreamingSnapshotNoiseFloorDbfs,
   STREAMING_TIMELINE_CHUNK_MS,
 } from '@asrjs/speech-recognition/realtime';
+import {
+  DEFAULT_BROWSER_MONITOR_SURFACE_MODE,
+  DEFAULT_BROWSER_WAVEFORM_SCALE_MODE,
+} from '@asrjs/speech-recognition/browser';
 import { StreamingCapturePanel } from './shared/streaming/components/StreamingCapturePanel.jsx';
 import { BrowserConsoleTopbar } from './shared/browser-console/components/BrowserConsoleTopbar.jsx';
 import { ModelSidebar } from './shared/browser-console/components/ModelSidebar.jsx';
@@ -15,7 +20,8 @@ import { HistoryPanel } from './shared/browser-console/components/HistoryPanel.j
 
 export function BrowserConsoleLayout({ app }) {
   const [modelSidebarCollapsed, setModelSidebarCollapsed] = React.useState(false);
-  const [waveformScaleMode, setWaveformScaleMode] = React.useState('focus');
+  const [waveformDisplayMode, setWaveformDisplayMode] = React.useState(DEFAULT_BROWSER_MONITOR_SURFACE_MODE);
+  const [waveformScaleMode, setWaveformScaleMode] = React.useState(DEFAULT_BROWSER_WAVEFORM_SCALE_MODE);
   const [showSpeechThreshold, setShowSpeechThreshold] = React.useState(true);
   const [showTenVadThreshold, setShowTenVadThreshold] = React.useState(true);
   const [showPreVadOverlay, setShowPreVadOverlay] = React.useState(false);
@@ -56,6 +62,9 @@ export function BrowserConsoleLayout({ app }) {
   const liveSpeechThresholdDbfs = showSpeechThreshold
     ? resolveStreamingForegroundThresholdDbfs(streamingSnapshot?.config, liveNoiseFloorDbfs)
     : null;
+  const liveOnsetThresholdDbfs = showSpeechThreshold
+    ? resolveStreamingOnsetThresholdDbfs(streamingSnapshot?.config, liveNoiseFloorDbfs)
+    : null;
 
   const layoutClass = modelSidebarCollapsed
     ? 'app-layout app-layout--sidebar-collapsed'
@@ -88,6 +97,8 @@ export function BrowserConsoleLayout({ app }) {
             <div className="app-stack">
               <StreamingCapturePanel
                 waveformDisplay={{
+                  displayMode: waveformDisplayMode,
+                  setDisplayMode: setWaveformDisplayMode,
                   scaleMode: waveformScaleMode,
                   setScaleMode: setWaveformScaleMode,
                   showSpeechThreshold,
@@ -105,6 +116,7 @@ export function BrowserConsoleLayout({ app }) {
                   estimatedTailBudgetMs,
                   liveNoiseFloorDbfs,
                   liveSpeechThresholdDbfs,
+                  liveOnsetThresholdDbfs,
                   profileId,
                   presets: streamingPresets,
                   defaultMode,

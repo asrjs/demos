@@ -4,16 +4,8 @@ function formatDbfs(value) {
   return Number.isFinite(value) ? `${value.toFixed(1)} dBFS` : '--';
 }
 
-function formatSigned(value, unit = '') {
-  return Number.isFinite(value) ? `${value > 0 ? '+' : ''}${value.toFixed(1)}${unit}` : '--';
-}
-
 function formatFixed(value, digits = 2) {
   return Number.isFinite(value) ? value.toFixed(digits) : '--';
-}
-
-function formatRatio(value) {
-  return Number.isFinite(value) ? `${value.toFixed(1)}:1` : '--';
 }
 
 export function resolveEnergyGateState(rough) {
@@ -96,16 +88,19 @@ export function SignalMeter({
   const effectiveGate = monitor ? monitorState?.gate ?? null : null;
   const effectiveTenVad = monitor ? monitorState?.tenVad ?? null : tenVad;
   const effectiveVadBuffer = monitor ? monitorState?.vadBuffer ?? null : vadBuffer;
+  const effectiveAcceptanceResult = effectiveAcceptance ?? effectiveForeground?.activeResult ?? effectiveForeground?.lastResult ?? null;
   const vadSpeechHopCount = effectiveVadBuffer?.speechHopCount ?? 0;
   const vadTotalHops = effectiveVadBuffer?.totalHops ?? 0;
   const vadMaxProbability = effectiveVadBuffer?.maxProbability ?? 0;
+  const powerThreshold = effectiveAcceptanceResult?.minEnergyPerSecondThreshold ?? effectiveAcceptanceResult?.minEnergyPerSecond;
+  const integralThreshold = effectiveAcceptanceResult?.minEnergyIntegralThreshold ?? effectiveAcceptanceResult?.minEnergyIntegral;
 
   return (
     <section className="app-rail-section signal-meter signal-meter--flat">
       <div className="widget-header widget-header--rail">
         <div>
           <h2 className="section-heading">Detector readout</h2>
-          <p className="section-subtitle">Live foreground metrics and TEN-VAD state.</p>
+          <p className="section-subtitle">Live rough-gate state, adaptive noise floor, and final segment energy metrics.</p>
         </div>
       </div>
       <div className="signal-meter__grid">
@@ -120,19 +115,14 @@ export function SignalMeter({
           note={`confirmed ${formatDbfs(effectiveRough?.confirmedSilenceAverageDbfs)} · rejected ${formatDbfs(effectiveRough?.rejectedCandidateAverageDbfs)}`}
         />
         <Line
-          label="speech"
-          value={formatDbfs(effectiveAcceptance?.speechDbfs)}
-          note={`p90 vs floor`}
+          label="final power"
+          value={formatFixed(effectiveAcceptanceResult?.normalizedPowerAt16k)}
+          note={`min ${formatFixed(powerThreshold)}`}
         />
         <Line
-          label="snr"
-          value={formatSigned(effectiveAcceptance?.foregroundDb, ' dB')}
-          note={`min ${formatSigned(effectiveForeground?.foregroundMinDb, ' dB')}`}
-        />
-        <Line
-          label="speech/noise"
-          value={formatRatio(effectiveAcceptance?.speechNoiseRatio)}
-          note={effectiveAcceptance?.longSpeech ? 'long segment' : 'segment ratio'}
+          label="final integral"
+          value={formatFixed(effectiveAcceptanceResult?.normalizedEnergyIntegralAt16k)}
+          note={`min ${formatFixed(integralThreshold)}`}
         />
         <Line
           label="detector mode"
@@ -142,12 +132,12 @@ export function SignalMeter({
         <Line
           label="ten-vad"
           value={formatFixed(effectiveTenVad?.probability)}
-          note={effectiveTenVad?.speaking ? 'speaking' : 'idle'}
+          note="diagnostic only"
         />
         <Line
           label="filter"
           value={resolveEnergyGateState(effectiveForeground)}
-          note={resolveEnergyGateNote(effectiveForeground)}
+          note={effectiveAcceptanceResult?.reason ?? resolveEnergyGateNote(effectiveForeground)}
         />
         <Line
           label="vad buffer"

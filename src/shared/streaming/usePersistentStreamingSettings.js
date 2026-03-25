@@ -9,7 +9,7 @@ import {
 } from '@asrjs/speech-recognition/realtime';
 
 const STORAGE_KEY = 'asrjs-streaming-demo-streaming-mic-settings';
-const STORAGE_VERSION = 4;
+const STORAGE_VERSION = 6;
 
 function migrateStoredConfig(config) {
   if (!config || typeof config !== 'object') {
@@ -22,10 +22,19 @@ function migrateStoredConfig(config) {
   ) {
     migrated.minSpeechLevelDbfs = 20 * Math.log10(Math.max(migrated.energyThreshold, 0.000001));
   }
-  if (migrated.gateMode === 'rough-and-ten-vad') {
-    migrated.gateMode = 'ten-vad-only';
+  if (
+    migrated.gateMode === 'rough-and-ten-vad'
+    || migrated.gateMode === 'ten-vad-only'
+  ) {
+    migrated.gateMode = 'rough-only';
   }
-  delete migrated.energyThreshold;
+  delete migrated.foregroundMinDb;
+  delete migrated.foregroundOnsetMinDb;
+  delete migrated.foregroundOnsetWindowMs;
+  delete migrated.foregroundShortSpeechMs;
+  delete migrated.foregroundLongSpeechMs;
+  delete migrated.foregroundLongExcessDbMs;
+  delete migrated.foregroundLongMinDb;
   return migrated;
 }
 
@@ -37,7 +46,13 @@ function loadStoredSettings() {
     if (!parsed || typeof parsed !== 'object') {
       return null;
     }
-    if (parsed.version !== STORAGE_VERSION && parsed.version !== 3 && parsed.version !== 2) {
+    if (
+      parsed.version !== STORAGE_VERSION
+      && parsed.version !== 5
+      && parsed.version !== 4
+      && parsed.version !== 3
+      && parsed.version !== 2
+    ) {
       return null;
     }
     return {
