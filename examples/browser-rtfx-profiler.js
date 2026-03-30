@@ -6,7 +6,7 @@ import {
 } from '../dist/platform/browser/index.js';
 
 const DEFAULTS = {
-  modelDir: 'https://huggingface.co/FireRedTeam/FireRedVAD/resolve/main/onnx_models/',
+  modelDir: 'https://raw.githubusercontent.com/FireRedTeam/FireRedVAD/main/pretrained_models/onnx_models/',
   streamWavUrl: 'https://raw.githubusercontent.com/FireRedTeam/FireRedVAD/main/assets/hello_en.wav',
   vadWavUrl: 'https://raw.githubusercontent.com/FireRedTeam/FireRedVAD/main/assets/hello_zh.wav',
   aedWavUrl: 'https://raw.githubusercontent.com/FireRedTeam/FireRedVAD/main/assets/event.wav',

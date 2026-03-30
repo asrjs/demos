@@ -2,7 +2,7 @@ import { createFireRedBrowserWorkerClient } from '../dist/platform/browser/index
 
 const workerClient = createFireRedBrowserWorkerClient();
 await workerClient.init(
-  'https://huggingface.co/FireRedTeam/FireRedVAD/resolve/main/onnx_models/',
+  'https://raw.githubusercontent.com/FireRedTeam/FireRedVAD/main/pretrained_models/onnx_models/',
 );
 
 const chunk = new Int16Array(400);

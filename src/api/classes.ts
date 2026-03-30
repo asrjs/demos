@@ -25,6 +25,7 @@ import { loadDefaultCmvn, cmvnFromArrays } from '../core/cmvn.js';
 import { normalizeAedConfig, normalizeStreamVadConfig, normalizeVadConfig } from '../core/config.js';
 import {
   DEFAULT_MODEL_URLS,
+  FIRERED_GITHUB_RAW_ONNX_BASE,
   FRAME_LENGTH_SAMPLE,
   FRAME_PER_SECONDS,
 } from '../core/constants.js';
@@ -38,8 +39,7 @@ interface RuntimeInit {
   readonly cmvn: CmvnStats;
 }
 
-const DEFAULT_PRETRAINED_DIR =
-  'https://huggingface.co/FireRedTeam/FireRedVAD/resolve/main/onnx_models/';
+const DEFAULT_PRETRAINED_DIR = FIRERED_GITHUB_RAW_ONNX_BASE;
 
 async function loadCmvnFromRuntimeOptions(
   runtimeOptions: FireRedRuntimeOptions,

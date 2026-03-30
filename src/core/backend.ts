@@ -26,10 +26,36 @@ export interface FireRedBackend {
   dispose(): Promise<void>;
 }
 
+function resolveViteDevOrtWasmPath(): string | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  const marker = '/@fs/';
+  const metaUrl = import.meta.url;
+  const markerIndex = metaUrl.indexOf(marker);
+  if (markerIndex < 0) {
+    return null;
+  }
+  const afterMarker = metaUrl.slice(markerIndex + marker.length).split('?')[0]?.split('#')[0] ?? '';
+  const decodedPath = decodeURIComponent(afterMarker);
+  const sourceSuffix = '/src/core/backend.ts';
+  if (!decodedPath.endsWith(sourceSuffix)) {
+    return null;
+  }
+  const repoRoot = decodedPath.slice(0, -sourceSuffix.length);
+  const ortDist = `${repoRoot}/node_modules/onnxruntime-web/dist/`;
+  return `/@fs/${encodeURI(ortDist)}`;
+}
+
 function configureOrtEnvironment(options: FireRedRuntimeOptions): void {
   ort.env.wasm.numThreads = options.wasmNumThreads ?? 1;
   if (options.wasmPaths) {
     ort.env.wasm.wasmPaths = options.wasmPaths;
+  } else if (!ort.env.wasm.wasmPaths && typeof window !== 'undefined') {
+    const localVitePath = resolveViteDevOrtWasmPath();
+    ort.env.wasm.wasmPaths =
+      localVitePath ??
+      `https://cdn.jsdelivr.net/npm/onnxruntime-web@${ort.env.versions?.common ?? '1.24.1'}/dist/`;
   }
 }
 

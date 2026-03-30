@@ -13,11 +13,12 @@ export const STREAM_CACHE_BATCH = 1;
 export const STREAM_CACHE_PROJ = 128;
 export const STREAM_CACHE_LEN = 19;
 
+export const FIRERED_GITHUB_RAW_ONNX_BASE =
+  'https://raw.githubusercontent.com/FireRedTeam/FireRedVAD/main/pretrained_models/onnx_models/';
+
 export const DEFAULT_MODEL_URLS = {
-  vadUrl:
-    'https://huggingface.co/FireRedTeam/FireRedVAD/resolve/main/onnx_models/fireredvad_vad.onnx',
+  vadUrl: `${FIRERED_GITHUB_RAW_ONNX_BASE}fireredvad_vad.onnx`,
   streamVadWithCacheUrl:
-    'https://huggingface.co/FireRedTeam/FireRedVAD/resolve/main/onnx_models/fireredvad_stream_vad_with_cache.onnx',
-  aedUrl:
-    'https://huggingface.co/FireRedTeam/FireRedVAD/resolve/main/onnx_models/fireredvad_aed.onnx',
+    `${FIRERED_GITHUB_RAW_ONNX_BASE}fireredvad_stream_vad_with_cache.onnx`,
+  aedUrl: `${FIRERED_GITHUB_RAW_ONNX_BASE}fireredvad_aed.onnx`,
 } as const;

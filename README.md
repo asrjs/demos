@@ -33,7 +33,7 @@ await vad.dispose();
 import { FireRedStreamVad } from '@asrjs/firered-vad-web/browser';
 
 const vad = await FireRedStreamVad.from_pretrained(
-  'https://huggingface.co/FireRedTeam/FireRedVAD/resolve/main/onnx_models/'
+  'https://raw.githubusercontent.com/FireRedTeam/FireRedVAD/main/pretrained_models/onnx_models/'
 );
 const results = await vad.detect_chunk(new Int16Array(400));
 console.log(results);
