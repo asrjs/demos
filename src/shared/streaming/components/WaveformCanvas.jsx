@@ -456,7 +456,7 @@ export function WaveformCanvas({
       label: 'gate lines',
       value: showSpeechThreshold ? 'on' : 'off',
     },
-    { key: 'tenln', label: 'ten', value: showTenVadThreshold ? 'on' : 'off' },
+    { key: 'tenln', label: 'firered', value: showTenVadThreshold ? 'on' : 'off' },
     { key: 'scale', label: 'scale', value: scaleMode },
   ];
 

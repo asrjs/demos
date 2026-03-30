@@ -130,7 +130,7 @@ export function SignalMeter({
           note={effectiveGate?.requestedMode ? `req ${effectiveGate.requestedMode}` : null}
         />
         <Line
-          label="ten-vad"
+          label="firered-vad"
           value={formatFixed(effectiveTenVad?.probability)}
           note="diagnostic only"
         />
