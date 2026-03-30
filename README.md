@@ -7,7 +7,7 @@ This app is the home for microphone-first and streaming-focused work:
 - live microphone capture
 - speech-detection and segmentation tuning
 - realtime-oriented Parakeet flows
-- TEN-VAD integration
+- FireRed VAD integration
 - streaming debug HUD and waveform tools
 
 Classic file transcription belongs in `../browser-demo`.
@@ -18,7 +18,7 @@ Classic file transcription belongs in `../browser-demo`.
 
 - browser microphone capture
 - rolling PCM buffers and detector state
-- rough speech gating and TEN-VAD confirmation
+- rough speech gating and FireRed VAD confirmation
 - realtime transcription UX
 - debug instrumentation that should stay out of the library core
 
@@ -45,7 +45,7 @@ The Vite config aliases `@asrjs/speech-recognition` to the sibling source tree s
 - microphone capture from `@asrjs/speech-recognition/browser`
 - rolling ring-buffer state in `src/shared/streaming/`
 - rough speech gate
-- TEN-VAD worker adapter
+- FireRed VAD worker adapter
 - streaming detector orchestration
 - demo-only debug HUD and meters
 
@@ -64,7 +64,7 @@ The demo keeps its own browser storage keys so it does not collide with `browser
 npm test
 ```
 
-The streaming-specific detector, TEN-VAD adapter, and persistent streaming settings are covered by the local Vitest suite.
+The streaming-specific detector, FireRed VAD adapter, and persistent streaming settings are covered by the local Vitest suite.
 
 ## Build
 
@@ -74,6 +74,7 @@ npm run build
 
 ## Notes
 
-- TEN-VAD browser assets are stored under `public/wasm/`.
+- FireRed VAD uses ONNX Runtime Web (WASM). In local dev, `vite.config.js` injects `__ASRJS_ORT_WASM_PATH__`
+  and the app passes that path into `fireRedVadConfig.wasmPaths` so worker/runtime versions stay aligned.
 - The debug HUD and streaming presets are demo concerns; they are intentionally separate from the library's stable public API.
 - This folder is now its own local git repo, ready for its own remote when you want to publish or split it further.

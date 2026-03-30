@@ -66,6 +66,12 @@ export function useStreamingCaptureController({
       profileId,
       config: resolvedConfig,
       micMode,
+      fireRedVadConfig: {
+        wasmPaths:
+          typeof __ASRJS_ORT_WASM_PATH__ === 'string' && __ASRJS_ORT_WASM_PATH__.length > 0
+            ? __ASRJS_ORT_WASM_PATH__
+            : undefined,
+      },
       onUtterance: (utterance) => onUtteranceRef.current?.(utterance),
       onStatus: (status) => onStatusRef.current?.(status),
     });
