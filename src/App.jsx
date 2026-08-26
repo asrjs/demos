@@ -8,7 +8,14 @@ import {
   loadModelWithFallback,
 } from '@asrjs/speech-recognition/presets/parakeet';
 import { decodeAudioSourceToMonoPcm } from '@asrjs/speech-recognition/browser/media';
-import { benchmarkRunRecordsToCsv, summarizeNumericSeries, textSimilarity } from '@asrjs/speech-recognition/bench';
+import {
+  benchmarkLifecycleRecordsToCsv,
+  benchmarkMemoryDeltaBytes,
+  benchmarkRunRecordsToCsv,
+  summarizeNumericSeries,
+  textSimilarity,
+} from '@asrjs/speech-recognition/bench';
+import { measureBrowserMemory } from '@asrjs/speech-recognition/bench/browser';
 import { fetchDatasetSplits, fetchRandomRows, fetchSequentialRows, getConfigsAndSplits, normalizeDatasetRow } from '@asrjs/speech-recognition/datasets';
 import './App.css';
 
@@ -65,6 +72,30 @@ function fmtNumber(value, digits = 2) {
   return Number.isFinite(value) ? value.toFixed(digits) : '-';
 }
 
+function fmtBytes(value) {
+  if (!Number.isFinite(value)) return '-';
+  const units = ['B', 'KiB', 'MiB', 'GiB'];
+  let scaled = Math.abs(value);
+  let unitIndex = 0;
+  while (scaled >= 1024 && unitIndex < units.length - 1) {
+    scaled /= 1024;
+    unitIndex += 1;
+  }
+  const signed = value < 0 ? -scaled : scaled;
+  return `${signed.toFixed(unitIndex === 0 ? 0 : 2)} ${units[unitIndex]}`;
+}
+
+function monotonicNow() {
+  return performance.now();
+}
+
+function fmtMemoryChange(record) {
+  const delta = benchmarkMemoryDeltaBytes(record?.memoryBefore, record?.memoryAfter);
+  if (Number.isFinite(delta)) return fmtBytes(delta);
+  const reason = record?.memoryAfter?.reason ?? record?.memoryBefore?.reason;
+  return reason ? `unavailable (${reason})` : '-';
+}
+
 function downloadText(filename, content, type) {
   const blob = new Blob([content], { type });
   const url = URL.createObjectURL(blob);
@@ -119,6 +150,7 @@ export default function App() {
   const [preprocessorBackend, setPreprocessorBackend] = useState(saved.preprocessorBackend || 'js');
   const [cpuThreads, setCpuThreads] = useState(Math.max(1, Number(saved.cpuThreads) || 4));
   const [enableProfiling, setEnableProfiling] = useState(saved.enableProfiling !== false);
+  const [cacheModels, setCacheModels] = useState(saved.cacheModels === true);
 
   const [datasetId, setDatasetId] = useState(saved.datasetId || 'ysdede/parrot-radiology-asr-en');
   const [datasetConfig, setDatasetConfig] = useState(saved.datasetConfig || 'default');
@@ -142,8 +174,10 @@ export default function App() {
   const [splitCounts, setSplitCounts] = useState({});
   const [preparedSamples, setPreparedSamples] = useState([]);
   const [runs, setRuns] = useState([]);
+  const [lifecycleRecords, setLifecycleRecords] = useState([]);
   const [lastBatchAt, setLastBatchAt] = useState('');
   const modelRef = useRef(null);
+  const loadedModelProvenanceRef = useRef(null);
 
   useEffect(() => {
     saveSettings({
@@ -154,6 +188,7 @@ export default function App() {
       preprocessorBackend,
       cpuThreads,
       enableProfiling,
+      cacheModels,
       datasetId,
       datasetConfig,
       datasetSplit,
@@ -171,6 +206,7 @@ export default function App() {
     preprocessorBackend,
     cpuThreads,
     enableProfiling,
+    cacheModels,
     datasetId,
     datasetConfig,
     datasetSplit,
@@ -239,6 +275,8 @@ export default function App() {
   const availableSplits = configToSplits[datasetConfig] || ['train'];
   const summary = useMemo(() => summarizeRuns(runs), [runs]);
   const recentRuns = useMemo(() => runs.slice(-20).reverse(), [runs]);
+  const recentLifecycleRecords = useMemo(() => lifecycleRecords.slice(-8).reverse(), [lifecycleRecords]);
+  const latestLifecycleRecord = recentLifecycleRecords[0] ?? null;
   const modelLanguages = useMemo(
     () => modelConfig.languages.map((code) => LANGUAGE_NAMES[code] || code).join(', '),
     [modelConfig]
@@ -251,9 +289,21 @@ export default function App() {
     setProgressText('');
     setProgressValue(0);
 
+    const memoryBefore = await measureBrowserMemory();
+    const startedAt = new Date().toISOString();
+    const startedMs = monotonicNow();
+    const completedAssets = new Map();
+    let initializationStartedMs = null;
+    let attemptCount = 0;
+    let retryUsed = false;
+    let resolvedEncoderQuant = encoderQuant;
+    let resolvedDecoderQuant = decoderQuant;
+    let loadError = '';
+
     try {
       await modelRef.current?.dispose?.();
       modelRef.current = null;
+      loadedModelProvenanceRef.current = null;
 
       const loaded = await loadModelWithFallback({
         repoIdOrModelKey: modelKey,
@@ -267,28 +317,140 @@ export default function App() {
           decoderBackend: componentBackends.decoderBackend,
           cpuThreads,
           enableProfiling,
-          progress: ({ loaded, total, file }) => {
-            const pct = total > 0 ? Math.round((loaded / total) * 100) : 0;
-            setProgressText(`${file}: ${pct}%`);
-            setProgressValue(total > 0 ? pct : 0);
+          cacheModels,
+          progress: (event) => {
+            const pct = event.total > 0 ? Math.round((event.loaded / event.total) * 100) : 0;
+            if (event.isComplete) {
+              completedAssets.set(event.file, {
+                bytes: event.total > 0 ? event.total : event.loaded,
+                source: event.source,
+              });
+            }
+            setProgressText(`${event.file}: ${pct}%`);
+            setProgressValue(event.total > 0 ? pct : 0);
           },
         },
         getParakeetModelFn: getParakeetModel,
         fromUrlsFn: ParakeetModel.fromUrls,
-        onBeforeCompile: ({ modelUrls }) => {
+        onBeforeCompile: ({ attempt, modelUrls }) => {
+          attemptCount = Math.max(attemptCount, attempt);
+          initializationStartedMs ??= monotonicNow();
           setStatus('Compiling model…');
           setProgressText(`encoder=${modelUrls.quantisation.encoder}, decoder=${modelUrls.quantisation.decoder}`);
           setProgressValue(null);
         },
       });
 
+      retryUsed = loaded.retryUsed;
+      resolvedEncoderQuant = loaded.modelUrls.quantisation.encoder;
+      resolvedDecoderQuant = loaded.modelUrls.quantisation.decoder;
       modelRef.current = loaded.model;
+      loadedModelProvenanceRef.current = {
+        modelKey,
+        backend,
+        encoderBackend: componentBackends.encoderBackend,
+        decoderBackend: componentBackends.decoderBackend,
+        encoderQuant: resolvedEncoderQuant,
+        decoderQuant: resolvedDecoderQuant,
+        preprocessorBackend,
+      };
       setModelReady(true);
       setStatus(loaded.retryUsed ? 'Model ready after FP32 retry' : 'Model ready');
     } catch (error) {
       console.error(error);
-      setStatus(`Model load failed: ${error.message}`);
+      loadError = error instanceof Error ? error.message : String(error);
+      setStatus(`Model load failed: ${loadError}`);
     } finally {
+      const finishedMs = monotonicNow();
+      const finishedAt = new Date().toISOString();
+      const memoryAfter = await measureBrowserMemory();
+      const completedAssetValues = [...completedAssets.values()];
+      const completedSources = completedAssetValues.map((asset) => asset.source).filter(Boolean);
+      const cacheStatus = !cacheModels
+        ? 'disabled'
+        : completedAssetValues.length === 0 || completedSources.length !== completedAssetValues.length
+          ? 'unknown'
+          : completedSources.every((source) => source === 'cache')
+            ? 'hit'
+            : completedSources.every((source) => source === 'network')
+              ? 'miss'
+              : 'mixed';
+      setLifecycleRecords((records) => [...records, {
+        id: `model-load-${Date.now()}`,
+        phase: 'model-load',
+        startedAt,
+        finishedAt,
+        totalMs: finishedMs - startedMs,
+        initialArtifactResolutionMs: initializationStartedMs === null ? undefined : initializationStartedMs - startedMs,
+        initializationAndRetryMs: initializationStartedMs === null ? undefined : finishedMs - initializationStartedMs,
+        attemptCount,
+        retryUsed,
+        completedAssetCount: completedAssets.size,
+        reportedAssetBytes: completedAssetValues.reduce((sum, asset) => sum + asset.bytes, 0),
+        cacheStatus,
+        memoryBefore,
+        memoryAfter,
+        error: loadError,
+        modelKey,
+        backend,
+        encoderBackend: componentBackends.encoderBackend,
+        decoderBackend: componentBackends.decoderBackend,
+        encoderQuant: resolvedEncoderQuant,
+        decoderQuant: resolvedDecoderQuant,
+        preprocessorBackend,
+      }]);
+      setIsLoadingModel(false);
+    }
+  }
+
+  async function disposeModel() {
+    const model = modelRef.current;
+    if (!model) return;
+
+    const provenance = loadedModelProvenanceRef.current;
+    setIsLoadingModel(true);
+    setStatus('Disposing model…');
+    setProgressText('');
+    setProgressValue(null);
+
+    const memoryBefore = await measureBrowserMemory();
+    const startedAt = new Date().toISOString();
+    const startedMs = monotonicNow();
+    let disposeError = '';
+
+    try {
+      await model.dispose();
+      setStatus('Model disposed');
+    } catch (error) {
+      console.error(error);
+      disposeError = error instanceof Error ? error.message : String(error);
+      setStatus(`Model disposal failed: ${disposeError}`);
+    } finally {
+      const finishedMs = monotonicNow();
+      const finishedAt = new Date().toISOString();
+      modelRef.current = null;
+      loadedModelProvenanceRef.current = null;
+      setModelReady(false);
+      const memoryAfter = await measureBrowserMemory();
+      setLifecycleRecords((records) => [...records, {
+        id: `model-dispose-${Date.now()}`,
+        phase: 'model-dispose',
+        startedAt,
+        finishedAt,
+        totalMs: finishedMs - startedMs,
+        memoryBefore,
+        memoryAfter,
+        error: disposeError,
+        ...(provenance ?? {
+          modelKey,
+          backend,
+          encoderBackend: componentBackends.encoderBackend,
+          decoderBackend: componentBackends.decoderBackend,
+          encoderQuant,
+          decoderQuant,
+          preprocessorBackend,
+        }),
+      }]);
       setIsLoadingModel(false);
     }
   }
@@ -369,6 +531,15 @@ export default function App() {
     const baselineBySample = new Map();
     const audioCache = new Map();
     const batchId = `batch-${Date.now()}`;
+    const runProvenance = loadedModelProvenanceRef.current ?? {
+      modelKey,
+      backend,
+      encoderBackend: componentBackends.encoderBackend,
+      decoderBackend: componentBackends.decoderBackend,
+      encoderQuant,
+      decoderQuant,
+      preprocessorBackend,
+    };
     const totalTasks = preparedSamples.length * repeatCount;
     let finishedTasks = 0;
 
@@ -416,14 +587,8 @@ export default function App() {
               exactMatchToFirst: result.utterance_text === firstTranscript,
               similarityToFirst: textSimilarity(result.utterance_text, firstTranscript),
               metrics: result.metrics ?? null,
-              modelKey,
-              backend,
-              encoderBackend: componentBackends.encoderBackend,
-              decoderBackend: componentBackends.decoderBackend,
-              encoderQuant,
-              decoderQuant,
+              ...runProvenance,
               preprocessor: modelConfig.preprocessor,
-              preprocessorBackend,
             });
           } catch (error) {
             nextRuns.push({
@@ -442,14 +607,8 @@ export default function App() {
               volume: sample.volume,
               referenceText: sample.referenceText,
               error: error.message,
-              modelKey,
-              backend,
-              encoderBackend: componentBackends.encoderBackend,
-              decoderBackend: componentBackends.decoderBackend,
-              encoderQuant,
-              decoderQuant,
+              ...runProvenance,
               preprocessor: modelConfig.preprocessor,
-              preprocessorBackend,
             });
           }
 
@@ -471,8 +630,17 @@ export default function App() {
     downloadText(`asrjs-benchmark-${Date.now()}.csv`, benchmarkRunRecordsToCsv(runs), 'text/csv;charset=utf-8');
   }
 
+  function exportLifecycleCsv() {
+    if (lifecycleRecords.length === 0) return;
+    downloadText(
+      `asrjs-benchmark-lifecycle-${Date.now()}.csv`,
+      benchmarkLifecycleRecordsToCsv(lifecycleRecords),
+      'text/csv;charset=utf-8'
+    );
+  }
+
   function exportJson() {
-    if (runs.length === 0) return;
+    if (runs.length === 0 && lifecycleRecords.length === 0) return;
     downloadText(`asrjs-benchmark-${Date.now()}.json`, JSON.stringify({
       settings: {
         modelKey,
@@ -484,6 +652,7 @@ export default function App() {
         preprocessorBackend,
         cpuThreads,
         enableProfiling,
+        cacheModels,
         datasetId,
         datasetConfig,
         datasetSplit,
@@ -495,6 +664,7 @@ export default function App() {
       },
       preparedSamples,
       summary,
+      lifecycleRecords,
       runs,
     }, null, 2), 'application/json');
   }
@@ -559,9 +729,19 @@ export default function App() {
               <input type="checkbox" checked={enableProfiling} onChange={(e) => setEnableProfiling(e.target.checked)} disabled={isLoadingModel || modelReady} />
               <span>Collect stage timing metrics</span>
             </label>
-            <button className="primary-button" onClick={loadModel} disabled={isLoadingModel || modelReady}>
-              {modelReady ? 'Model ready' : isLoadingModel ? 'Loading…' : 'Load model'}
-            </button>
+            <label className="checkbox-row">
+              <input type="checkbox" checked={cacheModels} onChange={(e) => setCacheModels(e.target.checked)} disabled={isLoadingModel || modelReady} />
+              <span>Cache model assets for warm/cold load evidence</span>
+            </label>
+            <p className="hint">Opt-in caching materializes remote model files in IndexedDB and may use substantial browser storage.</p>
+            <div className="button-row">
+              <button className="primary-button" onClick={loadModel} disabled={isLoadingModel || modelReady}>
+                {modelReady ? 'Model ready' : isLoadingModel ? 'Loading…' : 'Load model'}
+              </button>
+              <button className="secondary-button" onClick={disposeModel} disabled={!modelReady || isLoadingModel || isRunning}>
+                {isLoadingModel && modelReady ? 'Disposing…' : 'Unload model'}
+              </button>
+            </div>
           </section>
 
           <section className="card stack">
@@ -625,7 +805,8 @@ export default function App() {
             </button>
             <div className="button-row">
               <button className="secondary-button" onClick={exportCsv} disabled={runs.length === 0}>Export CSV</button>
-              <button className="secondary-button" onClick={exportJson} disabled={runs.length === 0}>Export JSON</button>
+              <button className="secondary-button" onClick={exportLifecycleCsv} disabled={lifecycleRecords.length === 0}>Export lifecycle CSV</button>
+              <button className="secondary-button" onClick={exportJson} disabled={runs.length === 0 && lifecycleRecords.length === 0}>Export JSON</button>
             </div>
             <div className="status-box">
               <strong>{status}</strong>
@@ -683,6 +864,44 @@ export default function App() {
               <div className="metric-value">{fmtNumber(summary.rtf.median)}x</div>
               <div className="metric-sub">mean {fmtNumber(summary.rtf.mean)}x</div>
             </article>
+          </section>
+
+          <section className="card stack">
+            <div className="section-head">
+              <h2>Model lifecycle</h2>
+              <span>{lifecycleRecords.length}</span>
+            </div>
+            {latestLifecycleRecord ? (
+              <p className="hint">
+                Latest: {latestLifecycleRecord.phase} in {fmtMs(latestLifecycleRecord.totalMs)} • memory {fmtMemoryChange(latestLifecycleRecord)} • cache {latestLifecycleRecord.cacheStatus ?? '-'}
+              </p>
+            ) : (
+              <p className="empty-text">Load or unload a model to capture lifecycle timing and capability-gated memory evidence.</p>
+            )}
+            {recentLifecycleRecords.length > 0 ? (
+              <div className="table-wrap">
+                <table>
+                  <thead>
+                    <tr><th>Phase</th><th>Total</th><th>Initial resolve</th><th>Initialize + retry</th><th>Attempts</th><th>Assets</th><th>Memory Δ (immediate)</th><th>Cache</th><th>Error</th></tr>
+                  </thead>
+                  <tbody>
+                    {recentLifecycleRecords.map((record) => (
+                      <tr key={record.id}>
+                        <td>{record.phase}</td>
+                        <td>{fmtMs(record.totalMs)}</td>
+                        <td>{fmtMs(record.initialArtifactResolutionMs)}</td>
+                        <td>{fmtMs(record.initializationAndRetryMs)}</td>
+                        <td>{Number.isFinite(record.attemptCount) ? record.attemptCount : '-'}</td>
+                        <td>{Number.isFinite(record.completedAssetCount) ? `${record.completedAssetCount} / ${fmtBytes(record.reportedAssetBytes)}` : '-'}</td>
+                        <td>{fmtMemoryChange(record)}</td>
+                        <td>{record.cacheStatus ?? '-'}</td>
+                        <td className="text-column error-column">{record.error || '-'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : null}
           </section>
 
           <section className="card stack">
