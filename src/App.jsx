@@ -7,7 +7,7 @@ import {
   getParakeetModel,
   loadModelWithFallback,
 } from '@asrjs/speech-recognition/presets/parakeet';
-import { decodeAudioSourceToMonoPcm } from '@asrjs/speech-recognition/browser';
+import { decodeAudioSourceToMonoPcm } from '@asrjs/speech-recognition/browser/media';
 import { benchmarkRunRecordsToCsv, summarizeNumericSeries, textSimilarity } from '@asrjs/speech-recognition/bench';
 import { fetchDatasetSplits, fetchRandomRows, fetchSequentialRows, getConfigsAndSplits, normalizeDatasetRow } from '@asrjs/speech-recognition/datasets';
 import './App.css';

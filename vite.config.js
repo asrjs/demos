@@ -29,9 +29,6 @@ const shortHash = getShortCommitHash(repoRoot);
 
 export default defineConfig({
   plugins: [react()],
-  worker: {
-    format: 'es',
-  },
   server: {
     port: 5176,
     headers: {
@@ -50,6 +47,7 @@ export default defineConfig({
       { find: /^@asrjs\/speech-recognition\/io$/, replacement: path.resolve(repoRoot, 'src/io.ts') },
       { find: /^@asrjs\/speech-recognition\/inference$/, replacement: path.resolve(repoRoot, 'src/inference.ts') },
       { find: /^@asrjs\/speech-recognition\/browser$/, replacement: path.resolve(repoRoot, 'src/browser.ts') },
+      { find: /^@asrjs\/speech-recognition\/browser\/media$/, replacement: path.resolve(repoRoot, 'src/browser-media.ts') },
       { find: /^@asrjs\/speech-recognition\/realtime$/, replacement: path.resolve(repoRoot, 'src/realtime.ts') },
       { find: /^@asrjs\/speech-recognition\/bench$/, replacement: path.resolve(repoRoot, 'src/bench.ts') },
       { find: /^@asrjs\/speech-recognition\/datasets$/, replacement: path.resolve(repoRoot, 'src/datasets.ts') },
