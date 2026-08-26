@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { resolveSpeechModelComponentBackends } from '@asrjs/speech-recognition';
 import {
   MODELS,
   LANGUAGE_NAMES,
@@ -14,7 +15,10 @@ import './App.css';
 const SETTINGS_KEY = 'asrjs.benchmark-demo.settings.v1';
 const VERSION = typeof __ASRJS_VERSION__ !== 'undefined' ? __ASRJS_VERSION__ : 'unknown';
 const SOURCE = typeof __ASRJS_SOURCE__ !== 'undefined' ? __ASRJS_SOURCE__ : 'dev';
-const BACKENDS = ['webgpu-hybrid', 'webgpu', 'wasm'];
+const BACKEND_MODES = [
+  { value: 'webgpu-hybrid', label: 'WebGPU encoder + WASM decoder' },
+  { value: 'wasm', label: 'WASM encoder + WASM decoder' },
+];
 const QUANTS = ['fp16', 'int8', 'fp32'];
 const DATASET_SUGGESTIONS = [
   'ysdede/parrot-radiology-asr-en',
@@ -37,6 +41,10 @@ function saveSettings(settings) {
   } catch {
     // Ignore storage failures in the demo.
   }
+}
+
+function normalizeBackendMode(value) {
+  return value === 'wasm' ? 'wasm' : 'webgpu-hybrid';
 }
 
 function mean(values) {
@@ -105,7 +113,7 @@ export default function App() {
   const saved = loadSettings();
   const initialModel = MODELS[saved.modelKey] ? saved.modelKey : 'parakeet-tdt-0.6b-v3';
   const [modelKey, setModelKey] = useState(initialModel);
-  const [backend, setBackend] = useState(saved.backend || 'webgpu-hybrid');
+  const [backend, setBackend] = useState(normalizeBackendMode(saved.backend));
   const [encoderQuant, setEncoderQuant] = useState(saved.encoderQuant || 'fp16');
   const [decoderQuant, setDecoderQuant] = useState(saved.decoderQuant || 'int8');
   const [preprocessorBackend, setPreprocessorBackend] = useState(saved.preprocessorBackend || 'js');
@@ -224,6 +232,10 @@ export default function App() {
   }, [configToSplits, datasetConfig, datasetSplit]);
 
   const modelConfig = MODELS[modelKey];
+  const componentBackends = useMemo(
+    () => resolveSpeechModelComponentBackends(modelKey, { backend }),
+    [modelKey, backend]
+  );
   const availableSplits = configToSplits[datasetConfig] || ['train'];
   const summary = useMemo(() => summarizeRuns(runs), [runs]);
   const recentRuns = useMemo(() => runs.slice(-20).reverse(), [runs]);
@@ -251,6 +263,8 @@ export default function App() {
           preprocessor: modelConfig.preprocessor,
           preprocessorBackend,
           backend,
+          encoderBackend: componentBackends.encoderBackend,
+          decoderBackend: componentBackends.decoderBackend,
           cpuThreads,
           enableProfiling,
           progress: ({ loaded, total, file }) => {
@@ -404,6 +418,8 @@ export default function App() {
               metrics: result.metrics ?? null,
               modelKey,
               backend,
+              encoderBackend: componentBackends.encoderBackend,
+              decoderBackend: componentBackends.decoderBackend,
               encoderQuant,
               decoderQuant,
               preprocessor: modelConfig.preprocessor,
@@ -428,6 +444,8 @@ export default function App() {
               error: error.message,
               modelKey,
               backend,
+              encoderBackend: componentBackends.encoderBackend,
+              decoderBackend: componentBackends.decoderBackend,
               encoderQuant,
               decoderQuant,
               preprocessor: modelConfig.preprocessor,
@@ -459,6 +477,8 @@ export default function App() {
       settings: {
         modelKey,
         backend,
+        encoderBackend: componentBackends.encoderBackend,
+        decoderBackend: componentBackends.decoderBackend,
         encoderQuant,
         decoderQuant,
         preprocessorBackend,
@@ -504,9 +524,9 @@ export default function App() {
             <p className="hint">{modelConfig.repoId} • {modelLanguages}</p>
             <div className="pair">
               <label>
-                Backend
+                Execution mode
                 <select value={backend} onChange={(e) => setBackend(e.target.value)} disabled={isLoadingModel || modelReady}>
-                  {BACKENDS.map((value) => <option key={value} value={value}>{value}</option>)}
+                  {BACKEND_MODES.map((mode) => <option key={mode.value} value={mode.value}>{mode.label}</option>)}
                 </select>
               </label>
               <label>
@@ -631,7 +651,7 @@ export default function App() {
             </div>
             <div className="hero-metadata">
               <span>{modelConfig.displayName}</span>
-              <span>{backend}</span>
+              <span>e:{componentBackends.encoderBackend} / d:{componentBackends.decoderBackend}</span>
               <span>e:{encoderQuant}</span>
               <span>d:{decoderQuant}</span>
             </div>
