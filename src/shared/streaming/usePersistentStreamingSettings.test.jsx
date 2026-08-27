@@ -1,6 +1,6 @@
 import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { getStreamingPreset } from '@asrjs/speech-recognition/realtime';
 import { usePersistentStreamingSettings } from './usePersistentStreamingSettings.js';
 
@@ -10,8 +10,34 @@ function Harness({ modelId, isRealtimeEouModel, onRender }) {
   return null;
 }
 
+function installTestLocalStorage() {
+  const store = new Map();
+  const storage = {
+    clear() {
+      store.clear();
+    },
+    getItem(key) {
+      return store.has(String(key)) ? store.get(String(key)) : null;
+    },
+    removeItem(key) {
+      store.delete(String(key));
+    },
+    setItem(key, value) {
+      store.set(String(key), String(value));
+    },
+  };
+  Object.defineProperty(globalThis, 'localStorage', {
+    value: storage,
+    configurable: true,
+  });
+}
+
 describe('usePersistentStreamingSettings', () => {
   const realtimeRnntDefaults = getStreamingPreset('realtime-rnnt').config;
+
+  beforeEach(() => {
+    installTestLocalStorage();
+  });
 
   it('persists HUD visibility and custom config in localStorage', async () => {
     globalThis.IS_REACT_ACT_ENVIRONMENT = true;
