@@ -23,6 +23,42 @@ function formatChunkDuration(value) {
   return typeof value === 'number' && Number.isFinite(value) ? `${value.toFixed(0)} ms` : '--';
 }
 
+function formatVadBackendShortLabel(value) {
+  return value === 'ten-vad' ? 'ten' : 'firered';
+}
+
+function formatSegmentReasonLabel(reason) {
+  switch (reason) {
+    case 'silence':
+      return 'sil';
+    case 'max-duration':
+      return 'max';
+    case 'manual':
+      return 'man';
+    case 'stop':
+      return 'stop';
+    default:
+      return reason ? String(reason).slice(0, 4) : 'seg';
+  }
+}
+
+function formatSegmentDurationLabel(segment) {
+  const sampleRate = Number(segment?.sampleRate);
+  const startFrame = Number(segment?.startFrame);
+  const endFrame = Number(segment?.endFrame);
+  if (
+    !Number.isFinite(sampleRate)
+    || !Number.isFinite(startFrame)
+    || !Number.isFinite(endFrame)
+    || sampleRate <= 0
+    || endFrame <= startFrame
+  ) {
+    return null;
+  }
+  const durationMs = ((endFrame - startFrame) / sampleRate) * 1000;
+  return `${Math.round(durationMs)}ms`;
+}
+
 function buildRingCaptureSnapshot(ringCapture, capture) {
   if (!ringCapture?.ringBuffer) {
     return null;
@@ -123,7 +159,9 @@ function selectWaveformFrame(snapshot) {
     gate: snapshot.gate ?? null,
     foreground: snapshot.foreground ?? null,
     acceptance: snapshot.acceptance ?? null,
+    rough: snapshot.rough ?? null,
     recentSegments: snapshot.recentSegments ?? [],
+    recentDecisions: snapshot.recentDecisions ?? [],
     activeSegment: snapshot.activeSegment ?? null,
     capture: snapshot.capture ?? null,
   };
@@ -184,13 +222,15 @@ export function WaveformCanvas({
   monitor = null,
   ringCapture = null,
   capture = null,
-  scaleMode = 'focus',
+  scaleMode = 'physical',
   showSpeechThreshold = false,
   showTenVadThreshold = false,
   showPreVadOverlay = false,
   liveReleaseMs = null,
   liveNoiseDbfs = null,
   liveSpeechDbfs = null,
+  liveOnsetDbfs = null,
+  showFooterMetrics = true,
 }) {
   const canvasRef = useRef(null);
   const frameRef = useRef(0);
@@ -231,10 +271,27 @@ export function WaveformCanvas({
             waveform: frame.waveform,
             plot: frame.plot,
             config: frame.config,
+            rough: frame.rough,
             foreground: frame.foreground,
             acceptance: frame.acceptance,
-            activeSegment: frame.activeSegment,
-            recentSegments: frame.recentSegments,
+            activeSegment: frame.activeSegment
+              ? {
+                  ...frame.activeSegment,
+                  label: 'live',
+                }
+              : null,
+            recentSegments: (frame.recentSegments ?? []).map((segment, index) => ({
+              ...segment,
+              logicalStartFrame: segment.metadata?.logicalStartFrame ?? segment.startFrame,
+              accepted: segment.metadata?.filter?.accepted ?? true,
+              label: (() => {
+                const durationLabel = formatSegmentDurationLabel(segment);
+                const reasonLabel = formatSegmentReasonLabel(segment.reason);
+                return durationLabel
+                  ? `${reasonLabel}:${durationLabel}`
+                  : reasonLabel;
+              })(),
+            })),
           }
         : null,
     [frame],
@@ -245,13 +302,29 @@ export function WaveformCanvas({
       ? frame.foreground.noiseFloorDbfs
       : null;
   const speechThresholdDbfs =
-    frame?.config?.foregroundFilterEnabled && showSpeechThreshold
-      ? foregroundNoiseFloorDbfs !== null
-        && typeof frame?.config?.foregroundMinDb === 'number'
-        && Number.isFinite(frame.config.foregroundMinDb)
-          ? foregroundNoiseFloorDbfs + Number(frame.config.foregroundMinDb)
-          : null
+    showSpeechThreshold
+      ? liveSpeechDbfs
       : null;
+  const onsetThresholdDbfs =
+    showSpeechThreshold
+      ? liveOnsetDbfs
+      : null;
+  const absoluteSpeechFloorDbfs =
+    showSpeechThreshold
+      ? frame?.config?.minSpeechLevelDbfs ?? null
+      : null;
+  const liveAcceptanceResult = frame?.acceptance ?? frame?.foreground?.activeResult ?? frame?.foreground?.lastResult ?? null;
+  const powerValue = liveAcceptanceResult?.normalizedPowerAt16k;
+  const powerThreshold = liveAcceptanceResult?.minEnergyPerSecondThreshold;
+  const integralValue = liveAcceptanceResult?.normalizedEnergyIntegralAt16k;
+  const integralThreshold = liveAcceptanceResult?.minEnergyIntegralThreshold;
+  const finalGateLabel =
+    typeof powerValue === 'number' && Number.isFinite(powerValue)
+      && typeof powerThreshold === 'number' && Number.isFinite(powerThreshold)
+      && typeof integralValue === 'number' && Number.isFinite(integralValue)
+      && typeof integralThreshold === 'number' && Number.isFinite(integralThreshold)
+      ? `p ${powerValue.toFixed(2)}/${powerThreshold.toFixed(2)} · i ${integralValue.toFixed(2)}/${integralThreshold.toFixed(2)}`
+      : '--';
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -327,6 +400,17 @@ export function WaveformCanvas({
         height,
         dpr,
         frame: renderFrame,
+        options: {
+          waveformScaleMode: scaleMode,
+          showSpeechThreshold,
+          noiseFloorDbfs: foregroundNoiseFloorDbfs,
+          absoluteSpeechFloorDbfs,
+          speechThresholdDbfs,
+          onsetThresholdDbfs,
+          showTenVadThreshold,
+          tenVadThreshold: renderFrame?.config?.tenVadThreshold ?? null,
+          showPreVadOverlay,
+        },
       });
       return undefined;
     }
@@ -347,7 +431,10 @@ export function WaveformCanvas({
       renderWaveformFrame(context, renderFrame, width, height, {
         waveformScaleMode: scaleMode,
         showSpeechThreshold,
+        noiseFloorDbfs: foregroundNoiseFloorDbfs,
+        absoluteSpeechFloorDbfs,
         speechThresholdDbfs,
+        onsetThresholdDbfs,
         showTenVadThreshold,
         tenVadThreshold: renderFrame?.config?.tenVadThreshold ?? null,
         showPreVadOverlay,
@@ -359,7 +446,7 @@ export function WaveformCanvas({
         window.cancelAnimationFrame(frameRef.current);
       }
     };
-  }, [paintMode, plot, renderFrame, scaleMode, showPreVadOverlay, showSpeechThreshold, showTenVadThreshold, speechThresholdDbfs]);
+  }, [absoluteSpeechFloorDbfs, foregroundNoiseFloorDbfs, onsetThresholdDbfs, paintMode, plot, renderFrame, scaleMode, showPreVadOverlay, showSpeechThreshold, showTenVadThreshold, speechThresholdDbfs]);
 
   const bufferLabel = plot
     ? `${Math.max(0, plot.livePointIndex + 1)}/${plot.pointCount} pad ${plot.padPoints}`
@@ -377,12 +464,19 @@ export function WaveformCanvas({
     { key: 'mode', label: 'mode', value: String(frame?.gate?.effectiveMode ?? plot?.gateMode ?? '--') },
     { key: 'release', label: 'release', value: formatMilliseconds(liveReleaseMs) },
     { key: 'noise', label: 'noise', value: formatDbfsValue(liveNoiseDbfs) },
-    { key: 'speech', label: 'speech', value: formatDbfsValue(liveSpeechDbfs) },
-    { key: 'fg', label: 'fg min', value: formatThreshold(frame?.config?.foregroundMinDb) },
-    { key: 'ten', label: 'ten thr', value: formatThreshold(frame?.config?.tenVadThreshold) },
+    { key: 'speech', label: 'gate', value: formatDbfsValue(liveSpeechDbfs) },
+    { key: 'accept', label: 'final gate', value: finalGateLabel },
+    {
+      key: 'sp',
+      label: 'gate lines',
+      value: showSpeechThreshold ? 'on' : 'off',
+    },
+    {
+      key: 'tenln',
+      label: formatVadBackendShortLabel(frame?.gate?.vadBackend),
+      value: showTenVadThreshold ? 'on' : 'off',
+    },
     { key: 'scale', label: 'scale', value: scaleMode },
-    { key: 'sp', label: 'sp line', value: showSpeechThreshold ? formatDbfs(speechThresholdDbfs) : 'off' },
-    { key: 'tenln', label: 'ten ln', value: showTenVadThreshold ? 'on' : 'off' },
   ];
 
   return (
@@ -399,7 +493,7 @@ export function WaveformCanvas({
         style={{ width: `${Math.max(1, plot?.pointCount ?? 1)}px`, height: `${WAVEFORM_CANVAS_HEIGHT}px` }}
         className="streaming-waveform-canvas"
       />
-      <WaveformMetricsStrip rows={[metricsCaptureRow, metricsDetectorRow]} />
+      {showFooterMetrics ? <WaveformMetricsStrip rows={[metricsCaptureRow, metricsDetectorRow]} /> : null}
     </div>
   );
 }

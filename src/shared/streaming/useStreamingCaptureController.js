@@ -21,6 +21,7 @@ const INITIAL_CONTROLLER_STATE = {
     chunkDurationMs: STREAMING_TIMELINE_CHUNK_MS,
     deviceLabel: '',
   },
+  latency: null,
 };
 
 export function useStreamingCaptureController({
@@ -28,6 +29,7 @@ export function useStreamingCaptureController({
   isRealtimeEouModel,
   supportsMicrophoneInput,
   onUtterance,
+  transcribe,
   onStatus,
 }) {
   const {
@@ -47,6 +49,7 @@ export function useStreamingCaptureController({
   });
 
   const onUtteranceRef = useRef(onUtterance);
+  const transcribeRef = useRef(transcribe);
   const onStatusRef = useRef(onStatus);
   const controllerRef = useRef(null);
   const [controllerState, setControllerState] = useState(INITIAL_CONTROLLER_STATE);
@@ -55,6 +58,10 @@ export function useStreamingCaptureController({
   useEffect(() => {
     onUtteranceRef.current = onUtterance;
   }, [onUtterance]);
+
+  useEffect(() => {
+    transcribeRef.current = transcribe;
+  }, [transcribe]);
 
   useEffect(() => {
     onStatusRef.current = onStatus;
@@ -66,6 +73,23 @@ export function useStreamingCaptureController({
       profileId,
       config: resolvedConfig,
       micMode,
+      fireRedVadConfig: {
+        wasmPaths:
+          typeof __ASRJS_ORT_WASM_PATH__ === 'string' && __ASRJS_ORT_WASM_PATH__.length > 0
+            ? __ASRJS_ORT_WASM_PATH__
+            : undefined,
+      },
+      transcribe: (request) => {
+        const next = transcribeRef.current;
+        if (!next) {
+          return {
+            text: '',
+            warnings: [],
+            meta: { detailLevel: 'text', isFinal: true },
+          };
+        }
+        return next(request);
+      },
       onUtterance: (utterance) => onUtteranceRef.current?.(utterance),
       onStatus: (status) => onStatusRef.current?.(status),
     });
@@ -110,6 +134,7 @@ export function useStreamingCaptureController({
     defaultMode,
     monitor,
     captureInfo: controllerState.captureInfo,
+    latency: controllerState.latency ?? null,
     start: async () => {
       if (!supportsMicrophoneInput) {
         throw new Error('Microphone capture is not available in this browser.');

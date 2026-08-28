@@ -357,6 +357,7 @@ export default function App() {
         }
 
         if (isUnmountingRef.current) {
+          job.settle?.(toMicrophoneTranscriptResult(canonicalResult));
           continue;
         }
 
@@ -365,6 +366,7 @@ export default function App() {
         const clipUrl = URL.createObjectURL(clipBlob);
         if (isUnmountingRef.current) {
           URL.revokeObjectURL(clipUrl);
+          job.settle?.(toMicrophoneTranscriptResult(canonicalResult));
           continue;
         }
 
@@ -389,6 +391,7 @@ export default function App() {
           textLength: String(canonicalResult?.text ?? '').length,
           pending: micTranscriptionQueueRef.current.length,
         });
+        job.settle?.(toMicrophoneTranscriptResult(canonicalResult));
       } catch (error) {
         failureMessage = error instanceof Error ? error.message : String(error);
         console.error('[Mic] Transcription failed:', error);
@@ -397,6 +400,7 @@ export default function App() {
           pending: micTranscriptionQueueRef.current.length,
           error: failureMessage,
         });
+        job.settle?.(emptyMicrophoneTranscriptResult());
         if (!isUnmountingRef.current) {
           setStatus(`Microphone transcription failed: ${failureMessage}`);
         }
@@ -428,62 +432,94 @@ export default function App() {
     micQueueRunningRef.current = false;
   }
 
+  function emptyMicrophoneTranscriptResult() {
+    return { text: '', warnings: [], meta: { detailLevel: 'text', isFinal: true } };
+  }
+
+  function toMicrophoneTranscriptResult(canonical) {
+    if (!canonical) {
+      return emptyMicrophoneTranscriptResult();
+    }
+    return {
+      text: canonical.text ?? '',
+      warnings: canonical.warnings ?? [],
+      meta: {
+        ...(canonical.meta ?? {}),
+        detailLevel: canonical.meta?.detailLevel ?? 'text',
+        isFinal: true,
+      },
+      segments: canonical.segments,
+      sentences: canonical.sentences,
+      words: canonical.words,
+      tokens: canonical.tokens,
+    };
+  }
+
   function queueMicrophoneTranscription(pcm, sampleRate, sourceLabel) {
-    if (!pcm.length || isUnmountingRef.current) return;
-    if (loadModelRunningRef.current) {
-      onMicStatus('Model is loading; microphone input is paused');
-      return;
-    }
+    return new Promise((resolve) => {
+      if (!pcm.length || isUnmountingRef.current) {
+        resolve(emptyMicrophoneTranscriptResult());
+        return;
+      }
+      if (loadModelRunningRef.current) {
+        onMicStatus('Model is loading; microphone input is paused');
+        resolve(emptyMicrophoneTranscriptResult());
+        return;
+      }
 
-    const durationSeconds = pcm.length / sampleRate;
-    if (durationSeconds * 1000 < MIC_MIN_UTTERANCE_MS) {
-      onMicStatus(isMicActiveRef.current ? 'Listening for speech…' : 'Microphone stopped');
-      return;
-    }
+      const durationSeconds = pcm.length / sampleRate;
+      if (durationSeconds * 1000 < MIC_MIN_UTTERANCE_MS) {
+        onMicStatus(isMicActiveRef.current ? 'Listening for speech…' : 'Microphone stopped');
+        resolve(emptyMicrophoneTranscriptResult());
+        return;
+      }
 
-    if (!modelRef.current) {
-      setStatus(`Captured ${sourceLabel} (${durationSeconds.toFixed(2)} s). Load a model to transcribe.`);
-      return;
-    }
-    const transcriber = micTranscriberRef.current ?? modelRef.current;
-    const transcriberLabel = transcriber === micWorkerClientRef.current ? 'worker' : 'main';
+      if (!modelRef.current) {
+        setStatus(`Captured ${sourceLabel} (${durationSeconds.toFixed(2)} s). Load a model to transcribe.`);
+        resolve(emptyMicrophoneTranscriptResult());
+        return;
+      }
+      const transcriber = micTranscriberRef.current ?? modelRef.current;
+      const transcriberLabel = transcriber === micWorkerClientRef.current ? 'worker' : 'main';
 
-    const options = buildTranscriptionOptions(selectedModel, {
-      sourceLanguage: selectedLanguage,
-      targetLanguage: effectiveCanaryTargetLanguage,
-      task: canaryTask,
-      punctuate: canaryPnc,
-      timestamps: supportsCanaryPrompting ? canaryTimestamps : true,
-      frameStride,
-      enableProfiling,
+      const options = buildTranscriptionOptions(selectedModel, {
+        sourceLanguage: selectedLanguage,
+        targetLanguage: effectiveCanaryTargetLanguage,
+        task: canaryTask,
+        punctuate: canaryPnc,
+        timestamps: supportsCanaryPrompting ? canaryTimestamps : true,
+        frameStride,
+        enableProfiling,
+      });
+      const task = supportsCanaryPrompting ? canaryTask : 'asr';
+      const targetLanguage = supportsCanaryPrompting ? effectiveCanaryTargetLanguage : null;
+
+      micPendingJobsRef.current += 1;
+      setIsTranscribing(true);
+      setReferenceText('');
+      setSampleDownload(null);
+      micTranscriptionQueueRef.current.push({
+        transcriber,
+        transcriberLabel,
+        pcm,
+        sampleRate,
+        sourceLabel,
+        durationSeconds,
+        options,
+        task,
+        targetLanguage,
+        dumpDetail,
+        settle: resolve,
+      });
+      logMicrophoneQueue('enqueue', {
+        sourceLabel,
+        durationSeconds: Number(durationSeconds.toFixed(2)),
+        pending: micTranscriptionQueueRef.current.length,
+        transcriber: transcriberLabel,
+      });
+      setStatus(`Transcribing microphone queue (${micTranscriptionQueueRef.current.length} pending)…`);
+      void drainMicrophoneTranscriptionQueue();
     });
-    const task = supportsCanaryPrompting ? canaryTask : 'asr';
-    const targetLanguage = supportsCanaryPrompting ? effectiveCanaryTargetLanguage : null;
-
-    micPendingJobsRef.current += 1;
-    setIsTranscribing(true);
-    setReferenceText('');
-    setSampleDownload(null);
-    micTranscriptionQueueRef.current.push({
-      transcriber,
-      transcriberLabel,
-      pcm,
-      sampleRate,
-      sourceLabel,
-      durationSeconds,
-      options,
-      task,
-      targetLanguage,
-      dumpDetail,
-    });
-    logMicrophoneQueue('enqueue', {
-      sourceLabel,
-      durationSeconds: Number(durationSeconds.toFixed(2)),
-      pending: micTranscriptionQueueRef.current.length,
-      transcriber: transcriberLabel,
-    });
-    setStatus(`Transcribing microphone queue (${micTranscriptionQueueRef.current.length} pending)…`);
-    void drainMicrophoneTranscriptionQueue();
   }
 
   const {
@@ -501,6 +537,7 @@ export default function App() {
     defaultMode,
     monitor: streamingMonitor,
     captureInfo: streamingCaptureInfo,
+    latency: streamingLatency,
     start: startMicrophoneCapture,
     stop: stopMicrophoneCapture,
     flush: flushMicrophoneUtterance,
@@ -509,9 +546,12 @@ export default function App() {
     modelId: selectedModel,
     isRealtimeEouModel,
     supportsMicrophoneInput,
-    onUtterance({ pcm, sampleRate, sourceLabel }) {
-      queueMicrophoneTranscription(pcm, sampleRate, sourceLabel);
-    },
+    transcribe: (request) =>
+      queueMicrophoneTranscription(
+        request.pcm,
+        request.sampleRate,
+        `microphone-${request.segmentReason ?? request.reason}-${new Date().toLocaleTimeString()}`,
+      ),
     onStatus: (nextStatus) => setStatus(resolveAppStatus(nextStatus)),
   });
   const streamingSnapshot = useStreamingMonitor({
@@ -1168,6 +1208,7 @@ export default function App() {
     setHudVisible,
     streamingMonitor,
     streamingCaptureInfo,
+    streamingLatency,
     streamingSnapshot,
     profileId,
     defaultMode,

@@ -1,6 +1,6 @@
 # Streaming Speech Detection
 
-`streaming-demo` now keeps the streaming mic pipeline in `src/shared/streaming/` so the detector logic can move into `@asrjs/speech-recognition` later without dragging the demo HUD along.
+`streaming-demo` keeps the streaming mic UI in `src/shared/streaming/` while the reusable capture, detector, VAD, ring-buffer, and waveform pieces live in `@asrjs/speech-recognition`.
 
 ## Architecture
 
@@ -8,30 +8,31 @@ The browser demo streaming path is split into:
 
 1. browser microphone capture from `@asrjs/speech-recognition/browser`
 2. rolling PCM ring buffer
-3. TEN-VAD adapter
-4. TEN-VAD-first segment builder
-5. segment foreground filter
+3. rough gate segmentation
+4. FireRed VAD or TEN-VAD diagnostics
+5. segment foreground filter / final acceptance gate
 6. demo-only debug HUD
 
-TEN-VAD is the primary detector:
+The rough gate currently owns live segmentation:
 
 - consumes the 16 kHz mono timeline continuously
-- owns segment start and end decisions through thresholding, confirmation, and hangover
+- owns segment start and end decisions through energy thresholding and silence release
 - rewinds accepted speech with pre-roll
-- degrades gracefully to rough-gate-only fallback when worker init fails
+- keeps running when the selected VAD backend fails
 
-The foreground filter runs only after a segment closes:
+The selected VAD backend is diagnostic:
+
+- FireRed VAD is the default backend
+- FireRed consumes 10 ms frames and the app visualizes them as 20 ms buckets
+- TEN-VAD remains selectable and follows the streaming chunk duration
+- both backends publish probability/state into the monitor and waveform layers
+
+The foreground filter / final acceptance gate runs after a segment closes:
 
 - computes short-window RMS in dBFS
 - compares segment P90 loudness against the adaptive noise floor
 - compares onset loudness against the noise floor for short segments
 - rejects long quiet background speech with a separate long-segment threshold
-
-The rough gate remains only for:
-
-- diagnostics
-- noise-floor telemetry
-- degraded fallback when TEN-VAD is unavailable
 
 ## Frame Timeline
 
@@ -39,8 +40,8 @@ All stages share one frame timeline at the target sample rate:
 
 - browser capture emits `startFrame` / `endFrame`
 - ring buffer stores PCM by absolute frame offset
-- TEN-VAD returns hop-level flags anchored to the same offsets
-- the segment builder and foreground filter both keep those offsets
+- VAD backends return hop-level flags anchored to the same offsets
+- the rough gate, VAD diagnostics, waveform, and foreground filter keep those offsets
 - finalized segments expose `startFrame`, `endFrame`, and `readPcm()`
 
 This is the key extraction boundary for future library work.
@@ -53,7 +54,7 @@ It shows:
 
 - waveform from the rolling ring buffer
 - noise floor in dBFS
-- TEN-VAD probability/state
+- selected VAD probability/state
 - segment foreground dB above floor
 - onset dB above floor
 - accept/reject reason
@@ -75,7 +76,11 @@ Available presets:
 
 Realtime RNNT models default to `Speech Detect`. Other models default to `Manual`, but the detector can still be enabled.
 
-## TEN-VAD Asset Source
+## VAD Runtime Notes
+
+FireRed VAD uses the library-owned ONNX Runtime Web dependency. The demo injects the local ORT wasm directory from `../speech-recognition/node_modules/onnxruntime-web/dist` through `__ASRJS_ORT_WASM_PATH__` and passes it into `fireRedVadConfig.wasmPaths`.
+
+TEN-VAD remains available for comparison. Its demo-owned runtime assets come from:
 
 The demo-owned TEN-VAD runtime comes from:
 
@@ -94,10 +99,37 @@ Refresh workflow:
 3. rerun `npm run test`
 4. rerun `npm run build`
 
+## Known Failure Mode: FireRed Degraded + NotFoundError
+
+If you see:
+
+- `FireRed VAD is degraded. Runtime plots may be incomplete.`
+- `Speech segmentation is running on the rough gate. FireRed VAD is diagnostics-only.`
+
+then separate expected behavior from real failure:
+
+- `diagnostics-only` is expected in this detector port
+- `degraded` indicates backend init/runtime failure
+
+Historic root cause (May 2026):
+
+- stale IndexedDB/cache store paths throwing `NotFoundError`
+- CMVN URL wiring/default drift
+
+Resolution lives in core library docs:
+
+- `speech-recognition/docs/FIRERED_VAD_DEGRADED_TROUBLESHOOTING.md`
+
+Quick triage:
+
+1. read degraded warning detail text in UI (backend error is appended)
+2. inspect browser console for `NotFoundError`
+3. confirm FireRed model assets resolve and load
+4. restart dev server after code/dependency updates
+
 ## Future Extraction
 
-Planned future split:
+Current split:
 
-- TEN-VAD segmenter and foreground filter -> `speech-recognition/src/runtime`
-- TEN-VAD adapter / browser worker surface -> `speech-recognition` browser/runtime entrypoints
+- detector, VAD adapters, browser worker surfaces, ring buffer, and waveform renderer -> `speech-recognition/src/runtime`
 - debug HUD -> stays in `streaming-demo`

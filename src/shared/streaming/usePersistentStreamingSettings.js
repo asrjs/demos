@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   STREAMING_PROFILE_IDS,
-  getStreamingPreset,
   isStreamingConfigEqual,
   mergeStreamingConfig,
   resolveDefaultMicMode,
@@ -9,7 +8,10 @@ import {
 } from '@asrjs/speech-recognition/realtime';
 
 const STORAGE_KEY = 'asrjs-streaming-demo-streaming-mic-settings';
-const STORAGE_VERSION = 4;
+const STORAGE_VERSION = 8;
+const STREAMING_DEMO_DEFAULT_CONFIG_OVERRIDES = {
+  tenVadEnabled: true,
+};
 
 function migrateStoredConfig(config) {
   if (!config || typeof config !== 'object') {
@@ -22,10 +24,24 @@ function migrateStoredConfig(config) {
   ) {
     migrated.minSpeechLevelDbfs = 20 * Math.log10(Math.max(migrated.energyThreshold, 0.000001));
   }
-  if (migrated.gateMode === 'rough-and-ten-vad') {
-    migrated.gateMode = 'ten-vad-only';
+  if (
+    migrated.gateMode === 'rough-and-ten-vad'
+    || migrated.gateMode === 'ten-vad-only'
+  ) {
+    migrated.gateMode = 'rough-only';
   }
-  delete migrated.energyThreshold;
+  delete migrated.foregroundMinDb;
+  delete migrated.foregroundOnsetMinDb;
+  delete migrated.foregroundOnsetWindowMs;
+  delete migrated.foregroundShortSpeechMs;
+  delete migrated.foregroundLongSpeechMs;
+  delete migrated.foregroundLongExcessDbMs;
+  delete migrated.foregroundLongMinDb;
+  migrated.tenVadEnabled = STREAMING_DEMO_DEFAULT_CONFIG_OVERRIDES.tenVadEnabled;
+  if (migrated.vadBackend === 'firered-vad') {
+    delete migrated.vadHopDurationMs;
+    delete migrated.vadVisualBucketDurationMs;
+  }
   return migrated;
 }
 
@@ -37,7 +53,15 @@ function loadStoredSettings() {
     if (!parsed || typeof parsed !== 'object') {
       return null;
     }
-    if (parsed.version !== STORAGE_VERSION && parsed.version !== 3 && parsed.version !== 2) {
+    if (
+      parsed.version !== STORAGE_VERSION
+      && parsed.version !== 7
+      && parsed.version !== 6
+      && parsed.version !== 5
+      && parsed.version !== 4
+      && parsed.version !== 3
+      && parsed.version !== 2
+    ) {
       return null;
     }
     return {
@@ -72,14 +96,13 @@ export function usePersistentStreamingSettings({ modelId, isRealtimeEouModel }) 
   const [micMode, setMicMode] = useState(stored?.micMode ?? defaultMode);
   const [hudVisible, setHudVisible] = useState(Boolean(stored?.hudVisible));
   const [profileId, setProfileId] = useState(stored?.profileId ?? defaultProfileId);
-  const [customConfig, setCustomConfig] = useState(stored?.customConfig ?? {});
+  const [customConfig, setCustomConfig] = useState(
+    stored?.customConfig ?? STREAMING_DEMO_DEFAULT_CONFIG_OVERRIDES,
+  );
 
   const resolvedConfig = useMemo(() => {
     if (profileId === STREAMING_PROFILE_IDS.CUSTOM) {
-      return {
-        ...mergeStreamingConfig(defaultProfileId),
-        ...customConfig,
-      };
+      return mergeStreamingConfig(defaultProfileId, customConfig);
     }
     return mergeStreamingConfig(profileId, customConfig);
   }, [customConfig, defaultProfileId, profileId]);
@@ -96,7 +119,7 @@ export function usePersistentStreamingSettings({ modelId, isRealtimeEouModel }) 
 
   function applyPreset(nextProfileId) {
     setProfileId(nextProfileId);
-    setCustomConfig({});
+    setCustomConfig(STREAMING_DEMO_DEFAULT_CONFIG_OVERRIDES);
   }
 
   function updateConfig(patch) {
@@ -104,13 +127,25 @@ export function usePersistentStreamingSettings({ modelId, isRealtimeEouModel }) 
       ...resolvedConfig,
       ...patch,
     };
+    if (
+      Object.prototype.hasOwnProperty.call(patch, 'vadBackend')
+      && !Object.prototype.hasOwnProperty.call(patch, 'vadHopDurationMs')
+    ) {
+      delete nextConfig.vadHopDurationMs;
+    }
+    if (
+      Object.prototype.hasOwnProperty.call(patch, 'vadBackend')
+      && !Object.prototype.hasOwnProperty.call(patch, 'vadVisualBucketDurationMs')
+    ) {
+      delete nextConfig.vadVisualBucketDurationMs;
+    }
     const activePresetConfig =
       profileId === STREAMING_PROFILE_IDS.CUSTOM
-        ? mergeStreamingConfig(defaultProfileId)
-        : getStreamingPreset(profileId).config;
+        ? mergeStreamingConfig(defaultProfileId, STREAMING_DEMO_DEFAULT_CONFIG_OVERRIDES)
+        : mergeStreamingConfig(profileId, STREAMING_DEMO_DEFAULT_CONFIG_OVERRIDES);
 
     if (isStreamingConfigEqual(nextConfig, activePresetConfig)) {
-      setCustomConfig({});
+      setCustomConfig(STREAMING_DEMO_DEFAULT_CONFIG_OVERRIDES);
       if (profileId === STREAMING_PROFILE_IDS.CUSTOM) {
         setProfileId(defaultProfileId);
       }
@@ -124,7 +159,7 @@ export function usePersistentStreamingSettings({ modelId, isRealtimeEouModel }) 
   function resetToDefaults() {
     setMicMode(defaultMode);
     setProfileId(defaultProfileId);
-    setCustomConfig({});
+    setCustomConfig(STREAMING_DEMO_DEFAULT_CONFIG_OVERRIDES);
     setHudVisible(false);
   }
 

@@ -30,6 +30,9 @@ const localVersion = localPkg?.version;
 const shortHash = getShortCommitHash(repoRoot);
 const asrVersion = localVersion || 'unknown';
 const asrSource = shortHash ? `dev-${shortHash}` : 'dev';
+const ortWasmPath = `/@fs/${path
+  .resolve(repoRoot, 'node_modules/onnxruntime-web/dist')
+  .replace(/\\/g, '/')}/`;
 
 export default defineConfig({
   plugins: [react()],
@@ -74,5 +77,6 @@ export default defineConfig({
     global: 'globalThis',
     __ASRJS_VERSION__: JSON.stringify(asrVersion),
     __ASRJS_SOURCE__: JSON.stringify(asrSource),
+    __ASRJS_ORT_WASM_PATH__: JSON.stringify(ortWasmPath),
   },
 });

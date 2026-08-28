@@ -32,6 +32,6 @@ self.onmessage = (event) => {
     const height = Math.max(1, Math.round(data.height ?? WAVEFORM_CANVAS_HEIGHT));
     const dpr = Math.max(1, Number(data.dpr ?? 1));
     resizeCanvas(width, height, dpr);
-    renderWaveformFrame(context, data.frame, width, height);
+    renderWaveformFrame(context, data.frame, width, height, data.options);
   }
 };
