@@ -20,6 +20,7 @@ import { HistoryPanel } from './shared/browser-console/components/HistoryPanel.j
 
 export function BrowserConsoleLayout({ app }) {
   const [modelSidebarCollapsed, setModelSidebarCollapsed] = React.useState(false);
+  const [activeWorkspaceTab, setActiveWorkspaceTab] = React.useState('vad-lab');
   const [waveformDisplayMode, setWaveformDisplayMode] = React.useState(DEFAULT_BROWSER_MONITOR_SURFACE_MODE);
   const [waveformScaleMode, setWaveformScaleMode] = React.useState(DEFAULT_BROWSER_WAVEFORM_SCALE_MODE);
   const [showSpeechThreshold, setShowSpeechThreshold] = React.useState(true);
@@ -89,6 +90,8 @@ export function BrowserConsoleLayout({ app }) {
           modelSourceOptions={app.modelPanel.MODEL_SOURCE_OPTIONS}
           modelSidebarCollapsed={modelSidebarCollapsed}
           setModelSidebarCollapsed={setModelSidebarCollapsed}
+          activeWorkspaceTab={activeWorkspaceTab}
+          setActiveWorkspaceTab={setActiveWorkspaceTab}
         />
 
         <div className={layoutClass}>
@@ -96,57 +99,59 @@ export function BrowserConsoleLayout({ app }) {
 
           <main className="app-main">
             <div className="app-stack">
-              <StreamingCapturePanel
-                waveformDisplay={{
-                  displayMode: waveformDisplayMode,
-                  setDisplayMode: setWaveformDisplayMode,
-                  scaleMode: waveformScaleMode,
-                  setScaleMode: setWaveformScaleMode,
-                  showSpeechThreshold,
-                  setShowSpeechThreshold,
-                  showTenVadThreshold,
-                  setShowTenVadThreshold,
-                  showPreVadOverlay,
-                  setShowPreVadOverlay,
-                }}
-                streaming={{
-                  monitor: streamingMonitor,
-                  captureInfo: streamingCaptureInfo,
-                  latency: streamingLatency,
-                  snapshot: streamingSnapshot,
-                  chunkDurationMs: streamingChunkDurationMs,
-                  estimatedTailBudgetMs,
-                  liveNoiseFloorDbfs,
-                  liveSpeechThresholdDbfs,
-                  liveOnsetThresholdDbfs,
-                  profileId,
-                  presets: streamingPresets,
-                  defaultMode,
-                  tuningGroups,
-                  applyPreset,
-                  updateConfig: updateStreamingConfig,
-                  resetDefaults: resetStreamingDefaults,
-                  detectorWarnings,
-                  recentDecisionEntries,
-                  recentSegmentEntries,
-                }}
-                microphone={{
-                  error: micError,
-                  mode: micMode,
-                  setMode: setMicMode,
-                  isActive: isMicActive,
-                  start: handleStartMicrophoneCapture,
-                  stop: handleStopMicrophoneCapture,
-                  flush: flushMicrophoneUtterance,
-                  status: micStatus,
-                  isLoadingSample,
-                  supportsInput: supportsMicrophoneInput,
-                }}
-                debugHud={{
-                  isVisible: hudVisible,
-                  setVisible: setHudVisible,
-                }}
-              />
+              {activeWorkspaceTab === 'vad-lab' ? (
+                <StreamingCapturePanel
+                  waveformDisplay={{
+                    displayMode: waveformDisplayMode,
+                    setDisplayMode: setWaveformDisplayMode,
+                    scaleMode: waveformScaleMode,
+                    setScaleMode: setWaveformScaleMode,
+                    showSpeechThreshold,
+                    setShowSpeechThreshold,
+                    showTenVadThreshold,
+                    setShowTenVadThreshold,
+                    showPreVadOverlay,
+                    setShowPreVadOverlay,
+                  }}
+                  streaming={{
+                    monitor: streamingMonitor,
+                    captureInfo: streamingCaptureInfo,
+                    latency: streamingLatency,
+                    snapshot: streamingSnapshot,
+                    chunkDurationMs: streamingChunkDurationMs,
+                    estimatedTailBudgetMs,
+                    liveNoiseFloorDbfs,
+                    liveSpeechThresholdDbfs,
+                    liveOnsetThresholdDbfs,
+                    profileId,
+                    presets: streamingPresets,
+                    defaultMode,
+                    tuningGroups,
+                    applyPreset,
+                    updateConfig: updateStreamingConfig,
+                    resetDefaults: resetStreamingDefaults,
+                    detectorWarnings,
+                    recentDecisionEntries,
+                    recentSegmentEntries,
+                  }}
+                  microphone={{
+                    error: micError,
+                    mode: micMode,
+                    setMode: setMicMode,
+                    isActive: isMicActive,
+                    start: handleStartMicrophoneCapture,
+                    stop: handleStopMicrophoneCapture,
+                    flush: flushMicrophoneUtterance,
+                    status: micStatus,
+                    isLoadingSample,
+                    supportsInput: supportsMicrophoneInput,
+                  }}
+                  debugHud={{
+                    isVisible: hudVisible,
+                    setVisible: setHudVisible,
+                  }}
+                />
+              ) : null}
               <div className="app-transcript-grid">
                 <TranscriptPanel app={app} />
                 <div className="app-stack">

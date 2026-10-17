@@ -15,6 +15,8 @@ export function BrowserConsoleTopbar({
   modelSourceOptions,
   modelSidebarCollapsed,
   setModelSidebarCollapsed,
+  activeWorkspaceTab = 'vad-lab',
+  setActiveWorkspaceTab,
 }) {
   const statusLineTitle = `${status} · ${backend} · ${micStatus}`;
 
@@ -24,11 +26,23 @@ export function BrowserConsoleTopbar({
         <div className="topbar-brand-leading">
           <div className="topbar-brand-block">
             <div className="type-overline">asrjs</div>
-            <div className="type-display mt-1">Realtime Workstation</div>
+            <div className="type-display mt-1">Realtime &amp; Neural VAD Workstation</div>
           </div>
           <div className="demo-tabs">
-            <span className="demo-tab demo-tab-idle">Streaming</span>
-            <span className="demo-tab demo-tab-active">Realtime Lab</span>
+            <button
+              type="button"
+              onClick={() => setActiveWorkspaceTab?.('vad-lab')}
+              className={`demo-tab ${activeWorkspaceTab === 'vad-lab' ? 'demo-tab-active' : 'demo-tab-idle'}`}
+            >
+              Realtime VAD Lab
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveWorkspaceTab?.('transcript-focus')}
+              className={`demo-tab ${activeWorkspaceTab === 'transcript-focus' ? 'demo-tab-active' : 'demo-tab-idle'}`}
+            >
+              Transcript &amp; Subtitles
+            </button>
           </div>
         </div>
         <button
