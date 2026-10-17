@@ -36,12 +36,15 @@ export default defineConfig({
       'Cross-Origin-Embedder-Policy': 'require-corp',
     },
     fs: {
-      allow: [searchForWorkspaceRoot(process.cwd())],
+      allow: [
+        searchForWorkspaceRoot(process.cwd()),
+        repoRoot,
+        process.env.ASRJS_MODELS_DIR || 'N:/models',
+      ],
     },
   },
   resolve: {
     alias: [
-      { find: '../../io/node.js', replacement: path.resolve(repoRoot, 'src/io/browser-node-stub.ts') },
       { find: /^@asrjs\/speech-recognition$/, replacement: path.resolve(repoRoot, 'src/index.ts') },
       { find: /^@asrjs\/speech-recognition\/builtins$/, replacement: path.resolve(repoRoot, 'src/builtins.ts') },
       { find: /^@asrjs\/speech-recognition\/io$/, replacement: path.resolve(repoRoot, 'src/io.ts') },
@@ -52,8 +55,16 @@ export default defineConfig({
       { find: /^@asrjs\/speech-recognition\/bench$/, replacement: path.resolve(repoRoot, 'src/bench.ts') },
       { find: /^@asrjs\/speech-recognition\/bench\/browser$/, replacement: path.resolve(repoRoot, 'src/bench-browser.ts') },
       { find: /^@asrjs\/speech-recognition\/datasets$/, replacement: path.resolve(repoRoot, 'src/datasets.ts') },
+      { find: /^@asrjs\/speech-recognition\/quality$/, replacement: path.resolve(repoRoot, 'src/quality.ts') },
+      { find: /^@asrjs\/speech-recognition\/chunking$/, replacement: path.resolve(repoRoot, 'src/chunking.ts') },
+      { find: /^@asrjs\/speech-recognition\/post-processing$/, replacement: path.resolve(repoRoot, 'src/post-processing.ts') },
+      { find: /^@asrjs\/speech-recognition\/alignment$/, replacement: path.resolve(repoRoot, 'src/alignment.ts') },
+      { find: /^@asrjs\/speech-recognition\/pipeline$/, replacement: path.resolve(repoRoot, 'src/pipeline.ts') },
+      { find: /^@asrjs\/speech-recognition\/tokenizers$/, replacement: path.resolve(repoRoot, 'src/tokenizers.ts') },
+      { find: /^@asrjs\/speech-recognition\/presets$/, replacement: path.resolve(repoRoot, 'src/presets/index.ts') },
       { find: /^@asrjs\/speech-recognition\/models\/(.+)$/, replacement: path.resolve(repoRoot, 'src/models/$1.ts') },
       { find: /^@asrjs\/speech-recognition\/presets\/(.+)$/, replacement: path.resolve(repoRoot, 'src/presets/$1.ts') },
+      { find: /^@asrjs\/speech-recognition\/(.+)$/, replacement: path.resolve(repoRoot, 'src/$1.ts') },
     ],
   },
   define: {
