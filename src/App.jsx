@@ -243,6 +243,14 @@ function extractResultMetrics(result) {
   return null;
 }
 
+function extractWordsList(result) {
+  const canonical = extractCanonicalResult(result);
+  if (Array.isArray(canonical?.words) && canonical.words.length > 0) return canonical.words;
+  const native = extractNativeResult(result);
+  if (Array.isArray(native?.words) && native.words.length > 0) return native.words;
+  return [];
+}
+
 function extractWordCount(result) {
   const canonical = extractCanonicalResult(result);
   if (canonical?.words) return canonical.words.length;
@@ -275,6 +283,62 @@ function describeResponseFlavor(flavor) {
   if (flavor === 'canonical+native') return 'Canonical + native envelope';
   if (flavor === 'native') return 'Native output';
   return flavor;
+}
+
+function buildLiveCodeSnippet({
+  loadStrategy,
+  modelId,
+  backend,
+  detail,
+  responseFlavor,
+  language,
+}) {
+  if (loadStrategy === LOAD_STRATEGIES.UNIVERSAL) {
+    return `import { PcmAudioBuffer } from '@asrjs/speech-recognition';
+import { loadBuiltInSpeechModel } from '@asrjs/speech-recognition/builtins';
+
+const model = await loadBuiltInSpeechModel({
+  modelId: '${modelId}',
+  backend: '${backend}',
+});
+
+// 1. Offline / Batch Transcription
+const result = await model.transcribe(
+  PcmAudioBuffer.fromMono(pcmFloat32, 16000),
+  { detail: '${detail}', responseFlavor: '${responseFlavor}', language: '${language}' }
+);
+
+// 2. Stateful Streaming (Chunk-by-Chunk)
+const streamer = await model.createStreamingTranscriber({ sampleRate: 16000 });
+const partial = await streamer.pushAudio(chunkFloat32);
+const finalTranscript = await streamer.finalize();`;
+  }
+
+  if (loadStrategy === LOAD_STRATEGIES.ROOT) {
+    return `import { loadSpeechModel, PcmAudioBuffer } from '@asrjs/speech-recognition';
+import { createBrowserTranscriptionWorkerClient } from '@asrjs/speech-recognition/worker';
+
+// Main-thread or Zero-Copy Web Worker execution:
+const model = await loadSpeechModel({
+  preset: 'parakeet',
+  modelId: '${modelId}',
+  backend: '${backend}',
+});
+const envelope = await model.transcribe(
+  PcmAudioBuffer.fromMono(pcmFloat32, 16000),
+  { detail: '${detail}', responseFlavor: '${responseFlavor}' }
+);`;
+  }
+
+  return `import { loadModelWithFallback, ParakeetModel, getParakeetModel } from '@asrjs/speech-recognition/presets/parakeet';
+
+const { model } = await loadModelWithFallback({
+  repoIdOrModelKey: '${modelId}',
+  options: { backend: '${backend}' },
+  getParakeetModelFn: getParakeetModel,
+  fromUrlsFn: ParakeetModel.fromUrls,
+});
+const nativeResult = await model.transcribe(pcmFloat32, 16000, { returnTimestamps: true });`;
 }
 
 function Panel({ title, subtitle, actions, children, className = '' }) {
@@ -319,11 +383,14 @@ function Toggle({ label, checked, onChange, disabled }) {
   );
 }
 
-function JsonPanel({ title, value, placeholder }) {
+function JsonPanel({ title, value, placeholder, actions }) {
   return (
     <div className="demo-json-panel">
-      <div className="demo-json-header">{title}</div>
-      <pre className="json-output overflow-x-auto bg-[#fafcff] px-4 py-4 text-[11px] leading-6 text-slate-700">
+      <div className="demo-json-header">
+        <span>{title}</span>
+        {actions}
+      </div>
+      <pre className="json-output overflow-x-auto bg-[#fafcff] dark:bg-[#10161f] px-4 py-4 text-[11px] leading-6 text-slate-700 dark:text-slate-200">
         {value || placeholder}
       </pre>
     </div>
@@ -493,12 +560,35 @@ export default function App() {
   const [lastLoadRequest, setLastLoadRequest] = useState(null);
   const [lastLoadResult, setLastLoadResult] = useState(null);
   const [lastTranscriptionRequest, setLastTranscriptionRequest] = useState(null);
+  const [wordsList, setWordsList] = useState([]);
+  const [streamingRevisions, setStreamingRevisions] = useState([]);
+  const [codeCopied, setCodeCopied] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+    try {
+      const q = new URLSearchParams(window.location.search).get('__theme');
+      if (q === 'dark' || q === 'light') return q === 'dark';
+      return window.localStorage.getItem('asrjs-playground-theme') === 'dark';
+    } catch {
+      return false;
+    }
+  });
   const modelHandleRef = useRef(null);
   const audioInputRef = useRef(null);
+  const audioPlayerRef = useRef(null);
   const folderInputRef = useRef(null);
   const transcribeSectionRef = useRef(null);
   const benchmarkSectionRef = useRef(null);
   const [topTab, setTopTab] = useState('transcribe');
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', darkMode);
+    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+    try {
+      window.localStorage.setItem('asrjs-playground-theme', darkMode ? 'dark' : 'light');
+    } catch {
+      // ignore storage errors
+    }
+  }, [darkMode]);
 
   const modelOptions = useMemo(() => Object.entries(MODELS).map(([key, config]) => ({ key, config })), []);
   const selectedModelConfig = MODELS[selectedModel] || MODELS['parakeet-tdt-0.6b-v2'];
@@ -656,6 +746,8 @@ export default function App() {
 
   function resetResultPanels() {
     setTranscript('');
+    setWordsList([]);
+    setStreamingRevisions([]);
     setCanonicalJson('');
     setNativeJson('');
     setRawJson('');
@@ -785,6 +877,9 @@ export default function App() {
       label: `Catalog: ${descriptor?.displayName || selectedCatalogModelId}`,
       loadedBy: 'loadBuiltInSpeechModel()',
       supportsStreaming: loaded.supportsStreaming,
+      createStreamingTranscriber: typeof loaded.createStreamingTranscriber === 'function'
+        ? (opts) => loaded.createStreamingTranscriber(opts)
+        : null,
       async dispose() {
         await loaded.dispose();
       },
@@ -894,6 +989,10 @@ export default function App() {
       return {
         label: 'Root convenience loader',
         loadedBy: 'loadSpeechModel()',
+        supportsStreaming: loaded.supportsStreaming,
+        createStreamingTranscriber: typeof loaded.createStreamingTranscriber === 'function'
+          ? (opts) => loaded.createStreamingTranscriber(opts)
+          : null,
         async dispose() {
           await loaded.dispose();
           await Promise.all(resolved.assetHandles.map(async (handle) => handle.dispose()));
@@ -919,6 +1018,10 @@ export default function App() {
     return {
       label: 'Root convenience loader',
       loadedBy: 'loadSpeechModel()',
+      supportsStreaming: loaded.supportsStreaming,
+      createStreamingTranscriber: typeof loaded.createStreamingTranscriber === 'function'
+        ? (opts) => loaded.createStreamingTranscriber(opts)
+        : null,
       async dispose() { await loaded.dispose(); },
       async transcribePrepared(prepared, options) {
         return loaded.transcribe(PcmAudioBuffer.fromMono(prepared.pcm, prepared.sampleRate), options);
@@ -1028,6 +1131,7 @@ export default function App() {
     setTranscribeProgressPct(0);
     setBenchmarkRuns([]);
     setBenchmarkSummary(null);
+    setStreamingRevisions([]);
     try {
       const prepared = await decodeAudioSourceToMonoPcm(audioFile || SAMPLE_URL, buildAudioPreparationOptions());
       setAudioPreparation({ ...prepared.metrics, sampleRate: prepared.sampleRate, numberOfChannels: prepared.numberOfChannels, durationSec: prepared.durationSec });
@@ -1047,6 +1151,7 @@ export default function App() {
       const native = extractNativeResult(result);
       const metrics = extractResultMetrics(result);
       setTranscript(extractDisplayText(result));
+      setWordsList(extractWordsList(result));
       setCanonicalJson(toJSON(canonical));
       setNativeJson(toJSON(native));
       setRawJson(toJSON(result));
@@ -1056,6 +1161,100 @@ export default function App() {
     } catch (error) {
       console.error(error);
       setStatus(`Failed: ${safeMessage(error)}`);
+    } finally {
+      setIsWorking(false);
+    }
+  }
+
+  async function runStreamingSimulation() {
+    if (!modelHandleRef.current) {
+      setStatus('Load a model first.');
+      return;
+    }
+    setIsWorking(true);
+    setStatus('Preparing audio for streaming simulation…');
+    setStreamingRevisions([]);
+    try {
+      const prepared = await decodeAudioSourceToMonoPcm(audioFile || SAMPLE_URL, buildAudioPreparationOptions());
+      setAudioPreparation({ ...prepared.metrics, sampleRate: prepared.sampleRate, numberOfChannels: prepared.numberOfChannels, durationSec: prepared.durationSec });
+      const chunkSamples = Math.max(1600, Math.round(prepared.sampleRate * 0.64)); // 640ms steps
+      const revisions = [];
+      if (typeof modelHandleRef.current.createStreamingTranscriber === 'function') {
+        const streamer = await modelHandleRef.current.createStreamingTranscriber({ detail: 'words', language });
+        try {
+          let stepIdx = 0;
+          for (let offset = 0; offset < prepared.pcm.length; offset += chunkSamples) {
+            stepIdx += 1;
+            const slice = prepared.pcm.subarray(offset, Math.min(prepared.pcm.length, offset + chunkSamples));
+            const t0 = performance.now();
+            const partial = await streamer.pushAudio(PcmAudioBuffer.fromMono(slice, prepared.sampleRate));
+            const stepMs = performance.now() - t0;
+            if (partial && partial.text) {
+              const rev = {
+                step: stepIdx,
+                revision: partial.revision ?? stepIdx,
+                audioSec: Math.min(prepared.durationSec, (offset + slice.length) / prepared.sampleRate),
+                stepMs,
+                text: partial.text,
+                isFinal: false,
+              };
+              revisions.push(rev);
+              setStreamingRevisions([...revisions]);
+              setTranscript(partial.text);
+            }
+          }
+          const tFin = performance.now();
+          const finalRes = await streamer.finalize();
+          const finMs = performance.now() - tFin;
+          const finalText = extractDisplayText(finalRes);
+          revisions.push({
+            step: revisions.length + 1,
+            revision: 'final',
+            audioSec: prepared.durationSec,
+            stepMs: finMs,
+            text: finalText,
+            isFinal: true,
+          });
+          setStreamingRevisions([...revisions]);
+          setTranscript(finalText);
+          setWordsList(extractWordsList(finalRes));
+          setRawJson(toJSON(finalRes));
+        } finally {
+          await streamer.dispose?.();
+        }
+      } else {
+        // Progressive prefix simulation for non-streaming legacy handle
+        const windowSteps = Math.min(6, Math.max(2, Math.ceil(prepared.durationSec / 1.5)));
+        for (let i = 1; i <= windowSteps; i += 1) {
+          const endSample = Math.min(prepared.pcm.length, Math.round((prepared.pcm.length * i) / windowSteps));
+          const prefixPcm = prepared.pcm.subarray(0, endSample);
+          const t0 = performance.now();
+          const res = await modelHandleRef.current.transcribePrepared(
+            { ...prepared, pcm: prefixPcm, durationSec: endSample / prepared.sampleRate },
+            loadStrategy === LOAD_STRATEGIES.LEGACY ? buildLegacyTranscriptionRequest() : buildRootTranscriptionRequest(),
+          );
+          const stepMs = performance.now() - t0;
+          const text = extractDisplayText(res);
+          revisions.push({
+            step: i,
+            revision: i === windowSteps ? 'final' : i,
+            audioSec: endSample / prepared.sampleRate,
+            stepMs,
+            text,
+            isFinal: i === windowSteps,
+          });
+          setStreamingRevisions([...revisions]);
+          setTranscript(text);
+          if (i === windowSteps) {
+            setWordsList(extractWordsList(res));
+            setRawJson(toJSON(res));
+          }
+        }
+      }
+      setStatus(`Streaming simulation complete (${revisions.length} steps).`);
+    } catch (error) {
+      console.error(error);
+      setStatus(`Streaming failed: ${safeMessage(error)}`);
     } finally {
       setIsWorking(false);
     }
@@ -1109,16 +1308,23 @@ export default function App() {
       <div className="demo-container">
         <div className="demo-topbar">
           <div className="demo-tabs">
-            <button type="button" onClick={() => focusSection('transcribe')} className={`demo-tab ${topTab === 'transcribe' ? 'demo-tab-active' : 'demo-tab-idle'}`}>Transcribe</button>
+            <button type="button" onClick={() => focusSection('transcribe')} className={`demo-tab ${topTab === 'transcribe' ? 'demo-tab-active' : 'demo-tab-idle'}`}>Transcribe & Inspect</button>
             <button type="button" onClick={() => focusSection('benchmark')} className={`demo-tab ${topTab === 'benchmark' ? 'demo-tab-active' : 'demo-tab-idle'}`}>Benchmark Lab</button>
           </div>
-          <button type="button" className="demo-gear" aria-label="Demo settings">
-            <span className="text-[18px] leading-none">⚙</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setDarkMode((prev) => !prev)}
+              className="compact-button-secondary text-[12px] py-1.5 px-3"
+              title="Toggle Light / Dark theme"
+            >
+              {darkMode ? '☀ Light' : '🌙 Dark'}
+            </button>
+          </div>
         </div>
         <div className="demo-heading">
           <h1 className="demo-title">ASRJS Model Playground</h1>
-          <p className="demo-subtitle">Universal Multi-Model & Parakeet Developer Workbench • @asrjs/speech-recognition {VERSION} ({SOURCE})</p>
+          <p className="demo-subtitle">Universal 16-Family Developer Workbench, Envelope Inspector & Live Code Generator • @asrjs/speech-recognition {VERSION} ({SOURCE})</p>
         </div>
         <div className="grid gap-4 xl:grid-cols-[380px,minmax(0,1fr),470px]">
           <aside className="space-y-4 xl:sticky xl:top-4 self-start">
@@ -1498,7 +1704,7 @@ export default function App() {
               </div>
             </Panel>
 
-            <div className="flex flex-wrap items-center gap-2 rounded-[10px] border border-slate-300 bg-white px-3 py-2 text-[11px] text-slate-500 shadow-sm">
+            <div className="flex flex-wrap items-center gap-2 rounded-[10px] border border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-[11px] text-slate-500 dark:text-slate-400 shadow-sm">
               <span className="demo-footer-chip">{cpuThreads} threads</span>
               <span>·</span>
               <span>{modelLoaded ? 'Ready' : 'Idle'}</span>
@@ -1517,7 +1723,7 @@ export default function App() {
                     <button
                       type="button"
                       onClick={isRecording ? stopRecording : startRecording}
-                      className={`compact-button-secondary font-semibold flex items-center gap-1.5 ${isRecording ? 'border-red-500 text-red-600 bg-red-50' : ''}`}
+                      className={`compact-button-secondary font-semibold flex items-center gap-1.5 ${isRecording ? 'border-red-500 text-red-600 bg-red-50 dark:bg-red-950/50' : ''}`}
                     >
                       <span className={`inline-block w-2.5 h-2.5 rounded-full ${isRecording ? 'bg-red-500 animate-pulse' : 'bg-red-500'}`} />
                       {isRecording ? 'Stop Recording' : 'Record Mic'}
@@ -1558,11 +1764,11 @@ export default function App() {
                     <div className="mb-2 text-[28px] text-[#688098]">☁</div>
                     <div>Drag & drop audio file here, or click to select</div>
                     <div className="mt-1 text-[11px] text-slate-400">Supports .wav, .mp3, .ogg, .flac, .webm</div>
-                    <div className="mt-3 font-medium text-slate-600">{audioLabel}</div>
+                    <div className="mt-3 font-medium text-slate-600 dark:text-slate-300">{audioLabel}</div>
                   </button>
-                  <audio controls src={audioUrl} className="w-full" />
+                  <audio ref={audioPlayerRef} controls src={audioUrl} className="w-full" />
                   <div className="demo-divider" />
-                  <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr),120px,120px]">
+                  <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr),115px,125px,110px]">
                     <Field label="Benchmark repeats">
                       <input
                         type="number"
@@ -1583,6 +1789,15 @@ export default function App() {
                     </button>
                     <button
                       type="button"
+                      onClick={runStreamingSimulation}
+                      disabled={!modelLoaded || isWorking}
+                      className="compact-button-secondary self-end font-medium disabled:opacity-50"
+                      title="Simulate stateful chunked streaming (createStreamingTranscriber)"
+                    >
+                      Stream Chunks
+                    </button>
+                    <button
+                      type="button"
                       onClick={benchmarkCurrentAudio}
                       disabled={!modelLoaded || isWorking}
                       className="compact-button-secondary self-end font-medium disabled:opacity-50"
@@ -1595,10 +1810,10 @@ export default function App() {
                   <div className="demo-soft-box">
                     <p className="metric-label">Current output</p>
                     <p className="mt-1 text-[13px] font-medium">{currentOutputLabel}</p>
-                    <p className="mt-1 text-[13px] text-slate-600">
+                    <p className="mt-1 text-[13px] text-slate-600 dark:text-slate-400">
                       {loadStrategy === LOAD_STRATEGIES.LEGACY ? 'native Parakeet JSON' : '{ canonical, native }'}
                     </p>
-                    <p className="mt-2 text-[12px] leading-5 text-slate-600">
+                    <p className="mt-2 text-[12px] leading-5 text-slate-600 dark:text-slate-400">
                       {loadStrategy === LOAD_STRATEGIES.UNIVERSAL
                         ? 'Universal catalog handles all models with a unified canonical transcript interface.'
                         : loadStrategy === LOAD_STRATEGIES.ROOT
@@ -1608,15 +1823,65 @@ export default function App() {
                   </div>
                   <div className="demo-soft-box">
                     <p className="metric-label">Selected options</p>
-                    <pre className="mt-2 overflow-x-auto text-[11px] leading-5 text-slate-700">{toJSON(currentOptionsPreview)}</pre>
+                    <pre className="mt-2 overflow-x-auto text-[11px] leading-5 text-slate-700 dark:text-slate-300">{toJSON(currentOptionsPreview)}</pre>
                   </div>
                 </div>
               </div>
             </Panel>
 
-            <Panel title="Transcript" subtitle="Canonical or native text output from inference.">
-              <div className="demo-soft-box p-6">
-                <p className="text-[1.1rem] leading-8 font-normal">{transcript || 'No transcript yet. Load a model and click Transcribe.'}</p>
+            <Panel title="Transcript & Word Alignment" subtitle="Canonical or native text output with interactive click-to-seek word timestamps.">
+              <div className="space-y-4">
+                <div className="demo-soft-box p-5">
+                  <p className="text-[1.08rem] leading-8 font-normal">{transcript || 'No transcript yet. Load a model and click Transcribe or Stream Chunks.'}</p>
+                </div>
+                {wordsList.length > 0 ? (
+                  <div className="demo-soft-box">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="metric-label">Word-Level Timestamps ({wordsList.length} words — click any word to seek audio)</p>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 max-h-56 overflow-y-auto pr-1">
+                      {wordsList.map((w) => (
+                        <button
+                          key={w.index}
+                          type="button"
+                          onClick={() => {
+                            if (audioPlayerRef.current && Number.isFinite(w.startTime)) {
+                              audioPlayerRef.current.currentTime = Math.max(0, w.startTime);
+                              audioPlayerRef.current.play().catch(() => {});
+                            }
+                          }}
+                          className="inline-flex items-center gap-1.5 rounded-[7px] border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 py-1 text-[12px] hover:border-emerald-500 transition"
+                          title={w.confidence != null ? `Confidence: ${(w.confidence * 100).toFixed(1)}%` : undefined}
+                        >
+                          <span className="font-medium text-slate-800 dark:text-slate-100">{w.text}</span>
+                          {Number.isFinite(w.startTime) ? (
+                            <span className="font-mono text-[10px] text-slate-400">
+                              {w.startTime.toFixed(2)}s{Number.isFinite(w.endTime) ? `–${w.endTime.toFixed(2)}s` : ''}
+                            </span>
+                          ) : null}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+                {streamingRevisions.length > 0 ? (
+                  <div className="demo-soft-box">
+                    <p className="metric-label mb-2">Stateful Streaming Revisions ({streamingRevisions.length} steps)</p>
+                    <div className="space-y-1.5 max-h-52 overflow-y-auto text-[12px]">
+                      {streamingRevisions.map((rev) => (
+                        <div key={rev.step} className="flex items-start gap-2 rounded-[7px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-2.5 py-1.5">
+                          <span className={`font-mono text-[10px] px-1.5 py-0.5 rounded ${rev.isFinal ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-semibold' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
+                            {rev.isFinal ? 'FINAL' : `rev #${rev.revision}`}
+                          </span>
+                          <span className="font-mono text-[11px] text-slate-400 shrink-0">
+                            @{rev.audioSec.toFixed(2)}s ({rev.stepMs.toFixed(0)}ms)
+                          </span>
+                          <span className="text-slate-700 dark:text-slate-200">{rev.text}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
               </div>
             </Panel>
 
@@ -1670,9 +1935,9 @@ export default function App() {
                         </div>
                       ))}
                     </div>
-                    <div className="overflow-x-auto rounded-[12px] border border-slate-200 bg-[#fafcff]">
+                    <div className="overflow-x-auto rounded-[12px] border border-slate-200 dark:border-slate-800 bg-[#fafcff] dark:bg-slate-900">
                       <table className="w-full text-[12px]">
-                        <thead className="text-left text-slate-500">
+                        <thead className="text-left text-slate-500 dark:text-slate-400">
                           <tr>
                             <th className="px-3 py-2 pr-4">Run</th>
                             <th className="px-3 py-2 pr-4">Wall</th>
@@ -1684,7 +1949,7 @@ export default function App() {
                         </thead>
                         <tbody>
                           {benchmarkRuns.map((run) => (
-                            <tr key={run.index} className="border-t border-slate-200">
+                            <tr key={run.index} className="border-t border-slate-200 dark:border-slate-800">
                               <td className="px-3 py-2 pr-4">#{run.index}</td>
                               <td className="px-3 py-2 pr-4">{fmtMs(run.wallMs)}</td>
                               <td className="px-3 py-2 pr-4">{fmtMs(run.metrics?.encodeMs)}</td>
@@ -1698,7 +1963,7 @@ export default function App() {
                     </div>
                   </div>
                 ) : (
-                  <p className="text-sm text-slate-500">Run repeated inference to inspect stability, wall time, and model timings.</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">Run repeated inference to inspect stability, wall time, and model timings.</p>
                 )}
               </Panel>
             </div>
@@ -1706,6 +1971,50 @@ export default function App() {
           </main>
 
           <aside className="space-y-4 xl:sticky xl:top-4 self-start">
+            <Panel title="Copyable Code Snippet" subtitle="Ready-to-run TypeScript/JavaScript code for your selected model, backend, and options.">
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
+                    {loadStrategy === LOAD_STRATEGIES.UNIVERSAL ? '@asrjs/speech-recognition/builtins' : '@asrjs/speech-recognition'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const code = buildLiveCodeSnippet({
+                        loadStrategy,
+                        modelId: loadStrategy === LOAD_STRATEGIES.UNIVERSAL ? selectedCatalogModelId : selectedModel,
+                        backend,
+                        language,
+                        detail,
+                        responseFlavor: effectiveResponseFlavor,
+                        encoderQuant,
+                        decoderQuant,
+                        preprocessorBackend,
+                      });
+                      navigator.clipboard?.writeText(code);
+                      setCodeCopied(true);
+                      setTimeout(() => setCodeCopied(false), 1800);
+                    }}
+                    className="compact-button-secondary text-[11px] py-1 px-2.5"
+                  >
+                    {codeCopied ? '✓ Copied!' : 'Copy Code'}
+                  </button>
+                </div>
+                <pre className="demo-json-pre max-h-[300px] overflow-auto">
+                  {buildLiveCodeSnippet({
+                    loadStrategy,
+                    modelId: loadStrategy === LOAD_STRATEGIES.UNIVERSAL ? selectedCatalogModelId : selectedModel,
+                    backend,
+                    language,
+                    detail,
+                    responseFlavor: effectiveResponseFlavor,
+                    encoderQuant,
+                    decoderQuant,
+                    preprocessorBackend,
+                  })}
+                </pre>
+              </div>
+            </Panel>
             <Panel title="API Contract" subtitle={currentContractSummary}>
               <div className="space-y-3">
                 <div className="metric-cell">

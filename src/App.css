@@ -4,83 +4,83 @@
 
 @layer components {
   .demo-shell {
-    @apply min-h-screen bg-[#f3f6f8] text-slate-900;
+    @apply min-h-screen bg-[#f3f6f8] text-slate-900 dark:bg-[#0c1017] dark:text-[#e8eef4];
   }
 
   .demo-container {
-    @apply mx-auto max-w-[1540px] px-4 py-4 lg:px-6;
+    @apply mx-auto max-w-[1560px] px-4 py-4 lg:px-6;
   }
 
   .demo-topbar {
-    @apply mb-3 flex items-center justify-between gap-4;
+    @apply mb-3 flex flex-wrap items-center justify-between gap-4 rounded-[14px] border border-slate-300 bg-white px-4 py-3 shadow-sm dark:border-[#2d3a4a] dark:bg-[#151c26];
   }
 
   .demo-tabs {
-    @apply inline-flex items-center rounded-[14px] border border-slate-300 bg-white p-1 shadow-sm;
+    @apply inline-flex items-center rounded-[12px] border border-slate-300 bg-[#f4f6f8] p-1 shadow-sm dark:border-[#2d3a4a] dark:bg-[#10161f];
   }
 
   .demo-tab {
-    @apply rounded-[10px] px-4 py-1.5 text-[14px] font-semibold text-slate-400 transition;
+    @apply rounded-[9px] px-3.5 py-1.5 text-[13px] font-semibold text-slate-500 transition dark:text-slate-400;
   }
 
   .demo-tab-active {
-    @apply bg-[#5d7387] text-white shadow-sm;
+    @apply bg-[#5d7387] text-white shadow-sm dark:bg-[#5d7387] dark:text-white;
   }
 
   .demo-tab-idle {
-    @apply text-slate-400 hover:text-slate-600;
+    @apply text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200;
   }
 
   .demo-gear {
-    @apply flex h-11 w-11 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-500 shadow-sm;
+    @apply flex h-9 items-center justify-center gap-1.5 rounded-[10px] border border-slate-300 bg-white px-3 text-[12px] font-semibold text-slate-700 shadow-sm transition hover:border-[#5d7387] dark:border-[#2d3a4a] dark:bg-[#1a222d] dark:text-slate-200;
   }
 
   .demo-heading {
-    @apply mb-5;
+    @apply mb-4;
   }
 
   .demo-title {
-    @apply text-[18px] font-semibold text-slate-900 md:text-[20px];
+    @apply text-[18px] font-bold text-slate-900 dark:text-slate-100 md:text-[20px];
   }
 
   .demo-subtitle {
-    @apply mt-1 text-[12px] text-slate-500;
+    @apply mt-1 text-[12px] text-slate-500 dark:text-slate-400;
   }
 
   .panel-shell {
-    @apply rounded-[14px] border border-slate-300 bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)];
+    @apply rounded-[14px] border border-slate-300 bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-[#2d3a4a] dark:bg-[#151c26];
   }
 
   .panel-title {
-    @apply text-[11px] font-semibold uppercase tracking-[0.14em] text-[#688098];
+    @apply text-[11px] font-bold uppercase tracking-[0.14em] text-[#4a6b88] dark:text-[#6aa2dc];
   }
 
   .panel-subtitle {
-    @apply mt-2 max-w-3xl text-[13px] leading-6 text-slate-600;
+    @apply mt-1.5 max-w-3xl text-[12.5px] leading-5 text-slate-600 dark:text-slate-400;
   }
 
   .field-label {
-    @apply text-[11px] font-medium text-slate-700;
+    @apply text-[11.5px] font-semibold text-slate-700 dark:text-slate-300;
   }
 
   .compact-control {
-    @apply w-full rounded-[10px] border border-slate-300 bg-[#f7f9fb] px-3 py-2 text-[13px] text-slate-900 shadow-sm transition focus:border-[#7c93a7] focus:outline-none focus:ring-2 focus:ring-[#d4dde5];
+    @apply w-full rounded-[9px] border border-slate-300 bg-[#f7f9fb] px-3 py-2 text-[13px] text-slate-900 shadow-sm transition focus:border-[#7c93a7] focus:outline-none focus:ring-2 focus:ring-[#d4dde5] dark:border-[#2d3a4a] dark:bg-[#10161f] dark:text-slate-100 dark:focus:border-[#4d8fd9] dark:focus:ring-[#1e2f44];
   }
 
   .compact-button-primary {
-    @apply rounded-[10px] bg-[#a7b4c0] px-4 py-2.5 text-[13px] font-semibold text-white shadow-sm transition hover:bg-[#8ea0b0] disabled:cursor-not-allowed disabled:opacity-50;
+    @apply rounded-[9px] bg-[#5d7387] px-4 py-2.5 text-[13px] font-semibold text-white shadow-sm transition hover:bg-[#4c6378] disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .compact-button-secondary {
-    @apply rounded-[10px] border border-slate-300 bg-white px-4 py-2.5 text-[13px] font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply rounded-[9px] border border-slate-300 bg-white px-4 py-2.5 text-[13px] font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-[#2d3a4a] dark:bg-[#1a222d] dark:text-slate-200 dark:hover:bg-[#222d3b];
   }
 
   .compact-button-dark {
-    @apply rounded-[10px] bg-[#5d7387] px-4 py-2.5 text-[13px] font-semibold text-white shadow-sm transition hover:bg-[#4c6378] disabled:cursor-not-allowed disabled:opacity-50;
+    @apply rounded-[9px] bg-[#5d7387] px-4 py-2.5 text-[13px] font-semibold text-white shadow-sm transition hover:bg-[#4c6378] disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .compact-toggle {
-    @apply flex items-center justify-between gap-3 rounded-[10px] border border-slate-200 px-3 py-2 text-[13px] text-slate-800;
+    @apply flex items-center justify-between gap-3 rounded-[9px] border border-slate-200 px-3 py-2 text-[12.5px] text-slate-800 dark:border-[#2d3a4a] dark:bg-[#10161f] dark:text-slate-200;
   }
 
   .mode-card {
@@ -88,7 +88,7 @@
   }
 
   .mode-card-idle {
-    @apply border-slate-300 bg-white text-slate-700 hover:bg-slate-50;
+    @apply border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-[#2d3a4a] dark:bg-[#10161f] dark:text-slate-200 dark:hover:bg-[#1a222d];
   }
 
   .mode-card-active-emerald {
@@ -101,44 +101,39 @@
   }
 
   .mode-card-active-amber {
-    @apply border-[#5d7387] bg-[#eef3f7] text-slate-800 shadow-sm;
-  }
-
-  .mode-card-active-amber p,
-  .mode-card-active-amber code {
-    color: #1f2937 !important;
+    @apply border-[#5d7387] bg-[#eef3f7] text-slate-800 shadow-sm dark:bg-[#1e2f44] dark:text-slate-100;
   }
 
   .metric-cell {
-    @apply rounded-[10px] border border-slate-200 bg-[#fbfcfd] px-3 py-2.5;
+    @apply rounded-[10px] border border-slate-200 bg-[#fbfcfd] px-3 py-2.5 dark:border-[#2d3a4a] dark:bg-[#10161f];
   }
 
   .metric-label {
-    @apply text-[10px] uppercase tracking-[0.18em] text-[#688098];
+    @apply text-[10px] font-bold uppercase tracking-[0.16em] text-[#688098] dark:text-[#7da6d1];
   }
 
   .demo-json-panel {
-    @apply overflow-hidden rounded-[14px] border border-slate-300 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)];
+    @apply overflow-hidden rounded-[14px] border border-slate-300 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-[#2d3a4a] dark:bg-[#151c26];
   }
 
   .demo-json-header {
-    @apply flex items-center justify-between border-b border-slate-200 px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#688098];
+    @apply flex items-center justify-between border-b border-slate-200 px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] text-[#688098] dark:border-[#2d3a4a] dark:text-[#7da6d1];
   }
 
   .demo-soft-box {
-    @apply rounded-[10px] border border-slate-200 bg-[#f8fafc] p-3;
+    @apply rounded-[10px] border border-slate-200 bg-[#f8fafc] p-3 dark:border-[#2d3a4a] dark:bg-[#10161f];
   }
 
   .demo-upload-zone {
-    @apply rounded-[12px] border border-dashed border-slate-300 bg-[#fbfcfd] px-5 py-10 text-center text-[13px] text-slate-500;
+    @apply rounded-[12px] border border-dashed border-slate-300 bg-[#fbfcfd] px-5 py-8 text-center text-[13px] text-slate-500 dark:border-[#2d3a4a] dark:bg-[#10161f] dark:text-slate-400;
   }
 
   .demo-divider {
-    @apply border-t border-slate-200;
+    @apply border-t border-slate-200 dark:border-[#2d3a4a];
   }
 
   .demo-footer-chip {
-    @apply rounded-full border border-emerald-300 bg-emerald-50 px-2 py-0.5 text-[11px] text-emerald-700;
+    @apply rounded-full border border-emerald-300 bg-emerald-50 px-2 py-0.5 text-[11px] text-emerald-700 dark:border-emerald-700 dark:bg-emerald-950 dark:text-emerald-300;
   }
 }
 
