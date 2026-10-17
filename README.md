@@ -1,4 +1,8 @@
-# @asrjs/streaming-demo
+# @asrjs/vad-demo
+
+> [!IMPORTANT]
+> **Consolidation Notice**: `vad-demo` has been consolidated directly into [`streaming-demo`](../streaming-demo).
+> All neural Voice Activity Detection (VAD) capabilities (FireRed VAD, TEN-VAD), gate modes (`rough-only`, `hybrid`, `vad-only`), live waveform visualization, and streaming detector controls are actively maintained in `streaming-demo`.
 
 Realtime and streaming browser demo for local `@asrjs/speech-recognition` development.
 
@@ -7,7 +11,7 @@ This app is the home for microphone-first and streaming-focused work:
 - live microphone capture
 - speech-detection and segmentation tuning
 - realtime-oriented Parakeet flows
-- FireRed VAD integration
+- FireRed VAD and TEN-VAD integration
 - streaming debug HUD and waveform tools
 
 Classic file transcription belongs in `../browser-demo`.
@@ -18,7 +22,7 @@ Classic file transcription belongs in `../browser-demo`.
 
 - browser microphone capture
 - rolling PCM buffers and detector state
-- rough speech gating and FireRed VAD confirmation
+- rough speech gating and FireRed / TEN-VAD confirmation
 - realtime transcription UX
 - debug instrumentation that should stay out of the library core
 
@@ -27,7 +31,7 @@ The app still supports model loading and file-based testing, but its main purpos
 ## Quick Start
 
 ```bash
-cd streaming-demo
+cd vad-demo
 npm install
 npm run dev
 ```
@@ -45,7 +49,7 @@ The Vite config aliases `@asrjs/speech-recognition` to the sibling source tree s
 - microphone capture from `@asrjs/speech-recognition/browser`
 - rolling ring-buffer state in `src/shared/streaming/`
 - rough speech gate
-- FireRed VAD worker adapter
+- FireRed VAD and TEN-VAD worker adapters
 - streaming detector orchestration
 - demo-only debug HUD and meters
 
