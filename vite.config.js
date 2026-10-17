@@ -29,6 +29,9 @@ const shortHash = getShortCommitHash(repoRoot);
 
 export default defineConfig({
   plugins: [react()],
+  worker: {
+    format: 'es',
+  },
   server: {
     port: 5176,
     headers: {
