@@ -1184,6 +1184,7 @@ export default function App() {
         id: Date.now(),
         filename: `${datasetName}-${langName}-#${sample.sampleIndex}`,
         text: getResultText(res),
+        words: res?.canonical?.words || res?.native?.words || res?.words || [],
         reference: canCompareAgainstReference ? sample.transcription : '',
         timestamp: new Date().toLocaleTimeString(),
         duration: sample.duration,
@@ -1433,6 +1434,7 @@ export default function App() {
         id: Date.now(),
         filename: file.name,
         text: getResultText(res),
+        words: res?.canonical?.words || res?.native?.words || res?.words || [],
         timestamp: new Date().toLocaleTimeString(),
         duration: pcm.length / 16000,
         wordCount: getResultWordCount(res),
@@ -2235,6 +2237,40 @@ export default function App() {
                       {text || 'Transcription will appear here...'}
                     </p>
                   </div>
+                  {transcriptions[0]?.words?.length > 0 && (
+                    <div className="mt-3">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">
+                        Word-Level Timestamps ({transcriptions[0].words.length} words — click to seek audio)
+                      </p>
+                      <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto">
+                        {transcriptions[0].words.map((w, idx) => {
+                          const wText = w.text || w.word || '';
+                          const t0 = w.startTime ?? w.start_time ?? w.start;
+                          const t1 = w.endTime ?? w.end_time ?? w.end;
+                          return (
+                            <button
+                              key={`${idx}-${wText}`}
+                              type="button"
+                              onClick={() => {
+                                if (audioRef.current && Number.isFinite(t0)) {
+                                  audioRef.current.currentTime = Math.max(0, Number(t0));
+                                  audioRef.current.play().catch(() => {});
+                                }
+                              }}
+                              className="inline-flex items-center gap-1 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2 py-1 text-xs hover:border-primary transition-colors"
+                            >
+                              <span className="font-medium text-gray-800 dark:text-gray-100">{wText}</span>
+                              {Number.isFinite(t0) && (
+                                <span className="font-mono text-[10px] text-gray-400">
+                                  {Number(t0).toFixed(2)}s{Number.isFinite(t1) ? `–${Number(t1).toFixed(2)}s` : ''}
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Reference Text */}
@@ -2287,14 +2323,30 @@ export default function App() {
               <div className="bg-card-light dark:bg-card-dark rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                    Transcription History
+                    Transcription History ({transcriptions.length})
                   </h2>
-                  <button
-                    onClick={clearTranscriptions}
-                    className="text-xs font-medium text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 transition-colors"
-                  >
-                    Clear All
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => {
+                        const blob = new Blob([JSON.stringify(transcriptions, null, 2)], { type: 'application/json' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'asrjs-transcriptions.json';
+                        a.click();
+                        URL.revokeObjectURL(url);
+                      }}
+                      className="text-xs font-medium text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary transition-colors"
+                    >
+                      Export JSON
+                    </button>
+                    <button
+                      onClick={clearTranscriptions}
+                      className="text-xs font-medium text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 transition-colors"
+                    >
+                      Clear All
+                    </button>
+                  </div>
                 </div>
                 <div className="space-y-3 max-h-[400px] overflow-y-auto">
                   {transcriptions.map(trans => (
