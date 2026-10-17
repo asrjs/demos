@@ -72,6 +72,12 @@ const VAD_BACKEND_OPTIONS = [
   { value: STREAMING_VAD_BACKENDS.TEN_VAD, label: 'TEN-VAD' },
 ];
 
+const GATE_MODE_OPTIONS = [
+  { value: 'rough-only', label: 'Rough only' },
+  { value: 'hybrid', label: 'Hybrid' },
+  { value: 'vad-only', label: 'VAD only' },
+];
+
 function formatVadTimingHint(config) {
   const hopMs = Number(config?.vadHopDurationMs);
   const bucketMs = Number(config?.vadVisualBucketDurationMs);
@@ -101,6 +107,8 @@ export function StreamingCapturePanel({
 }) {
   const currentVadBackend =
     streaming.snapshot?.config?.vadBackend ?? STREAMING_VAD_BACKENDS.FIRERED_VAD;
+  const currentGateMode =
+    streaming.snapshot?.config?.gateMode ?? 'rough-only';
   const acceptancePresetId = resolveAcceptancePreset(streaming.snapshot?.config);
   const acceptanceGroup = streaming.tuningGroups.find((group) => group.id === 'acceptance') ?? null;
   const acceptanceAdvancedGroup = streaming.tuningGroups.find((group) => group.id === 'acceptance-advanced') ?? null;
@@ -352,6 +360,20 @@ export function StreamingCapturePanel({
                       className="compact-control compact-control--dense"
                     >
                       {VAD_BACKEND_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>{option.label}</option>
+                      ))}
+                    </select>
+                  </Field>
+                </div>
+                <div className="detector-card">
+                  <Field label="Gate mode" hint={streaming.snapshot?.gate?.effectiveMode ?? currentGateMode}>
+                    <select
+                      value={currentGateMode}
+                      onChange={(event) => streaming.updateConfig({ gateMode: event.target.value })}
+                      disabled={microphone.isActive}
+                      className="compact-control compact-control--dense"
+                    >
+                      {GATE_MODE_OPTIONS.map((option) => (
                         <option key={option.value} value={option.value}>{option.label}</option>
                       ))}
                     </select>
