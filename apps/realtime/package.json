@@ -4,8 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "predev": "node scripts/prepare-ort-assets.mjs",
+    "predev:local": "node scripts/prepare-ort-assets.mjs",
     "dev": "vite",
     "dev:local": "vite",
+    "prebuild": "node scripts/prepare-ort-assets.mjs",
+    "prebuild:local": "node scripts/prepare-ort-assets.mjs",
     "build": "vite build",
     "build:local": "vite build",
     "preview": "vite preview",
@@ -13,8 +17,11 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@asrjs/speech-recognition": "file:../../vendor/asrjs-speech-recognition-0.2.0.tgz",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "@asrjs/demo-runtime": "1.0.0",
+    "@asrjs/demo-ui": "1.0.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.0.0",

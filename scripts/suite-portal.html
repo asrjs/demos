@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#eceff2" />
+    <meta name="description" content="The ASRJS speech recognition workbench: explore models, build integrations, transcribe live audio, and run benchmarks." />
+    <title>ASRJS · Speech Recognition Workbench</title>
+    <link rel="stylesheet" href="theme.css" />
+    <link rel="stylesheet" href="suite.css" />
+    <script src="suite.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="ASRJS home"><span class="brand-mark">A</span><span>ASR<span class="brand-accent">JS</span></span></a>
+      <div class="topbar-right"><span class="suite-label">SPEECH RECOGNITION WORKBENCH</span><button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch color theme"><span aria-hidden="true">◐</span><span class="theme-label">Dark mode</span></button></div>
+    </header>
+    <main>
+      <section class="hero">
+        <div class="eyebrow"><span class="status-dot"></span> ONE LIBRARY · FOUR WORKSPACES</div>
+        <h1>Speech, from first<br /><span>experiment to production.</span></h1>
+        <p class="hero-copy">One home for exploring ASRJS models, building with the API, transcribing live audio, and measuring real workloads. Each workspace shares the same library and visual language.</p>
+        <a class="hero-link" href="showcase/">Explore available models <span aria-hidden="true">↗</span></a>
+      </section>
+      <section class="workspace-grid" aria-label="ASRJS workspaces">
+        <a class="workspace-card card-showcase" href="showcase/">
+          <div class="card-top"><span class="card-index">01</span><span class="card-icon" aria-hidden="true">◈</span></div>
+          <div class="card-body"><div class="card-kicker">DISCOVER</div><h2>Model Showcase</h2><p>Browse supported speech models, load one in your browser, and try audio or local model files.</p></div>
+          <div class="card-foot"><span>Model explorer</span><span class="arrow">↗</span></div>
+        </a>
+        <a class="workspace-card card-playground" href="playground/">
+          <div class="card-top"><span class="card-index">02</span><span class="card-icon" aria-hidden="true">⌘</span></div>
+          <div class="card-body"><div class="card-kicker">BUILD</div><h2>Playground</h2><p>Configure a model, test transcription settings, inspect results, and copy a matching code example.</p></div>
+          <div class="card-foot"><span>API workbench</span><span class="arrow">↗</span></div>
+        </a>
+        <a class="workspace-card card-realtime" href="realtime/">
+          <div class="card-top"><span class="card-index">03</span><span class="card-icon" aria-hidden="true">◉</span></div>
+          <div class="card-body"><div class="card-kicker">TRANSCRIBE</div><h2>Live Studio</h2><p>Work with microphone input, streaming capture, uploads, and timestamped transcript exports.</p></div>
+          <div class="card-foot"><span>Live transcription</span><span class="arrow">↗</span></div>
+        </a>
+        <a class="workspace-card card-benchmark" href="benchmark/">
+          <div class="card-top"><span class="card-index">04</span><span class="card-icon" aria-hidden="true">▥</span></div>
+          <div class="card-body"><div class="card-kicker">MEASURE</div><h2>Benchmark Lab</h2><p>Run repeatable model and dataset comparisons, then inspect and export measured results.</p></div>
+          <div class="card-foot"><span>Performance lab</span><span class="arrow">↗</span></div>
+        </a>
+      </section>
+      <section class="suite-note"><span class="note-mark">i</span><p><strong>Shared foundation</strong><br />Each workspace uses <code>@asrjs/speech-recognition</code>. Available models and execution backends depend on the model artifacts and browser environment.</p></section>
+    </main>
+    <footer><span>ASRJS · OPEN SPEECH RECOGNITION</span><span>Explore · Build · Transcribe · Measure</span></footer>
+  </body>
+</html>

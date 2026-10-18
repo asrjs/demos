@@ -7,6 +7,8 @@ import {
 } from '@asrjs/speech-recognition';
 import { loadBuiltInSpeechModel } from '@asrjs/speech-recognition/builtins';
 import { decodeAudioSourceToMonoPcm } from '@asrjs/speech-recognition/browser';
+import { WordPills, useDemoTheme } from '@asrjs/demo-ui';
+import { buildCatalogLoadArguments, buildLiveCodeSnippet } from './codeSnippet.js';
 import {
   ParakeetModel,
   collectParakeetLocalEntries,
@@ -38,8 +40,6 @@ const DETAIL_LEVELS = ['text', 'segments', 'words', 'detailed'];
 const QUANT_OPTIONS = ['fp16', 'int8', 'fp32'];
 const RESAMPLER_QUALITY_OPTIONS = ['linear'];
 const SAMPLE_URL = `${import.meta.env.BASE_URL || '/'}assets/Harvard-L2-1.ogg`;
-const VERSION = typeof __ASRJS_VERSION__ !== 'undefined' ? __ASRJS_VERSION__ : 'unknown';
-const SOURCE = typeof __ASRJS_SOURCE__ !== 'undefined' ? __ASRJS_SOURCE__ : 'dev';
 const MAX_LOG_ENTRIES = 32;
 
 function getFamilyGroupLabel(model) {
@@ -285,62 +285,6 @@ function describeResponseFlavor(flavor) {
   return flavor;
 }
 
-function buildLiveCodeSnippet({
-  loadStrategy,
-  modelId,
-  backend,
-  detail,
-  responseFlavor,
-  language,
-}) {
-  if (loadStrategy === LOAD_STRATEGIES.UNIVERSAL) {
-    return `import { PcmAudioBuffer } from '@asrjs/speech-recognition';
-import { loadBuiltInSpeechModel } from '@asrjs/speech-recognition/builtins';
-
-const model = await loadBuiltInSpeechModel({
-  modelId: '${modelId}',
-  backend: '${backend}',
-});
-
-// 1. Offline / Batch Transcription
-const result = await model.transcribe(
-  PcmAudioBuffer.fromMono(pcmFloat32, 16000),
-  { detail: '${detail}', responseFlavor: '${responseFlavor}', language: '${language}' }
-);
-
-// 2. Stateful Streaming (Chunk-by-Chunk)
-const streamer = await model.createStreamingTranscriber({ sampleRate: 16000 });
-const partial = await streamer.pushAudio(chunkFloat32);
-const finalTranscript = await streamer.finalize();`;
-  }
-
-  if (loadStrategy === LOAD_STRATEGIES.ROOT) {
-    return `import { loadSpeechModel, PcmAudioBuffer } from '@asrjs/speech-recognition';
-import { createBrowserTranscriptionWorkerClient } from '@asrjs/speech-recognition/worker';
-
-// Main-thread or Zero-Copy Web Worker execution:
-const model = await loadSpeechModel({
-  preset: 'parakeet',
-  modelId: '${modelId}',
-  backend: '${backend}',
-});
-const envelope = await model.transcribe(
-  PcmAudioBuffer.fromMono(pcmFloat32, 16000),
-  { detail: '${detail}', responseFlavor: '${responseFlavor}' }
-);`;
-  }
-
-  return `import { loadModelWithFallback, ParakeetModel, getParakeetModel } from '@asrjs/speech-recognition/presets/parakeet';
-
-const { model } = await loadModelWithFallback({
-  repoIdOrModelKey: '${modelId}',
-  options: { backend: '${backend}' },
-  getParakeetModelFn: getParakeetModel,
-  fromUrlsFn: ParakeetModel.fromUrls,
-});
-const nativeResult = await model.transcribe(pcmFloat32, 16000, { returnTimestamps: true });`;
-}
-
 function Panel({ title, subtitle, actions, children, className = '' }) {
   return (
     <section className={`panel-shell ${className}`}>
@@ -563,15 +507,7 @@ export default function App() {
   const [wordsList, setWordsList] = useState([]);
   const [streamingRevisions, setStreamingRevisions] = useState([]);
   const [codeCopied, setCodeCopied] = useState(false);
-  const [darkMode, setDarkMode] = useState(() => {
-    try {
-      const q = new URLSearchParams(window.location.search).get('__theme');
-      if (q === 'dark' || q === 'light') return q === 'dark';
-      return window.localStorage.getItem('asrjs-playground-theme') === 'dark';
-    } catch {
-      return false;
-    }
-  });
+  const { darkMode } = useDemoTheme({ storageKey: 'asrjs-theme' });
   const modelHandleRef = useRef(null);
   const audioInputRef = useRef(null);
   const audioPlayerRef = useRef(null);
@@ -579,16 +515,6 @@ export default function App() {
   const transcribeSectionRef = useRef(null);
   const benchmarkSectionRef = useRef(null);
   const [topTab, setTopTab] = useState('transcribe');
-
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', darkMode);
-    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
-    try {
-      window.localStorage.setItem('asrjs-playground-theme', darkMode ? 'dark' : 'light');
-    } catch {
-      // ignore storage errors
-    }
-  }, [darkMode]);
 
   const modelOptions = useMemo(() => Object.entries(MODELS).map(([key, config]) => ({ key, config })), []);
   const selectedModelConfig = MODELS[selectedModel] || MODELS['parakeet-tdt-0.6b-v2'];
@@ -859,20 +785,17 @@ export default function App() {
       backend,
       languages: descriptor?.languages,
     });
-    const loaded = await loadBuiltInSpeechModel({
-      modelId: selectedCatalogModelId,
-      backend,
-      onProgress: (event) => {
-        const progressPct = resolveLoadEventProgress(event);
-        appendLogEntry(setLoadEvents, {
-          ...event,
-          progress: progressPct === null ? undefined : progressPct / 100,
-          timestamp: new Date().toLocaleTimeString(),
-        });
-        setLoadProgressText(describeLoadEvent(event));
-        if (progressPct !== null) setLoadProgressPct(progressPct);
-      },
-    });
+    const onProgress = (event) => {
+      const progressPct = resolveLoadEventProgress(event);
+      appendLogEntry(setLoadEvents, {
+        ...event,
+        progress: progressPct === null ? undefined : progressPct / 100,
+        timestamp: new Date().toLocaleTimeString(),
+      });
+      setLoadProgressText(describeLoadEvent(event));
+      if (progressPct !== null) setLoadProgressPct(progressPct);
+    };
+    const loaded = await loadBuiltInSpeechModel(buildCatalogLoadArguments(loadRequest, onProgress));
     return {
       label: `Catalog: ${descriptor?.displayName || selectedCatalogModelId}`,
       loadedBy: 'loadBuiltInSpeechModel()',
@@ -1107,6 +1030,10 @@ export default function App() {
         handle = await loadWithLegacyHelper();
       }
       modelHandleRef.current = handle;
+      setLastLoadResult((previous) => ({
+        ...previous,
+        supportsStreaming: handle.supportsStreaming === true,
+      }));
       setModelLoaded(true);
       setStatus(`${handle.label} ready.`);
       setLoadProgressText(`${handle.label} ready for transcription.`);
@@ -1179,7 +1106,7 @@ export default function App() {
       setAudioPreparation({ ...prepared.metrics, sampleRate: prepared.sampleRate, numberOfChannels: prepared.numberOfChannels, durationSec: prepared.durationSec });
       const chunkSamples = Math.max(1600, Math.round(prepared.sampleRate * 0.64)); // 640ms steps
       const revisions = [];
-      if (typeof modelHandleRef.current.createStreamingTranscriber === 'function') {
+      if (modelHandleRef.current.supportsStreaming === true) {
         const streamer = await modelHandleRef.current.createStreamingTranscriber({ detail: 'words', language });
         try {
           let stepIdx = 0;
@@ -1223,35 +1150,30 @@ export default function App() {
           await streamer.dispose?.();
         }
       } else {
-        // Progressive prefix simulation for non-streaming legacy handle
-        const windowSteps = Math.min(6, Math.max(2, Math.ceil(prepared.durationSec / 1.5)));
-        for (let i = 1; i <= windowSteps; i += 1) {
-          const endSample = Math.min(prepared.pcm.length, Math.round((prepared.pcm.length * i) / windowSteps));
-          const prefixPcm = prepared.pcm.subarray(0, endSample);
-          const t0 = performance.now();
-          const res = await modelHandleRef.current.transcribePrepared(
-            { ...prepared, pcm: prefixPcm, durationSec: endSample / prepared.sampleRate },
-            loadStrategy === LOAD_STRATEGIES.LEGACY ? buildLegacyTranscriptionRequest() : buildRootTranscriptionRequest(),
-          );
-          const stepMs = performance.now() - t0;
-          const text = extractDisplayText(res);
-          revisions.push({
-            step: i,
-            revision: i === windowSteps ? 'final' : i,
-            audioSec: endSample / prepared.sampleRate,
-            stepMs,
-            text,
-            isFinal: i === windowSteps,
-          });
-          setStreamingRevisions([...revisions]);
-          setTranscript(text);
-          if (i === windowSteps) {
-            setWordsList(extractWordsList(res));
-            setRawJson(toJSON(res));
-          }
-        }
+        const t0 = performance.now();
+        const result = await modelHandleRef.current.transcribePrepared(
+          prepared,
+          loadStrategy === LOAD_STRATEGIES.LEGACY
+            ? buildLegacyTranscriptionRequest()
+            : buildRootTranscriptionRequest(),
+        );
+        const text = extractDisplayText(result);
+        revisions.push({
+          step: 1,
+          revision: 'offline',
+          audioSec: prepared.durationSec,
+          stepMs: performance.now() - t0,
+          text,
+          isFinal: true,
+        });
+        setStreamingRevisions(revisions);
+        setTranscript(text);
+        setWordsList(extractWordsList(result));
+        setRawJson(toJSON(result));
       }
-      setStatus(`Streaming simulation complete (${revisions.length} steps).`);
+      setStatus(modelHandleRef.current.supportsStreaming === true
+        ? `Streaming complete (${revisions.length} steps).`
+        : 'Offline transcription complete; this model does not support streaming.');
     } catch (error) {
       console.error(error);
       setStatus(`Streaming failed: ${safeMessage(error)}`);
@@ -1311,23 +1233,10 @@ export default function App() {
             <button type="button" onClick={() => focusSection('transcribe')} className={`demo-tab ${topTab === 'transcribe' ? 'demo-tab-active' : 'demo-tab-idle'}`}>Transcribe & Inspect</button>
             <button type="button" onClick={() => focusSection('benchmark')} className={`demo-tab ${topTab === 'benchmark' ? 'demo-tab-active' : 'demo-tab-idle'}`}>Benchmark Lab</button>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setDarkMode((prev) => !prev)}
-              className="compact-button-secondary text-[12px] py-1.5 px-3"
-              title="Toggle Light / Dark theme"
-            >
-              {darkMode ? '☀ Light' : '🌙 Dark'}
-            </button>
-          </div>
         </div>
-        <div className="demo-heading">
-          <h1 className="demo-title">ASRJS Model Playground</h1>
-          <p className="demo-subtitle">Universal 16-Family Developer Workbench, Envelope Inspector & Live Code Generator • @asrjs/speech-recognition {VERSION} ({SOURCE})</p>
-        </div>
-        <div className="grid gap-4 xl:grid-cols-[380px,minmax(0,1fr),470px]">
-          <aside className="space-y-4 xl:sticky xl:top-4 self-start">
+        <div className="demo-heading"><p className="demo-subtitle">Universal 16-Family Developer Workbench, envelope inspector and live code generator.</p></div>
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,320px),minmax(0,1fr),minmax(0,400px)]">
+          <aside className="space-y-4 min-w-0 xl:sticky xl:top-4 self-start">
             <Panel title="Model Architecture & Loading Mode" subtitle="Choose between Universal Catalog loading for all built-in model families or direct Parakeet presets.">
               <div className="grid gap-2">
                 <button
@@ -1715,9 +1624,9 @@ export default function App() {
             </div>
           </aside>
 
-          <main className="space-y-4 min-w-0" ref={transcribeSectionRef}>
+          <section className="space-y-4 min-w-0" ref={transcribeSectionRef}>
             <Panel title="Test & Transcribe Audio" subtitle="Upload an audio file, record from microphone, or use the bundled Harvard sentences sample.">
-              <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr),280px]">
+              <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 16rem), 1fr))' }}>
                 <div className="space-y-3">
                   <div className="flex items-center justify-end gap-2">
                     <button
@@ -1768,7 +1677,7 @@ export default function App() {
                   </button>
                   <audio ref={audioPlayerRef} controls src={audioUrl} className="w-full" />
                   <div className="demo-divider" />
-                  <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr),115px,125px,110px]">
+                  <div className="grid gap-2" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 8rem), 1fr))' }}>
                     <Field label="Benchmark repeats">
                       <input
                         type="number"
@@ -1792,7 +1701,7 @@ export default function App() {
                       onClick={runStreamingSimulation}
                       disabled={!modelLoaded || isWorking}
                       className="compact-button-secondary self-end font-medium disabled:opacity-50"
-                      title="Simulate stateful chunked streaming (createStreamingTranscriber)"
+                      title="Run native streaming when supported; otherwise run one offline transcription"
                     >
                       Stream Chunks
                     </button>
@@ -1839,34 +1748,18 @@ export default function App() {
                     <div className="flex items-center justify-between mb-2">
                       <p className="metric-label">Word-Level Timestamps ({wordsList.length} words — click any word to seek audio)</p>
                     </div>
-                    <div className="flex flex-wrap gap-1.5 max-h-56 overflow-y-auto pr-1">
-                      {wordsList.map((w) => (
-                        <button
-                          key={w.index}
-                          type="button"
-                          onClick={() => {
-                            if (audioPlayerRef.current && Number.isFinite(w.startTime)) {
-                              audioPlayerRef.current.currentTime = Math.max(0, w.startTime);
-                              audioPlayerRef.current.play().catch(() => {});
-                            }
-                          }}
-                          className="inline-flex items-center gap-1.5 rounded-[7px] border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 py-1 text-[12px] hover:border-emerald-500 transition"
-                          title={w.confidence != null ? `Confidence: ${(w.confidence * 100).toFixed(1)}%` : undefined}
-                        >
-                          <span className="font-medium text-slate-800 dark:text-slate-100">{w.text}</span>
-                          {Number.isFinite(w.startTime) ? (
-                            <span className="font-mono text-[10px] text-slate-400">
-                              {w.startTime.toFixed(2)}s{Number.isFinite(w.endTime) ? `–${w.endTime.toFixed(2)}s` : ''}
-                            </span>
-                          ) : null}
-                        </button>
-                      ))}
-                    </div>
+                    <WordPills
+                      words={wordsList}
+                      audioRef={audioPlayerRef}
+                      className="max-h-56 pr-1"
+                    />
                   </div>
                 ) : null}
                 {streamingRevisions.length > 0 ? (
                   <div className="demo-soft-box">
-                    <p className="metric-label mb-2">Stateful Streaming Revisions ({streamingRevisions.length} steps)</p>
+                    <p className="metric-label mb-2">
+                      {lastLoadResult?.supportsStreaming ? 'Stateful Streaming Revisions' : 'Offline Fallback Result'} ({streamingRevisions.length} {lastLoadResult?.supportsStreaming ? 'steps' : 'run'})
+                    </p>
                     <div className="space-y-1.5 max-h-52 overflow-y-auto text-[12px]">
                       {streamingRevisions.map((rev) => (
                         <div key={rev.step} className="flex items-start gap-2 rounded-[7px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-2.5 py-1.5">
@@ -1968,9 +1861,9 @@ export default function App() {
               </Panel>
             </div>
             <JsonPanel title="Output JSON" value={rawJson} placeholder={'{\n  "status": "run a transcription"\n}'} />
-          </main>
+          </section>
 
-          <aside className="space-y-4 xl:sticky xl:top-4 self-start">
+          <aside className="space-y-4 min-w-0 xl:sticky xl:top-4 self-start">
             <Panel title="Copyable Code Snippet" subtitle="Ready-to-run TypeScript/JavaScript code for your selected model, backend, and options.">
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
@@ -1987,6 +1880,7 @@ export default function App() {
                         language,
                         detail,
                         responseFlavor: effectiveResponseFlavor,
+                        supportsStreaming: lastLoadResult?.supportsStreaming === true,
                         encoderQuant,
                         decoderQuant,
                         preprocessorBackend,
@@ -2008,6 +1902,7 @@ export default function App() {
                     language,
                     detail,
                     responseFlavor: effectiveResponseFlavor,
+                    supportsStreaming: lastLoadResult?.supportsStreaming === true,
                     encoderQuant,
                     decoderQuant,
                     preprocessorBackend,

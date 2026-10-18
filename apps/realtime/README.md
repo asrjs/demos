@@ -32,13 +32,19 @@ npm install
 npm run dev
 ```
 
-## Local Library Development
+## Library Source Selection
 
-```bash
+The app uses the pinned `@asrjs/speech-recognition` package by default. To develop against a sibling source checkout, explicitly set `ASRJS_SOURCE=source` (and `ASRJS_LIB_DIR` if the checkout is not at `../speech-recognition`) before running `npm run dev` or `npm run dev:local`.
+
+In PowerShell:
+
+```powershell
+$env:ASRJS_SOURCE = 'source'
+$env:ASRJS_LIB_DIR = '..\speech-recognition'
 npm run dev:local
 ```
 
-The Vite config aliases `@asrjs/speech-recognition` to the sibling source tree so streaming/runtime changes can be exercised directly.
+The package version and source commit are included in the benchmark provenance labels. Source labels include `-dirty` when the library checkout has uncommitted changes.
 
 ## Main Streaming Pieces
 
@@ -76,8 +82,7 @@ npm run build
 
 - FireRed VAD diagnostics are enabled by default. It runs 10 ms VAD hops and aggregates them into 20 ms visual buckets.
 - TEN-VAD remains selectable from the capture panel and uses the streaming chunk duration for hop and visual bucket sizing.
-- FireRed VAD uses ONNX Runtime Web (WASM). In local dev, `vite.config.js` injects `__ASRJS_ORT_WASM_PATH__`
-  and the app passes that path into `fireRedVadConfig.wasmPaths` so worker/runtime versions stay aligned.
+- FireRed VAD uses ONNX Runtime Web (WASM). The `predev` and `prebuild` steps copy the matching runtime files from the selected package/source installation into `public/ort/`; the app resolves them under Vite's base URL for both development and production builds.
 - TEN-VAD browser assets are still stored under `public/wasm/`.
 - The debug HUD and streaming presets are demo concerns; they are intentionally separate from the library's stable public API.
 - This folder is now its own local git repo, ready for its own remote when you want to publish or split it further.

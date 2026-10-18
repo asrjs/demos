@@ -123,6 +123,7 @@ export function StackedBarChartSvg({
   series = [],
   stages = ['prep', 'encode', 'decode'],
   colors = { prep: '#38bdf8', encode: '#10b981', decode: '#f59e0b' },
+  yUnit = 'ms',
   width = 620,
   height = 240,
 }) {
@@ -153,7 +154,7 @@ export function StackedBarChartSvg({
             <g key={r}>
               <line x1={padding.left} y1={y} x2={padding.left + plotW} y2={y} stroke="currentColor" strokeOpacity={0.12} strokeDasharray="3 3" />
               <text x={padding.left - 6} y={y + 3.5} textAnchor="end" fontSize="10" fill="currentColor" opacity={0.7}>
-                {val.toFixed(0)}ms
+                {val.toFixed(0)}{yUnit}
               </text>
             </g>
           );

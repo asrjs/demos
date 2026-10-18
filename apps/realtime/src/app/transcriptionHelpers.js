@@ -13,14 +13,17 @@ export function buildTranscriptionOptions(
     enableProfiling = false,
   } = {},
 ) {
-  return buildSpeechTranscriptionOptions(modelId, {
-    sourceLanguage,
-    targetLanguage,
-    task,
-    punctuate,
-    timestamps,
-    frameStride,
-    returnConfidences,
-    enableProfiling,
-  });
+  return {
+    detail: timestamps ? 'words' : 'text',
+    ...buildSpeechTranscriptionOptions(modelId, {
+      sourceLanguage,
+      targetLanguage,
+      task,
+      punctuate,
+      timestamps,
+      frameStride,
+      returnConfidences,
+      enableProfiling,
+    }),
+  };
 }

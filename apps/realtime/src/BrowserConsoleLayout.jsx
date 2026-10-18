@@ -76,10 +76,6 @@ export function BrowserConsoleLayout({ app }) {
     <div className="demo-shell">
       <div className="demo-container">
         <BrowserConsoleTopbar
-          asrjsVersion={app.asrjsVersion}
-          asrjsSource={app.asrjsSource}
-          darkMode={app.darkMode}
-          setDarkMode={app.setDarkMode}
           status={app.status}
           backend={app.backend}
           micStatus={micStatus}

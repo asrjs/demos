@@ -78,7 +78,7 @@ Realtime RNNT models default to `Speech Detect`. Other models default to `Manual
 
 ## VAD Runtime Notes
 
-FireRed VAD uses the library-owned ONNX Runtime Web dependency. The demo injects the local ORT wasm directory from `../speech-recognition/node_modules/onnxruntime-web/dist` through `__ASRJS_ORT_WASM_PATH__` and passes it into `fireRedVadConfig.wasmPaths`.
+FireRed VAD uses the library-owned ONNX Runtime Web dependency. The app's `predev` and `prebuild` steps copy the selected package's runtime modules and WASM binaries into `public/ort/`; `fireRedVadConfig.wasmPaths` resolves that directory through Vite's `BASE_URL`, including when deployed under a nested path.
 
 TEN-VAD remains available for comparison. Its demo-owned runtime assets come from:
 

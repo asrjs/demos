@@ -31,6 +31,19 @@ export const percentile = (values, p) => {
   return valid[lower] * (1 - weight) + valid[upper] * weight;
 };
 
+export function resolveEffectiveRepeatCount(
+  repeatCount,
+  durationSec,
+  { enabled, thresholdSec, multiplier },
+) {
+  const baseRepeats = Math.max(1, Math.ceil(repeatCount));
+  if (!enabled || durationSec < thresholdSec) return baseRepeats;
+  return Math.max(
+    baseRepeats,
+    Math.ceil(repeatCount * Math.max(1, multiplier)),
+  );
+}
+
 export const stddev = (values) => {
   const valid = (Array.isArray(values) ? values : []).filter(Number.isFinite);
   if (valid.length < 2) return 0;

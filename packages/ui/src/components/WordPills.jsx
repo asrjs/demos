@@ -1,12 +1,13 @@
 import React from 'react';
 
-export function WordPills({ words = [], onWordClick, audioRef, className = '' }) {
+export function WordPills({ words = [], onWordClick, audioRef, offsetSeconds = 0, className = '' }) {
   if (!Array.isArray(words) || words.length === 0) {
     return null;
   }
 
   const handleWordClick = (word) => {
-    const t0 = word.startTime ?? word.start_time ?? word.start;
+    const localStart = word.startTime ?? word.start_time ?? word.start;
+    const t0 = Number.isFinite(localStart) ? Number(offsetSeconds) + localStart : localStart;
     if (Number.isFinite(t0)) {
       if (audioRef && audioRef.current) {
         audioRef.current.currentTime = Math.max(0, Number(t0));
@@ -22,8 +23,10 @@ export function WordPills({ words = [], onWordClick, audioRef, className = '' })
     <div className={`word-pills-container flex flex-wrap gap-1.5 overflow-y-auto ${className}`}>
       {words.map((word, index) => {
         const text = word.text || word.word || '';
-        const t0 = word.startTime ?? word.start_time ?? word.start;
-        const t1 = word.endTime ?? word.end_time ?? word.end;
+        const localStart = word.startTime ?? word.start_time ?? word.start;
+        const localEnd = word.endTime ?? word.end_time ?? word.end;
+        const t0 = Number.isFinite(localStart) ? Number(offsetSeconds) + localStart : localStart;
+        const t1 = Number.isFinite(localEnd) ? Number(offsetSeconds) + localEnd : localEnd;
         const conf = word.confidence ?? word.prob;
 
         return (
@@ -31,7 +34,7 @@ export function WordPills({ words = [], onWordClick, audioRef, className = '' })
             key={`${index}-${text}-${t0 ?? ''}`}
             type="button"
             onClick={() => handleWordClick(word)}
-            className="inline-flex items-center gap-1 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2 py-0.5 text-xs text-slate-800 dark:text-slate-100 hover:border-emerald-500 hover:text-emerald-600 transition"
+            className="asr-word-pill inline-flex items-center gap-1 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2 py-0.5 text-xs text-slate-800 dark:text-slate-100 hover:border-emerald-500 hover:text-emerald-600 transition"
             title={conf != null ? `Confidence: ${(conf * 100).toFixed(1)}%` : undefined}
           >
             <span className="font-medium">{text}</span>
