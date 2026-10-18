@@ -1,0 +1,147 @@
+name: Bug Report
+description: Report a reproducible bug in the streaming demo
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Preflight
+      options:
+        - label: I searched existing issues for the same demo bug.
+          required: true
+        - label: I reproduced this on the latest main branch or deployed preview.
+          required: true
+        - label: I can provide deterministic reproduction steps.
+          required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Describe the visible failure in one or two sentences.
+      placeholder: What broke in the demo UI or realtime flow?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected Area
+      options:
+        - model loading
+        - microphone / capture
+        - realtime detection / segmentation
+        - waveform / signal visualization
+        - history / transcript flow
+        - local-folder model workflow
+        - sample or file transcription
+        - build / dev server
+        - other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Demo Mode
+      options:
+        - streaming / realtime lab
+        - sample or file transcription
+        - local-folder loading
+        - multiple areas
+    validations:
+      required: true
+
+  - type: input
+    id: demo_version
+    attributes:
+      label: Branch, Commit, or Preview
+      placeholder: main@<commit>, feat/background-noise-model, deployed preview URL
+    validations:
+      required: true
+
+  - type: input
+    id: speech_recognition_version
+    attributes:
+      label: speech-recognition Dependency
+      description: Installed package version, linked branch, or local workspace SHA.
+      placeholder: 0.2.0, feat/background-noise-model, local workspace link
+    validations:
+      required: false
+
+  - type: textarea
+    id: platform
+    attributes:
+      label: Platform Details
+      description: Include browser version, OS, GPU, WebGPU availability, microphone device if relevant, and whether workers are enabled.
+      placeholder: |
+        Browser: Chrome 135
+        OS: Windows 11
+        GPU: RTX 3060
+        WebGPU: navigator.gpu truthy
+        Mic device: ...
+        Worker usage: transcription worker / TEN-VAD worker / none
+    validations:
+      required: true
+
+  - type: textarea
+    id: settings
+    attributes:
+      label: Relevant Settings
+      description: Include model, backend, detector tuning, gate mode, and any non-default waveform/debug settings.
+      placeholder: |
+        Model: parakeet-tdt-0.6b-v3
+        Backend: webgpu-hybrid
+        Gate mode: rough-and-ten-vad
+        speech_dbfs: -45
+        ten_threshold: 0.50
+    validations:
+      required: false
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Exact steps, including whether microphone input, sample audio, or local-folder artifacts are required.
+      placeholder: |
+        1. Start dev server ...
+        2. Open Realtime Lab ...
+        3. Load model ...
+        4. Start mic ...
+        5. Observe ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected_actual
+    attributes:
+      label: Expected vs Actual
+      placeholder: |
+        Expected:
+        Actual:
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs_metrics
+    attributes:
+      label: Logs / Metrics / Trace Data
+      description: Paste console logs, detector decisions, `[MicQueue]` logs, build errors, or trace notes.
+      render: text
+      placeholder: |
+        [StreamingSpeechDetector] ...
+        [MicQueue] ...
+        Vite build error ...
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: Additional Context
+      description: Screenshots, trace files, exported clips, or links to related library issues/PRs.
+      placeholder: Attach screenshots, audio clips, trace paths, or related PR links.
+    validations:
+      required: false

@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Audio Transcription &amp; Diagnostics Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "border-gray": "#d1d5db",
+                        "panel-gray": "#ffffff",
+                        "success": "#10b981",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+        .grid-bg { background-image: radial-gradient(#e5e7eb 1px, transparent 1px); background-size: 20px 20px; }
+    </style>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased h-screen overflow-hidden flex flex-col">
+<!-- Top Navigation Bar -->
+<header class="h-14 border-b border-border-gray bg-white dark:bg-background-dark flex items-center justify-between px-4 z-20 shrink-0">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-3xl">waves</span>
+<h1 class="font-bold text-lg tracking-tight">AudioStream <span class="text-primary">Pro</span> <span class="ml-2 text-xs font-medium px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 border border-border-gray rounded text-slate-500 uppercase">v2.4.1-Stable</span></h1>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded text-sm font-medium">
+<span class="size-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                Engine Ready
+            </div>
+<button class="flex items-center gap-1 text-slate-600 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xl">help</span>
+<span class="text-sm font-medium">Documentation</span>
+</button>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- Left Sidebar: Configuration -->
+<aside class="w-80 border-r border-border-gray bg-white dark:bg-background-dark flex flex-col shrink-0">
+<div class="p-4 border-b border-border-gray flex items-center gap-2 bg-slate-50">
+<span class="material-symbols-outlined text-slate-500">settings_input_component</span>
+<h2 class="font-semibold text-sm uppercase tracking-wider text-slate-600">Model Configuration</h2>
+</div>
+<div class="flex-1 overflow-y-auto p-4 space-y-8 custom-scrollbar">
+<!-- Global Model Selection -->
+<div class="space-y-3">
+<label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Model Selection</label>
+<div class="space-y-1.5">
+<label class="text-xs font-semibold text-slate-600">Preset</label>
+<select class="w-full text-sm border-border-gray rounded focus:ring-primary focus:border-primary py-2 px-3 bg-slate-50">
+<option>Whisper-Large-v3 (Optimized)</option>
+<option>Whisper-Medium-En</option>
+<option>Distil-Whisper-Small</option>
+</select>
+</div>
+</div>
+<!-- Hardware & Execution -->
+<div class="space-y-3 pt-4 border-t border-slate-100">
+<label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Hardware &amp; Execution</label>
+<div class="space-y-4">
+<div class="space-y-1.5">
+<label class="text-xs font-semibold text-slate-600">Runtime Backend</label>
+<select class="w-full text-sm border-border-gray rounded focus:ring-primary focus:border-primary py-2 px-3 bg-slate-50">
+<option>WebGPU (Hardware Accelerated)</option>
+<option>WASM (CPU Fallback)</option>
+<option>TensorRT-Remote</option>
+</select>
+</div>
+<div class="space-y-1.5">
+<label class="text-xs font-semibold text-slate-600">Encoder/Decoder Backend</label>
+<select class="w-full text-sm border-border-gray rounded focus:ring-primary focus:border-primary py-2 px-3 bg-slate-50">
+<option>Synchronous (Default)</option>
+<option>Parallel Workers</option>
+</select>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div class="space-y-1.5">
+<label class="text-xs font-semibold text-slate-600">Threads</label>
+<select class="w-full text-sm border-border-gray rounded focus:ring-primary focus:border-primary py-2 px-3 bg-slate-50">
+<option>4</option>
+<option selected="">8</option>
+<option>16</option>
+</select>
+</div>
+<div class="space-y-1.5">
+<label class="text-xs font-semibold text-slate-600">Stride</label>
+<select class="w-full text-sm border-border-gray rounded focus:ring-primary focus:border-primary py-2 px-3 bg-slate-50">
+<option>32</option>
+<option selected="">64</option>
+<option>128</option>
+</select>
+</div>
+</div>
+</div>
+</div>
+<!-- Quantization -->
+<div class="space-y-3 pt-4 border-t border-slate-100">
+<label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Quantization</label>
+<div class="space-y-4">
+<div class="space-y-1.5">
+<label class="text-xs font-semibold text-slate-600">Encoder Quantization</label>
+<select class="w-full text-sm border-border-gray rounded focus:ring-primary focus:border-primary py-2 px-3 bg-slate-50">
+<option>INT8 (Recommended)</option>
+<option>FP16</option>
+<option>Q4_K_M</option>
+</select>
+</div>
+<div class="space-y-1.5">
+<label class="text-xs font-semibold text-slate-600">Decoder Quantization</label>
+<select class="w-full text-sm border-border-gray rounded focus:ring-primary focus:border-primary py-2 px-3 bg-slate-50">
+<option>INT8 (Recommended)</option>
+<option>FP16</option>
+<option>Q4_K_M</option>
+</select>
+</div>
+</div>
+</div>
+<!-- Logging/Profiling -->
+<div class="space-y-3 pt-4 border-t border-slate-100 pb-4">
+<label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Logging/Profiling</label>
+<div class="space-y-3">
+<label class="flex items-center justify-between cursor-pointer">
+<span class="text-sm font-medium text-slate-700">Verbose Logging</span>
+<div class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</div>
+</label>
+<label class="flex items-center justify-between cursor-pointer">
+<span class="text-sm font-medium text-slate-700">Enable Profiling</span>
+<div class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</div>
+</label>
+</div>
+</div>
+</div>
+<div class="p-4 bg-slate-50 border-t border-border-gray">
+<button class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 px-4 rounded shadow-sm flex items-center justify-center gap-2 transition-all">
+<span class="material-symbols-outlined">download_for_offline</span>
+                    LOAD MODEL
+                </button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 bg-background-light overflow-y-auto custom-scrollbar p-6 space-y-6">
+<div class="grid grid-cols-12 gap-6">
+<!-- Top Row: Audio Input & Stats -->
+<div class="col-span-12 lg:col-span-5 space-y-6">
+<!-- Live Audio Input Panel -->
+<div class="bg-white border border-border-gray rounded-lg overflow-hidden flex flex-col shadow-sm">
+<div class="px-4 py-2 border-b border-border-gray bg-slate-50 flex items-center justify-between">
+<h3 class="text-sm font-bold text-slate-700 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl">mic</span>
+                                LIVE AUDIO INPUT
+                            </h3>
+<div class="flex items-center gap-2">
+<span class="text-[10px] font-bold text-slate-400">STATUS:</span>
+<span class="text-[10px] font-bold text-emerald-600">READY</span>
+</div>
+</div>
+<div class="p-4 space-y-4">
+<div class="border-2 border-dashed border-slate-200 rounded-lg p-8 flex flex-col items-center justify-center text-slate-400 bg-slate-50 hover:bg-slate-100/50 cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-4xl mb-2">upload_file</span>
+<p class="text-xs font-semibold">Drop audio file or click to browse</p>
+<p class="text-[10px] uppercase mt-1">WAV, MP3, FLAC (Max 100MB)</p>
+</div>
+<div class="flex gap-3">
+<div class="flex-1 space-y-1">
+<label class="text-[10px] font-bold text-slate-500 uppercase">Input Device</label>
+<select class="w-full text-xs border-border-gray rounded p-2">
+<option>Default System Microphone</option>
+<option>External Audio Interface (USB)</option>
+<option>Virtual Audio Cable</option>
+</select>
+</div>
+<div class="w-32 space-y-1">
+<label class="text-[10px] font-bold text-slate-500 uppercase">Mic Mode</label>
+<select class="w-full text-xs border-border-gray rounded p-2">
+<option>Continuous</option>
+<option>Push-to-Talk</option>
+<option>VAD Trigger</option>
+</select>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded text-sm flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-lg">play_arrow</span>
+                                    START CAPTURE
+                                </button>
+<button class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 px-4 rounded text-sm flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-lg">stop</span>
+                                    STOP
+                                </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Streaming Diagnostics -->
+<div class="col-span-12 lg:col-span-7">
+<div class="bg-white border border-border-gray rounded-lg overflow-hidden flex flex-col shadow-sm h-full">
+<div class="px-4 py-2 border-b border-border-gray bg-slate-50">
+<h3 class="text-sm font-bold text-slate-700 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl">analytics</span>
+                                STREAMING DIAGNOSTICS
+                            </h3>
+</div>
+<div class="grid grid-cols-3 divide-x divide-border-gray flex-1">
+<!-- Session Summary -->
+<div class="p-4 space-y-4">
+<h4 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-1">Session Summary</h4>
+<div class="space-y-3">
+<div class="flex justify-between items-center">
+<span class="text-xs text-slate-500">Capture Status</span>
+<span class="text-xs font-mono font-bold text-emerald-600">ACTIVE</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-xs text-slate-500">Processing Time</span>
+<span class="text-xs font-mono font-bold">12.4ms</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-xs text-slate-500">Total Latency</span>
+<span class="text-xs font-mono font-bold">45.1ms</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-xs text-slate-500">Buffer Usage</span>
+<div class="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[32%]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Detector State -->
+<div class="p-4 space-y-4">
+<h4 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-1">Detector State</h4>
+<div class="space-y-3">
+<div class="flex justify-between items-center">
+<span class="text-xs text-slate-500">VAD Onset</span>
+<span class="text-xs font-mono font-bold text-amber-500">PENDING</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-xs text-slate-500">Silence Offset</span>
+<span class="text-xs font-mono font-bold text-slate-400">---</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-xs text-slate-500">Frame Segments</span>
+<span class="text-xs font-mono font-bold">4,096 pts</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-xs text-slate-500">Inference Queue</span>
+<span class="text-xs font-mono font-bold">0</span>
+</div>
+</div>
+</div>
+<!-- Trigger Metrics -->
+<div class="p-4 space-y-4">
+<h4 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-1">Trigger Metrics</h4>
+<div class="space-y-3">
+<div class="flex justify-between items-center">
+<span class="text-xs text-slate-500">Threshold Level</span>
+<span class="text-xs font-mono font-bold">-42.0 dB</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-xs text-slate-500">Noise Floor</span>
+<span class="text-xs font-mono font-bold">-68.5 dB</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-xs text-slate-500">SNR Ratio</span>
+<span class="text-xs font-mono font-bold text-emerald-600">+26.5 dB</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-xs text-slate-500">Peak Amplitude</span>
+<span class="text-xs font-mono font-bold">-12.2 dB</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Waveform Visualization -->
+<div class="col-span-12">
+<div class="bg-white border border-border-gray rounded-lg overflow-hidden flex flex-col shadow-sm">
+<div class="px-4 py-2 border-b border-border-gray bg-slate-50 flex items-center justify-between">
+<h3 class="text-sm font-bold text-slate-700 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl">stethoscope</span>
+                                WAVEFORM VISUALIZATION
+                            </h3>
+<div class="flex gap-4">
+<div class="flex items-center gap-1">
+<div class="size-2 bg-primary rounded-full"></div>
+<span class="text-[10px] font-bold text-slate-500 uppercase">Input Signal</span>
+</div>
+<div class="flex items-center gap-1">
+<div class="size-2 bg-rose-500 rounded-full"></div>
+<span class="text-[10px] font-bold text-slate-500 uppercase">VAD Threshold</span>
+</div>
+</div>
+</div>
+<div class="h-48 bg-slate-900 grid-bg relative p-4 overflow-hidden"><!-- Detailed Line Graph Audio Signal -->
+<svg class="absolute inset-0 w-full h-full opacity-80" preserveaspectratio="none" viewbox="0 0 1000 200">
+<path d="M0 100 L 20 105 L 40 90 L 60 110 L 80 85 L 100 120 L 120 70 L 140 130 L 160 60 L 180 140 L 200 40 L 220 160 L 240 30 L 260 170 L 280 50 L 300 150 L 320 60 L 340 140 L 360 80 L 380 120 L 400 95 L 420 105 L 440 90 L 460 110 L 480 85 L 500 120 L 520 70 L 540 130 L 560 60 L 580 140 L 600 40 L 620 160 L 640 30 L 660 170 L 680 50 L 700 150 L 720 60 L 740 140 L 760 80 L 780 120 L 800 95 L 820 105 L 840 90 L 860 110 L 880 85 L 900 120 L 920 70 L 940 130 L 960 60 L 980 140 L 1000 100" fill="none" stroke="#135bec" stroke-width="1.5"></path>
+</svg>
+<!-- Annotated Threshold Lines & Labels -->
+<div class="absolute inset-0 pointer-events-none">
+<!-- Speech Threshold -->
+<div class="absolute top-[30%] left-0 w-full border-t border-rose-500/60 border-dashed flex items-center">
+<span class="bg-rose-500 text-white text-[8px] font-bold px-1 py-0.5 rounded-r">SPEECH THRESHOLD (-42dB)</span>
+</div>
+<!-- SNR Level -->
+<div class="absolute top-[55%] left-0 w-full border-t border-emerald-500/60 border-dashed flex items-center justify-end">
+<span class="bg-emerald-500 text-white text-[8px] font-bold px-1 py-0.5 rounded-l">SNR LEVEL (+26.5dB)</span>
+</div>
+<!-- Noise Floor -->
+<div class="absolute bottom-[20%] left-0 w-full border-t border-slate-400/60 border-dashed flex items-center">
+<span class="bg-slate-400 text-white text-[8px] font-bold px-1 py-0.5 rounded-r">NOISE FLOOR (-68dB)</span>
+</div>
+</div>
+<!-- Axis Labels -->
+<div class="absolute left-2 top-2 text-[9px] font-mono text-slate-500 z-10">1.0</div>
+<div class="absolute left-2 bottom-2 text-[9px] font-mono text-slate-500 z-10">-1.0</div>
+<div class="absolute left-2 top-1/2 -translate-y-1/2 text-[9px] font-mono text-slate-500 z-10">0.0</div></div>
+</div>
+</div>
+<!-- Tuning Controls & Transcription -->
+<div class="col-span-12 lg:col-span-4 space-y-6">
+<div class="bg-white border border-border-gray rounded-lg overflow-hidden flex flex-col shadow-sm">
+<div class="px-4 py-2 border-b border-border-gray bg-slate-50">
+<h3 class="text-sm font-bold text-slate-700 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl">tune</span>
+                                TUNING CONTROLS
+                            </h3>
+</div>
+<div class="p-4 space-y-6">
+<div class="space-y-3">
+<div class="flex justify-between">
+<label class="text-xs font-bold text-slate-600 uppercase tracking-tight">Speech Threshold (dBFS)</label>
+<span class="text-xs font-mono font-bold text-primary">-42.0 dB</span>
+</div>
+<input class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-primary" type="range"/>
+<div class="flex justify-between text-[10px] text-slate-400 font-mono">
+<span>-90 dB</span>
+<span>0 dB</span>
+</div>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between">
+<label class="text-xs font-bold text-slate-600 uppercase tracking-tight">Analysis Window (ms)</label>
+<span class="text-xs font-mono font-bold text-primary">250 ms</span>
+</div>
+<input class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-primary" max="1000" min="10" type="range" value="250"/>
+<div class="flex justify-between text-[10px] text-slate-400 font-mono">
+<span>10 ms</span>
+<span>1000 ms</span>
+</div>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between">
+<label class="text-xs font-bold text-slate-600 uppercase tracking-tight">Post-Speech Silence (ms)</label>
+<span class="text-xs font-mono font-bold text-primary">500 ms</span>
+</div>
+<input class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-primary" max="2000" min="100" type="range" value="500"/>
+<div class="flex justify-between text-[10px] text-slate-400 font-mono">
+<span>100 ms</span>
+<span>2000 ms</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="col-span-12 lg:col-span-8">
+<div class="bg-white border border-border-gray rounded-lg overflow-hidden flex flex-col shadow-sm h-full min-h-[400px]">
+<div class="px-4 py-2 border-b border-border-gray bg-slate-50 flex items-center justify-between">
+<h3 class="text-sm font-bold text-slate-700 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl">description</span>
+                                TRANSCRIPTION RESULTS
+                            </h3>
+<button class="text-xs font-bold text-primary hover:underline">EXPORT CSV</button>
+</div>
+<div class="flex-1 overflow-y-auto custom-scrollbar">
+<table class="w-full text-left border-collapse">
+<thead class="sticky top-0 bg-slate-50 z-10 border-b border-border-gray">
+<tr>
+<th class="px-4 py-2 text-[10px] font-bold text-slate-500 uppercase w-24">Timestamp</th>
+<th class="px-4 py-2 text-[10px] font-bold text-slate-500 uppercase">Transcription Text</th>
+<th class="px-4 py-2 text-[10px] font-bold text-slate-500 uppercase w-20 text-right">Conf.</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 text-sm">
+<tr class="hover:bg-slate-50">
+<td class="px-4 py-3 font-mono text-xs text-slate-400">00:01:24.4</td>
+<td class="px-4 py-3 text-slate-700 font-medium">Okay, let's begin by checking the system diagnostics for the audio buffer.</td>
+<td class="px-4 py-3 text-right"><span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 text-[10px] font-bold font-mono">0.98</span></td>
+</tr>
+<tr class="hover:bg-slate-50">
+<td class="px-4 py-3 font-mono text-xs text-slate-400">00:01:28.1</td>
+<td class="px-4 py-3 text-slate-700 font-medium">The latency seems stable at around forty-five milliseconds today.</td>
+<td class="px-4 py-3 text-right"><span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 text-[10px] font-bold font-mono">0.96</span></td>
+</tr>
+<tr class="hover:bg-slate-50">
+<td class="px-4 py-3 font-mono text-xs text-slate-400">00:01:32.5</td>
+<td class="px-4 py-3 text-slate-700 font-medium">Adjusting the speech threshold to negative forty-two for better background noise rejection.</td>
+<td class="px-4 py-3 text-right"><span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 text-[10px] font-bold font-mono">0.89</span></td>
+</tr>
+<tr class="hover:bg-slate-50">
+<td class="px-4 py-3 font-mono text-xs text-slate-400">00:01:36.9</td>
+<td class="px-4 py-3 text-slate-700 font-medium">Perfect, the transcription quality is holding up even with the lower sampling rate.</td>
+<td class="px-4 py-3 text-right"><span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 text-[10px] font-bold font-mono">0.99</span></td>
+</tr>
+<tr class="bg-primary/5">
+<td class="px-4 py-3 font-mono text-xs text-primary animate-pulse">00:01:41.2</td>
+<td class="px-4 py-3 text-primary font-bold italic">Processing current segment...</td>
+<td class="px-4 py-3 text-right">---</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Bottom Status Bar -->
+<footer class="h-8 border-t border-border-gray bg-white dark:bg-background-dark px-4 flex items-center justify-between text-[10px] font-mono text-slate-500 shrink-0">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-1.5">
+<span class="size-2 bg-emerald-500 rounded-full"></span>
+<span>ENGINE: RUNNING (CUDA/WebGPU)</span>
+</div>
+<div>BUFFER: 4.2 MB / 512 MB</div>
+<div>UPTIME: 00:45:12</div>
+</div>
+<div class="flex items-center gap-4">
+<div>MEM: 1,245 MB</div>
+<div>CPU: 14.2%</div>
+<div class="text-primary font-bold">STABLE CONNECTION</div>
+</div>
+</footer>
+</body></html>
