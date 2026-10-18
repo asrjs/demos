@@ -28,11 +28,13 @@ import {
 } from '@asrjs/speech-recognition/bench';
 import { measureBrowserMemory } from '@asrjs/speech-recognition/bench/browser';
 import {
+  ScatterPlotSvg as SharedScatterPlotSvg,
+  StackedBarChartSvg as SharedStackedBarChartSvg,
+  StageShareDoughnutSvg as SharedStageShareDoughnutSvg,
+} from '@asrjs/demo-ui';
+import { useDemoTheme } from '@asrjs/demo-ui';
+import {
   fetchDatasetSplits,
-  fetchRandomRows,
-  fetchSequentialRows,
-  getConfigsAndSplits,
-  normalizeDatasetRow,
 } from '@asrjs/speech-recognition/datasets';
 import {
   buildHistogram,
@@ -46,20 +48,46 @@ import {
   parseDurationTargets,
   percentile,
   runsToMarkdownLeaderboard,
-  ScatterPlotSvg,
-  StackedBarChartSvg,
-  StageShareDoughnutSvg,
+  resolveEffectiveRepeatCount,
   stddev,
   suggestDurationTargets,
   summarizeBenchmarkBuckets,
 } from './benchmark-utils.jsx';
+import { fetchBenchmarkSamples, selectDatasetMetadata } from './dataset-selection.js';
 import './App.css';
+
+function ScatterPlotSvg({ series = [], ...props }) {
+  const points = series.flatMap((entry) =>
+    (entry.data || []).map((point) => ({ ...point, seriesName: entry.label })),
+  );
+  const colorMap = Object.fromEntries(series.map((entry) => [entry.label, entry.color]));
+  return (
+    <SharedScatterPlotSvg
+      {...props}
+      points={points}
+      groupKey="seriesName"
+      colorMap={colorMap}
+    />
+  );
+}
+
+function StackedBarChartSvg({ labels = [], datasets = [], yLabel = 'ms' }) {
+  const stages = datasets.map((dataset) => dataset.label);
+  const series = labels.map((label, index) => ({
+    label,
+    ...Object.fromEntries(datasets.map((dataset) => [dataset.label, dataset.data[index]])),
+  }));
+  const colors = Object.fromEntries(datasets.map((dataset) => [dataset.label, dataset.color]));
+  return <SharedStackedBarChartSvg series={series} stages={stages} colors={colors} yUnit={yLabel} />;
+}
+
+function StageShareDoughnutSvg({ stages = [] }) {
+  return <SharedStageShareDoughnutSvg shares={stages} />;
+}
 
 const SETTINGS_KEY = 'asrjs.benchmark-demo.settings.v3';
 const SNAPSHOTS_KEY = 'asrjs.benchmark-demo.snapshots.v3';
 const MAX_SNAPSHOTS = 24;
-const VERSION = typeof __ASRJS_VERSION__ !== 'undefined' ? __ASRJS_VERSION__ : '0.2.0';
-const SOURCE = typeof __ASRJS_SOURCE__ !== 'undefined' ? __ASRJS_SOURCE__ : 'dev';
 
 const BACKEND_MODES = [
   { value: 'webgpu-hybrid', label: 'WebGPU Hybrid (WebGPU enc + WASM dec)' },
@@ -132,16 +160,6 @@ function saveSnapshots(snapshots) {
   }
 }
 
-function resolveInitialTheme(saved) {
-  if (typeof window !== 'undefined') {
-    const params = new URLSearchParams(window.location.search);
-    const q = (params.get('__theme') || params.get('theme') || '').toLowerCase();
-    if (q === 'light' || q === 'dark') return q;
-  }
-  if (saved === 'light' || saved === 'dark') return saved;
-  return 'dark';
-}
-
 function fmtMs(value) {
   return Number.isFinite(value) ? `${value.toFixed(1)} ms` : '-';
 }
@@ -186,7 +204,7 @@ const PIVOT_DIMENSIONS = [
 
 export default function App() {
   const initial = useMemo(() => loadSettings(), []);
-  const [theme, setTheme] = useState(() => resolveInitialTheme(initial.theme));
+  const { theme } = useDemoTheme({ storageKey: 'asrjs-theme' });
   const [activeTab, setActiveTab] = useState('benchmark');
 
   const catalogModels = useMemo(() => listSpeechModels(), []);
@@ -281,11 +299,6 @@ export default function App() {
   const selectedDescriptor = catalogByKey[modelKey];
 
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    document.documentElement.classList.toggle('dark', theme === 'dark');
-  }, [theme]);
-
-  useEffect(() => {
     saveSettings({
       theme,
       modelSource,
@@ -353,11 +366,8 @@ export default function App() {
     setDatasetStatus('Loading dataset metadata...');
     try {
       const payload = await fetchDatasetSplits(nextDatasetId);
-      const discovered = getConfigsAndSplits(payload);
-      const nextConfigs = discovered.configs.length ? discovered.configs : ['default'];
-      const nextConfig = nextConfigs.includes(preferredConfig) ? preferredConfig : nextConfigs[0];
-      const nextSplits = discovered.splitsByConfig[nextConfig]?.length ? discovered.splitsByConfig[nextConfig] : ['test'];
-      const nextSplit = nextSplits.includes(preferredSplit) ? preferredSplit : nextSplits[0];
+      const { configs: nextConfigs, config: nextConfig, splits: nextSplits, split: nextSplit } =
+        selectDatasetMetadata(payload, preferredConfig, preferredSplit);
       setConfigs(nextConfigs);
       setSplits(nextSplits);
       setDatasetConfig(nextConfig);
@@ -424,7 +434,10 @@ export default function App() {
           entries: localModelEntries,
           modelId: modelKey,
           backend,
-          options: { cpuThreads },
+          encoderQuant,
+          decoderQuant,
+          preprocessorBackend,
+          cpuThreads,
         });
         modelRef.current = {
           type: 'local-handle',
@@ -559,16 +572,10 @@ export default function App() {
     setIsLoadingDataset(true);
     setDatasetStatus('Fetching dataset rows...');
     try {
-      const rows = randomize
-        ? await fetchRandomRows({
-            dataset: datasetId,
-            config: datasetConfig,
-            split: datasetSplit,
-            sampleCount,
-            seed: randomSeed,
-          })
-        : await fetchSequentialRows(datasetId, datasetConfig, datasetSplit, offset, sampleCount);
-      const normalized = rows.map(normalizeDatasetRow).filter((r) => r.audioUrl);
+      const normalized = await fetchBenchmarkSamples({
+        dataset: datasetId, config: datasetConfig, split: datasetSplit,
+        randomize, sampleCount, seed: randomSeed, offset,
+      });
       setPreparedSamples(normalized);
       setDatasetStatus(`Prepared ${normalized.length} dataset samples.`);
       return normalized;
@@ -686,7 +693,7 @@ export default function App() {
     setRuns([]);
 
     const batchId = `batch-${Date.now()}`;
-    const totalSteps = items.length * (warmups + repeatCount);
+    let totalSteps = items.length * (Math.ceil(warmups) + Math.ceil(repeatCount));
     let stepCursor = 0;
     const collected = [];
 
@@ -697,24 +704,27 @@ export default function App() {
         const decoded = await decodeAudioSourceToMonoPcm(item.file || item.audioUrl, 16000);
         const durSec = item.durationSec || decoded.durationSeconds || decoded.pcm.length / 16000;
 
-        for (let w = 0; w < warmups; w += 1) {
+        for (let w = 0; w < Math.ceil(warmups); w += 1) {
           if (stopRef.current) break;
           stepCursor += 1;
           setProgress({ current: stepCursor, total: totalSteps, stage: `Warmup ${w + 1}/${warmups} · ${item.sampleKey}` });
           await executeSingleTranscribe(decoded.pcm, durSec);
         }
 
-        const effectiveRepeats =
-          longBoostEnabled && durSec >= longBoostThresholdSec
-            ? Math.max(repeatCount, repeatCount * Math.max(1, longBoostMultiplier))
-            : repeatCount;
+        const effectiveRepeats = resolveEffectiveRepeatCount(repeatCount, durSec, {
+          enabled: longBoostEnabled,
+          thresholdSec: longBoostThresholdSec,
+          multiplier: longBoostMultiplier,
+        });
+        totalSteps += effectiveRepeats - Math.ceil(repeatCount);
+        setProgress((current) => ({ ...current, total: totalSteps }));
 
         let firstTranscript = null;
         for (let r = 0; r < effectiveRepeats; r += 1) {
           if (stopRef.current) break;
           stepCursor += 1;
           setProgress({
-            current: Math.min(stepCursor, totalSteps),
+            current: stepCursor,
             total: totalSteps,
             stage: `Run ${r + 1}/${effectiveRepeats} · ${item.sampleKey}`,
           });
@@ -906,18 +916,6 @@ export default function App() {
       {/* ═══ UNIFIED ASRJS CONSOLE TOPBAR ═══ */}
       <header className="console-topbar">
         <div className="topbar-main-row">
-          <div className="brand-group">
-            <div>
-              <div className="brand-overline">@asrjs/speech-recognition · v{VERSION} ({SOURCE})</div>
-              <div className="brand-title">ASRJS Benchmark &amp; Sweet-Spot Suite</div>
-            </div>
-            <div className="suite-pills">
-              <span className="suite-pill">API Playground</span>
-              <span className="suite-pill">Realtime Workstation</span>
-              <span className="suite-pill suite-pill--active">Benchmark Suite</span>
-            </div>
-          </div>
-
           <div className="topbar-pills">
             <span className="status-pill">
               <span className={`dot ${hardware.webgpuAvailable ? 'dot--green' : 'dot--red'}`} />
@@ -931,13 +929,6 @@ export default function App() {
               <span className={`dot ${isRunning ? 'dot--orange' : okRuns.length > 0 ? 'dot--green' : 'dot--muted'}`} />
               {isRunning ? `Running ${progress.current}/${progress.total}` : `${okRuns.length} valid runs`}
             </span>
-            <button
-              type="button"
-              className="theme-btn"
-              onClick={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
-            >
-              {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
-            </button>
           </div>
         </div>
       </header>

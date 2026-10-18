@@ -1,10 +1,9 @@
+import { DEMO_MODELS, MODEL_OPTIONS, getCanonicalRevision, getDescriptorEncoderQuantOptions, getDescriptorDecoderQuantOptions, getDescriptorDefaultEncoderQuant, getDescriptorDefaultDecoderQuant, getDescriptorEncoderBackendOptions, getDescriptorDecoderBackendOptions, getDescriptorPreprocessorBackendOptions, getDescriptorDefaultPreprocessorName, getDescriptorDefaultPreprocessorBackend, resolvePreprocessorBackendForSource } from "@asrjs/demo-runtime";
 import React, { useState, useRef, useEffect } from 'react';
 import {
   buildSpeechTranscriptionOptions,
   detectSpeechModelRepoQuantizations,
   getSpeechModelLanguageName,
-  listSpeechModelOptions,
-  listSpeechModels,
   resolveSpeechModelComponentBackends,
 } from '@asrjs/speech-recognition';
 import {
@@ -21,15 +20,8 @@ import {
   loadHubDemoModel,
 } from './shared/modelLoader.js';
 import warmupAudioUrl from './assets/Harvard-L2-1.ogg?url';
+import { WordPills, normalizeTranscript, useDemoTheme } from '@asrjs/demo-ui';
 import './App.css';
-
-const DEMO_MODELS = Object.fromEntries(
-  listSpeechModels()
-    .filter((descriptor) => descriptor.loading.repoId)
-    .map((descriptor) => [descriptor.modelId, descriptor]),
-);
-
-const MODEL_OPTIONS = listSpeechModelOptions().filter((option) => option.repoId);
 
 const SETTINGS_STORAGE_KEY = 'asrjs.browser-demo.settings.v2';
 const LOCAL_MODEL_DB_NAME = 'asrjs-browser-demo-local-model';
@@ -44,71 +36,6 @@ const MODEL_SOURCE_OPTIONS = {
 const isInIframe = (() => {
   try { return window.self !== window.top; } catch { return true; }
 })();
-function getCanonicalRevision(modelKey) {
-  return DEMO_MODELS[modelKey]?.loading?.defaultRevision || 'main';
-}
-
-function getDescriptorEncoderQuantOptions(modelKey) {
-  return DEMO_MODELS[modelKey]?.loading?.availableEncoderQuantizations || ['fp16', 'int8', 'fp32'];
-}
-
-function getDescriptorDecoderQuantOptions(modelKey) {
-  return DEMO_MODELS[modelKey]?.loading?.availableDecoderQuantizations || ['fp16', 'int8', 'fp32'];
-}
-
-function getDescriptorDefaultEncoderQuant(modelKey) {
-  return DEMO_MODELS[modelKey]?.loading?.defaultEncoderQuantization || 'fp32';
-}
-
-function getDescriptorDefaultDecoderQuant(modelKey) {
-  return DEMO_MODELS[modelKey]?.loading?.defaultDecoderQuantization || 'int8';
-}
-
-function getDescriptorEncoderBackendOptions(modelKey) {
-  return DEMO_MODELS[modelKey]?.loading?.availableEncoderBackends || ['webgpu', 'wasm'];
-}
-
-function getDescriptorDecoderBackendOptions(modelKey) {
-  return DEMO_MODELS[modelKey]?.loading?.availableDecoderBackends || ['webgpu', 'wasm'];
-}
-
-function getDescriptorPreprocessorBackendOptions(modelKey) {
-  return DEMO_MODELS[modelKey]?.loading?.preprocessorBackends || ['js', 'onnx'];
-}
-
-function getDescriptorDefaultPreprocessorName(modelKey) {
-  return DEMO_MODELS[modelKey]?.loading?.defaultPreprocessorName || 'nemo128';
-}
-
-function getDescriptorDefaultPreprocessorBackend(modelKey) {
-  const availableBackends = getDescriptorPreprocessorBackendOptions(modelKey);
-  const preferredBackend = DEMO_MODELS[modelKey]?.loading?.defaultPreprocessorBackend || availableBackends[0] || 'js';
-  return availableBackends.includes(preferredBackend) ? preferredBackend : (availableBackends[0] || 'js');
-}
-
-function resolvePreprocessorBackendForSource(
-  modelKey,
-  requestedBackend,
-  {
-    modelSource = MODEL_SOURCE_OPTIONS.HUGGINGFACE,
-    localPreprocessorCount = 0,
-  } = {},
-) {
-  const availableBackends = getDescriptorPreprocessorBackendOptions(modelKey);
-  const fallbackBackend = getDescriptorDefaultPreprocessorBackend(modelKey);
-  const candidate = availableBackends.includes(requestedBackend) ? requestedBackend : fallbackBackend;
-
-  if (
-    modelSource === MODEL_SOURCE_OPTIONS.LOCAL &&
-    candidate === 'onnx' &&
-    localPreprocessorCount === 0
-  ) {
-    return availableBackends.includes('js') ? 'js' : fallbackBackend;
-  }
-
-  return candidate;
-}
-
 function supportsDirectoryHandlePersistence() {
   if (typeof window === 'undefined' || typeof window.showDirectoryPicker !== 'function' || typeof indexedDB === 'undefined') return false;
   // showDirectoryPicker is blocked in cross-origin iframes (e.g. HF Spaces)
@@ -257,43 +184,6 @@ async function clearPersistedDirectoryHandle() {
       rejectOnce(new Error('Failed to clear persisted folder handle'));
     };
   });
-}
-
-function parseThemeValue(value) {
-  if (typeof value !== 'string') return null;
-  const normalized = value.trim().toLowerCase();
-  if (normalized === 'dark') return true;
-  if (normalized === 'light') return false;
-  return null;
-}
-
-function getHfThemeFromQuery() {
-  if (typeof window === 'undefined') return null;
-  const params = new URLSearchParams(window.location.search);
-  return parseThemeValue(params.get('__theme') || params.get('theme') || params.get('color'));
-}
-
-function getInitialDarkMode(settings) {
-  const hfTheme = getHfThemeFromQuery();
-  if (hfTheme !== null) return hfTheme;
-  if (typeof settings.darkMode === 'boolean') return settings.darkMode;
-  if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
-  }
-  return false;
-}
-
-function getThemeFromMessage(data) {
-  if (!data) return null;
-  if (typeof data === 'string') return parseThemeValue(data);
-  if (typeof data !== 'object') return null;
-
-  return (
-    parseThemeValue(data.theme) ??
-    parseThemeValue(data.colorMode) ??
-    parseThemeValue(data.mode) ??
-    parseThemeValue(data?.payload?.theme)
-  );
 }
 
 function loadSettings() {
@@ -491,7 +381,7 @@ export default function App() {
   const [sampleDownload, setSampleDownload] = useState(null);
   const [isDownloadingSample, setIsDownloadingSample] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [darkMode, setDarkMode] = useState(getInitialDarkMode(initialSettings));
+  const { darkMode } = useDemoTheme({ storageKey: 'asrjs-theme' });
   const [modelLoaded, setModelLoaded] = useState(false);
   const [isModelLoading, setIsModelLoading] = useState(false);
   const [compareMode, setCompareMode] = useState(false);
@@ -757,59 +647,6 @@ export default function App() {
       if (audioUrl) URL.revokeObjectURL(audioUrl);
     };
   }, [audioUrl]);
-
-  // Toggle dark mode
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [darkMode]);
-
-  // Follow HF/parent theme when provided; otherwise fallback to system changes
-  // if user has no saved explicit theme preference.
-  useEffect(() => {
-    const hfTheme = getHfThemeFromQuery();
-    if (hfTheme !== null) {
-      setDarkMode(hfTheme);
-    }
-
-    const onMessage = (event) => {
-      const messageTheme = getThemeFromMessage(event?.data);
-      if (messageTheme !== null) {
-        setDarkMode(messageTheme);
-      }
-    };
-
-    window.addEventListener('message', onMessage);
-
-    if (typeof window.matchMedia !== 'function') {
-      return () => window.removeEventListener('message', onMessage);
-    }
-
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const onMediaChange = (event) => {
-      if (getHfThemeFromQuery() !== null) return;
-      if (typeof initialSettings.darkMode === 'boolean') return;
-      setDarkMode(event.matches);
-    };
-
-    if (typeof mediaQuery.addEventListener === 'function') {
-      mediaQuery.addEventListener('change', onMediaChange);
-    } else {
-      mediaQuery.addListener(onMediaChange);
-    }
-
-    return () => {
-      window.removeEventListener('message', onMessage);
-      if (typeof mediaQuery.removeEventListener === 'function') {
-        mediaQuery.removeEventListener('change', onMediaChange);
-      } else {
-        mediaQuery.removeListener(onMediaChange);
-      }
-    };
-  }, [initialSettings.darkMode]);
 
   // Restore persisted local folder handle when local source is active.
   useEffect(() => {
@@ -1358,14 +1195,12 @@ export default function App() {
         const response = await modelRef.current.transcribeMonoPcm(pcm, 16000, {
           enableProfiling,
         });
-        const normalize = (str) => str.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
-
         const transcriptText = getResultText(response);
-        const normalizedUtterance = normalize(transcriptText);
+        const normalizedUtterance = normalizeTranscript(transcriptText);
         const matchedExpectedText =
           modelConfig?.warmup?.mode === 'non-empty'
             ? normalizedUtterance.length > 0
-            : expectedTexts.some((text) => normalizedUtterance.includes(normalize(text)));
+            : expectedTexts.some((text) => normalizedUtterance.includes(normalizeTranscript(text)));
 
         if (matchedExpectedText) {
           console.log('[App] Model verification successful.');
@@ -1505,47 +1340,9 @@ export default function App() {
     };
   }, []);
 
-  const asrjsVersion = typeof __ASRJS_VERSION__ !== 'undefined' ? __ASRJS_VERSION__ : 'unknown';
-  const asrjsSource = typeof __ASRJS_SOURCE__ !== 'undefined' ? __ASRJS_SOURCE__ : 'unknown';
-
   return (
-    <div className="bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200 font-sans min-h-screen p-6 md:p-10 transition-colors duration-300">
+    <div className="demo-shell">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <header className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-              ASRJS Browser Demo
-            </h1>
-            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              <div>@asrjs/speech-recognition {asrjsVersion} ({asrjsSource})</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <a
-              href="https://github.com/asrjs/speech-recognition"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center hover:opacity-80 transition-opacity"
-              title="View on GitHub"
-            >
-              <img
-                src="https://img.shields.io/github/stars/asrjs/speech-recognition?style=social"
-                alt="GitHub stars"
-                className="h-6"
-              />
-            </a>
-            <button
-              className="flex items-center justify-center p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-              onClick={() => setDarkMode(!darkMode)}
-            >
-              <span className="material-icons-outlined text-gray-600 dark:text-gray-300">
-                brightness_4
-              </span>
-            </button>
-          </div>
-        </header>
-
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
           {/* Left Column - Model Configuration */}
           <div className="lg:col-span-1 flex flex-col gap-4">
@@ -2378,6 +2175,7 @@ export default function App() {
                       <div className="text-sm text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-900/30 p-3 rounded border border-gray-200 dark:border-gray-700">
                         {trans.text}
                       </div>
+                      <WordPills words={trans.words || []} className="mt-2 max-h-24" />
                     </div>
                   ))}
                 </div>

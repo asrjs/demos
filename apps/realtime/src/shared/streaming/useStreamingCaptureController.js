@@ -74,10 +74,7 @@ export function useStreamingCaptureController({
       config: resolvedConfig,
       micMode,
       fireRedVadConfig: {
-        wasmPaths:
-          typeof __ASRJS_ORT_WASM_PATH__ === 'string' && __ASRJS_ORT_WASM_PATH__.length > 0
-            ? __ASRJS_ORT_WASM_PATH__
-            : undefined,
+        wasmPaths: `${import.meta.env.BASE_URL}ort/`,
       },
       transcribe: (request) => {
         const next = transcribeRef.current;

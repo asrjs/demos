@@ -1,10 +1,6 @@
 import React from 'react';
 
 export function BrowserConsoleTopbar({
-  asrjsVersion,
-  asrjsSource,
-  darkMode,
-  setDarkMode,
   status,
   backend,
   micStatus,
@@ -24,10 +20,6 @@ export function BrowserConsoleTopbar({
     <header className="demo-topbar">
       <div className="topbar-brand-row">
         <div className="topbar-brand-leading">
-          <div className="topbar-brand-block">
-            <div className="type-overline">asrjs</div>
-            <div className="type-display mt-1">Realtime &amp; Neural VAD Workstation</div>
-          </div>
           <div className="demo-tabs">
             <button
               type="button"
@@ -88,19 +80,6 @@ export function BrowserConsoleTopbar({
               cache
             </span>
           ) : null}
-          <span className="topbar-meta">@asrjs {asrjsVersion}</span>
-          <span className="topbar-meta">{asrjsSource}</span>
-          <button
-            type="button"
-            className="demo-gear"
-            onClick={() => setDarkMode(!darkMode)}
-            aria-label="Toggle theme"
-            title={darkMode ? 'Use light theme' : 'Use dark theme'}
-          >
-            <span className="material-icons-outlined icon-md">
-              {darkMode ? 'light_mode' : 'dark_mode'}
-            </span>
-          </button>
         </div>
       </div>
     </header>

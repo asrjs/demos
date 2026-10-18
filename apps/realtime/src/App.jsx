@@ -28,7 +28,7 @@ import {
   resolvePreprocessorBackendForSource,
 } from './app/modelDescriptors.js';
 import { loadSettings, saveSettings } from './app/settingsStorage.js';
-import { getInitialDarkMode, getHfThemeFromQuery, getThemeFromMessage } from './app/theme.js';
+import { useDemoTheme } from '@asrjs/demo-ui';
 import { createTranscriptionRecordFromResult } from './app/transcriptionRecord.js';
 import { buildTranscriptionOptions } from './app/transcriptionHelpers.js';
 import { releaseCurrentModel } from './app/modelLifecycle.js';
@@ -156,7 +156,7 @@ export default function App() {
   const [sampleDownload, setSampleDownload] = useState(null);
   const [isDownloadingSample, setIsDownloadingSample] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [darkMode, setDarkMode] = useState(getInitialDarkMode(initialSettings));
+  const { darkMode } = useDemoTheme({ storageKey: 'asrjs-theme' });
   const [modelLoaded, setModelLoaded] = useState(false);
   const [isModelLoading, setIsModelLoading] = useState(false);
   const [compareMode, setCompareMode] = useState(false);
@@ -281,6 +281,7 @@ export default function App() {
 
     try {
       const commonLoadOptions = {
+        wasmPaths: new URL(import.meta.env.BASE_URL + 'ort/', window.location.href).href,
         modelId: selectedModel,
         encoderBackend,
         decoderBackend,
@@ -377,6 +378,8 @@ export default function App() {
             result,
             filename: job.sourceLabel,
             duration: job.durationSeconds,
+            audioDuration: job.durationSeconds,
+            startTimeSeconds: job.startTimeSeconds,
             task: job.task,
             targetLanguage: job.targetLanguage,
             clipUrl,
@@ -455,7 +458,7 @@ export default function App() {
     };
   }
 
-  function queueMicrophoneTranscription(pcm, sampleRate, sourceLabel) {
+  function queueMicrophoneTranscription(pcm, sampleRate, sourceLabel, startTimeSeconds = null) {
     return new Promise((resolve) => {
       if (!pcm.length || isUnmountingRef.current) {
         resolve(emptyMicrophoneTranscriptResult());
@@ -505,6 +508,7 @@ export default function App() {
         sampleRate,
         sourceLabel,
         durationSeconds,
+        startTimeSeconds,
         options,
         task,
         targetLanguage,
@@ -551,6 +555,7 @@ export default function App() {
         request.pcm,
         request.sampleRate,
         `microphone-${request.segmentReason ?? request.reason}-${new Date().toLocaleTimeString()}`,
+        request.startTimeSeconds,
       ),
     onStatus: (nextStatus) => setStatus(resolveAppStatus(nextStatus)),
   });
@@ -827,59 +832,6 @@ export default function App() {
     };
   }, []);
 
-  // Toggle dark mode
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [darkMode]);
-
-  // Follow HF/parent theme when provided; otherwise fallback to system changes
-  // if user has no saved explicit theme preference.
-  useEffect(() => {
-    const hfTheme = getHfThemeFromQuery();
-    if (hfTheme !== null) {
-      setDarkMode(hfTheme);
-    }
-
-    const onMessage = (event) => {
-      const messageTheme = getThemeFromMessage(event?.data);
-      if (messageTheme !== null) {
-        setDarkMode(messageTheme);
-      }
-    };
-
-    window.addEventListener('message', onMessage);
-
-    if (typeof window.matchMedia !== 'function') {
-      return () => window.removeEventListener('message', onMessage);
-    }
-
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const onMediaChange = (event) => {
-      if (getHfThemeFromQuery() !== null) return;
-      if (typeof initialSettings.darkMode === 'boolean') return;
-      setDarkMode(event.matches);
-    };
-
-    if (typeof mediaQuery.addEventListener === 'function') {
-      mediaQuery.addEventListener('change', onMediaChange);
-    } else {
-      mediaQuery.addListener(onMediaChange);
-    }
-
-    return () => {
-      window.removeEventListener('message', onMessage);
-      if (typeof mediaQuery.removeEventListener === 'function') {
-        mediaQuery.removeEventListener('change', onMediaChange);
-      } else {
-        mediaQuery.removeListener(onMediaChange);
-      }
-    };
-  }, [initialSettings.darkMode]);
-
   function playAudio() {
     if (audioRef.current) {
       audioRef.current.play();
@@ -1118,8 +1070,6 @@ export default function App() {
   const layoutApp = buildLayoutApp({
     asrjsVersion,
     asrjsSource,
-    darkMode,
-    setDarkMode,
     status,
     modelSource,
     loadedFromCache,
@@ -1244,4 +1194,3 @@ export default function App() {
 
   return <BrowserConsoleLayout app={layoutApp} />;
 }
-

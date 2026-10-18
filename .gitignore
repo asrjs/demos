@@ -5,6 +5,8 @@ node_modules/
 # Production builds
 dist/
 dist-*/
+.asrjs-suite-stage-*/
+apps/*/public/ort/
 build/
 *.local
 

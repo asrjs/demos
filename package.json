@@ -12,11 +12,18 @@
     "dev:playground": "npm run dev --workspace=apps/playground",
     "dev:realtime": "npm run dev --workspace=apps/realtime",
     "dev:benchmark": "npm run dev --workspace=apps/benchmark",
-    "build": "npm run build:showcase && npm run build:playground && npm run build:realtime && npm run build:benchmark",
+    "build": "npm run build:suite",
     "build:showcase": "npm run build --workspace=apps/showcase",
     "build:playground": "npm run build --workspace=apps/playground",
     "build:realtime": "npm run build --workspace=apps/realtime",
-    "build:benchmark": "npm run build --workspace=apps/benchmark"
+    "build:benchmark": "npm run build --workspace=apps/benchmark",
+    "test:config": "node --test vite.shared.test.js",
+    "build:apps": "npm run build:showcase && npm run build:playground && npm run build:realtime && npm run build:benchmark",
+    "build:suite": "node scripts/build-suite.mjs",
+    "preview:suite": "node scripts/serve-suite.mjs",
+    "test:suite": "node --test scripts/suite.test.mjs packages/demo-runtime/src/runtime.test.js vite.shared.test.js",
+    "test:apps": "node node_modules/vitest/vitest.mjs run --config apps/realtime/vite.config.js packages/ui/src apps/realtime/src apps/benchmark/src apps/playground/src apps/realtime/scripts packages/demo-runtime/src/browser-runtime.test.js",
+    "test": "npm run test:suite && npm run test:apps"
   },
   "devDependencies": {
     "vite": "^7.3.1"
