@@ -1,0 +1,36 @@
+:root {
+  --demo-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --demo-brand-h: 208;
+  --demo-brand-s: 18%;
+  --demo-brand-l: 45%;
+  --demo-brand: hsl(var(--demo-brand-h), var(--demo-brand-s), var(--demo-brand-l));
+  --demo-brand-dark: hsl(var(--demo-brand-h), var(--demo-brand-s), 35%);
+  --demo-brand-light: hsl(var(--demo-brand-h), var(--demo-brand-s), 92%);
+  --demo-accent: #10b981;
+  --demo-warn: #f59e0b;
+  --demo-danger: #ef4444;
+
+  /* Light Theme */
+  --demo-bg: #eceff2;
+  --demo-card-bg: #f8fafc;
+  --demo-panel-bg: #ffffff;
+  --demo-panel-soft: #f1f5f9;
+  --demo-text: #1e293b;
+  --demo-text-muted: #64748b;
+  --demo-border: #cbd5e1;
+  --demo-border-subtle: #e2e8f0;
+  --demo-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="dark"],
+html.dark {
+  --demo-bg: #0f172a;
+  --demo-card-bg: #1e293b;
+  --demo-panel-bg: #1e293b;
+  --demo-panel-soft: #0f172a;
+  --demo-text: #f8fafc;
+  --demo-text-muted: #94a3b8;
+  --demo-border: #334155;
+  --demo-border-subtle: #1e293b;
+  --demo-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+}

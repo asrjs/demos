@@ -1,0 +1,24 @@
+{
+  "name": "@asrjs/demos-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Unified Companion Demo Suite & Workstations for @asrjs/speech-recognition",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:showcase": "npm run dev --workspace=apps/showcase",
+    "dev:playground": "npm run dev --workspace=apps/playground",
+    "dev:realtime": "npm run dev --workspace=apps/realtime",
+    "dev:benchmark": "npm run dev --workspace=apps/benchmark",
+    "build": "npm run build:showcase && npm run build:playground && npm run build:realtime && npm run build:benchmark",
+    "build:showcase": "npm run build --workspace=apps/showcase",
+    "build:playground": "npm run build --workspace=apps/playground",
+    "build:realtime": "npm run build --workspace=apps/realtime",
+    "build:benchmark": "npm run build --workspace=apps/benchmark"
+  },
+  "devDependencies": {
+    "vite": "^7.3.1"
+  }
+}

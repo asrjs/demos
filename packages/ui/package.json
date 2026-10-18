@@ -1,0 +1,17 @@
+{
+  "name": "@asrjs/demo-ui",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./theme.css": "./src/theme.css",
+    "./components": "./src/components/index.js",
+    "./charts": "./src/components/SvgCharts.jsx",
+    "./utils": "./src/utils/index.js"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  }
+}
