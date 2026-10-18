@@ -1,0 +1,21 @@
+dist/
+node_modules/
+coverage/
+*.log
+*.tmp
+*.temp
+*.bak
+*.tsbuildinfo
+
+# Local env/config
+.env
+.env.*
+!.env.example
+*.local
+
+# Tooling caches
+.vite/
+.vitest/
+
+# Generated local profiling/parity outputs
+tools/**/out/

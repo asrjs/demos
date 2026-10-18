@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FireRed Browser RTFx Profiler</title>
+    <style>
+      :root {
+        --bg: #0b1020;
+        --panel: #131a33;
+        --ink: #e8ecff;
+        --muted: #9dadde;
+        --accent: #4ee1a0;
+        --danger: #ff7b7b;
+      }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+        background: linear-gradient(180deg, #070b18, var(--bg));
+        color: var(--ink);
+      }
+      .wrap {
+        max-width: 1000px;
+        margin: 24px auto;
+        padding: 0 16px;
+      }
+      .panel {
+        background: var(--panel);
+        border: 1px solid #27315c;
+        border-radius: 10px;
+        padding: 14px;
+        margin-bottom: 12px;
+      }
+      h1 {
+        margin: 0 0 10px;
+        font-size: 22px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 10px;
+      }
+      label {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        margin-bottom: 4px;
+      }
+      input {
+        width: 100%;
+        box-sizing: border-box;
+        border: 1px solid #34427a;
+        border-radius: 8px;
+        background: #0d1330;
+        color: var(--ink);
+        padding: 8px 10px;
+      }
+      button {
+        border: 0;
+        border-radius: 8px;
+        background: var(--accent);
+        color: #052416;
+        padding: 10px 14px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      .status {
+        margin-left: 10px;
+        color: var(--muted);
+      }
+      .status.error {
+        color: var(--danger);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      th,
+      td {
+        border-bottom: 1px solid #27315c;
+        text-align: left;
+        padding: 8px 6px;
+      }
+      th {
+        color: var(--muted);
+        font-weight: 600;
+      }
+      pre {
+        overflow: auto;
+        background: #0b1028;
+        border: 1px solid #27315c;
+        border-radius: 8px;
+        padding: 10px;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="panel">
+        <h1>FireRed Browser Worker RTFx Profiler</h1>
+        <div class="grid">
+          <div>
+            <label for="modelDir">Model Dir URL</label>
+            <input id="modelDir" />
+          </div>
+          <div>
+            <label for="streamWavUrl">Stream WAV URL</label>
+            <input id="streamWavUrl" />
+          </div>
+          <div>
+            <label for="vadWavUrl">VAD WAV URL</label>
+            <input id="vadWavUrl" />
+          </div>
+          <div>
+            <label for="aedWavUrl">AED WAV URL</label>
+            <input id="aedWavUrl" />
+          </div>
+          <div>
+            <label for="runs">Runs</label>
+            <input id="runs" type="number" min="1" value="5" />
+          </div>
+          <div>
+            <label for="warmups">Warmups</label>
+            <input id="warmups" type="number" min="1" value="1" />
+          </div>
+          <div>
+            <label for="threads">WASM Threads</label>
+            <input id="threads" type="number" min="1" value="1" />
+          </div>
+        </div>
+        <div style="margin-top: 12px">
+          <button id="runBtn">Run Browser Profile</button>
+          <span id="status" class="status">idle</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <table>
+          <thead>
+            <tr>
+              <th>Case</th>
+              <th>Audio (s)</th>
+              <th>Mean (ms)</th>
+              <th>P95 (ms)</th>
+              <th>RTF</th>
+              <th>RTFx</th>
+            </tr>
+          </thead>
+          <tbody id="resultsBody"></tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <div style="display: flex; justify-content: space-between; align-items: center">
+          <strong>Raw JSON</strong>
+          <button id="downloadBtn" disabled>Download JSON</button>
+        </div>
+        <pre id="jsonOut">{}</pre>
+      </div>
+    </div>
+
+    <script type="module" src="./browser-rtfx-profiler.js"></script>
+  </body>
+</html>
