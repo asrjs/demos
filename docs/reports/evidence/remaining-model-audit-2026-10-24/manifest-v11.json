@@ -1,0 +1,9 @@
+{
+  "snapshotAt": "2026-10-24T19:02:22.664401+00:00",
+  "archive": "receipts-v11.json.gz",
+  "sha256": "47846e67b2253dde12716dc0045082201c43f465389c2bf85a53fe30b7e218e8",
+  "receiptCount": 497,
+  "priorSnapshotUnchanged": "receipts.json.gz",
+  "priorReceiptCount": 423,
+  "policy": "Includes prior snapshot plus current scoped receipts, failures and invalid/incomplete attempts. Multiple hashes at one path preserve overwritten history. No audio, model payloads, profiles or screenshots. Historical passes do not certify latest SDK."
+}

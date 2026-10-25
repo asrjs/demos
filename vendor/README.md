@@ -1,13 +1,11 @@
 # Local library package
 
-This archive comes from the audited working tree; it is not a registry publication.
+The demo suite installs this local build: `asrjs-speech-recognition-0.2.0-microphone-context-20261025.tgz`.
 
 - Package: `@asrjs/speech-recognition@0.2.0`.
-- SHA-512 integrity: `sha512-zZK3OgWAfd6fibYiHnhZ4+R9qyZASfDhzlfnHeRcV/yNSV6EEHfRh3BTu0JNQAJDYr+mRk/G+EBP/WoyqgTiFA==`.
-- Library base commit: `6e53c832a6e0837a117e187e383eaef51c1f6890`, with uncommitted audit repairs.
-- Validation: see `speech-recognition/docs/reports/audit-repair-progress-2026-10-18.md` in the companion checkout.
-- `npm ci` installs the archive pinned in `package-lock.json`.
+- SHA-512 integrity: `sha512-yGtuH189CHArwTJDvyr7ykYRfIdhEzPfxhC9pGuxnhcA51gyD6bDmTsvgbc3bX9wSWKwC1alYfEOlvKfhQ==`.
+- Archive SHA-256: `4520cd899fa8d4d1695f947be37f1cde6dfc9213728d938576bebdc0e6f920a8`.
+- Provenance receipt: [`asrjs-speech-recognition-0.2.0-microphone-context-20261025.provenance.json`](asrjs-speech-recognition-0.2.0-microphone-context-20261025.provenance.json).
+- Scope and validation: [microphone composition and reference review](../docs/reports/microphone-composition-and-reference-review-2026-10-25.md).
 
-To refresh after library edits, build the library, run
-`npm pack --ignore-scripts --pack-destination ../demos/vendor`, refresh the demo
-lockfile, and repeat package-mode builds. No publishing is required.
+`npm ci` installs the archive pinned by `package-lock.json`. After library edits, build the library and pack a new archive into `vendor`; update the demo lockfile to that archive and rerun package-mode tests and builds. Model acceptance requires separate real-weight flow receipts.

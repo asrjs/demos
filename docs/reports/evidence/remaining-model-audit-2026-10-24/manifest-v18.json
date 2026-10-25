@@ -1,0 +1,11 @@
+{
+  "snapshotAt": "2026-10-25T10:26:09.723594+00:00",
+  "archive": "receipts-v18.json.gz",
+  "sha256": "f8a54c7cae98e40565a17b3527af334c232c959231831af2c32529314ee17d1d",
+  "receiptCount": 1078,
+  "priorSnapshotUnchanged": "receipts-v11.json.gz",
+  "priorReceiptCount": 497,
+  "currentScopedJsonCount": 1076,
+  "capturedPcmMetadataReceipts": 46,
+  "policy": "Preserves all v11 path/hash receipt versions and unions current scoped strict-JSON receipts, including failures and incomplete attempts. Whitelisted served provenance, stress summaries, termination records, parent matrices/distribution checks and PCM metadata are included. No audio/PCM files, model payloads, arrays, browser profiles or screenshots are archived. Historical passes do not certify the latest package."
+}

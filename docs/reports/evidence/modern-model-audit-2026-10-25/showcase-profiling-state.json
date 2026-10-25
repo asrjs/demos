@@ -1,0 +1,9 @@
+{
+  "scope": "Fresh isolated Showcase browser; persisted profiling setting read after app initialization. No model load or performance claim.",
+  "settings": [
+    {
+      "key": "asrjs.browser-demo.settings.v2",
+      "enableProfiling": false
+    }
+  ]
+}

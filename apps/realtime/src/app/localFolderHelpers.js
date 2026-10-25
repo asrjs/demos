@@ -1,24 +1,26 @@
 import {
-  createParakeetLocalEntries,
-  inspectParakeetLocalEntries,
-} from '@asrjs/speech-recognition/presets/parakeet';
-import {
   getDescriptorDefaultPreprocessorBackend,
   getDescriptorDefaultPreprocessorName,
   resolvePreprocessorBackendForSource,
 } from './modelDescriptors.js';
-import { pickPreferredQuant } from '../shared/modelSelection.js';
+import {
+  createSpeechModelLocalEntries,
+  inspectSpeechModelLocalEntries,
+} from '@asrjs/speech-recognition/browser';
 
 export function getLocalFolderNameFromEntries(entries) {
   return entries[0]?.path?.split('/')?.[0] || '';
 }
 
 export function buildLocalFolderSelection(entries, context) {
-  const inspection = inspectParakeetLocalEntries(entries);
+  const inspection = context.loadingState.inspection
+    || (context.loadingState.source === 'local'
+      ? inspectSpeechModelLocalEntries(context.selectedModel, entries)
+      : { encoderQuantizations: [], decoderQuantizations: [], tokenizerNames: [], preprocessorNames: [] });
   const encOptions = [...inspection.encoderQuantizations];
   const decOptions = [...inspection.decoderQuantizations];
-  const nextEncOptions = encOptions.length ? encOptions : ['fp32'];
-  const nextDecOptions = decOptions.length ? decOptions : ['fp32'];
+  const nextEncOptions = context.loadingState.encoderQuantOptions;
+  const nextDecOptions = context.loadingState.decoderQuantOptions;
   const dedupedTokenizer = [...inspection.tokenizerNames];
   const dedupedPreprocessor = [...inspection.preprocessorNames];
   const defaultPreprocessorName = getDescriptorDefaultPreprocessorName(context.selectedModel);
@@ -52,12 +54,10 @@ export function buildLocalFolderSelection(entries, context) {
     localFolderName: getLocalFolderNameFromEntries(entries),
     encoderQuantOptions: nextEncOptions,
     decoderQuantOptions: nextDecOptions,
-    encoderQuant: nextEncOptions.includes(context.currentEncoderQuant)
-      ? context.currentEncoderQuant
-      : pickPreferredQuant(nextEncOptions, context.backend, 'encoder'),
-    decoderQuant: nextDecOptions.includes(context.currentDecoderQuant)
-      ? context.currentDecoderQuant
-      : pickPreferredQuant(nextDecOptions, context.backend, 'decoder'),
+    encoderQuant: context.loadingState.encoderQuant ?? context.currentEncoderQuant,
+    decoderQuant: context.loadingState.decoderQuant ?? context.currentDecoderQuant,
+    encoderBackend: context.loadingState.encoderBackend,
+    decoderBackend: context.loadingState.decoderBackend,
     localTokenizerOptions: dedupedTokenizer,
     localTokenizerName: tokenizerName,
     localPreprocessorOptions: dedupedPreprocessor,
@@ -74,5 +74,5 @@ export function buildLocalFolderSelection(entries, context) {
 }
 
 export function createLocalFolderEntriesFromFiles(files) {
-  return createParakeetLocalEntries(files);
+  return createSpeechModelLocalEntries(files);
 }

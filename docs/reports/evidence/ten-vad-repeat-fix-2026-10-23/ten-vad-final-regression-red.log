@@ -1,0 +1,264 @@
+
+ RUN  v4.0.18 N:/github/asrjs/speech-recognition
+
+stdout | tests/streaming-detector-vad-history.test.ts > neural VAD onset history across finalized segments > vad-only does not replay retained history after a accepted segment
+[StreamingSpeechDetector] TEN-VAD ready for diagnostics {
+  state: 'ready',
+  error: null,
+  probability: 0,
+  speaking: false,
+  threshold: 0.5
+}
+
+stdout | tests/streaming-detector-vad-history.test.ts > neural VAD onset history across finalized segments > vad-only does not replay retained history after a accepted segment
+[StreamingSpeechDetector] Neural VAD speech start { startFrame: 0, gateMode: 'vad-only' }
+[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence { endFrame: 5888 }
+[StreamingSpeechDetector] Segment ready: silence {
+  startFrame: 0,
+  endFrame: 5888,
+  logicalEndFrame: 5888,
+  durationSec: 0.37,
+  normalizedPowerAt16k: 556.52
+}
+[StreamingSpeechDetector] Neural VAD speech start { startFrame: 0, gateMode: 'vad-only' }
+[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence { endFrame: 6144 }
+[StreamingSpeechDetector] Segment ready: silence {
+  startFrame: 0,
+  endFrame: 6144,
+  logicalEndFrame: 6144,
+  durationSec: 0.38,
+  normalizedPowerAt16k: 533.33
+}
+[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger { energy: 0.16, threshold: 1, snr: 2.08 }
+
+stdout | tests/streaming-detector-vad-history.test.ts > neural VAD onset history across finalized segments > hybrid does not replay retained history after a accepted segment
+[StreamingSpeechDetector] TEN-VAD ready for diagnostics {
+  state: 'ready',
+  error: null,
+  probability: 0,
+  speaking: false,
+  threshold: 0.5
+}
+
+stdout | tests/streaming-detector-vad-history.test.ts > neural VAD onset history across finalized segments > hybrid does not replay retained history after a accepted segment
+[StreamingSpeechDetector] Hybrid neural VAD speech start { startFrame: 0, gateMode: 'hybrid' }
+[StreamingSpeechDetector] Rough gate finalized speech after sustained silence { endFrame: 5888, energy: 0.2, noiseFloor: 0.08831 }
+[StreamingSpeechDetector] Segment ready: silence {
+  startFrame: 0,
+  endFrame: 5888,
+  logicalEndFrame: 5888,
+  durationSec: 0.37,
+  normalizedPowerAt16k: 556.52
+}
+[StreamingSpeechDetector] Hybrid neural VAD speech start { startFrame: 0, gateMode: 'hybrid' }
+[StreamingSpeechDetector] Rough gate finalized speech after sustained silence { endFrame: 6144, energy: 0.2, noiseFloor: 0.08831 }
+[StreamingSpeechDetector] Segment ready: silence {
+  startFrame: 0,
+  endFrame: 6144,
+  logicalEndFrame: 6144,
+  durationSec: 0.38,
+  normalizedPowerAt16k: 533.33
+}
+[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger { energy: 0.16, threshold: 1, snr: 2.08 }
+
+stdout | tests/streaming-detector-vad-history.test.ts > neural VAD onset history across finalized segments > vad-only does not replay retained history after a rejected segment
+[StreamingSpeechDetector] TEN-VAD ready for diagnostics {
+  state: 'ready',
+  error: null,
+  probability: 0,
+  speaking: false,
+  threshold: 0.5
+}
+
+stdout | tests/streaming-detector-vad-history.test.ts > neural VAD onset history across finalized segments > vad-only does not replay retained history after a rejected segment
+[StreamingSpeechDetector] Neural VAD speech start { startFrame: 0, gateMode: 'vad-only' }
+[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence { endFrame: 5888 }
+[StreamingSpeechDetector] Segment rejected by final energy gate {
+  reason: 'low-energy-per-second',
+  durationMs: 368,
+  normalizedPowerAt16k: 556.52,
+  normalizedEnergyIntegralAt16k: 204.8
+}
+[StreamingSpeechDetector] Neural VAD speech start { startFrame: 0, gateMode: 'vad-only' }
+[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence { endFrame: 6144 }
+[StreamingSpeechDetector] Segment rejected by final energy gate {
+  reason: 'low-energy-per-second',
+  durationMs: 384,
+  normalizedPowerAt16k: 533.33,
+  normalizedEnergyIntegralAt16k: 204.8
+}
+[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger { energy: 0.16, threshold: 1, snr: 2.08 }
+
+stdout | tests/streaming-detector-vad-history.test.ts > neural VAD onset history across finalized segments > hybrid does not replay retained history after a rejected segment
+[StreamingSpeechDetector] TEN-VAD ready for diagnostics {
+  state: 'ready',
+  error: null,
+  probability: 0,
+  speaking: false,
+  threshold: 0.5
+}
+
+stdout | tests/streaming-detector-vad-history.test.ts > neural VAD onset history across finalized segments > hybrid does not replay retained history after a rejected segment
+[StreamingSpeechDetector] Hybrid neural VAD speech start { startFrame: 0, gateMode: 'hybrid' }
+[StreamingSpeechDetector] Rough gate finalized speech after sustained silence { endFrame: 5888, energy: 0.2, noiseFloor: 0.08831 }
+[StreamingSpeechDetector] Segment rejected by final energy gate {
+  reason: 'low-energy-per-second',
+  durationMs: 368,
+  normalizedPowerAt16k: 556.52,
+  normalizedEnergyIntegralAt16k: 204.8
+}
+[StreamingSpeechDetector] Hybrid neural VAD speech start { startFrame: 0, gateMode: 'hybrid' }
+[StreamingSpeechDetector] Rough gate finalized speech after sustained silence { endFrame: 6144, energy: 0.2, noiseFloor: 0.08831 }
+[StreamingSpeechDetector] Segment rejected by final energy gate {
+  reason: 'low-energy-per-second',
+  durationMs: 384,
+  normalizedPowerAt16k: 533.33,
+  normalizedEnergyIntegralAt16k: 204.8
+}
+[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger { energy: 0.16, threshold: 1, snr: 2.08 }
+
+stdout | tests/streaming-detector-vad-history.test.ts > neural VAD onset history across finalized segments > vad-only does not replay retained history after a manual segment
+[StreamingSpeechDetector] TEN-VAD ready for diagnostics {
+  state: 'ready',
+  error: null,
+  probability: 0,
+  speaking: false,
+  threshold: 0.5
+}
+
+stdout | tests/streaming-detector-vad-history.test.ts > neural VAD onset history across finalized segments > vad-only does not replay retained history after a manual segment
+[StreamingSpeechDetector] Neural VAD speech start { startFrame: 0, gateMode: 'vad-only' }
+[StreamingSpeechDetector] Segment ready: manual {
+  startFrame: 0,
+  endFrame: 5120,
+  logicalEndFrame: 5120,
+  durationSec: 0.32,
+  normalizedPowerAt16k: 640
+}
+[StreamingSpeechDetector] Neural VAD speech start { startFrame: 0, gateMode: 'vad-only' }
+[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence { endFrame: 5888 }
+[StreamingSpeechDetector] Segment ready: silence {
+  startFrame: 0,
+  endFrame: 5888,
+  logicalEndFrame: 5888,
+  durationSec: 0.37,
+  normalizedPowerAt16k: 556.52
+}
+[StreamingSpeechDetector] Neural VAD speech start { startFrame: 0, gateMode: 'vad-only' }
+[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence { endFrame: 6144 }
+[StreamingSpeechDetector] Segment ready: silence {
+  startFrame: 0,
+  endFrame: 6144,
+  logicalEndFrame: 6144,
+  durationSec: 0.38,
+  normalizedPowerAt16k: 533.33
+}
+[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger { energy: 0.16, threshold: 1, snr: 2.08 }
+
+stdout | tests/streaming-detector-vad-history.test.ts > neural VAD onset history across finalized segments > hybrid does not replay retained history after a manual segment
+[StreamingSpeechDetector] TEN-VAD ready for diagnostics {
+  state: 'ready',
+  error: null,
+  probability: 0,
+  speaking: false,
+  threshold: 0.5
+}
+
+stdout | tests/streaming-detector-vad-history.test.ts > neural VAD onset history across finalized segments > hybrid does not replay retained history after a manual segment
+[StreamingSpeechDetector] Hybrid neural VAD speech start { startFrame: 0, gateMode: 'hybrid' }
+[StreamingSpeechDetector] Segment ready: manual {
+  startFrame: 0,
+  endFrame: 5120,
+  logicalEndFrame: 5120,
+  durationSec: 0.32,
+  normalizedPowerAt16k: 640
+}
+[StreamingSpeechDetector] Hybrid neural VAD speech start { startFrame: 0, gateMode: 'hybrid' }
+[StreamingSpeechDetector] Rough gate finalized speech after sustained silence { endFrame: 5888, energy: 0.2, noiseFloor: 0.08831 }
+[StreamingSpeechDetector] Segment ready: silence {
+  startFrame: 0,
+  endFrame: 5888,
+  logicalEndFrame: 5888,
+  durationSec: 0.37,
+  normalizedPowerAt16k: 556.52
+}
+[StreamingSpeechDetector] Hybrid neural VAD speech start { startFrame: 0, gateMode: 'hybrid' }
+[StreamingSpeechDetector] Rough gate finalized speech after sustained silence { endFrame: 6144, energy: 0.2, noiseFloor: 0.08831 }
+[StreamingSpeechDetector] Segment ready: silence {
+  startFrame: 0,
+  endFrame: 6144,
+  logicalEndFrame: 6144,
+  durationSec: 0.38,
+  normalizedPowerAt16k: 533.33
+}
+[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger { energy: 0.16, threshold: 1, snr: 2.08 }
+
+ ❯ tests/streaming-detector-vad-history.test.ts (6 tests | 6 failed) 104ms
+     × vad-only does not replay retained history after a accepted segment 52ms
+     × hybrid does not replay retained history after a accepted segment 13ms
+     × vad-only does not replay retained history after a rejected segment 9ms
+     × hybrid does not replay retained history after a rejected segment 8ms
+     × vad-only does not replay retained history after a manual segment 9ms
+     × hybrid does not replay retained history after a manual segment 13ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/streaming-detector-vad-history.test.ts > neural VAD onset history across finalized segments > vad-only does not replay retained history after a accepted segment
+ FAIL  tests/streaming-detector-vad-history.test.ts > neural VAD onset history across finalized segments > hybrid does not replay retained history after a accepted segment
+AssertionError: expected [ { startFrame: +0, …(5) }, …(1) ] to have a length of 1 but got 2
+
+- Expected
++ Received
+
+- 1
++ 2
+
+ ❯ tests/streaming-detector-vad-history.test.ts:96:25
+     94|           }
+     95|         } else {
+     96|           expect(first).toHaveLength(firstOutcome === 'rejected' ? 0 :…
+       |                         ^
+     97|           expect(onsets).toHaveLength(1);
+     98|         }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  tests/streaming-detector-vad-history.test.ts > neural VAD onset history across finalized segments > vad-only does not replay retained history after a rejected segment
+ FAIL  tests/streaming-detector-vad-history.test.ts > neural VAD onset history across finalized segments > hybrid does not replay retained history after a rejected segment
+AssertionError: expected [ +0, +0 ] to have a length of 1 but got 2
+
+- Expected
++ Received
+
+- 1
++ 2
+
+ ❯ tests/streaming-detector-vad-history.test.ts:97:26
+     95|         } else {
+     96|           expect(first).toHaveLength(firstOutcome === 'rejected' ? 0 :…
+     97|           expect(onsets).toHaveLength(1);
+       |                          ^
+     98|         }
+     99|         const firstOnsetCount = onsets.length;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  tests/streaming-detector-vad-history.test.ts > neural VAD onset history across finalized segments > vad-only does not replay retained history after a manual segment
+ FAIL  tests/streaming-detector-vad-history.test.ts > neural VAD onset history across finalized segments > hybrid does not replay retained history after a manual segment
+AssertionError: expected 3 to be less than or equal to 2
+ ❯ tests/streaming-detector-vad-history.test.ts:89:32
+     87|           // It must not reopen the audio that was already flushed.
+     88|           expect(first.length).toBeGreaterThanOrEqual(1);
+     89|           expect(first.length).toBeLessThanOrEqual(2);
+       |                                ^
+     90|           for (let index = 1; index < first.length; index += 1) {
+     91|             expect(first[index]!.metadata.logicalStartFrame).toBeGreat…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed (6)
+   Start at  02:10:48
+   Duration  594ms (transform 183ms, setup 0ms, import 228ms, tests 104ms, environment 0ms)
+

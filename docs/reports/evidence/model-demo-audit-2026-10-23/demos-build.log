@@ -1,0 +1,123 @@
+npm notice run @asrjs/demos-monorepo@1.0.0 build:suite
+npm notice run node scripts/build-suite.mjs
+
+[showcase] npm run build --workspace=apps/showcase -- --base=/showcase/ --outDir=N:\github\asrjs\demos\.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z\showcase --emptyOutDir
+npm notice run @asrjs/browser-demo@1.1.0 build
+npm notice run vite build --base=/showcase/ --outDir=N:\github\asrjs\demos\.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z\showcase --emptyOutDir
+vite v7.3.7 building client environment for production...
+<script src="./coi-serviceworker.js"> in "/index.html" can't be bundled without type="module" attribute
+transforming...
+✓ 365 modules transformed.
+rendering chunks...
+computing gzip size...
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/showcase/index.html                                                   0.65 kB │ gzip:     0.39 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/showcase/assets/ten-vad-worker-NejDulNG.js                            4.36 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/showcase/assets/ten_vad-BWj8dcPJ.js                                   5.82 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/showcase/assets/Harvard-L2-1-B6X4PDwP.ogg                            18.24 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/showcase/assets/ten_vad-DpmpZqYN.wasm                               283.35 kB │ gzip:   201.27 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/showcase/assets/firered-vad-worker-BMEt-txi.js                      429.14 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/showcase/assets/browser-transcription-worker-thread-BAqlttNW.js     610.76 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/showcase/assets/ort-wasm-simd-threaded.asyncify-CsxMlmQ8.wasm    25,749.87 kB │ gzip: 6,368.50 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/showcase/assets/ort-wasm-simd-threaded.jsep-D-icqfN-.wasm        27,797.17 kB │ gzip: 6,576.65 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/showcase/assets/index-BnnLFvef.css                                   39.67 kB │ gzip:     8.11 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/showcase/assets/ort.webgpu.bundle.min-DvJLDTjk.js                   115.37 kB │ gzip:    38.39 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/showcase/assets/ort.bundle.min-ZOZtWiYj.js                          410.29 kB │ gzip:   112.60 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/showcase/assets/index-C3IhlPKt.js                                   841.99 kB │ gzip:   230.43 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 12.38s
+(node:17588) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+[playground] npm run build --workspace=apps/playground -- --base=/playground/ --outDir=N:\github\asrjs\demos\.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z\playground --emptyOutDir
+npm notice run @asrjs/playground@1.0.0 build
+npm notice run vite build --base=/playground/ --outDir=N:\github\asrjs\demos\.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z\playground --emptyOutDir
+vite v7.3.7 building client environment for production...
+<script src="/playground/coi-serviceworker.js"> in "/index.html" can't be bundled without type="module" attribute
+transforming...
+✓ 365 modules transformed.
+rendering chunks...
+computing gzip size...
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/playground/index.html                                                   0.66 kB │ gzip:     0.39 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/playground/assets/ten-vad-worker-NejDulNG.js                            4.36 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/playground/assets/ten_vad-BWj8dcPJ.js                                   5.82 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/playground/assets/ten_vad-DpmpZqYN.wasm                               283.35 kB │ gzip:   201.27 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/playground/assets/firered-vad-worker--dXElgWg.js                      429.15 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/playground/assets/browser-transcription-worker-thread-rgHJlKQU.js     610.76 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/playground/assets/ort-wasm-simd-threaded.asyncify-CsxMlmQ8.wasm    25,749.87 kB │ gzip: 6,368.50 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/playground/assets/ort-wasm-simd-threaded.jsep-D-icqfN-.wasm        27,797.17 kB │ gzip: 6,576.65 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/playground/assets/index-B6_f1vr1.css                                   50.19 kB │ gzip:     8.59 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/playground/assets/ort.webgpu.bundle.min-AD0MOUD0.js                   115.38 kB │ gzip:    38.39 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/playground/assets/ort.bundle.min-D2VM0ZCi.js                          410.30 kB │ gzip:   112.61 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/playground/assets/index-XxWVCYTW.js                                   810.48 kB │ gzip:   224.32 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 12.55s
+
+[realtime] npm run build --workspace=apps/realtime -- --base=/realtime/ --outDir=N:\github\asrjs\demos\.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z\realtime --emptyOutDir
+npm notice run @asrjs/streaming-demo@1.1.0 prebuild
+npm notice run node scripts/prepare-ort-assets.mjs
+Prepared 8 ONNX Runtime Web WASM assets in N:\github\asrjs\demos\apps\realtime\public\ort
+npm notice run @asrjs/streaming-demo@1.1.0 build
+npm notice run vite build --base=/realtime/ --outDir=N:\github\asrjs\demos\.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z\realtime --emptyOutDir
+vite v7.3.7 building client environment for production...
+transforming...
+✓ 402 modules transformed.
+rendering chunks...
+computing gzip size...
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/realtime/index.html                                                   0.81 kB │ gzip:     0.46 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/realtime/assets/ten-vad-worker-NejDulNG.js                            4.36 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/realtime/assets/ten_vad-BWj8dcPJ.js                                   5.82 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/realtime/assets/waveformCanvas.worker-CC43IBw5.js                    14.99 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/realtime/assets/Harvard-L2-1-B6X4PDwP.ogg                            18.24 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/realtime/assets/ten_vad-DpmpZqYN.wasm                               283.35 kB │ gzip:   201.27 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/realtime/assets/firered-vad-worker-hON82yjv.js                      429.14 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/realtime/assets/browser-transcription-worker-thread-5WyH2pzo.js     610.76 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/realtime/assets/ort-wasm-simd-threaded.asyncify-CsxMlmQ8.wasm    25,749.87 kB │ gzip: 6,368.50 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/realtime/assets/ort-wasm-simd-threaded.jsep-D-icqfN-.wasm        27,797.17 kB │ gzip: 6,576.65 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/realtime/assets/index-DvvXmBrX.css                                   41.17 kB │ gzip:     7.99 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/realtime/assets/ort.webgpu.bundle.min-CghtiGDP.js                   115.37 kB │ gzip:    38.39 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/realtime/assets/ort.bundle.min-jPK3AlZ6.js                          410.29 kB │ gzip:   112.60 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/realtime/assets/index-BSb1pdTe.js                                 1,038.96 kB │ gzip:   283.22 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 16.66s
+
+[benchmark] npm run build --workspace=apps/benchmark -- --base=/benchmark/ --outDir=N:\github\asrjs\demos\.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z\benchmark --emptyOutDir
+npm notice run @asrjs/benchmark-demo@1.0.0 build
+npm notice run vite build --base=/benchmark/ --outDir=N:\github\asrjs\demos\.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z\benchmark --emptyOutDir
+vite v7.3.7 building client environment for production...
+<script src="coi-serviceworker.js"> in "/index.html" can't be bundled without type="module" attribute
+transforming...
+✓ 370 modules transformed.
+rendering chunks...
+computing gzip size...
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/benchmark/index.html                                                   0.68 kB │ gzip:     0.40 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/benchmark/assets/ten-vad-worker-NejDulNG.js                            4.36 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/benchmark/assets/ten_vad-BWj8dcPJ.js                                   5.82 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/benchmark/assets/ten_vad-DpmpZqYN.wasm                               283.35 kB │ gzip:   201.27 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/benchmark/assets/firered-vad-worker-CjjrbRZy.js                      429.14 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/benchmark/assets/browser-transcription-worker-thread-Cmm0paGU.js     610.76 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/benchmark/assets/ort-wasm-simd-threaded.asyncify-CsxMlmQ8.wasm    25,749.87 kB │ gzip: 6,368.50 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/benchmark/assets/ort-wasm-simd-threaded.jsep-D-icqfN-.wasm        27,797.17 kB │ gzip: 6,576.65 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/benchmark/assets/index-DnszK8-L.css                                   21.79 kB │ gzip:     4.80 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/benchmark/assets/ort.webgpu.bundle.min-Bp1mLMGC.js                   115.37 kB │ gzip:    38.39 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/benchmark/assets/ort.bundle.min-BubxaoL3.js                          410.29 kB │ gzip:   112.61 kB
+../../.asrjs-suite-stage-17588-2026-10-22T22-29-59-689Z/benchmark/assets/index-DNQpH3Pn.js                                   839.84 kB │ gzip:   232.75 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 8.61s
+
+ASRJS suite built at N:\github\asrjs\demos\dist (previous output preserved in N:\github\asrjs\demos\dist\.asrjs-backups\2026-10-22T22-29-59-689Z)

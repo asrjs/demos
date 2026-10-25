@@ -1,0 +1,49 @@
+..............................................usage: remaining-model-flows.py [-h] --app
+                                {showcase,realtime,playground,benchmark}
+                                [--base-url BASE_URL] --model-id MODEL_ID
+                                [--source {local,huggingface}]
+                                [--descriptor-sources DESCRIPTOR_SOURCES]
+                                [--model-dir MODEL_DIR] [--backend BACKEND]
+                                [--encoder-backend ENCODER_BACKEND]
+                                [--decoder-backend DECODER_BACKEND]
+                                [--encoder-quant ENCODER_QUANT]
+                                [--decoder-quant DECODER_QUANT] --fixture
+                                FIXTURE --oracle ORACLE
+                                [--expected-fixture-sha256 EXPECTED_FIXTURE_SHA256]
+                                --output-dir OUTPUT_DIR
+                                [--profile-dir PROFILE_DIR]
+                                [--load-timeout-ms LOAD_TIMEOUT_MS]
+                                [--flow-timeout-ms FLOW_TIMEOUT_MS]
+                                [--run-streaming] [--record-mic]
+                                [--stream-recorded] [--mic-flow MIC_FLOW]
+                                [--capture-mic-pcm]
+                                [--mic-capture-ms MIC_CAPTURE_MS]
+                                [--capture-recorded-audio]
+remaining-model-flows.py: error: --stream-recorded requires --record-mic
+usage: remaining-model-flows.py [-h] --app
+                                {showcase,realtime,playground,benchmark}
+                                [--base-url BASE_URL] --model-id MODEL_ID
+                                [--source {local,huggingface}]
+                                [--descriptor-sources DESCRIPTOR_SOURCES]
+                                [--model-dir MODEL_DIR] [--backend BACKEND]
+                                [--encoder-backend ENCODER_BACKEND]
+                                [--decoder-backend DECODER_BACKEND]
+                                [--encoder-quant ENCODER_QUANT]
+                                [--decoder-quant DECODER_QUANT] --fixture
+                                FIXTURE --oracle ORACLE
+                                [--expected-fixture-sha256 EXPECTED_FIXTURE_SHA256]
+                                --output-dir OUTPUT_DIR
+                                [--profile-dir PROFILE_DIR]
+                                [--load-timeout-ms LOAD_TIMEOUT_MS]
+                                [--flow-timeout-ms FLOW_TIMEOUT_MS]
+                                [--run-streaming] [--record-mic]
+                                [--stream-recorded] [--mic-flow MIC_FLOW]
+                                [--capture-mic-pcm]
+                                [--mic-capture-ms MIC_CAPTURE_MS]
+                                [--capture-recorded-audio]
+remaining-model-flows.py: error: --record-mic is available only for the Playground demo
+......................
+----------------------------------------------------------------------
+Ran 68 tests in 23.545s
+
+OK

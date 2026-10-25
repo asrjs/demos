@@ -1,0 +1,2568 @@
+{
+  "phase": "before-fix",
+  "gate": "vad-only",
+  "status": "FAIL",
+  "physicalMicrophone": "UNVERIFIED",
+  "fixtureSha256": "59dfb9a4acb36fe2a2affc14bacbee2920ff435cb13cc314a08c13f66ba7860e",
+  "captureFixtureSha256": "ee34fbf8474167329f04294d01fbffcdd79a014da8f534ce06e21750943061b6",
+  "pageErrors": [],
+  "startedAt": "2026-10-23T02:12:57",
+  "modelDir": "N:\\models\\onnx\\nemo\\parakeet-tdt-0.6b-v3-onnx",
+  "load": "EXECUTED",
+  "beforeCaptureBody": "A\nASRJS\nLive transcription\n◐\nAppearance\nTranscribe\nPlayground\nLive\nBenchmark\nRealtime VAD Lab\nTranscript & Subtitles\ntune\nModel ready · webgpu-hybrid · Microphone idle\nLoad\nready\nparakeet-tdt-0.6b-v3-onnx\nLocal assets\nModel Loaded\nValidation\nInput language\nEnglish\nFrench\nGerman\nSpanish\nItalian\nPortuguese\nDutch\nPolish\nexpand_more\nLoad Sample\nupload_file\nDrop or click to transcribe\nModel Settings\nArtifact source\nHugging Face\nLocal folder\nexpand_more\nLocal folder\nparakeet-tdt-0.6b-v3-onnx\nfolder_open\nFiles: 86\nEncoder: fp32, fp16, int8\nDecoder: fp32, fp16, int8\nTokenizer: vocab.txt\nFrontend: nemo128\nParakeet TDT 0.6B v3 (Multilingual)\nRuntime Settings\nRuntime backend\nWebGPU\nWASM\nexpand_more\nEncoder\nwebgpu\nwasm\nexpand_more\nDecoder\nwasm\nexpand_more\nThreads\nStride\nEncoder quant\nfp32\nfp16\nint8\nexpand_more\nDecoder quant\nfp32\nfp16\nint8\nexpand_more\nPrompt Settings\nFrontend\nJS frontend\nONNX frontend\nexpand_more\nTokenizer\nvocab.txt\nexpand_more\nVerbose logging\nLog results\nEnable profiling\nCapture\n0.00\nSIG\n-100.0\nAVG\n-100.0\nGATE\n-21.9\nNOISE\n-46.0\nSEGS\n0/0\nAUDIO\n16000Hz\nBUF\n12.0s\nSNR\n0.00\nTHR\n3.00\nWAVEFORM\nidle · main\nRATE target 16000 Hz\n·\nCHUNK 16 ms/256f\n·\nWIN 12.00 s\n·\nSEG inactive\n·\nBUF 0/750 pad 750\n·\nPUB/PAINT 0/s 0/s\nMODE rough-only\n·\nRELEASE 400 ms\n·\nNOISE -46.0 dBFS\n·\nGATE -21.9 dBFS\n·\nFINAL GATE --\n·\nGATE LINES on\n·\nTEN on\n·\nSCALE physical\nWaveform display\nSurface\ncompact stats + waveform + footer metrics\nFull\nStats Only\nWaveform Only\nView\nraw amplitude\nPhysical\nFocus\nBalanced\nGate lines\nwaveform legend\nshow\nhide\nFireRed line\ndiagnostic only\nshow\nhide\nRMS\ndiagnostic\nhide\nshow\nFinal Acceptance\nDuration and normalized 16 kHz energy thresholds used after live segmentation.\nFinal segment gate\nrough-only\nenabled\ndisabled\nAcceptance preset\nUpdates the final segment acceptance thresholds together.\nOpen\nBalanced\nStrict\nCustom\nMin final duration\n240 ms\nMin power\n5.00\nMin integral\n22.00\nAdaptive noise-scaled acceptance controls.\nShow advanced\nDetector tuning\nPreset\nMedium\nMedium\nFast\nSlow\nCustom\nDefault mode\nmanual\nVAD backend\n16 ms hop / 16 ms visual\nFireRed VAD\nTEN-VAD\nGate mode\nrough-only\nRough only\nHybrid\nVAD only\nLive Segmenter\nPeak-energy speech trigger, smoothing, and silence release.\nEnergy threshold\n0.08\nAnalysis window\n80 ms\nEnergy smoothing\n480 ms\nSilence release\n400 ms\nMax segment\n4800 ms\nExtraction Timing\nLookback, overlap, and tail padding applied when a segment is extracted.\nLookback\n128 ms\nOverlap\n80 ms\nTail padding\n160 ms\nNoise Adaptation\nHow the baseline noise floor and onset backtracking adapt over time.\nInitial noise\n0.00500\nFast adapt\n0.15\nSlow adapt\n0.05\nBlend duration\n1.0 s\nSNR display gate\n3.00\nOnset SNR floor\n1.00\nRise threshold\n0.08\nMicrophone\n\nStart capture, switch mode, and send buffered speech.\n\nMode\nManual\nSpeech Detect\nStart Mic\nSend\nAdvanced\nMicrophone idle\nDetector readout\n\nLive rough-gate state, adaptive noise floor, and final segment energy metrics.\n\nLEVEL\n-100.0 dBFS\nwindow -100.0 dBFS\nNOISE FLOOR\n-46.0 dBFS\nconfirmed -46.0 dBFS · rejected -46.0 dBFS\nFINAL POWER\n--\nmin --\nFINAL INTEGRAL\n--\nmin --\nDETECTOR MODE\nrough-only\nreq vad-only\nTEN-VAD\n0.00\ndiagnostic only\nFILTER\narmed\nwaiting\nVAD BUFFER\nempty\nmax 0.00\nWarnings\nSpeech segmentation is running on the rough gate. TEN-VAD is diagnostics-only.\nRequested TEN-VAD-first gating is ignored by this Parakeet-style detector port.\nDecisions\nNo decisions yet.\nSegments\nNo segments yet.\nTranscript & Word Alignment\nNo text yet.\nTOTAL\n--\nAwaiting result\nDECODE\n--\nAwaiting result\nCONFIDENCE\n--\nNo finished utterance\nQUEUE\nclear\nReady\nReference\nASRJS\nLibrary 0.2.0 · npm-package",
+  "beforeStopEvidence": {
+    "decisions": [
+      {
+        "message": "[StreamingSpeechDetector] TEN-VAD ready for diagnostics",
+        "meta": {
+          "state": "ready",
+          "error": null,
+          "probability": 0,
+          "speaking": false,
+          "threshold": 0.5
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger",
+        "meta": {
+          "energy": 0.004,
+          "threshold": 0.08,
+          "snr": 4.31
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 21248,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 23040
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 19200,
+          "endFrame": 23040,
+          "logicalEndFrame": 23040,
+          "durationSec": 0.24,
+          "normalizedPowerAt16k": 436.22
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 21248,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 23296
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 19200,
+          "endFrame": 23296,
+          "logicalEndFrame": 23296,
+          "durationSec": 0.26,
+          "normalizedPowerAt16k": 409.11
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 21248,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 23552
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 19200,
+          "endFrame": 23552,
+          "logicalEndFrame": 23552,
+          "durationSec": 0.27,
+          "normalizedPowerAt16k": 385.18
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 21248,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 23808
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 19200,
+          "endFrame": 23808,
+          "logicalEndFrame": 23808,
+          "durationSec": 0.29,
+          "normalizedPowerAt16k": 363.87
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 21248,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 24064
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 19200,
+          "endFrame": 24064,
+          "logicalEndFrame": 24064,
+          "durationSec": 0.3,
+          "normalizedPowerAt16k": 344.84
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 21248,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 24320
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 19200,
+          "endFrame": 24320,
+          "logicalEndFrame": 24320,
+          "durationSec": 0.32,
+          "normalizedPowerAt16k": 327.8
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 21248,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 24576
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 19200,
+          "endFrame": 24576,
+          "logicalEndFrame": 24576,
+          "durationSec": 0.34,
+          "normalizedPowerAt16k": 312.98
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 21248,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 24832
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 19200,
+          "endFrame": 24832,
+          "logicalEndFrame": 24832,
+          "durationSec": 0.35,
+          "normalizedPowerAt16k": 334.91
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 21248,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 25088
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 19200,
+          "endFrame": 25088,
+          "logicalEndFrame": 25088,
+          "durationSec": 0.37,
+          "normalizedPowerAt16k": 422.17
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 21248,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 25344
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 19200,
+          "endFrame": 25344,
+          "logicalEndFrame": 25344,
+          "durationSec": 0.38,
+          "normalizedPowerAt16k": 475.4
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 21248,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 25600
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 19200,
+          "endFrame": 25600,
+          "logicalEndFrame": 25600,
+          "durationSec": 0.4,
+          "normalizedPowerAt16k": 534.73
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 21248,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 25856
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 19200,
+          "endFrame": 25856,
+          "logicalEndFrame": 25856,
+          "durationSec": 0.42,
+          "normalizedPowerAt16k": 593.42
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 21248,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 55552
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 19200,
+          "endFrame": 55552,
+          "logicalEndFrame": 55552,
+          "durationSec": 2.27,
+          "normalizedPowerAt16k": 684.76
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger",
+        "meta": {
+          "energy": 0.027,
+          "threshold": 0.08,
+          "snr": 13.42
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger",
+        "meta": {
+          "energy": 0.026,
+          "threshold": 0.08,
+          "snr": 14.36
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 21248,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 70400
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 19200,
+          "endFrame": 70400,
+          "logicalEndFrame": 70400,
+          "durationSec": 3.2,
+          "normalizedPowerAt16k": 559.26
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 21248,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 70656
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 19200,
+          "endFrame": 70656,
+          "logicalEndFrame": 70656,
+          "durationSec": 3.22,
+          "normalizedPowerAt16k": 562.54
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 21248,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 70912
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 19200,
+          "endFrame": 70912,
+          "logicalEndFrame": 70912,
+          "durationSec": 3.23,
+          "normalizedPowerAt16k": 566.92
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 21248,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 71168
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 19200,
+          "endFrame": 71168,
+          "logicalEndFrame": 71168,
+          "durationSec": 3.25,
+          "normalizedPowerAt16k": 570.33
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 21248,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 71424
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 19200,
+          "endFrame": 71424,
+          "logicalEndFrame": 71424,
+          "durationSec": 3.26,
+          "normalizedPowerAt16k": 572.47
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 21248,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 71680
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 19200,
+          "endFrame": 71680,
+          "logicalEndFrame": 71680,
+          "durationSec": 3.28,
+          "normalizedPowerAt16k": 575.25
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 21248,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 71936
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 19200,
+          "endFrame": 71936,
+          "logicalEndFrame": 71936,
+          "durationSec": 3.3,
+          "normalizedPowerAt16k": 575.7
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 21248,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 72192
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 19200,
+          "endFrame": 72192,
+          "logicalEndFrame": 72192,
+          "durationSec": 3.31,
+          "normalizedPowerAt16k": 573.62
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 21248,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 72448
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 19200,
+          "endFrame": 72448,
+          "logicalEndFrame": 72448,
+          "durationSec": 3.33,
+          "normalizedPowerAt16k": 571.08
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 21248,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 72704
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 19200,
+          "endFrame": 72704,
+          "logicalEndFrame": 72704,
+          "durationSec": 3.34,
+          "normalizedPowerAt16k": 568.4
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 21248,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 72960
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 19200,
+          "endFrame": 72960,
+          "logicalEndFrame": 72960,
+          "durationSec": 3.36,
+          "normalizedPowerAt16k": 565.76
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 21248,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 73216
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 19200,
+          "endFrame": 73216,
+          "logicalEndFrame": 73216,
+          "durationSec": 3.38,
+          "normalizedPowerAt16k": 563.12
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 21248,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 73472
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 19200,
+          "endFrame": 73472,
+          "logicalEndFrame": 73472,
+          "durationSec": 3.39,
+          "normalizedPowerAt16k": 560.48
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 21248,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 88064
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 19200,
+          "endFrame": 88064,
+          "logicalEndFrame": 88064,
+          "durationSec": 4.3,
+          "normalizedPowerAt16k": 504.84
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger",
+        "meta": {
+          "energy": 0.027,
+          "threshold": 0.08,
+          "snr": 14.57
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 23296,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: max-duration",
+        "meta": {
+          "startFrame": 21248,
+          "endFrame": 104704,
+          "logicalEndFrame": 104704,
+          "durationSec": 5.22,
+          "normalizedPowerAt16k": 414.14
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Long speech split into a new rough segment",
+        "meta": {
+          "previousAccepted": true,
+          "nextStartFrame": 103424
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 104960
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 101376,
+          "endFrame": 104960,
+          "logicalEndFrame": 104960,
+          "durationSec": 0.22,
+          "normalizedPowerAt16k": 320.48
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 24064,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: max-duration",
+        "meta": {
+          "startFrame": 22016,
+          "endFrame": 105216,
+          "logicalEndFrame": 105216,
+          "durationSec": 5.2,
+          "normalizedPowerAt16k": 415.94
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Long speech split into a new rough segment",
+        "meta": {
+          "previousAccepted": true,
+          "nextStartFrame": 103936
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 105472
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 101888,
+          "endFrame": 105472,
+          "logicalEndFrame": 105472,
+          "durationSec": 0.22,
+          "normalizedPowerAt16k": 252.58
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 24576,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: max-duration",
+        "meta": {
+          "startFrame": 22528,
+          "endFrame": 105728,
+          "logicalEndFrame": 105728,
+          "durationSec": 5.2,
+          "normalizedPowerAt16k": 425.27
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Long speech split into a new rough segment",
+        "meta": {
+          "previousAccepted": true,
+          "nextStartFrame": 104448
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 105984
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 102400,
+          "endFrame": 105984,
+          "logicalEndFrame": 105984,
+          "durationSec": 0.22,
+          "normalizedPowerAt16k": 382.65
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 25344,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: max-duration",
+        "meta": {
+          "startFrame": 23296,
+          "endFrame": 106240,
+          "logicalEndFrame": 106240,
+          "durationSec": 5.18,
+          "normalizedPowerAt16k": 436.14
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Long speech split into a new rough segment",
+        "meta": {
+          "previousAccepted": true,
+          "nextStartFrame": 104960
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 106496
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 102912,
+          "endFrame": 106496,
+          "logicalEndFrame": 106496,
+          "durationSec": 0.22,
+          "normalizedPowerAt16k": 567.7
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 25600,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: max-duration",
+        "meta": {
+          "startFrame": 23552,
+          "endFrame": 106752,
+          "logicalEndFrame": 106752,
+          "durationSec": 5.2,
+          "normalizedPowerAt16k": 441.08
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Long speech split into a new rough segment",
+        "meta": {
+          "previousAccepted": true,
+          "nextStartFrame": 105472
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 107008
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 103424,
+          "endFrame": 107008,
+          "logicalEndFrame": 107008,
+          "durationSec": 0.22,
+          "normalizedPowerAt16k": 671.23
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 26368,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: max-duration",
+        "meta": {
+          "startFrame": 24320,
+          "endFrame": 107264,
+          "logicalEndFrame": 107264,
+          "durationSec": 5.18,
+          "normalizedPowerAt16k": 445.81
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Long speech split into a new rough segment",
+        "meta": {
+          "previousAccepted": true,
+          "nextStartFrame": 105984
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 107520
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 103936,
+          "endFrame": 107520,
+          "logicalEndFrame": 107520,
+          "durationSec": 0.22,
+          "normalizedPowerAt16k": 706.75
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 26880,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: max-duration",
+        "meta": {
+          "startFrame": 24832,
+          "endFrame": 107776,
+          "logicalEndFrame": 107776,
+          "durationSec": 5.18,
+          "normalizedPowerAt16k": 443.44
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Long speech split into a new rough segment",
+        "meta": {
+          "previousAccepted": true,
+          "nextStartFrame": 106496
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 139264
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 104448,
+          "endFrame": 139264,
+          "logicalEndFrame": 139264,
+          "durationSec": 2.18,
+          "normalizedPowerAt16k": 313.38
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger",
+        "meta": {
+          "energy": 0.032,
+          "threshold": 0.08,
+          "snr": 13.77
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 68608,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: max-duration",
+        "meta": {
+          "startFrame": 66560,
+          "endFrame": 149248,
+          "logicalEndFrame": 149248,
+          "durationSec": 5.17,
+          "normalizedPowerAt16k": 309
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Long speech split into a new rough segment",
+        "meta": {
+          "previousAccepted": true,
+          "nextStartFrame": 147968
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 149504
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 145920,
+          "endFrame": 149504,
+          "logicalEndFrame": 149504,
+          "durationSec": 0.22,
+          "normalizedPowerAt16k": 853.67
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 68864,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: max-duration",
+        "meta": {
+          "startFrame": 66816,
+          "endFrame": 149760,
+          "logicalEndFrame": 149760,
+          "durationSec": 5.18,
+          "normalizedPowerAt16k": 307.37
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Long speech split into a new rough segment",
+        "meta": {
+          "previousAccepted": true,
+          "nextStartFrame": 148480
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 150016
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 146432,
+          "endFrame": 150016,
+          "logicalEndFrame": 150016,
+          "durationSec": 0.22,
+          "normalizedPowerAt16k": 731.4
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 69376,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: max-duration",
+        "meta": {
+          "startFrame": 67328,
+          "endFrame": 150272,
+          "logicalEndFrame": 150272,
+          "durationSec": 5.18,
+          "normalizedPowerAt16k": 305.25
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Long speech split into a new rough segment",
+        "meta": {
+          "previousAccepted": true,
+          "nextStartFrame": 148992
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 150528
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 146944,
+          "endFrame": 150528,
+          "logicalEndFrame": 150528,
+          "durationSec": 0.22,
+          "normalizedPowerAt16k": 643.54
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 70144,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: max-duration",
+        "meta": {
+          "startFrame": 68096,
+          "endFrame": 150784,
+          "logicalEndFrame": 150784,
+          "durationSec": 5.17,
+          "normalizedPowerAt16k": 298.96
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Long speech split into a new rough segment",
+        "meta": {
+          "previousAccepted": true,
+          "nextStartFrame": 149504
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 151040
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 147456,
+          "endFrame": 151040,
+          "logicalEndFrame": 151040,
+          "durationSec": 0.22,
+          "normalizedPowerAt16k": 520.41
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 70400,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: max-duration",
+        "meta": {
+          "startFrame": 68352,
+          "endFrame": 151296,
+          "logicalEndFrame": 151296,
+          "durationSec": 5.18,
+          "normalizedPowerAt16k": 295.09
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Long speech split into a new rough segment",
+        "meta": {
+          "previousAccepted": true,
+          "nextStartFrame": 150016
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 151552
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 147968,
+          "endFrame": 151552,
+          "logicalEndFrame": 151552,
+          "durationSec": 0.22,
+          "normalizedPowerAt16k": 312.64
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 70912,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: max-duration",
+        "meta": {
+          "startFrame": 68864,
+          "endFrame": 151808,
+          "logicalEndFrame": 151808,
+          "durationSec": 5.18,
+          "normalizedPowerAt16k": 287.13
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Long speech split into a new rough segment",
+        "meta": {
+          "previousAccepted": true,
+          "nextStartFrame": 150528
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 152064
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 148480,
+          "endFrame": 152064,
+          "logicalEndFrame": 152064,
+          "durationSec": 0.22,
+          "normalizedPowerAt16k": 156.63
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 71680,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: max-duration",
+        "meta": {
+          "startFrame": 69632,
+          "endFrame": 152320,
+          "logicalEndFrame": 152320,
+          "durationSec": 5.17,
+          "normalizedPowerAt16k": 276.79
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Long speech split into a new rough segment",
+        "meta": {
+          "previousAccepted": true,
+          "nextStartFrame": 151040
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 152576
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 148992,
+          "endFrame": 152576,
+          "logicalEndFrame": 152576,
+          "durationSec": 0.22,
+          "normalizedPowerAt16k": 72.92
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 71936,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: max-duration",
+        "meta": {
+          "startFrame": 69888,
+          "endFrame": 152832,
+          "logicalEndFrame": 152832,
+          "durationSec": 5.18,
+          "normalizedPowerAt16k": 274.59
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Long speech split into a new rough segment",
+        "meta": {
+          "previousAccepted": true,
+          "nextStartFrame": 151552
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 193280
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 149504,
+          "endFrame": 193280,
+          "logicalEndFrame": 193280,
+          "durationSec": 2.74,
+          "normalizedPowerAt16k": 139.7
+        }
+      }
+    ],
+    "jobs": [],
+    "completedJobs": 0
+  },
+  "decisions": [
+    {
+      "message": "[StreamingSpeechDetector] TEN-VAD ready for diagnostics",
+      "meta": {
+        "state": "ready",
+        "error": null,
+        "probability": 0,
+        "speaking": false,
+        "threshold": 0.5
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger",
+      "meta": {
+        "energy": 0.004,
+        "threshold": 0.08,
+        "snr": 4.31
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 21248,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 23040
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 19200,
+        "endFrame": 23040,
+        "logicalEndFrame": 23040,
+        "durationSec": 0.24,
+        "normalizedPowerAt16k": 436.22
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 21248,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 23296
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 19200,
+        "endFrame": 23296,
+        "logicalEndFrame": 23296,
+        "durationSec": 0.26,
+        "normalizedPowerAt16k": 409.11
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 21248,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 23552
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 19200,
+        "endFrame": 23552,
+        "logicalEndFrame": 23552,
+        "durationSec": 0.27,
+        "normalizedPowerAt16k": 385.18
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 21248,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 23808
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 19200,
+        "endFrame": 23808,
+        "logicalEndFrame": 23808,
+        "durationSec": 0.29,
+        "normalizedPowerAt16k": 363.87
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 21248,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 24064
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 19200,
+        "endFrame": 24064,
+        "logicalEndFrame": 24064,
+        "durationSec": 0.3,
+        "normalizedPowerAt16k": 344.84
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 21248,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 24320
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 19200,
+        "endFrame": 24320,
+        "logicalEndFrame": 24320,
+        "durationSec": 0.32,
+        "normalizedPowerAt16k": 327.8
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 21248,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 24576
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 19200,
+        "endFrame": 24576,
+        "logicalEndFrame": 24576,
+        "durationSec": 0.34,
+        "normalizedPowerAt16k": 312.98
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 21248,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 24832
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 19200,
+        "endFrame": 24832,
+        "logicalEndFrame": 24832,
+        "durationSec": 0.35,
+        "normalizedPowerAt16k": 334.91
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 21248,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 25088
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 19200,
+        "endFrame": 25088,
+        "logicalEndFrame": 25088,
+        "durationSec": 0.37,
+        "normalizedPowerAt16k": 422.17
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 21248,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 25344
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 19200,
+        "endFrame": 25344,
+        "logicalEndFrame": 25344,
+        "durationSec": 0.38,
+        "normalizedPowerAt16k": 475.4
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 21248,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 25600
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 19200,
+        "endFrame": 25600,
+        "logicalEndFrame": 25600,
+        "durationSec": 0.4,
+        "normalizedPowerAt16k": 534.73
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 21248,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 25856
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 19200,
+        "endFrame": 25856,
+        "logicalEndFrame": 25856,
+        "durationSec": 0.42,
+        "normalizedPowerAt16k": 593.42
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 21248,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 55552
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 19200,
+        "endFrame": 55552,
+        "logicalEndFrame": 55552,
+        "durationSec": 2.27,
+        "normalizedPowerAt16k": 684.76
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger",
+      "meta": {
+        "energy": 0.027,
+        "threshold": 0.08,
+        "snr": 13.42
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger",
+      "meta": {
+        "energy": 0.026,
+        "threshold": 0.08,
+        "snr": 14.36
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 21248,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 70400
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 19200,
+        "endFrame": 70400,
+        "logicalEndFrame": 70400,
+        "durationSec": 3.2,
+        "normalizedPowerAt16k": 559.26
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 21248,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 70656
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 19200,
+        "endFrame": 70656,
+        "logicalEndFrame": 70656,
+        "durationSec": 3.22,
+        "normalizedPowerAt16k": 562.54
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 21248,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 70912
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 19200,
+        "endFrame": 70912,
+        "logicalEndFrame": 70912,
+        "durationSec": 3.23,
+        "normalizedPowerAt16k": 566.92
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 21248,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 71168
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 19200,
+        "endFrame": 71168,
+        "logicalEndFrame": 71168,
+        "durationSec": 3.25,
+        "normalizedPowerAt16k": 570.33
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 21248,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 71424
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 19200,
+        "endFrame": 71424,
+        "logicalEndFrame": 71424,
+        "durationSec": 3.26,
+        "normalizedPowerAt16k": 572.47
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 21248,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 71680
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 19200,
+        "endFrame": 71680,
+        "logicalEndFrame": 71680,
+        "durationSec": 3.28,
+        "normalizedPowerAt16k": 575.25
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 21248,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 71936
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 19200,
+        "endFrame": 71936,
+        "logicalEndFrame": 71936,
+        "durationSec": 3.3,
+        "normalizedPowerAt16k": 575.7
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 21248,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 72192
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 19200,
+        "endFrame": 72192,
+        "logicalEndFrame": 72192,
+        "durationSec": 3.31,
+        "normalizedPowerAt16k": 573.62
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 21248,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 72448
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 19200,
+        "endFrame": 72448,
+        "logicalEndFrame": 72448,
+        "durationSec": 3.33,
+        "normalizedPowerAt16k": 571.08
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 21248,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 72704
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 19200,
+        "endFrame": 72704,
+        "logicalEndFrame": 72704,
+        "durationSec": 3.34,
+        "normalizedPowerAt16k": 568.4
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 21248,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 72960
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 19200,
+        "endFrame": 72960,
+        "logicalEndFrame": 72960,
+        "durationSec": 3.36,
+        "normalizedPowerAt16k": 565.76
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 21248,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 73216
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 19200,
+        "endFrame": 73216,
+        "logicalEndFrame": 73216,
+        "durationSec": 3.38,
+        "normalizedPowerAt16k": 563.12
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 21248,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 73472
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 19200,
+        "endFrame": 73472,
+        "logicalEndFrame": 73472,
+        "durationSec": 3.39,
+        "normalizedPowerAt16k": 560.48
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 21248,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 88064
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 19200,
+        "endFrame": 88064,
+        "logicalEndFrame": 88064,
+        "durationSec": 4.3,
+        "normalizedPowerAt16k": 504.84
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger",
+      "meta": {
+        "energy": 0.027,
+        "threshold": 0.08,
+        "snr": 14.57
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 23296,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: max-duration",
+      "meta": {
+        "startFrame": 21248,
+        "endFrame": 104704,
+        "logicalEndFrame": 104704,
+        "durationSec": 5.22,
+        "normalizedPowerAt16k": 414.14
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Long speech split into a new rough segment",
+      "meta": {
+        "previousAccepted": true,
+        "nextStartFrame": 103424
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 104960
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 101376,
+        "endFrame": 104960,
+        "logicalEndFrame": 104960,
+        "durationSec": 0.22,
+        "normalizedPowerAt16k": 320.48
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 24064,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: max-duration",
+      "meta": {
+        "startFrame": 22016,
+        "endFrame": 105216,
+        "logicalEndFrame": 105216,
+        "durationSec": 5.2,
+        "normalizedPowerAt16k": 415.94
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Long speech split into a new rough segment",
+      "meta": {
+        "previousAccepted": true,
+        "nextStartFrame": 103936
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 105472
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 101888,
+        "endFrame": 105472,
+        "logicalEndFrame": 105472,
+        "durationSec": 0.22,
+        "normalizedPowerAt16k": 252.58
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 24576,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: max-duration",
+      "meta": {
+        "startFrame": 22528,
+        "endFrame": 105728,
+        "logicalEndFrame": 105728,
+        "durationSec": 5.2,
+        "normalizedPowerAt16k": 425.27
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Long speech split into a new rough segment",
+      "meta": {
+        "previousAccepted": true,
+        "nextStartFrame": 104448
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 105984
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 102400,
+        "endFrame": 105984,
+        "logicalEndFrame": 105984,
+        "durationSec": 0.22,
+        "normalizedPowerAt16k": 382.65
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 25344,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: max-duration",
+      "meta": {
+        "startFrame": 23296,
+        "endFrame": 106240,
+        "logicalEndFrame": 106240,
+        "durationSec": 5.18,
+        "normalizedPowerAt16k": 436.14
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Long speech split into a new rough segment",
+      "meta": {
+        "previousAccepted": true,
+        "nextStartFrame": 104960
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 106496
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 102912,
+        "endFrame": 106496,
+        "logicalEndFrame": 106496,
+        "durationSec": 0.22,
+        "normalizedPowerAt16k": 567.7
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 25600,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: max-duration",
+      "meta": {
+        "startFrame": 23552,
+        "endFrame": 106752,
+        "logicalEndFrame": 106752,
+        "durationSec": 5.2,
+        "normalizedPowerAt16k": 441.08
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Long speech split into a new rough segment",
+      "meta": {
+        "previousAccepted": true,
+        "nextStartFrame": 105472
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 107008
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 103424,
+        "endFrame": 107008,
+        "logicalEndFrame": 107008,
+        "durationSec": 0.22,
+        "normalizedPowerAt16k": 671.23
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 26368,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: max-duration",
+      "meta": {
+        "startFrame": 24320,
+        "endFrame": 107264,
+        "logicalEndFrame": 107264,
+        "durationSec": 5.18,
+        "normalizedPowerAt16k": 445.81
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Long speech split into a new rough segment",
+      "meta": {
+        "previousAccepted": true,
+        "nextStartFrame": 105984
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 107520
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 103936,
+        "endFrame": 107520,
+        "logicalEndFrame": 107520,
+        "durationSec": 0.22,
+        "normalizedPowerAt16k": 706.75
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 26880,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: max-duration",
+      "meta": {
+        "startFrame": 24832,
+        "endFrame": 107776,
+        "logicalEndFrame": 107776,
+        "durationSec": 5.18,
+        "normalizedPowerAt16k": 443.44
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Long speech split into a new rough segment",
+      "meta": {
+        "previousAccepted": true,
+        "nextStartFrame": 106496
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 139264
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 104448,
+        "endFrame": 139264,
+        "logicalEndFrame": 139264,
+        "durationSec": 2.18,
+        "normalizedPowerAt16k": 313.38
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger",
+      "meta": {
+        "energy": 0.032,
+        "threshold": 0.08,
+        "snr": 13.77
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 68608,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: max-duration",
+      "meta": {
+        "startFrame": 66560,
+        "endFrame": 149248,
+        "logicalEndFrame": 149248,
+        "durationSec": 5.17,
+        "normalizedPowerAt16k": 309
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Long speech split into a new rough segment",
+      "meta": {
+        "previousAccepted": true,
+        "nextStartFrame": 147968
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 149504
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 145920,
+        "endFrame": 149504,
+        "logicalEndFrame": 149504,
+        "durationSec": 0.22,
+        "normalizedPowerAt16k": 853.67
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 68864,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: max-duration",
+      "meta": {
+        "startFrame": 66816,
+        "endFrame": 149760,
+        "logicalEndFrame": 149760,
+        "durationSec": 5.18,
+        "normalizedPowerAt16k": 307.37
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Long speech split into a new rough segment",
+      "meta": {
+        "previousAccepted": true,
+        "nextStartFrame": 148480
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 150016
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 146432,
+        "endFrame": 150016,
+        "logicalEndFrame": 150016,
+        "durationSec": 0.22,
+        "normalizedPowerAt16k": 731.4
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 69376,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: max-duration",
+      "meta": {
+        "startFrame": 67328,
+        "endFrame": 150272,
+        "logicalEndFrame": 150272,
+        "durationSec": 5.18,
+        "normalizedPowerAt16k": 305.25
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Long speech split into a new rough segment",
+      "meta": {
+        "previousAccepted": true,
+        "nextStartFrame": 148992
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 150528
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 146944,
+        "endFrame": 150528,
+        "logicalEndFrame": 150528,
+        "durationSec": 0.22,
+        "normalizedPowerAt16k": 643.54
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 70144,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: max-duration",
+      "meta": {
+        "startFrame": 68096,
+        "endFrame": 150784,
+        "logicalEndFrame": 150784,
+        "durationSec": 5.17,
+        "normalizedPowerAt16k": 298.96
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Long speech split into a new rough segment",
+      "meta": {
+        "previousAccepted": true,
+        "nextStartFrame": 149504
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 151040
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 147456,
+        "endFrame": 151040,
+        "logicalEndFrame": 151040,
+        "durationSec": 0.22,
+        "normalizedPowerAt16k": 520.41
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 70400,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: max-duration",
+      "meta": {
+        "startFrame": 68352,
+        "endFrame": 151296,
+        "logicalEndFrame": 151296,
+        "durationSec": 5.18,
+        "normalizedPowerAt16k": 295.09
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Long speech split into a new rough segment",
+      "meta": {
+        "previousAccepted": true,
+        "nextStartFrame": 150016
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 151552
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 147968,
+        "endFrame": 151552,
+        "logicalEndFrame": 151552,
+        "durationSec": 0.22,
+        "normalizedPowerAt16k": 312.64
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 70912,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: max-duration",
+      "meta": {
+        "startFrame": 68864,
+        "endFrame": 151808,
+        "logicalEndFrame": 151808,
+        "durationSec": 5.18,
+        "normalizedPowerAt16k": 287.13
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Long speech split into a new rough segment",
+      "meta": {
+        "previousAccepted": true,
+        "nextStartFrame": 150528
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 152064
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 148480,
+        "endFrame": 152064,
+        "logicalEndFrame": 152064,
+        "durationSec": 0.22,
+        "normalizedPowerAt16k": 156.63
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 71680,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: max-duration",
+      "meta": {
+        "startFrame": 69632,
+        "endFrame": 152320,
+        "logicalEndFrame": 152320,
+        "durationSec": 5.17,
+        "normalizedPowerAt16k": 276.79
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Long speech split into a new rough segment",
+      "meta": {
+        "previousAccepted": true,
+        "nextStartFrame": 151040
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 152576
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 148992,
+        "endFrame": 152576,
+        "logicalEndFrame": 152576,
+        "durationSec": 0.22,
+        "normalizedPowerAt16k": 72.92
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 71936,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: max-duration",
+      "meta": {
+        "startFrame": 69888,
+        "endFrame": 152832,
+        "logicalEndFrame": 152832,
+        "durationSec": 5.18,
+        "normalizedPowerAt16k": 274.59
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Long speech split into a new rough segment",
+      "meta": {
+        "previousAccepted": true,
+        "nextStartFrame": 151552
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 193280
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 149504,
+        "endFrame": 193280,
+        "logicalEndFrame": 193280,
+        "durationSec": 2.74,
+        "normalizedPowerAt16k": 139.7
+      }
+    }
+  ],
+  "jobs": [],
+  "completedJobs": 0,
+  "error": "Page.wait_for_function: Timeout 60000ms exceeded.",
+  "body": "A\nASRJS\nLive transcription\n◐\nAppearance\nTranscribe\nPlayground\nLive\nBenchmark\nRealtime VAD Lab\nTranscript & Subtitles\ntune\nModel ready · webgpu-hybrid · Microphone stopped\nLoad\nready\nparakeet-tdt-0.6b-v3-onnx\nLocal assets\nModel Loaded\nValidation\nInput language\nEnglish\nFrench\nGerman\nSpanish\nItalian\nPortuguese\nDutch\nPolish\nexpand_more\nLoad Sample\nupload_file\nDrop or click to transcribe\nModel Settings\nArtifact source\nHugging Face\nLocal folder\nexpand_more\nLocal folder\nparakeet-tdt-0.6b-v3-onnx\nfolder_open\nFiles: 86\nEncoder: fp32, fp16, int8\nDecoder: fp32, fp16, int8\nTokenizer: vocab.txt\nFrontend: nemo128\nParakeet TDT 0.6B v3 (Multilingual)\nRuntime Settings\nRuntime backend\nWebGPU\nWASM\nexpand_more\nEncoder\nwebgpu\nwasm\nexpand_more\nDecoder\nwasm\nexpand_more\nThreads\nStride\nEncoder quant\nfp32\nfp16\nint8\nexpand_more\nDecoder quant\nfp32\nfp16\nint8\nexpand_more\nPrompt Settings\nFrontend\nJS frontend\nONNX frontend\nexpand_more\nTokenizer\nvocab.txt\nexpand_more\nVerbose logging\nLog results\nEnable profiling\nCapture\n-60.00\nSIG\n-100.0\nAVG\n-100.0\nGATE\n-21.9\nNOISE\n-72.7\nSEGS\n12/0\nAUDIO\n16000Hz\nBUF\n12.0s\nSNR\n-60.00\nTHR\n3.00\nWAVEFORM\nidle · main\nRATE target 16000 Hz\n·\nCHUNK 16 ms/256f\n·\nWIN 12.00 s\n·\nSEG inactive\n·\nBUF 750/750 pad 0\n·\nPUB/PAINT 0/s 0/s\nMODE vad-only\n·\nRELEASE 400 ms\n·\nNOISE -72.7 dBFS\n·\nGATE -21.9 dBFS\n·\nFINAL GATE p 139.70/1.00 · i 382.23/0.80\n·\nGATE LINES on\n·\nTEN on\n·\nSCALE physical\nWaveform display\nSurface\ncompact stats + waveform + footer metrics\nFull\nStats Only\nWaveform Only\nView\nraw amplitude\nPhysical\nFocus\nBalanced\nGate lines\nwaveform legend\nshow\nhide\nFireRed line\ndiagnostic only\nshow\nhide\nRMS\ndiagnostic\nhide\nshow\nFinal Acceptance\nDuration and normalized 16 kHz energy thresholds used after live segmentation.\nFinal segment gate\nvad-only\nenabled\ndisabled\nAcceptance preset\nUpdates the final segment acceptance thresholds together.\nOpen\nBalanced\nStrict\nCustom\nMin final duration\n240 ms\nMin power\n5.00\nMin integral\n22.00\nAdaptive noise-scaled acceptance controls.\nShow advanced\nDetector tuning\nPreset\nMedium\nMedium\nFast\nSlow\nCustom\nDefault mode\nmanual\nVAD backend\n16 ms hop / 16 ms visual\nFireRed VAD\nTEN-VAD\nGate mode\nvad-only\nRough only\nHybrid\nVAD only\nLive Segmenter\nPeak-energy speech trigger, smoothing, and silence release.\nEnergy threshold\n0.08\nAnalysis window\n80 ms\nEnergy smoothing\n480 ms\nSilence release\n400 ms\nMax segment\n4800 ms\nExtraction Timing\nLookback, overlap, and tail padding applied when a segment is extracted.\nLookback\n128 ms\nOverlap\n80 ms\nTail padding\n160 ms\nNoise Adaptation\nHow the baseline noise floor and onset backtracking adapt over time.\nInitial noise\n0.00500\nFast adapt\n0.15\nSlow adapt\n0.05\nBlend duration\n1.0 s\nSNR display gate\n3.00\nOnset SNR floor\n1.00\nRise threshold\n0.08\nMicrophone\n\nStart capture, switch mode, and send buffered speech.\n\nMode\nManual\nSpeech Detect\nStart Mic\nSend\nAdvanced\nMicrophone stopped\nDetector readout\n\nLive rough-gate state, adaptive noise floor, and final segment energy metrics.\n\nLEVEL\n-100.0 dBFS\nwindow -100.0 dBFS\nNOISE FLOOR\n-72.7 dBFS\nconfirmed -100.0 dBFS · rejected -72.7 dBFS\nFINAL POWER\n139.70\nmin 1.00\nFINAL INTEGRAL\n382.23\nmin 0.80\nDETECTOR MODE\nvad-only\nreq vad-only\nTEN-VAD\n0.09\ndiagnostic only\nFILTER\naccepted\naccepted\nVAD BUFFER\n0/12\nmax 0.09\nDecisions\nSegment ready: silence\n02:13:22\nNeural VAD finalized speech after sustained silence\n02:13:22\nLong speech split into a new rough segment\n02:13:20\nSegment ready: max-duration\n02:13:20\nNeural VAD speech start\n02:13:20\nSegments\nsilence\n2.74 s\n16.000 Hz · 149504 -> 193280\nmax-duration\n5.18 s\n16.000 Hz · 69888 -> 152832\nsilence\n0.22 s\n16.000 Hz · 148992 -> 152576\nmax-duration\n5.17 s\n16.000 Hz · 69632 -> 152320\nTranscript & Word Alignment\nCopySRTVTTJSON\nAnd And And And And And And so And so And so And so And so And so, my fellow Americans. And so, my fellow Americans, and And so, my fellow Americans and And so, my fellow Americans, and And so, my fellow Americans, and And so, my fellow Americans, and And so, my fellow Americans, and And so, my fellow Americans, as And so, my fellow Americans, as And so, my fellow Americans, as And so, my fellow Americans, as And so, my fellow Americans, as And so, my fellow Americans, as And so, my fellow Americans, as And so, my fellow Americans, ask not And so, my fellow Americans, ask not what you And so, my fellow Americans, ask not what you And so, my fellow Americans, ask not what your So, my fellow Americans, ask not what your So, my fellow Americans, ask not what your So my fellow Americans, ask not what your So my fellow Americans, ask not what your question Your country can do for you. Ask not what your country can do for you as well. Ask not what your country can do for you. Ask. Ask not what your country can do for you. Ask. Ask not what your country can do for you. Ask not. Ask not what your country can do for you, ask not. Ask not what your country can do for you. Ask not. Ask not what your country can do for you. Ask not. Ask not what your country can do for you. Ask what That's what you can do for your country.\nThat's9.50s–9.74swhat9.74s–9.90syou9.90s–10.14scan10.14s–10.30sdo10.30s–10.54sfor10.54s–10.78syour10.78s–10.94scountry.10.94s–11.58s\nTOTAL\n198 ms\nencode 152 ms\nDECODE\n43 ms\nrtf 0.07x\nCONFIDENCE\n95%\n8 words\nQUEUE\nclear\nReady\nReference\nHistory\nClear All\nmicrophone-silence-02:13:26\nUnknown language\n02:13:26\n2.7s\n8 words\n95%\nRTF 0.07x\ndownload\nThat's what you can do for your country.\nmicrophone-max-duration-02:13:26\nUnknown language\n02:13:26\n5.2s\n11 words\n94%\nRTF 0.04x\ndownload\nAsk not what your country can do for you. Ask what\nmicrophone-max-duration-02:13:26\nUnknown language\n02:13:26\n5.2s\n11 words\n93%\nRTF 0.04x\ndownload\nAsk not what your country can do for you. Ask not.\nmicrophone-max-duration-02:13:26\nUnknown language\n02:13:26\n5.2s\n11 words\n93%\nRTF 0.04x\ndownload\nAsk not what your country can do for you. Ask not.\nmicrophone-max-duration-02:13:25\nUnknown language\n02:13:26\n5.2s\n11 words\n94%\nRTF 0.04x\ndownload\nAsk not what your country can do for you, ask not.\nmicrophone-max-duration-02:13:25\nUnknown language\n02:13:25\n5.2s\n11 words\n92%\nRTF 0.04x\ndownload\nAsk not what your country can do for you. Ask not.\nmicrophone-max-duration-02:13:25\nUnknown language\n02:13:25\n5.2s\n10 words\n92%\nRTF 0.04x\ndownload\nAsk not what your country can do for you. Ask.\nmicrophone-max-duration-02:13:25\nUnknown language\n02:13:25\n5.2s\n10 words\n93%\nRTF 0.04x\ndownload\nAsk not what your country can do for you. Ask.\nmicrophone-max-duration-02:13:24\nUnknown language\n02:13:25\n5.2s\n11 words\n91%\nRTF 0.04x\ndownload\nAsk not what your country can do for you as well.\nmicrophone-silence-02:13:24\nUnknown language\n02:13:24\n2.2s\n6 words\n95%\nRTF 0.16x\ndownload\nYour country can do for you.\nmicrophone-max-duration-02:13:24\nUnknown language\n02:13:24\n5.2s\n9 words\n91%\nRTF 0.04x\ndownload\nSo my fellow Americans, ask not what your question\nmicrophone-max-duration-02:13:24\nUnknown language\n02:13:24\n5.2s\n8 words\n98%\nRTF 0.04x\ndownload\nSo my fellow Americans, ask not what your\nmicrophone-max-duration-02:13:23\nUnknown language\n02:13:24\n5.2s\n8 words\n95%\nRTF 0.04x\ndownload\nSo, my fellow Americans, ask not what your\nmicrophone-max-duration-02:13:23\nUnknown language\n02:13:23\n5.2s\n8 words\n96%\nRTF 0.04x\ndownload\nSo, my fellow Americans, ask not what your\nmicrophone-max-duration-02:13:23\nUnknown language\n02:13:23\n5.2s\n9 words\n93%\nRTF 0.04x\ndownload\nAnd so, my fellow Americans, ask not what your\nmicrophone-max-duration-02:13:23\nUnknown language\n02:13:23\n5.2s\n9 words\n96%\nRTF 0.08x\ndownload\nAnd so, my fellow Americans, ask not what you\nmicrophone-max-duration-02:13:22\nUnknown language\n02:13:23\n5.2s\n9 words\n96%\nRTF 0.05x\ndownload\nAnd so, my fellow Americans, ask not what you\nmicrophone-silence-02:13:22\nUnknown language\n02:13:22\n4.3s\n7 words\n97%\nRTF 0.05x\ndownload\nAnd so, my fellow Americans, ask not\nmicrophone-silence-02:13:22\nUnknown language\n02:13:22\n3.4s\n6 words\n94%\nRTF 0.06x\ndownload\nAnd so, my fellow Americans, as\nmicrophone-silence-02:13:22\nUnknown language\n02:13:22\n3.4s\n6 words\n93%\nRTF 0.06x\ndownload\nAnd so, my fellow Americans, as\nmicrophone-silence-02:13:21\nUnknown language\n02:13:22\n3.4s\n6 words\n95%\nRTF 0.06x\ndownload\nAnd so, my fellow Americans, as\nmicrophone-silence-02:13:21\nUnknown language\n02:13:21\n3.3s\n6 words\n95%\nRTF 0.06x\ndownload\nAnd so, my fellow Americans, as\nmicrophone-silence-02:13:21\nUnknown language\n02:13:21\n3.3s\n6 words\n94%\nRTF 0.06x\ndownload\nAnd so, my fellow Americans, as\nmicrophone-silence-02:13:21\nUnknown language\n02:13:21\n3.3s\n6 words\n94%\nRTF 0.06x\ndownload\nAnd so, my fellow Americans, as\nmicrophone-silence-02:13:20\nUnknown language\n02:13:21\n3.3s\n6 words\n93%\nRTF 0.06x\ndownload\nAnd so, my fellow Americans, as\nmicrophone-silence-02:13:20\nUnknown language\n02:13:20\n3.3s\n6 words\n89%\nRTF 0.10x\ndownload\nAnd so, my fellow Americans, and\nmicrophone-silence-02:13:20\nUnknown language\n02:13:20\n3.3s\n6 words\n91%\nRTF 0.07x\ndownload\nAnd so, my fellow Americans, and\nmicrophone-silence-02:13:20\nUnknown language\n02:13:20\n3.2s\n6 words\n90%\nRTF 0.06x\ndownload\nAnd so, my fellow Americans, and\nmicrophone-silence-02:13:19\nUnknown language\n02:13:20\n3.2s\n6 words\n90%\nRTF 0.06x\ndownload\nAnd so, my fellow Americans, and\nmicrophone-silence-02:13:19\nUnknown language\n02:13:19\n3.2s\n6 words\n94%\nRTF 0.07x\ndownload\nAnd so, my fellow Americans and\nmicrophone-silence-02:13:19\nUnknown language\n02:13:19\n3.2s\n6 words\n89%\nRTF 0.07x\ndownload\nAnd so, my fellow Americans, and\nmicrophone-silence-02:13:18\nUnknown language\n02:13:19\n2.3s\n5 words\n92%\nRTF 0.38x\ndownload\nAnd so, my fellow Americans.\nmicrophone-silence-02:13:18\nUnknown language\n02:13:18\n0.4s\n2 words\n60%\nRTF 1.21x\ndownload\nAnd so\nmicrophone-silence-02:13:16\nUnknown language\n02:13:18\n0.4s\n2 words\n65%\nRTF 2.80x\ndownload\nAnd so\nmicrophone-silence-02:13:16\nUnknown language\n02:13:16\n0.4s\n2 words\n66%\nRTF 0.60x\ndownload\nAnd so\nmicrophone-silence-02:13:16\nUnknown language\n02:13:16\n0.4s\n2 words\n61%\nRTF 0.69x\ndownload\nAnd so\nmicrophone-silence-02:13:16\nUnknown language\n02:13:16\n0.4s\n2 words\n46%\nRTF 1.05x\ndownload\nAnd so\nmicrophone-silence-02:13:15\nUnknown language\n02:13:16\n0.3s\n1 words\n75%\nRTF 1.81x\ndownload\nAnd\nmicrophone-silence-02:13:14\nUnknown language\n02:13:15\n0.3s\n1 words\n46%\nRTF 2.09x\ndownload\nAnd\nmicrophone-silence-02:13:14\nUnknown language\n02:13:14\n0.3s\n1 words\n47%\nRTF 1.35x\ndownload\nAnd\nmicrophone-silence-02:13:13\nUnknown language\n02:13:14\n0.3s\n1 words\n47%\nRTF 1.56x\ndownload\nAnd\nmicrophone-silence-02:13:13\nUnknown language\n02:13:13\n0.3s\n1 words\n39%\nRTF 2.22x\ndownload\nAnd\nmicrophone-silence-02:13:12\nUnknown language\n02:13:13\n0.3s\n1 words\n42%\nRTF 4.18x\ndownload\nAnd\nASRJS\nLibrary 0.2.0 · npm-package",
+  "browserVersion": "155.0.8059.86"
+}

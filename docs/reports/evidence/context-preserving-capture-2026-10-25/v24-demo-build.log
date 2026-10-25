@@ -1,0 +1,213 @@
+npm notice run @asrjs/demos-monorepo@1.0.0 build
+npm notice run npm run build:suite
+npm notice run @asrjs/demos-monorepo@1.0.0 build:suite
+npm notice run node scripts/build-suite.mjs
+
+[showcase] npm run build --workspace=apps/showcase -- --base=/showcase/ --outDir=N:\github\asrjs\demos\.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z\showcase --emptyOutDir
+npm notice run @asrjs/browser-demo@1.1.0 build
+npm notice run vite build --base=/showcase/ --outDir=N:\github\asrjs\demos\.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z\showcase --emptyOutDir
+vite v7.3.7 building client environment for production...
+<script src="./coi-serviceworker.js"> in "/index.html" can't be bundled without type="module" attribute
+transforming...
+✓ 376 modules transformed.
+rendering chunks...
+computing gzip size...
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/index.html                                                         0.65 kB │ gzip:     0.39 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/execution-context-Cs031nZ3.js                               0.71 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/ten-vad-worker-BuXpfewi.js                                  4.37 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/ten_vad-BWj8dcPJ.js                                         5.82 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/jetbrains-mono-latin-ext-400-normal-Bc8Ftmh3.woff2          7.34 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/jetbrains-mono-latin-ext-500-normal-Cut-4mMH.woff2          7.53 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/handles-Bq-0aSc-.js                                         7.55 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/plus-jakarta-sans-latin-ext-400-normal-D127hM_v.woff2      10.59 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/plus-jakarta-sans-latin-ext-500-normal-9VZagAe1.woff2      10.86 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/plus-jakarta-sans-latin-ext-600-normal-DQgPU_Cg.woff2      10.90 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/plus-jakarta-sans-latin-ext-700-normal-BajbvANd.woff2      11.01 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/plus-jakarta-sans-latin-400-normal-Dhut76fR.woff2          11.82 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/plus-jakarta-sans-latin-600-normal-DLTa1BUW.woff2          12.19 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/plus-jakarta-sans-latin-700-normal-CfpNZvy6.woff2          12.24 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/plus-jakarta-sans-latin-500-normal-Bf-nb4oT.woff2          12.31 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/crimson-pro-latin-ext-500-normal-Cu9CDuc4.woff2            15.20 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/crimson-pro-latin-ext-400-normal-B3ID4PT2.woff2            15.22 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/Harvard-L2-1-B6X4PDwP.ogg                                  18.24 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/crimson-pro-latin-400-normal-B4SlG4wx.woff2                18.34 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/crimson-pro-latin-500-normal-D6GH0edE.woff2                18.87 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/jetbrains-mono-latin-400-normal-V6pRDFza.woff2             21.17 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/jetbrains-mono-latin-500-normal-BWZEU5yA.woff2             21.83 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/ten_vad-DpmpZqYN.wasm                                     283.35 kB │ gzip:   201.27 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/firered-vad-worker-BMEt-txi.js                            429.14 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/browser-transcription-worker-thread-BYRp67fR.js           665.90 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/ort-wasm-simd-threaded.asyncify-CsxMlmQ8.wasm          25,749.87 kB │ gzip: 6,368.50 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/ort-wasm-simd-threaded.jsep-D-icqfN-.wasm              27,797.17 kB │ gzip: 6,576.65 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/index-C0nU2iVl.css                                         47.73 kB │ gzip:     9.10 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/execution-context-B-VvaRwM.js                               0.68 kB │ gzip:     0.34 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/probe-B2Oc-wKF.js                                           0.81 kB │ gzip:     0.47 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/probe-DKGCKPcu.js                                           1.49 kB │ gzip:     0.76 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/handles-0f2pBFjl.js                                         7.52 kB │ gzip:     1.96 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/ort.webgpu.bundle.min-DvJLDTjk.js                         115.37 kB │ gzip:    38.39 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/ort.bundle.min-ZOZtWiYj.js                                410.29 kB │ gzip:   112.60 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/showcase/assets/index-CAbDtvJ6.js                                         899.40 kB │ gzip:   241.55 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 7.82s
+(node:26156) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+[playground] npm run build --workspace=apps/playground -- --base=/playground/ --outDir=N:\github\asrjs\demos\.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z\playground --emptyOutDir
+npm notice run @asrjs/playground@1.0.0 build
+npm notice run vite build --base=/playground/ --outDir=N:\github\asrjs\demos\.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z\playground --emptyOutDir
+vite v7.3.7 building client environment for production...
+<script src="/playground/coi-serviceworker.js"> in "/index.html" can't be bundled without type="module" attribute
+transforming...
+✓ 376 modules transformed.
+rendering chunks...
+computing gzip size...
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/index.html                                                         0.66 kB │ gzip:     0.39 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/execution-context-BAuE9RjB.js                               0.71 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/ten-vad-worker-BuXpfewi.js                                  4.37 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/ten_vad-BWj8dcPJ.js                                         5.82 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/jetbrains-mono-latin-ext-400-normal-Bc8Ftmh3.woff2          7.34 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/jetbrains-mono-latin-ext-500-normal-Cut-4mMH.woff2          7.53 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/handles-C4Fi7uHL.js                                         7.55 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/plus-jakarta-sans-latin-ext-400-normal-D127hM_v.woff2      10.59 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/plus-jakarta-sans-latin-ext-500-normal-9VZagAe1.woff2      10.86 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/plus-jakarta-sans-latin-ext-600-normal-DQgPU_Cg.woff2      10.90 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/plus-jakarta-sans-latin-ext-700-normal-BajbvANd.woff2      11.01 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/plus-jakarta-sans-latin-400-normal-Dhut76fR.woff2          11.82 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/plus-jakarta-sans-latin-600-normal-DLTa1BUW.woff2          12.19 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/plus-jakarta-sans-latin-700-normal-CfpNZvy6.woff2          12.24 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/plus-jakarta-sans-latin-500-normal-Bf-nb4oT.woff2          12.31 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/crimson-pro-latin-ext-500-normal-Cu9CDuc4.woff2            15.20 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/crimson-pro-latin-ext-400-normal-B3ID4PT2.woff2            15.22 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/crimson-pro-latin-400-normal-B4SlG4wx.woff2                18.34 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/crimson-pro-latin-500-normal-D6GH0edE.woff2                18.87 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/jetbrains-mono-latin-400-normal-V6pRDFza.woff2             21.17 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/jetbrains-mono-latin-500-normal-BWZEU5yA.woff2             21.83 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/ten_vad-DpmpZqYN.wasm                                     283.35 kB │ gzip:   201.27 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/firered-vad-worker--dXElgWg.js                            429.15 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/browser-transcription-worker-thread-CSSqH272.js           665.90 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/ort-wasm-simd-threaded.asyncify-CsxMlmQ8.wasm          25,749.87 kB │ gzip: 6,368.50 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/ort-wasm-simd-threaded.jsep-D-icqfN-.wasm              27,797.17 kB │ gzip: 6,576.65 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/index-BikNSXTx.css                                         58.62 kB │ gzip:     9.68 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/execution-context-BLJllxD1.js                               0.68 kB │ gzip:     0.34 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/probe-B2Oc-wKF.js                                           0.81 kB │ gzip:     0.47 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/probe-DKGCKPcu.js                                           1.49 kB │ gzip:     0.76 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/handles-BWhpdnyK.js                                         7.52 kB │ gzip:     1.96 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/ort.webgpu.bundle.min-AD0MOUD0.js                         115.38 kB │ gzip:    38.39 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/ort.bundle.min-D2VM0ZCi.js                                410.30 kB │ gzip:   112.61 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/playground/assets/index-BXj6zUjf.js                                       1,039.66 kB │ gzip:   278.13 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 10.53s
+
+[realtime] npm run build --workspace=apps/realtime -- --base=/realtime/ --outDir=N:\github\asrjs\demos\.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z\realtime --emptyOutDir
+npm notice run @asrjs/streaming-demo@1.1.0 prebuild
+npm notice run node scripts/prepare-ort-assets.mjs
+Prepared 8 ONNX Runtime Web WASM assets in N:\github\asrjs\demos\apps\realtime\public\ort
+npm notice run @asrjs/streaming-demo@1.1.0 build
+npm notice run vite build --base=/realtime/ --outDir=N:\github\asrjs\demos\.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z\realtime --emptyOutDir
+vite v7.3.7 building client environment for production...
+transforming...
+✓ 410 modules transformed.
+rendering chunks...
+computing gzip size...
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/execution-context-Gnw-QYtO.js                               0.71 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/index.html                                                         0.81 kB │ gzip:     0.47 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/ten-vad-worker-BuXpfewi.js                                  4.37 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/ten_vad-BWj8dcPJ.js                                         5.82 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/jetbrains-mono-latin-ext-400-normal-Bc8Ftmh3.woff2          7.34 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/jetbrains-mono-latin-ext-500-normal-Cut-4mMH.woff2          7.53 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/handles-BP-xgxVK.js                                         7.55 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/plus-jakarta-sans-latin-ext-400-normal-D127hM_v.woff2      10.59 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/plus-jakarta-sans-latin-ext-500-normal-9VZagAe1.woff2      10.86 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/plus-jakarta-sans-latin-ext-600-normal-DQgPU_Cg.woff2      10.90 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/plus-jakarta-sans-latin-ext-700-normal-BajbvANd.woff2      11.01 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/plus-jakarta-sans-latin-400-normal-Dhut76fR.woff2          11.82 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/plus-jakarta-sans-latin-600-normal-DLTa1BUW.woff2          12.19 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/plus-jakarta-sans-latin-700-normal-CfpNZvy6.woff2          12.24 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/plus-jakarta-sans-latin-500-normal-Bf-nb4oT.woff2          12.31 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/waveformCanvas.worker-CC43IBw5.js                          14.99 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/crimson-pro-latin-ext-500-normal-Cu9CDuc4.woff2            15.20 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/crimson-pro-latin-ext-400-normal-B3ID4PT2.woff2            15.22 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/Harvard-L2-1-B6X4PDwP.ogg                                  18.24 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/crimson-pro-latin-400-normal-B4SlG4wx.woff2                18.34 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/crimson-pro-latin-500-normal-D6GH0edE.woff2                18.87 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/jetbrains-mono-latin-400-normal-V6pRDFza.woff2             21.17 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/jetbrains-mono-latin-500-normal-BWZEU5yA.woff2             21.83 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/ten_vad-DpmpZqYN.wasm                                     283.35 kB │ gzip:   201.27 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/firered-vad-worker-hON82yjv.js                            429.14 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/browser-transcription-worker-thread-BN1H9K46.js           665.90 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/ort-wasm-simd-threaded.asyncify-CsxMlmQ8.wasm          25,749.87 kB │ gzip: 6,368.50 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/ort-wasm-simd-threaded.jsep-D-icqfN-.wasm              27,797.17 kB │ gzip: 6,576.65 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/index-Drm2Wz9k.css                                         49.66 kB │ gzip:     9.17 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/execution-context-DQVn6kRj.js                               0.68 kB │ gzip:     0.34 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/probe-B2Oc-wKF.js                                           0.81 kB │ gzip:     0.47 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/probe-DKGCKPcu.js                                           1.49 kB │ gzip:     0.76 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/handles-Dmaqkxgc.js                                         7.52 kB │ gzip:     1.96 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/ort.webgpu.bundle.min-CghtiGDP.js                         115.37 kB │ gzip:    38.39 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/ort.bundle.min-jPK3AlZ6.js                                410.29 kB │ gzip:   112.60 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/realtime/assets/index-DbYfbCfC.js                                       1,107.67 kB │ gzip:   297.35 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 11.30s
+
+[benchmark] npm run build --workspace=apps/benchmark -- --base=/benchmark/ --outDir=N:\github\asrjs\demos\.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z\benchmark --emptyOutDir
+npm notice run @asrjs/benchmark-demo@1.0.0 build
+npm notice run vite build --base=/benchmark/ --outDir=N:\github\asrjs\demos\.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z\benchmark --emptyOutDir
+vite v7.3.7 building client environment for production...
+<script src="coi-serviceworker.js"> in "/index.html" can't be bundled without type="module" attribute
+transforming...
+✓ 380 modules transformed.
+rendering chunks...
+computing gzip size...
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/index.html                                                         0.68 kB │ gzip:     0.40 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/execution-context-B6QYDLZB.js                               0.71 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/ten-vad-worker-BuXpfewi.js                                  4.37 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/ten_vad-BWj8dcPJ.js                                         5.82 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/jetbrains-mono-latin-ext-400-normal-Bc8Ftmh3.woff2          7.34 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/jetbrains-mono-latin-ext-500-normal-Cut-4mMH.woff2          7.53 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/handles-DRTcKOax.js                                         7.55 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/plus-jakarta-sans-latin-ext-400-normal-D127hM_v.woff2      10.59 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/plus-jakarta-sans-latin-ext-500-normal-9VZagAe1.woff2      10.86 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/plus-jakarta-sans-latin-ext-600-normal-DQgPU_Cg.woff2      10.90 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/plus-jakarta-sans-latin-ext-700-normal-BajbvANd.woff2      11.01 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/plus-jakarta-sans-latin-400-normal-Dhut76fR.woff2          11.82 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/plus-jakarta-sans-latin-600-normal-DLTa1BUW.woff2          12.19 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/plus-jakarta-sans-latin-700-normal-CfpNZvy6.woff2          12.24 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/plus-jakarta-sans-latin-500-normal-Bf-nb4oT.woff2          12.31 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/crimson-pro-latin-ext-500-normal-Cu9CDuc4.woff2            15.20 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/crimson-pro-latin-ext-400-normal-B3ID4PT2.woff2            15.22 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/crimson-pro-latin-400-normal-B4SlG4wx.woff2                18.34 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/crimson-pro-latin-500-normal-D6GH0edE.woff2                18.87 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/jetbrains-mono-latin-400-normal-V6pRDFza.woff2             21.17 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/jetbrains-mono-latin-500-normal-BWZEU5yA.woff2             21.83 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/ten_vad-DpmpZqYN.wasm                                     283.35 kB │ gzip:   201.27 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/firered-vad-worker-CjjrbRZy.js                            429.14 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/browser-transcription-worker-thread-D0_YzBH0.js           665.90 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/ort-wasm-simd-threaded.asyncify-CsxMlmQ8.wasm          25,749.87 kB │ gzip: 6,368.50 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/ort-wasm-simd-threaded.jsep-D-icqfN-.wasm              27,797.17 kB │ gzip: 6,576.65 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/index-Cr5n5CCH.css                                         30.03 kB │ gzip:     5.78 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/execution-context-BtH9ZU3f.js                               0.68 kB │ gzip:     0.35 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/probe-B2Oc-wKF.js                                           0.81 kB │ gzip:     0.47 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/probe-DKGCKPcu.js                                           1.49 kB │ gzip:     0.76 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/handles-D2Q9xBhz.js                                         7.52 kB │ gzip:     1.96 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/ort.webgpu.bundle.min-Bp1mLMGC.js                         115.37 kB │ gzip:    38.39 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/ort.bundle.min-BubxaoL3.js                                410.29 kB │ gzip:   112.61 kB
+../../.asrjs-suite-stage-26156-2026-10-25T13-18-00-807Z/benchmark/assets/index-zYR51T8j.js                                         901.17 kB │ gzip:   244.10 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 6.51s
+
+ASRJS suite built at N:\github\asrjs\demos\dist (previous output preserved in N:\github\asrjs\demos\dist\.asrjs-backups\2026-10-25T13-18-00-807Z)

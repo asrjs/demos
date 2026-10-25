@@ -14,7 +14,6 @@ export function DemoShell({
   app,
   appId,
   title,
-  description,
   version = 'unknown',
   source = 'package',
   links,
@@ -36,21 +35,18 @@ export function DemoShell({
         {hrefFor('home', hrefFor('showcase', '../showcase/')) ? (
           <a className="asr-suite__brand" href={hrefFor('home', hrefFor('showcase', '../showcase/'))} aria-label="ASRJS Transcribe home">
             <span className="asr-suite__mark" aria-hidden="true">A</span>
-            <span><strong>ASRJS</strong><small>Speech recognition</small></span>
+            <span><strong>ASRJS</strong></span>
           </a>
         ) : (
           <span className="asr-suite__brand" aria-label="ASRJS Transcribe">
           <span className="asr-suite__mark" aria-hidden="true">A</span>
-          <span><strong>ASRJS</strong><small>Speech recognition</small></span>
+          <span><strong>ASRJS</strong></span>
           </span>
         )}
         <div className="asr-suite__heading">
-          <p className="asr-suite__eyebrow">{current.role} WORKSTATION</p>
           <h1>{title || current.label}</h1>
-          {description ? <p className="asr-suite__description">{description}</p> : null}
         </div>
         <div className="asr-suite__tools">
-          <span className="asr-suite__version" title={`Library ${version} · ${source}`}>{version} <i>{source}</i></span>
           <button className="asr-suite__theme" type="button" onClick={toggleTheme} aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`} title="Change appearance">
             <span aria-hidden="true">{theme === 'dark' ? '☼' : '◐'}</span><span className="asr-suite__theme-label">Appearance</span>
           </button>
@@ -68,7 +64,7 @@ export function DemoShell({
         </nav>
       ) : null}
       <main className="asr-suite__main">{children}</main>
-      <footer className="asr-suite__footer"><span>ASRJS · browser speech lab</span><span>Library {version} · {source}</span></footer>
+      <footer className="asr-suite__footer"><span>ASRJS</span><span>Library {version} · {source}</span></footer>
     </div>
   );
 }

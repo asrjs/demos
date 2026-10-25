@@ -3,17 +3,29 @@ import {
   listSpeechModels,
   listSpeechModelOptions,
 } from '@asrjs/speech-recognition';
+import { getDemoModelSourceOptions } from './model-loading.js';
 
 export const DEMO_MODELS = Object.fromEntries(
   listSpeechModels()
-    .filter((descriptor) => descriptor.loading.repoId)
+    .filter((descriptor) => getDemoModelSourceOptions(descriptor.modelId).length > 0)
     .map((descriptor) => [descriptor.modelId, descriptor]),
 );
 
-export const MODEL_OPTIONS = listSpeechModelOptions().filter((option) => option.repoId);
+export const MODEL_OPTIONS = listSpeechModelOptions().filter((option) => getDemoModelSourceOptions(option.key).length > 0);
 
 export function getDemoModelConfig(modelId) {
   return getSpeechModelDescriptor(modelId);
+}
+
+// Catalog coverage markers describe a model; they are not decoder language tags.
+export function getDemoModelLanguageOptions(modelId) {
+  const languages = getSpeechModelDescriptor(modelId)?.languages ?? [];
+  const concrete = languages.filter(language => language !== 'multilingual');
+  return concrete.length ? concrete : ['auto'];
+}
+
+export function resolveDemoLanguage(language) {
+  return language === 'auto' || language === 'multilingual' ? undefined : language;
 }
 
 

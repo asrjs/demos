@@ -1,0 +1,217 @@
+{
+  "scope": "Independent receipt audit, not a blanket model PASS; controlled audio only.",
+  "checkedReceipts": 18,
+  "acceptedFlows": 10,
+  "failedFlows": [
+    "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\webgpu\\realtime\\mic-speech-detect-vad-only-ten-vad.json",
+    "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\webgpu\\realtime\\mic-speech-detect-vad-only-firered-vad.json",
+    "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\webgpu\\playground\\playground-record-then-transcribe.json",
+    "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\webgpu\\playground\\streaming.json",
+    "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\wasm\\realtime\\mic-speech-detect-vad-only-ten-vad.json",
+    "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\wasm\\realtime\\mic-speech-detect-vad-only-firered-vad.json",
+    "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\wasm\\playground\\playground-record-then-transcribe.json",
+    "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\wasm\\playground\\streaming.json"
+  ],
+  "checks": [
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\webgpu\\showcase\\file.json",
+      "sha256": "f1ae493e1fc3d30697d124669af05e0461edaa0baacb37852c8f846cf9e5466e",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "and so my fellow americans ask not what your country can do for you ask what you can do for your country"
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\webgpu\\realtime\\file.json",
+      "sha256": "e5004b0c65aea664a83591c8880b0bd8fa4e5e1f8686c1ae7a0c53416732379a",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "and so my fellow americans ask not what your country can do for you ask what you can do for your country"
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\webgpu\\playground\\file.json",
+      "sha256": "27352a577d4936dbc5daa10cd9392de8b47716190b04352e00475290d52f6580",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "and so my fellow americans ask not what your country can do for you ask what you can do for your country"
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\webgpu\\benchmark\\file.json",
+      "sha256": "1c5a020bfa389b1a3f7b50490e042483c56ba5085f6b0e381309936ab6913364",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "and so my fellow americans ask not what your country can do for you ask what you can do for your country"
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\webgpu\\realtime\\mic-manual-manual-none.json",
+      "sha256": "479a1030ac512b934427096cd32284cecd1a813ff972e741259a13a563c05675",
+      "status": "PASS_CONTROLLED_MIC",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "and so my fellow americans ask not what your country can do for you ask what you can do for your country"
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\webgpu\\realtime\\mic-speech-detect-vad-only-ten-vad.json",
+      "sha256": "7cba742be9907668437c9029624dcd5c856a68fc91c7e607cf009f9499cbff53",
+      "status": "FAIL",
+      "runtimeStatus": "EXECUTED",
+      "exactText": false,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [
+        "Transcript is partial, duplicated, or differs from exact oracle"
+      ],
+      "transcript": "and so my fellow americans с нот what your country can do for you ask what you can do for your country"
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\webgpu\\realtime\\mic-speech-detect-vad-only-firered-vad.json",
+      "sha256": "92e05a64e87dcd4d0f8b8ba21b54c5162f8995661e2c7bb7effc8f0e6e1bddd1",
+      "status": "FAIL",
+      "runtimeStatus": "EXECUTED",
+      "exactText": false,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [
+        "Transcript is partial, duplicated, or differs from exact oracle"
+      ],
+      "transcript": "and so my fellow americans с наt what your country can do for you ask what you can do for your country"
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\webgpu\\playground\\playground-record-then-transcribe.json",
+      "sha256": "0c2746b25983bdee47b96c5992dc40538b7f7b611f981314979314f9c29fe262",
+      "status": "FAIL",
+      "runtimeStatus": "EXECUTED",
+      "exactText": false,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [
+        "Transcript is partial, duplicated, or differs from exact oracle"
+      ],
+      "transcript": "and so my fellow american ask not what your country can do for you ask what you can do for your country"
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\webgpu\\playground\\streaming.json",
+      "sha256": "ac16b28122eca646185d876f4ba3942f78ed0a8bb4026c1cf22b14ae1e7d4fb3",
+      "status": "FAIL",
+      "runtimeStatus": "UNSUPPORTED",
+      "exactText": true,
+      "streamingStatus": "UNSUPPORTED_OFFLINE_FALLBACK",
+      "errors": [
+        "Flow runtime not verified",
+        "Native streaming was unsupported or failed; offline fallback is not a streaming PASS",
+        "Multiple native streaming steps were not verified"
+      ],
+      "transcript": "and so my fellow americans ask not what your country can do for you ask what you can do for your country"
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\wasm\\showcase\\file.json",
+      "sha256": "396261133aae9e669403565915344448e2e0d02529edca068ec386d674949379",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "and so my fellow americans ask not what your country can do for you ask what you can do for your country"
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\wasm\\realtime\\file.json",
+      "sha256": "8f86a9cd24970df3a4499c6036a6233731b8ebae67fb44eb592f65052536df67",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "and so my fellow americans ask not what your country can do for you ask what you can do for your country"
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\wasm\\playground\\file.json",
+      "sha256": "9b0f414e1711c8114928ba8f9a2f426cd7b63d2cdeb14956cdea1ac660a00ea0",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "and so my fellow americans ask not what your country can do for you ask what you can do for your country"
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\wasm\\benchmark\\file.json",
+      "sha256": "7dc8d79cb3787b982faf90dc3e15726171c5cdc80b5d30bd51b2fb8566f558c8",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "and so my fellow americans ask not what your country can do for you ask what you can do for your country"
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\wasm\\realtime\\mic-manual-manual-none.json",
+      "sha256": "c8c3814c4e9d6501dcded51a6a7d840771078d4ef17a5b7dfc1f7af11c708c38",
+      "status": "PASS_CONTROLLED_MIC",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "and so my fellow americans ask not what your country can do for you ask what you can do for your country"
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\wasm\\realtime\\mic-speech-detect-vad-only-ten-vad.json",
+      "sha256": "a72d6659f81db2a378ab7ce140258d394118285b442f224cb4f04fb2cdad063b",
+      "status": "FAIL",
+      "runtimeStatus": "EXECUTED",
+      "exactText": false,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [
+        "Transcript is partial, duplicated, or differs from exact oracle"
+      ],
+      "transcript": "and so my fellow americans э нот what your country can do for you ask what you can do for your country"
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\wasm\\realtime\\mic-speech-detect-vad-only-firered-vad.json",
+      "sha256": "de824d4564ee4139f9fa0d99c2e6e4bfd6349dbd39a76a5dd5136031aeda5dea",
+      "status": "FAIL",
+      "runtimeStatus": "EXECUTED",
+      "exactText": false,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [
+        "Transcript is partial, duplicated, or differs from exact oracle"
+      ],
+      "transcript": "and so my fellow americans с not what your country can do for you ask what you can do for your country"
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\wasm\\playground\\playground-record-then-transcribe.json",
+      "sha256": "adadac0593a3cfde388b19d472d613f7e0338fd57d84c13ba8fff2c85d0edd18",
+      "status": "FAIL",
+      "runtimeStatus": "EXECUTED",
+      "exactText": false,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [
+        "Transcript is partial, duplicated, or differs from exact oracle"
+      ],
+      "transcript": "and so my fellow american ask not what your country can do for you ask what you can do for your country"
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\wasm\\playground\\streaming.json",
+      "sha256": "18a88319a3a4e86dfe0958f653d7ed0fa1ebe06b9d8a42e55d89919ae2a7e58a",
+      "status": "FAIL",
+      "runtimeStatus": "UNSUPPORTED",
+      "exactText": true,
+      "streamingStatus": "UNSUPPORTED_OFFLINE_FALLBACK",
+      "errors": [
+        "Flow runtime not verified",
+        "Native streaming was unsupported or failed; offline fallback is not a streaming PASS",
+        "Multiple native streaming steps were not verified"
+      ],
+      "transcript": "and so my fellow americans ask not what your country can do for you ask what you can do for your country"
+    }
+  ]
+}

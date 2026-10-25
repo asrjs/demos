@@ -1,21 +1,21 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   listSpeechModels,
-  PcmAudioBuffer,
-  resolveSpeechModelComponentBackends,
 } from '@asrjs/speech-recognition';
-import { loadBuiltInSpeechModel } from '@asrjs/speech-recognition/builtins';
 import {
   collectSpeechModelLocalEntries,
   createSpeechModelLocalEntries,
-  loadSpeechModelFromLocalEntries,
 } from '@asrjs/speech-recognition/browser';
+import {
+  createDemoHubLoader,
+  getDemoModelLoadingState,
+  getDemoModelSourceOptions,
+  loadDemoLocalModel,
+  resolveDemoModelSource,
+} from '@asrjs/demo-runtime';
 import {
   MODELS,
   LANGUAGE_NAMES,
-  ParakeetModel,
-  getParakeetModel,
-  loadModelWithFallback,
 } from '@asrjs/speech-recognition/presets/parakeet';
 import { decodeAudioSourceToMonoPcm } from '@asrjs/speech-recognition/browser/media';
 import {
@@ -94,7 +94,6 @@ const BACKEND_MODES = [
   { value: 'webgpu', label: 'WebGPU Pure' },
   { value: 'wasm', label: 'WASM Pure (CPU)' },
 ];
-const QUANTS = ['fp16', 'int8', 'fp32'];
 const DATASET_SUGGESTIONS = [
   'ysdede/parrot-radiology-asr-en',
   'mozilla-foundation/common_voice_17_0',
@@ -208,11 +207,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('benchmark');
 
   const catalogModels = useMemo(() => listSpeechModels(), []);
-  const catalogByKey = useMemo(() => {
-    const map = {};
-    for (const m of catalogModels) map[m.modelId] = m;
-    return map;
-  }, [catalogModels]);
+
 
   const groupedCatalog = useMemo(() => {
     const groups = {};
@@ -225,8 +220,10 @@ export default function App() {
   }, [catalogModels]);
 
   // Model & Runtime state
-  const [modelSource, setModelSource] = useState(initial.modelSource || 'huggingface');
   const [modelKey, setModelKey] = useState(initial.modelKey || 'parakeet-tdt-0.6b-v2');
+  const [modelSource, setModelSource] = useState(() =>
+    resolveDemoModelSource(initial.modelKey || 'parakeet-tdt-0.6b-v2', initial.modelSource || 'huggingface') || 'huggingface',
+  );
   const [backend, setBackend] = useState(initial.backend || 'webgpu-hybrid');
   const [encoderQuant, setEncoderQuant] = useState(initial.encoderQuant || 'fp16');
   const [decoderQuant, setDecoderQuant] = useState(initial.decoderQuant || 'int8');
@@ -291,12 +288,33 @@ export default function App() {
   });
 
   const modelRef = useRef(null);
+  const hubLoaderRef = useRef(null);
   const stopRef = useRef(false);
   const localModelInputRef = useRef(null);
   const localAudioInputRef = useRef(null);
 
   const isParakeetLegacy = Boolean(MODELS[modelKey]);
-  const selectedDescriptor = catalogByKey[modelKey];
+  const modelSourceOptions = getDemoModelSourceOptions(modelKey);
+  const loadingState = useMemo(() => getDemoModelLoadingState({
+    modelId: modelKey,
+    source: modelSource,
+    entries: localModelEntries,
+    backend,
+    encoderQuant,
+    decoderQuant,
+  }), [modelKey, modelSource, localModelEntries, backend, encoderQuant, decoderQuant]);
+  const encoderQuantOptions = loadingState.encoderQuantOptions;
+  const decoderQuantOptions = loadingState.decoderQuantOptions;
+
+  useEffect(() => {
+    const nextSource = resolveDemoModelSource(modelKey, modelSource);
+    if (nextSource && nextSource !== modelSource) setModelSource(nextSource);
+  }, [modelKey, modelSource]);
+
+  useEffect(() => {
+    if (loadingState.encoderQuant && loadingState.encoderQuant !== encoderQuant) setEncoderQuant(loadingState.encoderQuant);
+    if (loadingState.decoderQuant && loadingState.decoderQuant !== decoderQuant) setDecoderQuant(loadingState.decoderQuant);
+  }, [loadingState.encoderQuant, loadingState.decoderQuant, encoderQuant, decoderQuant]);
 
   useEffect(() => {
     saveSettings({
@@ -416,8 +434,8 @@ export default function App() {
     setErrorText('');
     setModelStatus('Loading model...');
     setModelProgress('');
+    const memoryBefore = await measureBrowserMemory({ timeoutMs: 1000 });
     const startedAt = performance.now();
-    const memoryBefore = await measureBrowserMemory();
 
     try {
       if (modelRef.current) {
@@ -430,14 +448,20 @@ export default function App() {
         if (!localModelEntries.length) {
           throw new Error('Select a local model directory first.');
         }
-        const loaded = await loadSpeechModelFromLocalEntries({
+        const loaded = await loadDemoLocalModel({
           entries: localModelEntries,
           modelId: modelKey,
           backend,
-          encoderQuant,
-          decoderQuant,
+          encoderBackend: loadingState.encoderBackend,
+          decoderBackend: loadingState.decoderBackend,
+          encoderQuant: loadingState.encoderQuant,
+          decoderQuant: loadingState.decoderQuant,
           preprocessorBackend,
           cpuThreads,
+          onProgress: (event) => {
+            if (event?.message) setModelProgress(event.message);
+            else if (event?.file) setModelProgress(`${event.file}: ${Math.round(event.progress || 0)}%`);
+          },
         });
         modelRef.current = {
           type: 'local-handle',
@@ -447,75 +471,31 @@ export default function App() {
         setIsModelReady(true);
         setResolvedBackendInfo(`${loaded.selection?.modelId || modelKey} · ${backend} · local`);
         setModelStatus('Model ready (Local)');
-      } else if (isParakeetLegacy) {
-        const loaded = await loadModelWithFallback({
-          modelId: modelKey,
-          backend,
-          encoderQuant,
-          decoderQuant,
-          preprocessor: 'nemo128',
-          preprocessorBackend,
-          cpuThreads,
-          onProgress: ({ file, progress: pct }) => setModelProgress(`${file}: ${pct}%`),
-          onStatus: (msg) => setModelStatus(msg),
-        });
-        const parakeet = await ParakeetModel.fromUrls({
-          ...loaded.urls,
-          filenames: loaded.filenames,
-          backend: loaded.backend,
-          preprocessorBackend: loaded.preprocessorBackend,
-          cpuThreads,
-        });
-        modelRef.current = {
-          type: 'parakeet',
-          instance: parakeet,
-          dispose: () => parakeet.dispose?.(),
-        };
-        setIsModelReady(true);
-        setResolvedBackendInfo(
-          `${modelKey} · ${loaded.backend} · e:${loaded.encoderQuant} d:${loaded.decoderQuant} · preproc:${loaded.preprocessorBackend}`,
-        );
-        setModelStatus('Model ready');
       } else {
-        const componentBackends = resolveSpeechModelComponentBackends(modelKey, backend);
-        const handle = await loadBuiltInSpeechModel({
-          modelId: modelKey,
-          preset: selectedDescriptor?.preset,
-          backend,
-          options: {
-            quantization: encoderQuant,
-            encoderQuant,
-            decoderQuant,
-            encoderBackend: componentBackends.encoderBackend,
-            decoderBackend: componentBackends.decoderBackend,
-            cpuThreads,
-          },
-          onProgress: (ev) => {
-            if (ev?.file) setModelProgress(`${ev.file}: ${Math.round(ev.progress || 0)}%`);
+        if (!hubLoaderRef.current) hubLoaderRef.current = createDemoHubLoader();
+        const { model } = await hubLoaderRef.current.loadModel({
+          modelId: modelKey, backend, cpuThreads, preprocessorBackend,
+          encoderQuant: loadingState.encoderQuant, decoderQuant: loadingState.decoderQuant,
+          encoderBackend: loadingState.encoderBackend, decoderBackend: loadingState.decoderBackend,
+          onProgress: (event) => {
+            if (event?.message) setModelProgress(event.message);
+            else if (event?.file) setModelProgress(`${event.file}: ${Math.round(event.percent || event.progress || 0)}%`);
           },
         });
-        const session = await handle.createSession();
-        modelRef.current = {
-          type: 'universal',
-          instance: handle,
-          session,
-          dispose: async () => {
-            await session.dispose?.();
-            await handle.dispose?.();
-          },
-        };
+        modelRef.current = { instance: model, dispose: () => model.evict() };
         setIsModelReady(true);
-        setResolvedBackendInfo(`${modelKey} · ${backend} · ${encoderQuant}`);
+        setResolvedBackendInfo(`${modelKey} · ${backend} · e:${loadingState.encoderQuant} d:${loadingState.decoderQuant}`);
         setModelStatus('Model ready');
       }
 
-      const memoryAfter = await measureBrowserMemory();
+      const durationMs = performance.now() - startedAt;
+      const memoryAfter = await measureBrowserMemory({ timeoutMs: 1000 });
       setLifecycleRecords((prev) => [
         {
           phase: 'load',
           modelKey,
           backend,
-          durationMs: performance.now() - startedAt,
+          durationMs,
           memoryBefore,
           memoryAfter,
         },
@@ -591,53 +571,9 @@ export default function App() {
   async function executeSingleTranscribe(pcm, durationSec) {
     const wrapper = modelRef.current;
     const t0 = performance.now();
-    if (wrapper.type === 'parakeet') {
-      const res = await wrapper.instance.transcribe(pcm, 16000, {
-        returnTimestamps: true,
-        returnConfidences: true,
-      });
-      const wallMs = performance.now() - t0;
-      const totalMs = res.metrics?.total_ms ?? wallMs;
-      return {
-        text: res.utterance_text || '',
-        metrics: {
-          preprocess_ms: res.metrics?.preprocess_ms ?? 0,
-          encode_ms: res.metrics?.encode_ms ?? 0,
-          decode_ms: res.metrics?.decode_ms ?? 0,
-          tokenize_ms: res.metrics?.tokenize_ms ?? 0,
-          total_ms: totalMs,
-          rtf: durationSec > 0 ? totalMs / 1000 / durationSec : null,
-          rtfx: calcRtfx(durationSec, totalMs),
-        },
-      };
-    }
-    if (wrapper.type === 'local-handle') {
-      const env = await wrapper.instance.transcribeMonoPcm(pcm, 16000, {
-        detail: 'words',
-        responseFlavor: 'canonical+native',
-      });
-      const wallMs = performance.now() - t0;
-      const canonical = env?.canonical ?? env;
-      const nativeMetrics = env?.native?.metrics || canonical?.meta?.metrics || {};
-      const totalMs = nativeMetrics.totalMs ?? nativeMetrics.total_ms ?? wallMs;
-      return {
-        text: canonical?.text || '',
-        metrics: {
-          preprocess_ms: nativeMetrics.preprocessMs ?? nativeMetrics.preprocess_ms ?? 0,
-          encode_ms: nativeMetrics.encodeMs ?? nativeMetrics.encode_ms ?? 0,
-          decode_ms: nativeMetrics.decodeMs ?? nativeMetrics.decode_ms ?? 0,
-          tokenize_ms: nativeMetrics.tokenizeMs ?? nativeMetrics.tokenize_ms ?? 0,
-          total_ms: totalMs,
-          rtf: durationSec > 0 ? totalMs / 1000 / durationSec : null,
-          rtfx: calcRtfx(durationSec, totalMs),
-        },
-      };
-    }
-    const audioBuffer = PcmAudioBuffer.fromMono(pcm, 16000);
-    const env = await wrapper.session.transcribe(audioBuffer, {
+    const env = await wrapper.instance.transcribeMonoPcm(pcm, 16000, {
       language: language === 'auto' ? undefined : language,
-      detail: 'words',
-      responseFlavor: 'canonical+native',
+      detail: 'words', responseFlavor: 'canonical+native',
     });
     const wallMs = performance.now() - t0;
     const canonical = env?.canonical ?? env;
@@ -967,22 +903,23 @@ export default function App() {
                 <span className="mono status-note">{isParakeetLegacy ? 'Parakeet Preset' : 'Universal Catalog'}</span>
               </div>
               <div className="form-stack">
-                <div className="mode-switch">
-                  <button
-                    type="button"
-                    className={`mode-switch-btn ${modelSource === 'huggingface' ? 'mode-switch-btn--active' : ''}`}
-                    onClick={() => setModelSource('huggingface')}
-                  >
-                    HuggingFace Hub
-                  </button>
-                  <button
-                    type="button"
-                    className={`mode-switch-btn ${modelSource === 'local' ? 'mode-switch-btn--active' : ''}`}
-                    onClick={() => setModelSource('local')}
-                  >
-                    Local Folder
-                  </button>
-                </div>
+                {modelSourceOptions.length > 1 ? (
+                  <div className="mode-switch">
+                    {modelSourceOptions.map((source) => (
+                      <button
+                        key={source}
+                        type="button"
+                        className={`mode-switch-btn ${modelSource === source ? 'mode-switch-btn--active' : ''}`}
+                        onClick={() => {
+                          setModelSource(source);
+                          setIsModelReady(false);
+                        }}
+                      >
+                        {source === 'local' ? 'Local Folder' : 'HuggingFace Hub'}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
 
                 {modelSource === 'local' && (
                   <div className="btn-row">
@@ -994,7 +931,7 @@ export default function App() {
                 )}
 
                 <label className="field">
-                  Model Family / Preset (All 16 Families)
+                  Model
                   <select
                     value={modelKey}
                     onChange={(e) => {
@@ -1037,7 +974,7 @@ export default function App() {
                   <label className="field">
                     Encoder Quant
                     <select value={encoderQuant} onChange={(e) => setEncoderQuant(e.target.value)} disabled={isLoadingModel || isRunning}>
-                      {QUANTS.map((q) => (
+                    {encoderQuantOptions.map((q) => (
                         <option key={q} value={q}>{q}</option>
                       ))}
                     </select>
@@ -1045,7 +982,7 @@ export default function App() {
                   <label className="field">
                     Decoder Quant
                     <select value={decoderQuant} onChange={(e) => setDecoderQuant(e.target.value)} disabled={isLoadingModel || isRunning}>
-                      {QUANTS.map((q) => (
+                    {decoderQuantOptions.map((q) => (
                         <option key={q} value={q}>{q}</option>
                       ))}
                     </select>
@@ -1077,7 +1014,7 @@ export default function App() {
                   type="button"
                   className="btn btn-primary"
                   onClick={loadSelectedModel}
-                  disabled={isLoadingModel || isRunning}
+                  disabled={isLoadingModel || isRunning || (modelSource === 'local' && (!localModelEntries.length || !encoderQuantOptions.length || !decoderQuantOptions.length))}
                 >
                   {isLoadingModel ? 'Loading Model...' : isModelReady ? 'Reload Model ✓' : 'Load Model'}
                 </button>

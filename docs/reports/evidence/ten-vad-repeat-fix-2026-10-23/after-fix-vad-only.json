@@ -1,0 +1,361 @@
+{
+  "phase": "after-fix",
+  "gate": "vad-only",
+  "status": "PASS_CONTROLLED_FIXTURE",
+  "physicalMicrophone": "UNVERIFIED",
+  "fixtureSha256": "59dfb9a4acb36fe2a2affc14bacbee2920ff435cb13cc314a08c13f66ba7860e",
+  "captureFixtureSha256": "ee34fbf8474167329f04294d01fbffcdd79a014da8f534ce06e21750943061b6",
+  "pageErrors": [],
+  "startedAt": "2026-10-23T02:19:13",
+  "modelDir": "N:\\models\\onnx\\nemo\\parakeet-tdt-0.6b-v3-onnx",
+  "load": "EXECUTED",
+  "beforeCaptureBody": "A\nASRJS\nLive transcription\n◐\nAppearance\nTranscribe\nPlayground\nLive\nBenchmark\nRealtime VAD Lab\nTranscript & Subtitles\ntune\nModel ready · webgpu-hybrid · Microphone idle\nLoad\nready\nparakeet-tdt-0.6b-v3-onnx\nLocal assets\nModel Loaded\nValidation\nInput language\nEnglish\nFrench\nGerman\nSpanish\nItalian\nPortuguese\nDutch\nPolish\nexpand_more\nLoad Sample\nupload_file\nDrop or click to transcribe\nModel Settings\nArtifact source\nHugging Face\nLocal folder\nexpand_more\nLocal folder\nparakeet-tdt-0.6b-v3-onnx\nfolder_open\nFiles: 86\nEncoder: fp32, fp16, int8\nDecoder: fp32, fp16, int8\nTokenizer: vocab.txt\nFrontend: nemo128\nParakeet TDT 0.6B v3 (Multilingual)\nRuntime Settings\nRuntime backend\nWebGPU\nWASM\nexpand_more\nEncoder\nwebgpu\nwasm\nexpand_more\nDecoder\nwasm\nexpand_more\nThreads\nStride\nEncoder quant\nfp32\nfp16\nint8\nexpand_more\nDecoder quant\nfp32\nfp16\nint8\nexpand_more\nPrompt Settings\nFrontend\nJS frontend\nONNX frontend\nexpand_more\nTokenizer\nvocab.txt\nexpand_more\nVerbose logging\nLog results\nEnable profiling\nCapture\n0.00\nSIG\n-100.0\nAVG\n-100.0\nGATE\n-21.9\nNOISE\n-46.0\nSEGS\n0/0\nAUDIO\n16000Hz\nBUF\n12.0s\nSNR\n0.00\nTHR\n3.00\nWAVEFORM\nidle · main\nRATE target 16000 Hz\n·\nCHUNK 16 ms/256f\n·\nWIN 12.00 s\n·\nSEG inactive\n·\nBUF 0/750 pad 750\n·\nPUB/PAINT 0/s 0/s\nMODE rough-only\n·\nRELEASE 400 ms\n·\nNOISE -46.0 dBFS\n·\nGATE -21.9 dBFS\n·\nFINAL GATE --\n·\nGATE LINES on\n·\nTEN on\n·\nSCALE physical\nWaveform display\nSurface\ncompact stats + waveform + footer metrics\nFull\nStats Only\nWaveform Only\nView\nraw amplitude\nPhysical\nFocus\nBalanced\nGate lines\nwaveform legend\nshow\nhide\nFireRed line\ndiagnostic only\nshow\nhide\nRMS\ndiagnostic\nhide\nshow\nFinal Acceptance\nDuration and normalized 16 kHz energy thresholds used after live segmentation.\nFinal segment gate\nrough-only\nenabled\ndisabled\nAcceptance preset\nUpdates the final segment acceptance thresholds together.\nOpen\nBalanced\nStrict\nCustom\nMin final duration\n240 ms\nMin power\n5.00\nMin integral\n22.00\nAdaptive noise-scaled acceptance controls.\nShow advanced\nDetector tuning\nPreset\nMedium\nMedium\nFast\nSlow\nCustom\nDefault mode\nmanual\nVAD backend\n16 ms hop / 16 ms visual\nFireRed VAD\nTEN-VAD\nGate mode\nrough-only\nRough only\nHybrid\nVAD only\nLive Segmenter\nPeak-energy speech trigger, smoothing, and silence release.\nEnergy threshold\n0.08\nAnalysis window\n80 ms\nEnergy smoothing\n480 ms\nSilence release\n400 ms\nMax segment\n4800 ms\nExtraction Timing\nLookback, overlap, and tail padding applied when a segment is extracted.\nLookback\n128 ms\nOverlap\n80 ms\nTail padding\n160 ms\nNoise Adaptation\nHow the baseline noise floor and onset backtracking adapt over time.\nInitial noise\n0.00500\nFast adapt\n0.15\nSlow adapt\n0.05\nBlend duration\n1.0 s\nSNR display gate\n3.00\nOnset SNR floor\n1.00\nRise threshold\n0.08\nMicrophone\n\nStart capture, switch mode, and send buffered speech.\n\nMode\nManual\nSpeech Detect\nStart Mic\nSend\nAdvanced\nMicrophone idle\nDetector readout\n\nLive rough-gate state, adaptive noise floor, and final segment energy metrics.\n\nLEVEL\n-100.0 dBFS\nwindow -100.0 dBFS\nNOISE FLOOR\n-46.0 dBFS\nconfirmed -46.0 dBFS · rejected -46.0 dBFS\nFINAL POWER\n--\nmin --\nFINAL INTEGRAL\n--\nmin --\nDETECTOR MODE\nrough-only\nreq vad-only\nTEN-VAD\n0.00\ndiagnostic only\nFILTER\narmed\nwaiting\nVAD BUFFER\nempty\nmax 0.00\nWarnings\nSpeech segmentation is running on the rough gate. TEN-VAD is diagnostics-only.\nRequested TEN-VAD-first gating is ignored by this Parakeet-style detector port.\nDecisions\nNo decisions yet.\nSegments\nNo segments yet.\nTranscript & Word Alignment\nNo text yet.\nTOTAL\n--\nAwaiting result\nDECODE\n--\nAwaiting result\nCONFIDENCE\n--\nNo finished utterance\nQUEUE\nclear\nReady\nReference\nASRJS\nLibrary 0.2.0 · npm-package",
+  "beforeStopEvidence": {
+    "decisions": [
+      {
+        "message": "[StreamingSpeechDetector] TEN-VAD ready for diagnostics",
+        "meta": {
+          "state": "ready",
+          "error": null,
+          "probability": 0,
+          "speaking": false,
+          "threshold": 0.5
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger",
+        "meta": {
+          "energy": 0.004,
+          "threshold": 0.08,
+          "snr": 4.57
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 22016,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 56320
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 19968,
+          "endFrame": 56320,
+          "logicalEndFrame": 56320,
+          "durationSec": 2.27,
+          "normalizedPowerAt16k": 684.96
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger",
+        "meta": {
+          "energy": 0.028,
+          "threshold": 0.08,
+          "snr": 13.58
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger",
+        "meta": {
+          "energy": 0.025,
+          "threshold": 0.08,
+          "snr": 14.39
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 70144,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 89344
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 55040,
+          "endFrame": 89344,
+          "logicalEndFrame": 89344,
+          "durationSec": 2.14,
+          "normalizedPowerAt16k": 287.88
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger",
+        "meta": {
+          "energy": 0.027,
+          "threshold": 0.08,
+          "snr": 14.99
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 104192,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 140032
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 88064,
+          "endFrame": 140032,
+          "logicalEndFrame": 140032,
+          "durationSec": 3.25,
+          "normalizedPowerAt16k": 236.41
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger",
+        "meta": {
+          "energy": 0.032,
+          "threshold": 0.08,
+          "snr": 14.99
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD speech start",
+        "meta": {
+          "startFrame": 148736,
+          "gateMode": "vad-only"
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 194304
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 138752,
+          "endFrame": 194304,
+          "logicalEndFrame": 194304,
+          "durationSec": 3.47,
+          "normalizedPowerAt16k": 172.47
+        }
+      }
+    ],
+    "jobs": [
+      {
+        "sourceLabel": "microphone-silence-02:19:30",
+        "durationSeconds": 2.27,
+        "pending": 1,
+        "transcriber": "main"
+      },
+      {
+        "sourceLabel": "microphone-silence-02:19:32",
+        "durationSeconds": 2.14,
+        "pending": 1,
+        "transcriber": "main"
+      },
+      {
+        "sourceLabel": "microphone-silence-02:19:35",
+        "durationSeconds": 3.25,
+        "pending": 1,
+        "transcriber": "worker"
+      },
+      {
+        "sourceLabel": "microphone-silence-02:19:38",
+        "durationSeconds": 3.47,
+        "pending": 1,
+        "transcriber": "worker"
+      }
+    ],
+    "completedJobs": 4
+  },
+  "decisions": [
+    {
+      "message": "[StreamingSpeechDetector] TEN-VAD ready for diagnostics",
+      "meta": {
+        "state": "ready",
+        "error": null,
+        "probability": 0,
+        "speaking": false,
+        "threshold": 0.5
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger",
+      "meta": {
+        "energy": 0.004,
+        "threshold": 0.08,
+        "snr": 4.57
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 22016,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 56320
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 19968,
+        "endFrame": 56320,
+        "logicalEndFrame": 56320,
+        "durationSec": 2.27,
+        "normalizedPowerAt16k": 684.96
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger",
+      "meta": {
+        "energy": 0.028,
+        "threshold": 0.08,
+        "snr": 13.58
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger",
+      "meta": {
+        "energy": 0.025,
+        "threshold": 0.08,
+        "snr": 14.39
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 70144,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 89344
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 55040,
+        "endFrame": 89344,
+        "logicalEndFrame": 89344,
+        "durationSec": 2.14,
+        "normalizedPowerAt16k": 287.88
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger",
+      "meta": {
+        "energy": 0.027,
+        "threshold": 0.08,
+        "snr": 14.99
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 104192,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 140032
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 88064,
+        "endFrame": 140032,
+        "logicalEndFrame": 140032,
+        "durationSec": 3.25,
+        "normalizedPowerAt16k": 236.41
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger",
+      "meta": {
+        "energy": 0.032,
+        "threshold": 0.08,
+        "snr": 14.99
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD speech start",
+      "meta": {
+        "startFrame": 148736,
+        "gateMode": "vad-only"
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 194304
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 138752,
+        "endFrame": 194304,
+        "logicalEndFrame": 194304,
+        "durationSec": 3.47,
+        "normalizedPowerAt16k": 172.47
+      }
+    }
+  ],
+  "jobs": [
+    {
+      "sourceLabel": "microphone-silence-02:19:30",
+      "durationSeconds": 2.27,
+      "pending": 1,
+      "transcriber": "main"
+    },
+    {
+      "sourceLabel": "microphone-silence-02:19:32",
+      "durationSeconds": 2.14,
+      "pending": 1,
+      "transcriber": "main"
+    },
+    {
+      "sourceLabel": "microphone-silence-02:19:35",
+      "durationSeconds": 3.25,
+      "pending": 1,
+      "transcriber": "worker"
+    },
+    {
+      "sourceLabel": "microphone-silence-02:19:38",
+      "durationSeconds": 3.47,
+      "pending": 1,
+      "transcriber": "worker"
+    }
+  ],
+  "completedJobs": 4,
+  "transcript": "And so, my fellow Americans. Ask not What your country can do for you Ask what you can do for your country.",
+  "afterStopBody": "A\nASRJS\nLive transcription\n◐\nAppearance\nTranscribe\nPlayground\nLive\nBenchmark\nRealtime VAD Lab\nTranscript & Subtitles\ntune\nModel ready · webgpu-hybrid · Microphone stopped\nLoad\nready\nparakeet-tdt-0.6b-v3-onnx\nLocal assets\nModel Loaded\nValidation\nInput language\nEnglish\nFrench\nGerman\nSpanish\nItalian\nPortuguese\nDutch\nPolish\nexpand_more\nLoad Sample\nupload_file\nDrop or click to transcribe\nModel Settings\nArtifact source\nHugging Face\nLocal folder\nexpand_more\nLocal folder\nparakeet-tdt-0.6b-v3-onnx\nfolder_open\nFiles: 86\nEncoder: fp32, fp16, int8\nDecoder: fp32, fp16, int8\nTokenizer: vocab.txt\nFrontend: nemo128\nParakeet TDT 0.6B v3 (Multilingual)\nRuntime Settings\nRuntime backend\nWebGPU\nWASM\nexpand_more\nEncoder\nwebgpu\nwasm\nexpand_more\nDecoder\nwasm\nexpand_more\nThreads\nStride\nEncoder quant\nfp32\nfp16\nint8\nexpand_more\nDecoder quant\nfp32\nfp16\nint8\nexpand_more\nPrompt Settings\nFrontend\nJS frontend\nONNX frontend\nexpand_more\nTokenizer\nvocab.txt\nexpand_more\nVerbose logging\nLog results\nEnable profiling\nCapture\n-60.00\nSIG\n-100.0\nAVG\n-100.0\nGATE\n-21.9\nNOISE\n-75.9\nSEGS\n4/0\nAUDIO\n16000Hz\nBUF\n12.0s\nSNR\n-60.00\nTHR\n3.00\nWAVEFORM\nlistening · main\nRATE target 16000 Hz\n·\nCHUNK 16 ms/256f\n·\nWIN 12.00 s\n·\nSEG inactive\n·\nBUF 750/750 pad 0\n·\nPUB/PAINT 0/s 0/s\nMODE vad-only\n·\nRELEASE 400 ms\n·\nNOISE -75.9 dBFS\n·\nGATE -21.9 dBFS\n·\nFINAL GATE p 172.47/1.00 · i 598.82/3.00\n·\nGATE LINES on\n·\nTEN on\n·\nSCALE physical\nWaveform display\nSurface\ncompact stats + waveform + footer metrics\nFull\nStats Only\nWaveform Only\nView\nraw amplitude\nPhysical\nFocus\nBalanced\nGate lines\nwaveform legend\nshow\nhide\nFireRed line\ndiagnostic only\nshow\nhide\nRMS\ndiagnostic\nhide\nshow\nFinal Acceptance\nDuration and normalized 16 kHz energy thresholds used after live segmentation.\nFinal segment gate\nvad-only\nenabled\ndisabled\nAcceptance preset\nUpdates the final segment acceptance thresholds together.\nOpen\nBalanced\nStrict\nCustom\nMin final duration\n240 ms\nMin power\n5.00\nMin integral\n22.00\nAdaptive noise-scaled acceptance controls.\nShow advanced\nDetector tuning\nPreset\nMedium\nMedium\nFast\nSlow\nCustom\nDefault mode\nmanual\nVAD backend\n16 ms hop / 16 ms visual\nFireRed VAD\nTEN-VAD\nGate mode\nvad-only\nRough only\nHybrid\nVAD only\nLive Segmenter\nPeak-energy speech trigger, smoothing, and silence release.\nEnergy threshold\n0.08\nAnalysis window\n80 ms\nEnergy smoothing\n480 ms\nSilence release\n400 ms\nMax segment\n4800 ms\nExtraction Timing\nLookback, overlap, and tail padding applied when a segment is extracted.\nLookback\n128 ms\nOverlap\n80 ms\nTail padding\n160 ms\nNoise Adaptation\nHow the baseline noise floor and onset backtracking adapt over time.\nInitial noise\n0.00500\nFast adapt\n0.15\nSlow adapt\n0.05\nBlend duration\n1.0 s\nSNR display gate\n3.00\nOnset SNR floor\n1.00\nRise threshold\n0.08\nMicrophone\n\nStart capture, switch mode, and send buffered speech.\n\nMode\nManual\nSpeech Detect\nStart Mic\nSend\nAdvanced\nMicrophone stopped\nDetector readout\n\nLive rough-gate state, adaptive noise floor, and final segment energy metrics.\n\nLEVEL\n-100.0 dBFS\nwindow -100.0 dBFS\nNOISE FLOOR\n-75.9 dBFS\nconfirmed -100.0 dBFS · rejected -75.9 dBFS\nFINAL POWER\n172.47\nmin 1.00\nFINAL INTEGRAL\n598.82\nmin 3.00\nDETECTOR MODE\nvad-only\nreq vad-only\nTEN-VAD\n0.09\ndiagnostic only\nFILTER\naccepted\naccepted\nVAD BUFFER\n0/12\nmax 0.09\nDecisions\nSegment ready: silence\n02:19:38\nNeural VAD finalized speech after sustained silence\n02:19:38\nNeural VAD speech start\n02:19:35\nSegment ready: silence\n02:19:35\nNeural VAD finalized speech after sustained silence\n02:19:35\nSegments\nsilence\n3.47 s\n16.000 Hz · 138752 -> 194304\nsilence\n3.25 s\n16.000 Hz · 88064 -> 140032\nsilence\n2.14 s\n16.000 Hz · 55040 -> 89344\nsilence\n2.27 s\n16.000 Hz · 19968 -> 56320\nTranscript & Word Alignment\nCopySRTVTTJSON\nAnd so, my fellow Americans. Ask not What your country can do for you Ask what you can do for your country.\nAsk8.99s–9.63swhat9.63s–9.95syou9.95s–10.19scan10.19s–10.43sdo10.43s–10.59sfor10.59s–10.83syour10.83s–11.07scountry.11.07s–11.63s\nTOTAL\n520 ms\nencode 469 ms\nDECODE\n35 ms\nrtf 0.15x\nCONFIDENCE\n97%\n8 words\nQUEUE\nclear\nReady\nReference\nHistory\nClear All\nmicrophone-silence-02:19:38\nUnknown language\n02:19:39\n3.5s\n8 words\n97%\nRTF 0.15x\ndownload\nAsk what you can do for your country.\nmicrophone-silence-02:19:35\nUnknown language\n02:19:36\n3.2s\n7 words\n97%\nRTF 0.24x\ndownload\nWhat your country can do for you\nmicrophone-silence-02:19:32\nUnknown language\n02:19:32\n2.1s\n2 words\n98%\nRTF 0.23x\ndownload\nAsk not\nmicrophone-silence-02:19:30\nUnknown language\n02:19:30\n2.3s\n5 words\n92%\nRTF 0.20x\ndownload\nAnd so, my fellow Americans.\nASRJS\nLibrary 0.2.0 · npm-package",
+  "verificationErrors": [],
+  "browserVersion": "155.0.8059.86"
+}

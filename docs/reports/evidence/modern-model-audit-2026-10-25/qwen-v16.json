@@ -1,0 +1,199 @@
+{
+  "scope": "Independent receipt audit, not a blanket model PASS; controlled audio only.",
+  "checkedReceipts": 18,
+  "acceptedFlows": 16,
+  "failedFlows": [
+    "webgpu/playground/streaming.json",
+    "wasm/playground/streaming.json"
+  ],
+  "checks": [
+    {
+      "path": "webgpu/showcase/file.json",
+      "sha256": "e5d4e8361dd4beb5a7948eac030be2e4c5b1d29ec56153cded97c0d4b2f32bec",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you; ask what you can do for your country."
+    },
+    {
+      "path": "webgpu/realtime/file.json",
+      "sha256": "0d1a5f4a87c9eef105a74c34a3d33d330fb0c5948b3ff67194907b089b388393",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you; ask what you can do for your country."
+    },
+    {
+      "path": "webgpu/playground/file.json",
+      "sha256": "5ff32d66836b121e2af1d595fc4db2884ccd86787a5c86cac39feeee2eb83352",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you; ask what you can do for your country."
+    },
+    {
+      "path": "webgpu/benchmark/file.json",
+      "sha256": "45a41d1b74d997126e761183284ed3765df55ed8a603449275bf82d28c7e6ed4",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you; ask what you can do for your country."
+    },
+    {
+      "path": "webgpu/realtime/mic-manual-manual-none.json",
+      "sha256": "3b4c8599a96199af789834c3dfbdb75a7f34c5a1ef5373637ed37d20d464ce5c",
+      "status": "PASS_CONTROLLED_MIC",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you; ask what you can do for your country."
+    },
+    {
+      "path": "webgpu/realtime/mic-speech-detect-vad-only-ten-vad.json",
+      "sha256": "de6b069b01fe56bc24ea7eeff886c36c217774c78ab7fa8bc5c29dc84ba24c73",
+      "status": "PASS_CONTROLLED_MIC",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so, my fellow Americans. Ask not. What your country can do for you. Ask what you can do for your country."
+    },
+    {
+      "path": "webgpu/realtime/mic-speech-detect-vad-only-firered-vad.json",
+      "sha256": "feddc2d6e218f29e4ada79b54eabbe8fc6d4830fcd90c4f4f260672a10a17475",
+      "status": "PASS_CONTROLLED_MIC",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so, my fellow Americans. Ask. Not. What your country can do for you. Ask what you can do for your country."
+    },
+    {
+      "path": "webgpu/playground/playground-record-then-transcribe.json",
+      "sha256": "8e23cfab4d1e766f668edb0e7c2080fba878a2699d035030a6fde9cd730729ce",
+      "status": "PASS_CONTROLLED_RECORD_THEN_TRANSCRIBE",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you; ask what you can do for your country."
+    },
+    {
+      "path": "webgpu/playground/streaming.json",
+      "sha256": "74645ec91df93227eada4c08f8c77dfb5dcb224c355767ebb8494f127ea70e61",
+      "status": "FAIL",
+      "runtimeStatus": "UNSUPPORTED",
+      "exactText": true,
+      "streamingStatus": "UNSUPPORTED_OFFLINE_FALLBACK",
+      "errors": [
+        "Flow runtime not verified",
+        "Native streaming was unsupported or failed; offline fallback is not a streaming PASS",
+        "Multiple native streaming steps were not verified"
+      ],
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you; ask what you can do for your country."
+    },
+    {
+      "path": "wasm/showcase/file.json",
+      "sha256": "5168a0b0f6309057467a02b6263775b59862526ae40e7911c40f1368ef38f0a9",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you; ask what you can do for your country."
+    },
+    {
+      "path": "wasm/realtime/file.json",
+      "sha256": "4ca9bbb401402877a49a60f4c4ba5169868ca42bbddf3b6a1d18f328cac0ef1d",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you; ask what you can do for your country."
+    },
+    {
+      "path": "wasm/playground/file.json",
+      "sha256": "1cbd313cf7b591538575872bb1116a06580687fbbbf2898f20ca57f22c3571c4",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you; ask what you can do for your country."
+    },
+    {
+      "path": "wasm/benchmark/file.json",
+      "sha256": "2a6a2f3c0255013f02280ba56c085c47eee277c26ae0866eeddf1f64b2708bbd",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you; ask what you can do for your country."
+    },
+    {
+      "path": "wasm/realtime/mic-manual-manual-none.json",
+      "sha256": "7575fa40a84574bd1344ecd5b4e95b61543e4ef5df301498cd48727c40754bb6",
+      "status": "PASS_CONTROLLED_MIC",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you; ask what you can do for your country."
+    },
+    {
+      "path": "wasm/realtime/mic-speech-detect-vad-only-ten-vad.json",
+      "sha256": "939f2d8fd223e1665850977e82b6f45b47173fb572c44eb083f168b0fc6bd1ef",
+      "status": "PASS_CONTROLLED_MIC",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so, my fellow Americans. Ask not. What your country can do for you. Ask what you can do for your country."
+    },
+    {
+      "path": "wasm/realtime/mic-speech-detect-vad-only-firered-vad.json",
+      "sha256": "224b2d9e0640b18437c8b37190116dafa5f75dae566e8975d8c46eda45b9d5e0",
+      "status": "PASS_CONTROLLED_MIC",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so, my fellow Americans. Ask. Not. What your country can do for you. Ask what you can do for your country."
+    },
+    {
+      "path": "wasm/playground/playground-record-then-transcribe.json",
+      "sha256": "93dc8f67c0e6eab4465201abfa2d18c98489ab2d3750925a82fbbced182b397e",
+      "status": "PASS_CONTROLLED_RECORD_THEN_TRANSCRIBE",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you; ask what you can do for your country."
+    },
+    {
+      "path": "wasm/playground/streaming.json",
+      "sha256": "53e031e480e936f9641c3e0cb1982fa5ba532a13c57d0b759b81c8e5452a5a70",
+      "status": "FAIL",
+      "runtimeStatus": "UNSUPPORTED",
+      "exactText": true,
+      "streamingStatus": "UNSUPPORTED_OFFLINE_FALLBACK",
+      "errors": [
+        "Flow runtime not verified",
+        "Native streaming was unsupported or failed; offline fallback is not a streaming PASS",
+        "Multiple native streaming steps were not verified"
+      ],
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you; ask what you can do for your country."
+    }
+  ]
+}

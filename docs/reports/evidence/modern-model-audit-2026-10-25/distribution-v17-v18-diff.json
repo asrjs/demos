@@ -1,0 +1,10 @@
+{
+  "basePackage": "asrjs-speech-recognition-0.2.0-model-audit-20261024-v17.tgz",
+  "candidatePackage": "asrjs-speech-recognition-0.2.0.tgz",
+  "changedDistFiles": [
+    "models/moonshine/streaming-session.d.ts.map",
+    "models/moonshine/streaming-session.js",
+    "models/moonshine/streaming-session.js.map"
+  ],
+  "scope": "SDK distribution comparison; app profiling defaults separately changed"
+}

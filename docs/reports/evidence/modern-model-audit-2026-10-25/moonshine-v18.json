@@ -1,0 +1,204 @@
+{
+  "scope": "Independent receipt audit, not a blanket model PASS; controlled audio only.",
+  "checkedReceipts": 18,
+  "acceptedFlows": 13,
+  "failedFlows": [
+    "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\webgpu\\realtime\\mic-manual-manual-none.json",
+    "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\webgpu\\realtime\\mic-speech-detect-vad-only-firered-vad.json",
+    "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\webgpu\\playground\\playground-record-then-transcribe.json",
+    "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\wasm\\realtime\\mic-manual-manual-none.json",
+    "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\wasm\\playground\\playground-record-then-transcribe.json"
+  ],
+  "checks": [
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\webgpu\\showcase\\file.json",
+      "sha256": "1a4ae28ebb7171a63c0a2d4837dd4119d51c87beeab96c21811cc1ea817f9660",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\webgpu\\realtime\\file.json",
+      "sha256": "ab401d45a37fd226719eb06dec7b38f8c5fccf8e0759cbe64d4e64f8234617ef",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\webgpu\\playground\\file.json",
+      "sha256": "9f9a8bef455236a8dd713df662a7c5a8ea018baabb6453b3341b477a3ec95d0d",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\webgpu\\benchmark\\file.json",
+      "sha256": "413c3ffc06eefe23943e048539d3216baa48ab39031465eeae6e177614424497",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\webgpu\\realtime\\mic-manual-manual-none.json",
+      "sha256": "cc52367af99f443ef8839f6ab48c4dd83c534aca122274e7830b3728d516104d",
+      "status": "FAIL",
+      "runtimeStatus": "EXECUTED",
+      "exactText": false,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [
+        "Transcript is partial, duplicated, or differs from exact oracle"
+      ],
+      "transcript": ""
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\webgpu\\realtime\\mic-speech-detect-vad-only-ten-vad.json",
+      "sha256": "9bd5122bc4439b47848a517fd7e0b3242d9c74aa424a0656d34858895c77a01b",
+      "status": "PASS_CONTROLLED_MIC",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so my fellow Americans. Ask not! What your country can do for you? Ask what you can do for your country."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\webgpu\\realtime\\mic-speech-detect-vad-only-firered-vad.json",
+      "sha256": "02fd83c8398109bb495fef32b27df85acd190a31c980fa0f99e6d1bbcd88ce7e",
+      "status": "FAIL",
+      "runtimeStatus": "EXECUTED",
+      "exactText": false,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [
+        "Transcript is partial, duplicated, or differs from exact oracle"
+      ],
+      "transcript": "And so my fellow Americans. Ask. Not! What your country can do for you? as what you can do for your country."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\webgpu\\playground\\playground-record-then-transcribe.json",
+      "sha256": "a2cfdef87a0a4341128d40767e29d7877a7ea7ce2fa1cdd9711778cea9bffec6",
+      "status": "FAIL",
+      "runtimeStatus": "EXECUTED",
+      "exactText": false,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [
+        "Transcript is partial, duplicated, or differs from exact oracle"
+      ],
+      "transcript": "No transcript yet. Load a model and click Transcribe or Stream Chunks."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\webgpu\\playground\\streaming.json",
+      "sha256": "70ee2099119d27ce90e756ce9a520332ddf1b7d662e90021d71c4f188ef8f21a",
+      "status": "PASS_NATIVE_STREAMING",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NATIVE_EXECUTED",
+      "errors": [],
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\wasm\\showcase\\file.json",
+      "sha256": "61f3bdc53d5cdcedaa8d5d2ad3531d38899c3700491a6437b76d15c8ec8311a6",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\wasm\\realtime\\file.json",
+      "sha256": "06ccc82391dbd863e761b682ace2b4ef2500f445bdfaa9cf5d9fc43c566ab23d",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\wasm\\playground\\file.json",
+      "sha256": "ec20c054464ea1a28c6683a16a42d853ecfe9ca386cd4a700cc645d1a20574a6",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\wasm\\benchmark\\file.json",
+      "sha256": "16671868983a53b4961e7a8a03a00497212791bb8a08211f64ee260b304b8600",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\wasm\\realtime\\mic-manual-manual-none.json",
+      "sha256": "2b68ba917e10dea8749ce341ce6419bf2cb1ad47318c1028d681fc3bce017c2e",
+      "status": "FAIL",
+      "runtimeStatus": "EXECUTED",
+      "exactText": false,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [
+        "Transcript is partial, duplicated, or differs from exact oracle"
+      ],
+      "transcript": ""
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\wasm\\realtime\\mic-speech-detect-vad-only-ten-vad.json",
+      "sha256": "dab0dc8dd7e8f868318b9eeb8f122663dc88ac8408b35ef8c3dae4e804c5ad2f",
+      "status": "PASS_CONTROLLED_MIC",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so my fellow Americans. Ask not! What your country can do for you? Ask what you can do for your country."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\wasm\\realtime\\mic-speech-detect-vad-only-firered-vad.json",
+      "sha256": "7d53e2e8369ad84b6dec27d12da5c2d8c0d6ce1e44359b59e297f39a88b3769a",
+      "status": "PASS_CONTROLLED_MIC",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so my fellow Americans. Ask. Not! What your country can do for you? Ask what you can do for your country."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\wasm\\playground\\playground-record-then-transcribe.json",
+      "sha256": "20f75229eea6359c0c691273f41e83b89d4c32c78234219392161d2f75521391",
+      "status": "FAIL",
+      "runtimeStatus": "EXECUTED",
+      "exactText": false,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [
+        "Transcript is partial, duplicated, or differs from exact oracle"
+      ],
+      "transcript": "No transcript yet. Load a model and click Transcribe or Stream Chunks."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\wasm\\playground\\streaming.json",
+      "sha256": "be778247c470281327fddef7c2c04bb2c72ff7c54a427deda7288991df065638",
+      "status": "PASS_NATIVE_STREAMING",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NATIVE_EXECUTED",
+      "errors": [],
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country."
+    }
+  ]
+}

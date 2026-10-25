@@ -1,14 +1,39 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   PcmAudioBuffer,
+  getSpeechModelDescriptor,
   loadSpeechModel,
   listSpeechModels,
   listExperimentalSpeechFamilies,
 } from '@asrjs/speech-recognition';
-import { loadBuiltInSpeechModel } from '@asrjs/speech-recognition/builtins';
-import { decodeAudioSourceToMonoPcm } from '@asrjs/speech-recognition/browser';
+import {
+  collectSpeechModelLocalEntries,
+  createBrowserRealtimeMicrophoneController,
+  createSpeechModelLocalEntries,
+  decodeAudioSourceToMonoPcm,
+  encodeMonoPcmToWavBlob,
+} from '@asrjs/speech-recognition/browser';
 import { WordPills, useDemoTheme } from '@asrjs/demo-ui';
+import {
+  createDemoHubLoader,
+  getDemoModelLoadingState,
+  getDemoModelLanguageOptions,
+  resolveDemoLanguage,
+  getDemoModelSourceOptions,
+  resolveDemoModelSource,
+  loadDemoLocalModel,
+  rebaseCapturedTranscriptTimes,
+  resolveProfilingSetting,
+  transcribeCapturedPcm,
+} from '@asrjs/demo-runtime';
 import { buildCatalogLoadArguments, buildLiveCodeSnippet } from './codeSnippet.js';
+import {
+  createRecordedPcmAudio,
+  beginRecordedAudioCapture,
+  preparePlaygroundAudioWindow,
+  preparePlaygroundAudio,
+  stopAndDisposeMicrophoneSession,
+} from './recorded-audio.js';
 import {
   ParakeetModel,
   collectParakeetLocalEntries,
@@ -410,17 +435,18 @@ export default function App() {
 
   // Catalog models from listSpeechModels() + experimental families
   const catalogModels = useMemo(() => {
-    const list = [...listSpeechModels()];
+    const list = listSpeechModels().filter((model) => getDemoModelSourceOptions(model.modelId).length > 0);
     const existingIds = new Set(list.map((m) => m.modelId));
     if (typeof listExperimentalSpeechFamilies === 'function') {
       try {
         for (const exp of listExperimentalSpeechFamilies()) {
-          if (!existingIds.has(exp.modelIdHint)) {
+          if (!existingIds.has(exp.modelIdHint) && getDemoModelSourceOptions(exp.modelIdHint).length > 0) {
             list.push({
               modelId: exp.modelIdHint,
               displayName: `${exp.artifactLabel || exp.family} (experimental)`,
               preset: exp.family,
               classification: { family: exp.family },
+              loading: getSpeechModelDescriptor(exp.modelIdHint)?.loading,
               languages: exp.languages || ['en'],
               isExperimental: true,
             });
@@ -455,6 +481,8 @@ export default function App() {
   const [backend, setBackend] = useState(initialBackend);
   const [encoderQuant, setEncoderQuant] = useState(initialSettings.encoderQuant || initialRecommendedSettings.encoderQuant);
   const [decoderQuant, setDecoderQuant] = useState(initialSettings.decoderQuant || initialRecommendedSettings.decoderQuant);
+  const [catalogEncoderBackend, setCatalogEncoderBackend] = useState(initialSettings.catalogEncoderBackend || '');
+  const [catalogDecoderBackend, setCatalogDecoderBackend] = useState(initialSettings.catalogDecoderBackend || '');
   const [preprocessor, setPreprocessor] = useState(initialSettings.preprocessor || initialRecommendedSettings.preprocessor);
   const [preprocessorBackend, setPreprocessorBackend] = useState(initialSettings.preprocessorBackend || initialRecommendedSettings.preprocessorBackend);
   const [detail, setDetail] = useState(initialSettings.detail || 'detailed');
@@ -468,7 +496,7 @@ export default function App() {
   const [returnLogProbs, setReturnLogProbs] = useState(Boolean(initialSettings.returnLogProbs));
   const [returnTdtSteps, setReturnTdtSteps] = useState(Boolean(initialSettings.returnTdtSteps));
   const [returnDecoderState, setReturnDecoderState] = useState(Boolean(initialSettings.returnDecoderState));
-  const [enableProfiling, setEnableProfiling] = useState(initialSettings.enableProfiling !== false);
+  const [enableProfiling, setEnableProfiling] = useState(resolveProfilingSetting(initialSettings));
   const [status, setStatus] = useState('Idle');
   const [loadProgressText, setLoadProgressText] = useState('');
   const [loadProgressPct, setLoadProgressPct] = useState(null);
@@ -486,14 +514,19 @@ export default function App() {
   const [benchmarkRuns, setBenchmarkRuns] = useState([]);
   const [benchmarkSummary, setBenchmarkSummary] = useState(null);
   const [audioFile, setAudioFile] = useState(null);
+  const [audioIsRecorded, setAudioIsRecorded] = useState(false);
   const [audioLabel, setAudioLabel] = useState('Bundled sample');
   const [audioUrl, setAudioUrl] = useState(SAMPLE_URL);
   const [isRecording, setIsRecording] = useState(false);
-  const mediaRecorderRef = useRef(null);
-  const audioChunksRef = useRef([]);
+  const recordedPcmRef = useRef(null);
+  const recordingSessionRef = useRef(null);
+  const recordingGenerationRef = useRef(0);
+  const componentMountedRef = useRef(true);
 
   const [localEntries, setLocalEntries] = useState([]);
   const [localFolderName, setLocalFolderName] = useState('');
+  const [catalogLocalEntries, setCatalogLocalEntries] = useState([]);
+  const [catalogLocalFolderName, setCatalogLocalFolderName] = useState('');
   const [localTokenizerOptions, setLocalTokenizerOptions] = useState(['vocab.txt']);
   const [localTokenizerName, setLocalTokenizerName] = useState('vocab.txt');
   const [localPreprocessorOptions, setLocalPreprocessorOptions] = useState([initialModelConfig?.preprocessor || 'nemo128']);
@@ -512,9 +545,11 @@ export default function App() {
   const audioInputRef = useRef(null);
   const audioPlayerRef = useRef(null);
   const folderInputRef = useRef(null);
+  const catalogFolderInputRef = useRef(null);
   const transcribeSectionRef = useRef(null);
   const benchmarkSectionRef = useRef(null);
   const [topTab, setTopTab] = useState('transcribe');
+  const hubLoaderRef = useRef(null);
 
   const modelOptions = useMemo(() => Object.entries(MODELS).map(([key, config]) => ({ key, config })), []);
   const selectedModelConfig = MODELS[selectedModel] || MODELS['parakeet-tdt-0.6b-v2'];
@@ -529,13 +564,31 @@ export default function App() {
     () => catalogModels.find((m) => m.modelId === selectedCatalogModelId) || catalogModels[0],
     [catalogModels, selectedCatalogModelId]
   );
+  const selectedCatalogSources = useMemo(
+    () => getDemoModelSourceOptions(selectedCatalogModelId),
+    [selectedCatalogModelId],
+  );
+  const selectedCatalogSource = resolveDemoModelSource(selectedCatalogModelId, modelSource);
+  const catalogLoadingState = useMemo(() => selectedCatalogSource
+    ? getDemoModelLoadingState({
+        modelId: selectedCatalogModelId,
+        source: selectedCatalogSource,
+        entries: catalogLocalEntries,
+        backend,
+        ...(catalogEncoderBackend ? { encoderBackend: catalogEncoderBackend } : {}),
+        ...(catalogDecoderBackend ? { decoderBackend: catalogDecoderBackend } : {}),
+        encoderQuant,
+        decoderQuant,
+      })
+    : { source: null, sources: [], inspection: null, encoderBackend: null, decoderBackend: null, encoderQuantOptions: [], decoderQuantOptions: [] },
+  [selectedCatalogModelId, selectedCatalogSource, catalogLocalEntries, backend, catalogEncoderBackend, catalogDecoderBackend, encoderQuant, decoderQuant]);
 
   const activeAvailableLanguages = useMemo(() => {
     if (loadStrategy === LOAD_STRATEGIES.UNIVERSAL) {
-      return selectedCatalogModel?.languages || ['en'];
+      return getDemoModelLanguageOptions(selectedCatalogModelId);
     }
     return selectedModelConfig?.languages || ['en'];
-  }, [loadStrategy, selectedCatalogModel, selectedModelConfig]);
+  }, [loadStrategy, selectedCatalogModelId, selectedModelConfig]);
 
   const effectiveResponseFlavor = loadStrategy === LOAD_STRATEGIES.LEGACY ? 'native' : responseFlavor;
   const currentOutputLabel = loadStrategy === LOAD_STRATEGIES.LEGACY
@@ -543,7 +596,7 @@ export default function App() {
     : describeResponseFlavor(effectiveResponseFlavor);
   const currentDetailLabel = loadStrategy === LOAD_STRATEGIES.LEGACY ? 'native fields' : detail;
   const currentContractSummary = loadStrategy === LOAD_STRATEGIES.UNIVERSAL
-    ? 'Universal Catalog mode dynamically supports all built-in models (Parakeet, Whisper, Canary, MedASR, Moonshine, Qwen3-ASR, etc.) via loadBuiltInSpeechModel().'
+    ? 'Loads models through their registered catalog source and artifact requirements.'
     : loadStrategy === LOAD_STRATEGIES.ROOT
     ? 'Parakeet Easy mode keeps loading simple and lets you inspect canonical output, native output, or both together.'
     : 'Parakeet Native helper mode exposes the lower-level Parakeet response directly for debugging and parity checks.';
@@ -551,14 +604,21 @@ export default function App() {
   const currentOptionsPreview = {
     strategy: loadStrategy,
     modelId: loadStrategy === LOAD_STRATEGIES.UNIVERSAL ? selectedCatalogModelId : selectedModel,
-    source: modelSource,
+    source: loadStrategy === LOAD_STRATEGIES.UNIVERSAL ? selectedCatalogSource : modelSource,
     backend,
     language,
     detail,
     responseFlavor: effectiveResponseFlavor,
     audioPrepMode,
     audioResamplerQuality,
-    ...(loadStrategy !== LOAD_STRATEGIES.UNIVERSAL ? { encoderQuant, decoderQuant, preprocessorBackend } : {}),
+    ...(loadStrategy === LOAD_STRATEGIES.UNIVERSAL
+      ? {
+          encoderBackend: catalogLoadingState.encoderBackend,
+          decoderBackend: catalogLoadingState.decoderBackend,
+          encoderQuant: catalogLoadingState.encoderQuant,
+          decoderQuant: catalogLoadingState.decoderQuant,
+        }
+      : { encoderQuant, decoderQuant, preprocessorBackend }),
   };
 
   function buildAudioPreparationOptions() {
@@ -575,6 +635,17 @@ export default function App() {
     };
   }
 
+  async function prepareCurrentAudio() {
+    return preparePlaygroundAudio({
+      audioIsRecorded,
+      recordedPcm: recordedPcmRef.current,
+      audioFile,
+      sampleUrl: SAMPLE_URL,
+      decodeAudio: decodeAudioSourceToMonoPcm,
+      decodeOptions: buildAudioPreparationOptions(),
+    });
+  }
+
   useEffect(() => {
     saveSettings({
       modelSource,
@@ -585,6 +656,8 @@ export default function App() {
       backend,
       encoderQuant,
       decoderQuant,
+      catalogEncoderBackend,
+      catalogDecoderBackend,
       preprocessor,
       preprocessorBackend,
       detail,
@@ -609,6 +682,8 @@ export default function App() {
     backend,
     encoderQuant,
     decoderQuant,
+    catalogEncoderBackend,
+    catalogDecoderBackend,
     preprocessor,
     preprocessorBackend,
     detail,
@@ -630,6 +705,21 @@ export default function App() {
       setLanguage(activeAvailableLanguages[0] || 'en');
     }
   }, [activeAvailableLanguages, language]);
+
+  useEffect(() => {
+    if (loadStrategy !== LOAD_STRATEGIES.UNIVERSAL) return;
+    if (!catalogModels.some((model) => model.modelId === selectedCatalogModelId) && catalogModels[0]) {
+      setSelectedCatalogModelId(catalogModels[0].modelId);
+      return;
+    }
+    const resolvedSource = resolveDemoModelSource(selectedCatalogModelId, modelSource);
+    if (resolvedSource && resolvedSource !== modelSource) setModelSource(resolvedSource);
+  }, [loadStrategy, catalogModels, selectedCatalogModelId, modelSource]);
+
+  useEffect(() => {
+    setCatalogLocalEntries([]);
+    setCatalogLocalFolderName('');
+  }, [selectedCatalogModelId]);
 
   useEffect(() => {
     if (!['nemo80', 'nemo128'].includes(preprocessor)) {
@@ -659,6 +749,25 @@ export default function App() {
   useEffect(() => () => {
     if (audioUrl.startsWith('blob:')) URL.revokeObjectURL(audioUrl);
   }, [audioUrl]);
+
+  useEffect(() => {
+    componentMountedRef.current = true;
+    return () => {
+      componentMountedRef.current = false;
+      const session = recordingSessionRef.current;
+      recordingSessionRef.current = null;
+      if (!session) return;
+      recordingGenerationRef.current += 1;
+      void stopAndDisposeMicrophoneSession(
+        session,
+        false,
+        recordingSessionRef,
+        recordingGenerationRef,
+      ).catch((error) => {
+        console.warn('Microphone capture cleanup failed:', error);
+      });
+    };
+  }, []);
 
   useEffect(() => () => {
     void modelHandleRef.current?.dispose?.();
@@ -713,6 +822,25 @@ export default function App() {
     setStatus(`Selected local model folder (${entries.length} files).`);
   }
 
+  function handleCatalogLocalEntries(entries, folderName) {
+    setCatalogLocalEntries(entries);
+    setCatalogLocalFolderName(folderName || '');
+    setStatus(`Selected local model folder (${entries.length} files).`);
+  }
+
+  async function pickCatalogLocalFolder() {
+    try {
+      if (typeof window.showDirectoryPicker === 'function') {
+        const dirHandle = await window.showDirectoryPicker({ mode: 'read' });
+        handleCatalogLocalEntries(await collectSpeechModelLocalEntries(dirHandle), dirHandle.name);
+      } else {
+        catalogFolderInputRef.current?.click();
+      }
+    } catch (error) {
+      if (error?.name !== 'AbortError') setStatus(`Folder read failed: ${safeMessage(error)}`);
+    }
+  }
+
   async function pickLocalFolder() {
     try {
       if (typeof window.showDirectoryPicker === 'function') {
@@ -726,54 +854,124 @@ export default function App() {
     }
   }
 
+  async function stopAndDisposeRecording(session, { flush = true, updateState = true } = {}) {
+    return stopAndDisposeMicrophoneSession(
+      session,
+      flush,
+      recordingSessionRef,
+      recordingGenerationRef,
+      (ownsSession) => {
+        if (updateState && ownsSession && componentMountedRef.current) setIsRecording(false);
+      },
+    );
+  }
+
   async function startRecording() {
+    if (recordingSessionRef.current) return;
+    const pendingAudio = beginRecordedAudioCapture(recordedPcmRef);
+    if (audioUrl.startsWith('blob:')) URL.revokeObjectURL(audioUrl);
+    setAudioIsRecorded(pendingAudio.audioIsRecorded);
+    setAudioFile(pendingAudio.audioFile);
+    setAudioUrl(pendingAudio.audioUrl);
+    setAudioLabel(pendingAudio.audioLabel);
+    resetResultPanels();
+    const id = ++recordingGenerationRef.current;
+    let session;
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      audioChunksRef.current = [];
-      const recorder = new MediaRecorder(stream);
-      recorder.ondataavailable = (e) => {
-        if (e.data && e.data.size > 0) {
-          audioChunksRef.current.push(e.data);
-        }
-      };
-      recorder.onstop = () => {
-        const blob = new Blob(audioChunksRef.current, { type: recorder.mimeType || 'audio/webm' });
-        if (audioUrl.startsWith('blob:')) URL.revokeObjectURL(audioUrl);
-        const newUrl = URL.createObjectURL(blob);
-        setAudioFile(blob);
-        setAudioLabel(`Recorded microphone audio (${(blob.size / 1024).toFixed(1)} KB)`);
-        setAudioUrl(newUrl);
-        stream.getTracks().forEach((track) => track.stop());
-        setIsRecording(false);
-        setStatus('Recorded audio ready.');
-      };
-      recorder.start();
-      mediaRecorderRef.current = recorder;
+      const controller = createBrowserRealtimeMicrophoneController({
+        micMode: 'manual',
+        onUtterance: (utterance) => {
+          if (!session || !componentMountedRef.current || recordingGenerationRef.current !== id) return;
+          const recorded = createRecordedPcmAudio(utterance);
+          session.hasCapturedAudio = true;
+          recordedPcmRef.current = recorded;
+          const playbackBlob = encodeMonoPcmToWavBlob(recorded.pcm, { sampleRate: recorded.sampleRate });
+          if (audioUrl.startsWith('blob:')) URL.revokeObjectURL(audioUrl);
+          setAudioFile(playbackBlob);
+          setAudioIsRecorded(true);
+          setAudioLabel(`Recorded microphone audio (${(playbackBlob.size / 1024).toFixed(1)} KB)`);
+          setAudioUrl(URL.createObjectURL(playbackBlob));
+          setStatus('Recorded audio ready.');
+        },
+      });
+      session = { id, controller, stopping: false, cleanupPromise: null, hasCapturedAudio: false };
+      recordingSessionRef.current = session;
       setIsRecording(true);
       setStatus('Recording from microphone… (click Stop when finished)');
+      await controller.start();
+      if (recordingSessionRef.current === session && recordingGenerationRef.current === id) {
+        setStatus('Recording from microphone… (click Stop when finished)');
+      }
     } catch (err) {
       console.error(err);
-      setStatus(`Microphone recording failed: ${safeMessage(err)}`);
-      setIsRecording(false);
+      const reportFailure = componentMountedRef.current
+        && recordingGenerationRef.current === id
+        && !session?.stopping;
+      if (session) {
+        try {
+          await stopAndDisposeRecording(session, { flush: false });
+        } catch (cleanupError) {
+          console.warn('Microphone recording cleanup failed:', cleanupError);
+        }
+      } else if (componentMountedRef.current && recordingGenerationRef.current === id) {
+        recordingGenerationRef.current += 1;
+        setIsRecording(false);
+      }
+      if (reportFailure) setStatus(`Microphone recording failed: ${safeMessage(err)}`);
     }
   }
 
-  function stopRecording() {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-      mediaRecorderRef.current.stop();
+  async function stopRecording() {
+    const session = recordingSessionRef.current;
+    if (!session) return;
+    setStatus('Finishing microphone recording…');
+    try {
+      await stopAndDisposeRecording(session);
+      if (!session.hasCapturedAudio && componentMountedRef.current) {
+        setStatus('Microphone recording produced no audio.');
+      }
+    } catch (error) {
+      console.error(error);
+      if (componentMountedRef.current) setStatus(`Microphone recording failed: ${safeMessage(error)}`);
     }
+  }
+
+  function discardRecordedPcm() {
+    recordedPcmRef.current = null;
+    const session = recordingSessionRef.current;
+    if (!session) return;
+    recordingSessionRef.current = null;
+    recordingGenerationRef.current += 1;
+    setIsRecording(false);
+    void stopAndDisposeRecording(session, { flush: false }).catch((error) => {
+      console.warn('Microphone capture cleanup failed:', error);
+    });
   }
 
   // Universal Catalog loader
   async function loadWithUniversalCatalog() {
     const descriptor = catalogModels.find((m) => m.modelId === selectedCatalogModelId);
+    if (!selectedCatalogSource || !selectedCatalogSources.includes(selectedCatalogSource)) {
+      throw new Error('This catalog model has no supported loading source.');
+    }
+    if (selectedCatalogSource === MODEL_SOURCE_OPTIONS.LOCAL && catalogLocalEntries.length === 0) {
+      throw new Error('Choose a local model folder first.');
+    }
     const loadRequest = {
       modelId: selectedCatalogModelId,
+      source: selectedCatalogSource,
       backend,
       options: {
         cpuThreads,
         enableProfiling,
         ...(language ? { language } : {}),
+        ...(selectedCatalogSource === MODEL_SOURCE_OPTIONS.LOCAL ? {
+          localFolderName: catalogLocalFolderName,
+          encoderBackend: catalogLoadingState.encoderBackend,
+          decoderBackend: catalogLoadingState.decoderBackend,
+          encoderQuant: catalogLoadingState.encoderQuant,
+          decoderQuant: catalogLoadingState.decoderQuant,
+        } : {}),
       },
     };
     setLastLoadRequest(loadRequest);
@@ -782,7 +980,9 @@ export default function App() {
       modelId: selectedCatalogModelId,
       displayName: descriptor?.displayName,
       family: descriptor?.classification?.family || descriptor?.preset,
-      backend,
+      backend: loadRequest.backend,
+      source: selectedCatalogSource,
+      ...(selectedCatalogSource === MODEL_SOURCE_OPTIONS.LOCAL ? { inspection: catalogLoadingState.inspection } : {}),
       languages: descriptor?.languages,
     });
     const onProgress = (event) => {
@@ -795,16 +995,47 @@ export default function App() {
       setLoadProgressText(describeLoadEvent(event));
       if (progressPct !== null) setLoadProgressPct(progressPct);
     };
-    const loaded = await loadBuiltInSpeechModel(buildCatalogLoadArguments(loadRequest, onProgress));
+    let loaded;
+    if (selectedCatalogSource === MODEL_SOURCE_OPTIONS.LOCAL) {
+      loaded = await loadDemoLocalModel({
+        modelId: selectedCatalogModelId,
+        source: selectedCatalogSource,
+        entries: catalogLocalEntries,
+        backend,
+        encoderBackend: catalogLoadingState.encoderBackend,
+        decoderBackend: catalogLoadingState.decoderBackend,
+        encoderQuant: catalogLoadingState.encoderQuant,
+        decoderQuant: catalogLoadingState.decoderQuant,
+        cpuThreads,
+        enableProfiling,
+        language,
+        onProgress,
+      });
+    } else {
+      if (!hubLoaderRef.current) hubLoaderRef.current = createDemoHubLoader();
+      const response = await hubLoaderRef.current.loadModel(buildCatalogLoadArguments({
+        modelId: selectedCatalogModelId,
+        backend,
+        cpuThreads, enableProfiling,
+        encoderBackend: catalogLoadingState.encoderBackend,
+        decoderBackend: catalogLoadingState.decoderBackend,
+        encoderQuant: catalogLoadingState.encoderQuant,
+        decoderQuant: catalogLoadingState.decoderQuant,
+      }, onProgress));
+      loaded = response.model;
+    }
     return {
       label: `Catalog: ${descriptor?.displayName || selectedCatalogModelId}`,
-      loadedBy: 'loadBuiltInSpeechModel()',
+      loadedBy: selectedCatalogSource === MODEL_SOURCE_OPTIONS.LOCAL
+        ? 'loadDemoLocalModel()'
+        : 'createDemoHubLoader()',
       supportsStreaming: loaded.supportsStreaming,
       createStreamingTranscriber: typeof loaded.createStreamingTranscriber === 'function'
         ? (opts) => loaded.createStreamingTranscriber(opts)
         : null,
       async dispose() {
-        await loaded.dispose();
+        if (loaded.evict) await loaded.evict();
+        else await loaded.dispose();
       },
       async transcribePrepared(prepared, options) {
         const audioBuffer = PcmAudioBuffer.fromMono(prepared.pcm, prepared.sampleRate);
@@ -856,7 +1087,7 @@ export default function App() {
     return {
       detail,
       responseFlavor: effectiveResponseFlavor,
-      language,
+      language: resolveDemoLanguage(language),
       returnTokenIds,
       returnFrameIndices,
       returnLogProbs,
@@ -1060,7 +1291,7 @@ export default function App() {
     setBenchmarkSummary(null);
     setStreamingRevisions([]);
     try {
-      const prepared = await decodeAudioSourceToMonoPcm(audioFile || SAMPLE_URL, buildAudioPreparationOptions());
+      const { prepared, isRecorded } = await prepareCurrentAudio();
       setAudioPreparation({ ...prepared.metrics, sampleRate: prepared.sampleRate, numberOfChannels: prepared.numberOfChannels, durationSec: prepared.durationSec });
       const request = loadStrategy === LOAD_STRATEGIES.LEGACY ? buildLegacyTranscriptionRequest() : buildRootTranscriptionRequest();
       setLastTranscriptionRequest({ ...request, language, effectiveResponseFlavor });
@@ -1073,7 +1304,20 @@ export default function App() {
           setTranscribeProgressPct(Math.round((event.progress ?? 0) * 100));
         },
       };
-      const result = await modelHandleRef.current.transcribePrepared(prepared, transcribeOptions);
+      const captureResult = isRecorded
+        ? await transcribeCapturedPcm(
+            modelHandleRef.current,
+            prepared.pcm,
+            prepared.sampleRate,
+            {
+              toAudioInput: (chunk, sampleRate) => PcmAudioBuffer.fromMono(chunk, sampleRate),
+              streamingOptions: { detail, language, emitPartials: false },
+              batchOptions: transcribeOptions,
+            },
+          )
+        : null;
+      const result = captureResult?.result
+        ?? await modelHandleRef.current.transcribePrepared(prepared, transcribeOptions);
       const canonical = extractCanonicalResult(result);
       const native = extractNativeResult(result);
       const metrics = extractResultMetrics(result);
@@ -1102,7 +1346,10 @@ export default function App() {
     setStatus('Preparing audio for streaming simulation…');
     setStreamingRevisions([]);
     try {
-      const prepared = await decodeAudioSourceToMonoPcm(audioFile || SAMPLE_URL, buildAudioPreparationOptions());
+      const { prepared: sourceAudio, isRecorded } = await prepareCurrentAudio();
+      const audioWindow = preparePlaygroundAudioWindow(sourceAudio, isRecorded);
+      const { audio: prepared, captureWindow: capturedWindow } = audioWindow;
+      const captureOffsetSec = audioWindow.startFrame / prepared.sampleRate;
       setAudioPreparation({ ...prepared.metrics, sampleRate: prepared.sampleRate, numberOfChannels: prepared.numberOfChannels, durationSec: prepared.durationSec });
       const chunkSamples = Math.max(1600, Math.round(prepared.sampleRate * 0.64)); // 640ms steps
       const revisions = [];
@@ -1120,7 +1367,7 @@ export default function App() {
               const rev = {
                 step: stepIdx,
                 revision: partial.revision ?? stepIdx,
-                audioSec: Math.min(prepared.durationSec, (offset + slice.length) / prepared.sampleRate),
+                audioSec: Math.min(audioWindow.originalDurationSec, captureOffsetSec + (offset + slice.length) / prepared.sampleRate),
                 stepMs,
                 text: partial.text,
                 isFinal: false,
@@ -1131,13 +1378,13 @@ export default function App() {
             }
           }
           const tFin = performance.now();
-          const finalRes = await streamer.finalize();
+          const finalRes = rebaseCapturedTranscriptTimes(await streamer.finalize(), capturedWindow?.startFrame ?? 0, prepared.sampleRate);
           const finMs = performance.now() - tFin;
           const finalText = extractDisplayText(finalRes);
           revisions.push({
             step: revisions.length + 1,
             revision: 'final',
-            audioSec: prepared.durationSec,
+            audioSec: audioWindow.originalDurationSec,
             stepMs: finMs,
             text: finalText,
             isFinal: true,
@@ -1151,17 +1398,16 @@ export default function App() {
         }
       } else {
         const t0 = performance.now();
-        const result = await modelHandleRef.current.transcribePrepared(
-          prepared,
-          loadStrategy === LOAD_STRATEGIES.LEGACY
-            ? buildLegacyTranscriptionRequest()
-            : buildRootTranscriptionRequest(),
-        );
+        const batchRequest = loadStrategy === LOAD_STRATEGIES.LEGACY
+          ? buildLegacyTranscriptionRequest()
+          : buildRootTranscriptionRequest();
+        const rawResult = await modelHandleRef.current.transcribePrepared(prepared, batchRequest);
+        const result = rebaseCapturedTranscriptTimes(rawResult, capturedWindow?.startFrame ?? 0, prepared.sampleRate);
         const text = extractDisplayText(result);
         revisions.push({
           step: 1,
           revision: 'offline',
-          audioSec: prepared.durationSec,
+          audioSec: audioWindow.originalDurationSec,
           stepMs: performance.now() - t0,
           text,
           isFinal: true,
@@ -1192,14 +1438,27 @@ export default function App() {
     setBenchmarkRuns([]);
     setBenchmarkSummary(null);
     try {
-      const prepared = await decodeAudioSourceToMonoPcm(audioFile || SAMPLE_URL, buildAudioPreparationOptions());
-      setAudioPreparation({ ...prepared.metrics, sampleRate: prepared.sampleRate, numberOfChannels: prepared.numberOfChannels, durationSec: prepared.durationSec });
+      const { prepared, isRecorded } = await prepareCurrentAudio();
       const request = loadStrategy === LOAD_STRATEGIES.LEGACY ? buildLegacyTranscriptionRequest() : buildRootTranscriptionRequest();
+      const audioWindow = preparePlaygroundAudioWindow(prepared, isRecorded);
+      const benchmarkDurationSec = audioWindow.processedDurationSec;
+      setAudioPreparation({ ...prepared.metrics, sampleRate: prepared.sampleRate, numberOfChannels: prepared.numberOfChannels, durationSec: benchmarkDurationSec });
       const runs = [];
       for (let index = 0; index < benchmarkRepeats; index += 1) {
         setStatus(`Benchmark ${index + 1}/${benchmarkRepeats}…`);
         const startMs = performance.now();
-        const result = await modelHandleRef.current.transcribePrepared(prepared, request);
+        const result = isRecorded
+          ? (await transcribeCapturedPcm(
+              modelHandleRef.current,
+              prepared.pcm,
+              prepared.sampleRate,
+              {
+                toAudioInput: (chunk, sampleRate) => PcmAudioBuffer.fromMono(chunk, sampleRate),
+                streamingOptions: { detail, language, emitPartials: false },
+                batchOptions: request,
+              },
+            )).result
+          : await modelHandleRef.current.transcribePrepared(prepared, request);
         runs.push({
           index: index + 1,
           wallMs: performance.now() - startMs,
@@ -1209,7 +1468,7 @@ export default function App() {
         });
       }
       setBenchmarkRuns(runs);
-      setBenchmarkSummary(summarizeBenchmark(runs, prepared.durationSec));
+      setBenchmarkSummary(summarizeBenchmark(runs, benchmarkDurationSec));
       setStatus('Benchmark complete.');
     } catch (error) {
       console.error(error);
@@ -1234,10 +1493,10 @@ export default function App() {
             <button type="button" onClick={() => focusSection('benchmark')} className={`demo-tab ${topTab === 'benchmark' ? 'demo-tab-active' : 'demo-tab-idle'}`}>Benchmark Lab</button>
           </div>
         </div>
-        <div className="demo-heading"><p className="demo-subtitle">Universal 16-Family Developer Workbench, envelope inspector and live code generator.</p></div>
+      <div className="demo-heading"><p className="demo-subtitle">Model workbench, output inspector and code generator.</p></div>
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,320px),minmax(0,1fr),minmax(0,400px)]">
           <aside className="space-y-4 min-w-0 xl:sticky xl:top-4 self-start">
-            <Panel title="Model Architecture & Loading Mode" subtitle="Choose between Universal Catalog loading for all built-in model families or direct Parakeet presets.">
+              <Panel title="Model Architecture & Loading Mode" subtitle="Choose catalog or Parakeet loading.">
               <div className="grid gap-2">
                 <button
                   type="button"
@@ -1246,9 +1505,6 @@ export default function App() {
                   className={`mode-card ${loadStrategy === LOAD_STRATEGIES.UNIVERSAL ? 'mode-card-active-emerald' : 'mode-card-idle'}`}
                 >
                   <p className="font-medium text-emerald-800 dark:text-emerald-300">Universal Catalog Mode</p>
-                  <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
-                    Supports all built-in model families (Parakeet, Orukeet, Whisper, Canary, MedASR, Moonshine, Qwen3-ASR, Wav2Vec2, SenseVoice, GigaAM, Nemotron) via <code className="font-mono">loadBuiltInSpeechModel()</code>.
-                  </p>
                 </button>
                 <button
                   type="button"
@@ -1308,11 +1564,101 @@ export default function App() {
                       ) : null}
                     </Field>
 
+                    <Field label="Artifact source">
+                      <select
+                        value={selectedCatalogSource || ''}
+                        onChange={(event) => setModelSource(event.target.value)}
+                        disabled={isLoadingModel || modelLoaded || selectedCatalogSources.length < 2}
+                        className="compact-control"
+                      >
+                        {selectedCatalogSources.map((source) => (
+                          <option key={source} value={source}>
+                            {source === MODEL_SOURCE_OPTIONS.HUGGINGFACE ? 'Hugging Face' : 'Local folder'}
+                          </option>
+                        ))}
+                      </select>
+                    </Field>
+
+                    {selectedCatalogSource === MODEL_SOURCE_OPTIONS.LOCAL ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={pickCatalogLocalFolder}
+                          disabled={isLoadingModel || modelLoaded}
+                          className="compact-button-secondary w-full"
+                        >
+                          Choose local model folder
+                        </button>
+                        <input
+                          ref={catalogFolderInputRef}
+                          type="file"
+                          multiple
+                          webkitdirectory=""
+                          directory=""
+                          className="hidden"
+                          onChange={(event) => {
+                            const files = Array.from(event.target.files || []);
+                            if (files.length > 0) handleCatalogLocalEntries(createSpeechModelLocalEntries(files), files[0]?.webkitRelativePath?.split('/')[0] || '');
+                            event.target.value = '';
+                          }}
+                        />
+                        <div className="rounded-[16px] border border-dashed border-slate-300 dark:border-slate-700 px-3 py-2.5 text-[12px] text-slate-500 dark:text-slate-400">
+                          {catalogLocalFolderName || 'No folder selected.'}
+                        </div>
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          {selectedCatalogModel?.loading?.supportsSplitBackends && selectedCatalogModel.loading.availableEncoderBackends?.length ? <Field label="Encoder backend">
+                            <select
+                              value={catalogLoadingState.encoderBackend || ''}
+                              onChange={(event) => setCatalogEncoderBackend(event.target.value)}
+                              disabled={isLoadingModel || modelLoaded}
+                              className="compact-control"
+                            >
+                              {selectedCatalogModel.loading.availableEncoderBackends.map((value) => <option key={value} value={value}>{value}</option>)}
+                            </select>
+                          </Field> : null}
+                          {selectedCatalogModel?.loading?.supportsSplitBackends && selectedCatalogModel.loading.availableDecoderBackends?.length ? <Field label="Decoder backend">
+                            <select
+                              value={catalogLoadingState.decoderBackend || ''}
+                              onChange={(event) => setCatalogDecoderBackend(event.target.value)}
+                              disabled={isLoadingModel || modelLoaded}
+                              className="compact-control"
+                            >
+                              {selectedCatalogModel.loading.availableDecoderBackends.map((value) => <option key={value} value={value}>{value}</option>)}
+                            </select>
+                          </Field> : null}
+                          {catalogLoadingState.encoderQuantOptions?.length ? <Field label="Encoder quantization">
+                            <select
+                              value={catalogLoadingState.encoderQuant || ''}
+                              onChange={(event) => setEncoderQuant(event.target.value)}
+                              disabled={isLoadingModel || modelLoaded || !catalogLoadingState.encoderQuantOptions?.length}
+                              className="compact-control"
+                            >
+                              {(catalogLoadingState.encoderQuantOptions || []).map((value) => <option key={value} value={value}>{value}</option>)}
+                            </select>
+                          </Field> : null}
+                          {catalogLoadingState.decoderQuantOptions?.length ? <Field label="Decoder quantization">
+                            <select
+                              value={catalogLoadingState.decoderQuant || ''}
+                              onChange={(event) => setDecoderQuant(event.target.value)}
+                              disabled={isLoadingModel || modelLoaded || !catalogLoadingState.decoderQuantOptions?.length}
+                              className="compact-control"
+                            >
+                              {(catalogLoadingState.decoderQuantOptions || []).map((value) => <option key={value} value={value}>{value}</option>)}
+                            </select>
+                          </Field> : null}
+                        </div>
+                      </>
+                    ) : null}
+
                     <div className="grid gap-3 sm:grid-cols-2">
                       <Field label="Backend">
                         <select
                           value={backend}
-                          onChange={(event) => setBackend(event.target.value)}
+                          onChange={(event) => {
+                            setBackend(event.target.value);
+                            setCatalogEncoderBackend('');
+                            setCatalogDecoderBackend('');
+                          }}
                           disabled={isLoadingModel || modelLoaded}
                           className="compact-control"
                         >
@@ -1497,7 +1843,7 @@ export default function App() {
                   <button
                     type="button"
                     onClick={loadModel}
-                    disabled={isLoadingModel || modelLoaded}
+                    disabled={isLoadingModel || modelLoaded || (loadStrategy === LOAD_STRATEGIES.UNIVERSAL && (!selectedCatalogSource || (selectedCatalogSource === MODEL_SOURCE_OPTIONS.LOCAL && (catalogLocalEntries.length === 0 || !catalogLoadingState.encoderQuantOptions?.length || !catalogLoadingState.decoderQuantOptions?.length))))}
                     className="compact-button-primary w-full"
                   >
                     {isLoadingModel ? 'Loading...' : modelLoaded ? 'Model Loaded' : 'Load Model'}
@@ -1640,8 +1986,10 @@ export default function App() {
                     <button
                       type="button"
                       onClick={() => {
+                        discardRecordedPcm();
                         if (audioUrl.startsWith('blob:')) URL.revokeObjectURL(audioUrl);
                         setAudioFile(null);
+                        setAudioIsRecorded(false);
                         setAudioLabel('Bundled sample');
                         setAudioUrl(SAMPLE_URL);
                       }}
@@ -1658,8 +2006,10 @@ export default function App() {
                     onChange={(event) => {
                       const file = event.target.files?.[0];
                       if (!file) return;
+                      discardRecordedPcm();
                       if (audioUrl.startsWith('blob:')) URL.revokeObjectURL(audioUrl);
                       setAudioFile(file);
+                      setAudioIsRecorded(false);
                       setAudioLabel(file.name);
                       setAudioUrl(URL.createObjectURL(file));
                       event.target.value = '';
@@ -1724,7 +2074,7 @@ export default function App() {
                     </p>
                     <p className="mt-2 text-[12px] leading-5 text-slate-600 dark:text-slate-400">
                       {loadStrategy === LOAD_STRATEGIES.UNIVERSAL
-                        ? 'Universal catalog handles all models with a unified canonical transcript interface.'
+                        ? 'Catalog model output uses the shared transcript interface.'
                         : loadStrategy === LOAD_STRATEGIES.ROOT
                         ? 'Easy mode stays app-friendly while still letting you inspect canonical and native layers.'
                         : 'Native helper mode keeps lower-level Parakeet fields visible for debugging.'}
@@ -1741,7 +2091,7 @@ export default function App() {
             <Panel title="Transcript & Word Alignment" subtitle="Canonical or native text output with interactive click-to-seek word timestamps.">
               <div className="space-y-4">
                 <div className="demo-soft-box p-5">
-                  <p className="text-[1.08rem] leading-8 font-normal">{transcript || 'No transcript yet. Load a model and click Transcribe or Stream Chunks.'}</p>
+                  <p className="asr-transcript-text">{transcript || 'No transcript yet. Load a model and click Transcribe or Stream Chunks.'}</p>
                 </div>
                 {wordsList.length > 0 ? (
                   <div className="demo-soft-box">
@@ -1881,8 +2231,11 @@ export default function App() {
                         detail,
                         responseFlavor: effectiveResponseFlavor,
                         supportsStreaming: lastLoadResult?.supportsStreaming === true,
-                        encoderQuant,
-                        decoderQuant,
+                        source: loadStrategy === LOAD_STRATEGIES.UNIVERSAL ? selectedCatalogSource : modelSource,
+                        encoderBackend: catalogLoadingState.encoderBackend,
+                        decoderBackend: catalogLoadingState.decoderBackend,
+                        encoderQuant: loadStrategy === LOAD_STRATEGIES.UNIVERSAL ? catalogLoadingState.encoderQuant : encoderQuant,
+                        decoderQuant: loadStrategy === LOAD_STRATEGIES.UNIVERSAL ? catalogLoadingState.decoderQuant : decoderQuant,
                         preprocessorBackend,
                       });
                       navigator.clipboard?.writeText(code);
@@ -1903,8 +2256,11 @@ export default function App() {
                     detail,
                     responseFlavor: effectiveResponseFlavor,
                     supportsStreaming: lastLoadResult?.supportsStreaming === true,
-                    encoderQuant,
-                    decoderQuant,
+                    source: loadStrategy === LOAD_STRATEGIES.UNIVERSAL ? selectedCatalogSource : modelSource,
+                    encoderBackend: catalogLoadingState.encoderBackend,
+                    decoderBackend: catalogLoadingState.decoderBackend,
+                    encoderQuant: loadStrategy === LOAD_STRATEGIES.UNIVERSAL ? catalogLoadingState.encoderQuant : encoderQuant,
+                    decoderQuant: loadStrategy === LOAD_STRATEGIES.UNIVERSAL ? catalogLoadingState.decoderQuant : decoderQuant,
                     preprocessorBackend,
                   })}
                 </pre>

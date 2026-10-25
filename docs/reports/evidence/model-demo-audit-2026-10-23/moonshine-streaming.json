@@ -1,0 +1,23 @@
+{
+  "schema": "asrjs.browser-verification.v2",
+  "status": "FAIL",
+  "requested": {
+    "localFolder": "models/onnx/moonshine-streaming-tiny-fp32",
+    "modelId": "moonshine-tiny",
+    "preset": null,
+    "family": null,
+    "backend": "wasm",
+    "fixture": "jfk-short.wav",
+    "chunkMs": 160,
+    "forceReload": true,
+    "mode": "both",
+    "oracle": {
+      "fixture": "jfk-short.wav",
+      "sha256": "59dfb9a4acb36fe2a2affc14bacbee2920ff435cb13cc314a08c13f66ba7860e",
+      "text": "And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country."
+    },
+    "warmRerun": true
+  },
+  "error": "Bridge execution failed with exit code 1:\n[Bridge Error] Page.evaluate: Error: Model \"UsefulSensors/moonshine-tiny\" does not support native streaming.\r\n    at Object.runStreaming (http://127.0.0.1:8999/harness.html:803:17)\r\n    at async runMode (http://127.0.0.1:8999/tools/browser-harness/runner.mjs:8:21)\r\n    at async runColdAndWarm (http://127.0.0.1:8999/tools/browser-harness/runner.mjs:19:16)\r\n    at async eval (eval at evaluate (:234:30), <anonymous>:5:20)\r\n    at async <anonymous>:260:30\r\n",
+  "timestamp": "2026-10-22T22:44:31.334Z"
+}

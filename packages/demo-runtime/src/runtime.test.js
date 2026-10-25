@@ -3,7 +3,15 @@ import test from 'node:test';
 import { buildSpeechModelLoadOptions } from '@asrjs/speech-recognition';
 import { buildDemoModelLoadRequest, createDemoHubLoader, getDemoModelCacheKey } from './model-loader.js';
 import { MODEL_OPTIONS } from './model-catalog.js';
+import { resolveProfilingSetting } from './profiling.js';
 import { resolveDemoAppLinks } from './suite-navigation.js';
+
+test('profiling defaults off and retains an explicitly saved boolean', () => {
+  assert.equal(resolveProfilingSetting({}), false);
+  assert.equal(resolveProfilingSetting({ enableProfiling: true }), true);
+  assert.equal(resolveProfilingSetting({ enableProfiling: false }), false);
+  assert.equal(resolveProfilingSetting({ enableProfiling: 'true' }), false);
+});
 
 test('shared requests preserve the public catalog contract for every listed model', () => {
   for (const { key: modelId } of MODEL_OPTIONS) {

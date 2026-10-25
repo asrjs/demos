@@ -1,0 +1,549 @@
+{
+  "schemaVersion": 1,
+  "createdAtUtc": "2026-10-25T09:17:05.067731+00:00",
+  "completedAtUtc": "2026-10-25T09:17:14.118463+00:00",
+  "purpose": "Artifact identity and provenance cross-check only; this manifest does not establish graph validity, model execution, transcript accuracy, app integration, backend coverage, VAD or streaming correctness.",
+  "hash": "SHA-256",
+  "statStability": "Each source file size and mtime_ns was equal immediately before and after hashing.",
+  "models": [
+    {
+      "key": "sensevoice",
+      "modelId": "FunAudioLLM/SenseVoiceSmall",
+      "root": "N:\\models\\onnx\\sensevoice\\small",
+      "artifacts": [
+        {
+          "name": "model.onnx",
+          "path": "N:\\models\\onnx\\sensevoice\\small\\model.onnx",
+          "role": "required",
+          "sha256": "8fc794f08c390ce26f0c8878904a2e0a63214faaa53e2354245a50c0d2b65700",
+          "sizeBytes": 937615562,
+          "mtimeNs": 1787789240831064300
+        },
+        {
+          "name": "vocab.txt",
+          "path": "N:\\models\\onnx\\sensevoice\\small\\vocab.txt",
+          "role": "required",
+          "sha256": "883c9f8569d40762dd4e8c9a389d17778098b873dd9fb5399f6ee431c7110106",
+          "sizeBytes": 340949,
+          "mtimeNs": 1787789558541469400
+        },
+        {
+          "name": "am.mvn",
+          "path": "N:\\models\\onnx\\sensevoice\\small\\am.mvn",
+          "role": "required",
+          "sha256": "29b3c740a2c0cfc6b308126d31d7f265fa2be74f3bb095cd2f143ea970896ae5",
+          "sizeBytes": 11203,
+          "mtimeNs": 1787788717563526200
+        },
+        {
+          "name": "config.yaml",
+          "path": "N:\\models\\onnx\\sensevoice\\small\\config.yaml",
+          "role": "metadata_or_external_tensor",
+          "sha256": "f71e239ba36705564b5bf2d2ffd07eece07b8e3f2bbf6d2c99d8df856339ac19",
+          "sizeBytes": 1855,
+          "mtimeNs": 1787788719750495700
+        },
+        {
+          "name": "export-manifest.json",
+          "path": "N:\\models\\onnx\\sensevoice\\small\\export-manifest.json",
+          "role": "metadata_or_external_tensor",
+          "sha256": "e9b22f1378b746b07c2c1d33c61a234167e584e153d862a2fcbc0d8179ee1a5d",
+          "sizeBytes": 1073,
+          "mtimeNs": 1787789246889298600
+        }
+      ],
+      "references": [
+        {
+          "path": "N:/models/onnx/sensevoice/small/export-manifest.json",
+          "kind": "export provenance",
+          "upstream": "FunAudioLLM/SenseVoiceSmall",
+          "revision": "3847d57b6bdf2dd8875cb1508d2af43d80a16bf7",
+          "sha256": "e9b22f1378b746b07c2c1d33c61a234167e584e153d862a2fcbc0d8179ee1a5d",
+          "sizeBytes": 1073,
+          "mtimeNs": 1787789246889298600
+        }
+      ]
+    },
+    {
+      "key": "gigaam-multilingual-ctc",
+      "modelId": "gigaam-multilingual-ctc",
+      "root": "N:\\models\\onnx\\gigaam\\multilingual-ctc",
+      "artifacts": [
+        {
+          "name": "multilingual_ctc.onnx",
+          "path": "N:\\models\\onnx\\gigaam\\multilingual-ctc\\multilingual_ctc.onnx",
+          "role": "required",
+          "sha256": "fb9a3fe73862bc75dacbcab751405af5334967d86289cd6512bbf2597bb6734b",
+          "sizeBytes": 885388621,
+          "mtimeNs": 1787787053017499700
+        },
+        {
+          "name": "multilingual_vocab.txt",
+          "path": "N:\\models\\onnx\\gigaam\\multilingual-ctc\\multilingual_vocab.txt",
+          "role": "required",
+          "sha256": "37595f8e448b2f5e54e904d407529321ead6b8baa3760a8aa06bc878bc222d30",
+          "sizeBytes": 462,
+          "mtimeNs": 1787787053116129400
+        },
+        {
+          "name": "multilingual_ctc.yaml",
+          "path": "N:\\models\\onnx\\gigaam\\multilingual-ctc\\multilingual_ctc.yaml",
+          "role": "metadata_or_external_tensor",
+          "sha256": "a1218c07de3f12614b169731ff4e08c5947d83b7ab7e1b1797deb960b92a2e9e",
+          "sizeBytes": 1257,
+          "mtimeNs": 1787787053115152800
+        },
+        {
+          "name": "provenance.json",
+          "path": "N:\\models\\onnx\\gigaam\\multilingual-ctc\\provenance.json",
+          "role": "metadata_or_external_tensor",
+          "sha256": "254be36554d0dc352e768d9d8b0550ef4540e846039e4b94502814d1f96b3e04",
+          "sizeBytes": 730,
+          "mtimeNs": 1787787056892190500
+        }
+      ],
+      "references": [
+        {
+          "path": "N:/models/onnx/gigaam/multilingual-ctc/provenance.json",
+          "kind": "local export provenance",
+          "upstream": "not stated in local provenance",
+          "sha256": "254be36554d0dc352e768d9d8b0550ef4540e846039e4b94502814d1f96b3e04",
+          "sizeBytes": 730,
+          "mtimeNs": 1787787056892190500
+        }
+      ]
+    },
+    {
+      "key": "gigaam-v3-e2e-rnnt",
+      "modelId": "gigaam-v3-e2e-rnnt",
+      "root": "N:\\models\\onnx\\gigaam\\v3-e2e-rnnt",
+      "artifacts": [
+        {
+          "name": "v3_e2e_rnnt_encoder.onnx",
+          "path": "N:\\models\\onnx\\gigaam\\v3-e2e-rnnt\\v3_e2e_rnnt_encoder.onnx",
+          "role": "required",
+          "sha256": "41ef815cebb6cdc7158321ec2a8b4d1ab04d1eb55f1c36ff98b428d39d0866a7",
+          "sizeBytes": 885093282,
+          "mtimeNs": 1787799707330141700
+        },
+        {
+          "name": "v3_e2e_rnnt_decoder.onnx",
+          "path": "N:\\models\\onnx\\gigaam\\v3-e2e-rnnt\\v3_e2e_rnnt_decoder.onnx",
+          "role": "required",
+          "sha256": "fa95ac0997e621ebee4156fc9295e57407549e2d5c20ed548626ea1e4f20a09c",
+          "sizeBytes": 4599970,
+          "mtimeNs": 1787799707481490000
+        },
+        {
+          "name": "v3_e2e_rnnt_joint.onnx",
+          "path": "N:\\models\\onnx\\gigaam\\v3-e2e-rnnt\\v3_e2e_rnnt_joint.onnx",
+          "role": "required",
+          "sha256": "2ead0f16a18554b8d557875110da4b1e964441f617cdd95d0b4b45ac999c60a9",
+          "sizeBytes": 2712926,
+          "mtimeNs": 1787799707514689200
+        },
+        {
+          "name": "v3_e2e_rnnt_vocab.txt",
+          "path": "N:\\models\\onnx\\gigaam\\v3-e2e-rnnt\\v3_e2e_rnnt_vocab.txt",
+          "role": "required",
+          "sha256": "b98730cffb0bb782f505003caff8b4ba03ef6c9baf6b799572af3191f42fe098",
+          "sizeBytes": 14379,
+          "mtimeNs": 1787799707519571200
+        },
+        {
+          "name": "v3_e2e_rnnt.yaml",
+          "path": "N:\\models\\onnx\\gigaam\\v3-e2e-rnnt\\v3_e2e_rnnt.yaml",
+          "role": "metadata_or_external_tensor",
+          "sha256": "2d28e9c65019510adf8b96745f20bf950ac448c5dec98e3b99f5b4fb9f88d402",
+          "sizeBytes": 1092,
+          "mtimeNs": 1787799707517618500
+        },
+        {
+          "name": "provenance.json",
+          "path": "N:\\models\\onnx\\gigaam\\v3-e2e-rnnt\\provenance.json",
+          "role": "metadata_or_external_tensor",
+          "sha256": "1de8e9ef24803c95de25187ca79ed419af76fe746627cb30d842bdd1f2a93ffd",
+          "sizeBytes": 1839,
+          "mtimeNs": 1787799710256671200
+        }
+      ],
+      "references": [
+        {
+          "path": "N:/models/onnx/gigaam/v3-e2e-rnnt/provenance.json",
+          "kind": "local export provenance",
+          "upstream": "not stated in local provenance",
+          "sha256": "1de8e9ef24803c95de25187ca79ed419af76fe746627cb30d842bdd1f2a93ffd",
+          "sizeBytes": 1839,
+          "mtimeNs": 1787799710256671200
+        }
+      ]
+    },
+    {
+      "key": "x-asr-zh-en-160ms",
+      "modelId": "x-asr-zh-en-160ms",
+      "root": "N:\\models\\x-asr\\zh-en\\chunk-160ms-model",
+      "artifacts": [
+        {
+          "name": "encoder-160ms.onnx",
+          "path": "N:\\models\\x-asr\\zh-en\\chunk-160ms-model\\encoder-160ms.onnx",
+          "role": "required",
+          "sha256": "821a1dfb9027915ca014080abfa658346be0e2d0bf8b2027f0b6dd29fffe0c4b",
+          "sizeBytes": 592967053,
+          "mtimeNs": 1787790377060237800
+        },
+        {
+          "name": "decoder-160ms.onnx",
+          "path": "N:\\models\\x-asr\\zh-en\\chunk-160ms-model\\decoder-160ms.onnx",
+          "role": "required",
+          "sha256": "3658368d274a5d5fd39a7ac20c46bed0ad9cfea1f0feddef30d5d89797c1f499",
+          "sizeBytes": 11309084,
+          "mtimeNs": 1787790348052276600
+        },
+        {
+          "name": "joiner-160ms.onnx",
+          "path": "N:\\models\\x-asr\\zh-en\\chunk-160ms-model\\joiner-160ms.onnx",
+          "role": "required",
+          "sha256": "03781c98165a2385024c9cecdd2b6b13310d81db23a62c7da420782c2915cf81",
+          "sizeBytes": 10260467,
+          "mtimeNs": 1787790350394745800
+        },
+        {
+          "name": "tokens.txt",
+          "path": "N:\\models\\x-asr\\zh-en\\chunk-160ms-model\\tokens.txt",
+          "role": "required",
+          "sha256": "b818a60878b9aae978cbb8ad594acbd403d76d1af2e31ef4197c84e2dbdba27c",
+          "sizeBytes": 58806,
+          "mtimeNs": 1787790345736395000
+        }
+      ],
+      "references": [
+        {
+          "path": "N:/github/asrjs/demos/docs/reports/evidence/model-demo-audit-2026-10-23/x-asr.json",
+          "kind": "prior local demo evidence; reported 404 resource errors, not acceptance evidence",
+          "upstream": "not present in locally available metadata",
+          "sha256": "30b6418b4cd11c7c4ea2e0ff88a012cbfb5ad4e5ee1781c7f6035b4c086537b7",
+          "sizeBytes": 10929,
+          "mtimeNs": 1792708804222307800
+        }
+      ]
+    },
+    {
+      "key": "moonshine-ai/moonshine-streaming-tiny",
+      "modelId": "moonshine-ai/moonshine-streaming-tiny",
+      "root": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261024\\native-moonshine-streaming-tiny",
+      "artifacts": [
+        {
+          "name": "encoder_model.onnx",
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261024\\native-moonshine-streaming-tiny\\encoder_model.onnx",
+          "role": "required",
+          "sha256": "df3bcd863a959f5713a04747f17fc0abd76f30804cd0077471119f93cab8b12d",
+          "sizeBytes": 841937,
+          "mtimeNs": 1791491236241769900
+        },
+        {
+          "name": "encoder_chunked_model.onnx",
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261024\\native-moonshine-streaming-tiny\\encoder_chunked_model.onnx",
+          "role": "required",
+          "sha256": "0d8111a8060f80ce525620cbca2d8470752f9843563e4e0b1a9c506ca939c4a8",
+          "sizeBytes": 38433741,
+          "mtimeNs": 1791496605552079500
+        },
+        {
+          "name": "decoder_prefill_model.onnx",
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261024\\native-moonshine-streaming-tiny\\decoder_prefill_model.onnx",
+          "role": "required",
+          "sha256": "4d8ec59834ba5e777aed82fa9bcdddfd1f6cf3a3ea1e201e92b08cc6357a8684",
+          "sizeBytes": 138461619,
+          "mtimeNs": 1791493244656405000
+        },
+        {
+          "name": "decoder_step_model.onnx",
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261024\\native-moonshine-streaming-tiny\\decoder_step_model.onnx",
+          "role": "required",
+          "sha256": "8a8bd7177aa2232090f74192266f649e8ac68bfdbfa5c5c37dd2f97ce30dcfeb",
+          "sizeBytes": 138466052,
+          "mtimeNs": 1791493245175605000
+        },
+        {
+          "name": "tokenizer.json",
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261024\\native-moonshine-streaming-tiny\\tokenizer.json",
+          "role": "required",
+          "sha256": "28bbc54a47dfa33673affa26010f23ac452685b18c76e81451d9b3ea25a54d54",
+          "sizeBytes": 1676069,
+          "mtimeNs": 1791134063344820000
+        },
+        {
+          "name": "config.json",
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261024\\native-moonshine-streaming-tiny\\config.json",
+          "role": "required",
+          "sha256": "166861753adaf928ae99b3709bfb1da47cb76319be58f37c6f9b7a539ce371f0",
+          "sizeBytes": 1421,
+          "mtimeNs": 1791134063332124400
+        },
+        {
+          "name": "encoder_model.onnx.data",
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261024\\native-moonshine-streaming-tiny\\encoder_model.onnx.data",
+          "role": "metadata_or_external_tensor",
+          "sha256": "b990c5914f11fe7b5a393afebdc1cc41c2f295e3aee04d3e4f6aef65b1f46dc9",
+          "sizeBytes": 37912576,
+          "mtimeNs": 1791491236227121100
+        },
+        {
+          "name": "encoder_chunked_model.onnx.data",
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261024\\native-moonshine-streaming-tiny\\encoder_chunked_model.onnx.data",
+          "role": "metadata_or_external_tensor",
+          "sha256": "c20519f11bc55af170553fe4ad8ee632ad69e8307b83347ab1c8e387bf4e4813",
+          "sizeBytes": 37912576,
+          "mtimeNs": 1791496605363616900
+        },
+        {
+          "name": "decoder_prefill_model.onnx.data",
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261024\\native-moonshine-streaming-tiny\\decoder_prefill_model.onnx.data",
+          "role": "metadata_or_external_tensor",
+          "sha256": "706c2c14ea7b82968111bfa7d8aa2d80a4f37c2bb35eaa1e0bfc7cd9873207e8",
+          "sizeBytes": 138412032,
+          "mtimeNs": 1791493229829273200
+        },
+        {
+          "name": "decoder_step_model.onnx.data",
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261024\\native-moonshine-streaming-tiny\\decoder_step_model.onnx.data",
+          "role": "metadata_or_external_tensor",
+          "sha256": "706c2c14ea7b82968111bfa7d8aa2d80a4f37c2bb35eaa1e0bfc7cd9873207e8",
+          "sizeBytes": 138412032,
+          "mtimeNs": 1791493244134169300
+        },
+        {
+          "name": "generation_config.json",
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261024\\native-moonshine-streaming-tiny\\generation_config.json",
+          "role": "metadata_or_external_tensor",
+          "sha256": "ff376268d9f8176da72ae0a3ca993778eb972a2f13a4ba0a914dbc3d6c832abe",
+          "sizeBytes": 167,
+          "mtimeNs": 1791134063335052800
+        },
+        {
+          "name": "preprocessor_config.json",
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261024\\native-moonshine-streaming-tiny\\preprocessor_config.json",
+          "role": "metadata_or_external_tensor",
+          "sha256": "859e62520a4e44be5bf9559205898ec7adfd2952bdc4f4e62ea724ac6ba460eb",
+          "sizeBytes": 195,
+          "mtimeNs": 1791134063338959800
+        },
+        {
+          "name": "processor_config.json",
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261024\\native-moonshine-streaming-tiny\\processor_config.json",
+          "role": "metadata_or_external_tensor",
+          "sha256": "a2325cec2c0f66ba9eadf11b0bc77930b25fa1af57e7c9e4fbbcf0cd3e620bf8",
+          "sizeBytes": 159,
+          "mtimeNs": 1791134063340912700
+        },
+        {
+          "name": "tokenizer_config.json",
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261024\\native-moonshine-streaming-tiny\\tokenizer_config.json",
+          "role": "metadata_or_external_tensor",
+          "sha256": "93bb19c92de5c3d03e4a424ba033b2a81a32bdca6dc6f6dba176934dd8a9c6be",
+          "sizeBytes": 172,
+          "mtimeNs": 1791134063348724800
+        },
+        {
+          "name": "provenance.json",
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261024\\native-moonshine-streaming-tiny\\provenance.json",
+          "role": "metadata_or_external_tensor",
+          "sha256": "bdd319a8e7c5f7a8b50f9f8875f5c864bad04537fb10c375810b6ae90600392f",
+          "sizeBytes": 4093,
+          "mtimeNs": 1792849135574892500
+        }
+      ],
+      "references": [
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261024\\native-moonshine-streaming-tiny\\provenance.json",
+          "kind": "local graph remap provenance",
+          "upstream": "provenance identifies a remapped Moonshine Streaming Tiny bundle but has no source revision",
+          "sha256": "bdd319a8e7c5f7a8b50f9f8875f5c864bad04537fb10c375810b6ae90600392f",
+          "sizeBytes": 4093,
+          "mtimeNs": 1792849135574892500
+        }
+      ]
+    }
+  ],
+  "provenanceChecks": [
+    {
+      "model": "sensevoice",
+      "field": "export.onnx.sha256",
+      "expected": "8fc794f08c390ce26f0c8878904a2e0a63214faaa53e2354245a50c0d2b65700",
+      "actual": "8fc794f08c390ce26f0c8878904a2e0a63214faaa53e2354245a50c0d2b65700",
+      "expectedSizeBytes": 937615562,
+      "actualSizeBytes": 937615562,
+      "matches": true
+    },
+    {
+      "model": "gigaam-multilingual-ctc",
+      "reference": "N:\\models\\onnx\\gigaam\\multilingual-ctc\\provenance.json",
+      "field": "onnx_sha256",
+      "expected": "fb9a3fe73862bc75dacbcab751405af5334967d86289cd6512bbf2597bb6734b",
+      "actual": "fb9a3fe73862bc75dacbcab751405af5334967d86289cd6512bbf2597bb6734b",
+      "matches": true
+    },
+    {
+      "model": "gigaam-v3-e2e-rnnt",
+      "field": "encoder.sha256",
+      "expected": "41ef815cebb6cdc7158321ec2a8b4d1ab04d1eb55f1c36ff98b428d39d0866a7",
+      "actual": "41ef815cebb6cdc7158321ec2a8b4d1ab04d1eb55f1c36ff98b428d39d0866a7",
+      "expectedSizeBytes": 885093282,
+      "actualSizeBytes": 885093282,
+      "matches": true
+    },
+    {
+      "model": "gigaam-v3-e2e-rnnt",
+      "field": "decoder.sha256",
+      "expected": "fa95ac0997e621ebee4156fc9295e57407549e2d5c20ed548626ea1e4f20a09c",
+      "actual": "fa95ac0997e621ebee4156fc9295e57407549e2d5c20ed548626ea1e4f20a09c",
+      "expectedSizeBytes": 4599970,
+      "actualSizeBytes": 4599970,
+      "matches": true
+    },
+    {
+      "model": "gigaam-v3-e2e-rnnt",
+      "field": "joint.sha256",
+      "expected": "2ead0f16a18554b8d557875110da4b1e964441f617cdd95d0b4b45ac999c60a9",
+      "actual": "2ead0f16a18554b8d557875110da4b1e964441f617cdd95d0b4b45ac999c60a9",
+      "expectedSizeBytes": 2712926,
+      "actualSizeBytes": 2712926,
+      "matches": true
+    },
+    {
+      "model": "gigaam-v3-e2e-rnnt",
+      "field": "vocab.sha256",
+      "expected": "b98730cffb0bb782f505003caff8b4ba03ef6c9baf6b799572af3191f42fe098",
+      "actual": "b98730cffb0bb782f505003caff8b4ba03ef6c9baf6b799572af3191f42fe098",
+      "expectedSizeBytes": 14379,
+      "actualSizeBytes": 14379,
+      "matches": true
+    },
+    {
+      "model": "moonshine-ai/moonshine-streaming-tiny",
+      "field": "provenance[decoder_prefill_model.onnx].sha256",
+      "expected": "4d8ec59834ba5e777aed82fa9bcdddfd1f6cf3a3ea1e201e92b08cc6357a8684",
+      "actual": "4d8ec59834ba5e777aed82fa9bcdddfd1f6cf3a3ea1e201e92b08cc6357a8684",
+      "expectedSizeBytes": 138461619,
+      "actualSizeBytes": 138461619,
+      "matches": true
+    },
+    {
+      "model": "moonshine-ai/moonshine-streaming-tiny",
+      "field": "provenance[decoder_prefill_model.onnx.data].sha256",
+      "expected": "706c2c14ea7b82968111bfa7d8aa2d80a4f37c2bb35eaa1e0bfc7cd9873207e8",
+      "actual": "706c2c14ea7b82968111bfa7d8aa2d80a4f37c2bb35eaa1e0bfc7cd9873207e8",
+      "expectedSizeBytes": 138412032,
+      "actualSizeBytes": 138412032,
+      "matches": true
+    },
+    {
+      "model": "moonshine-ai/moonshine-streaming-tiny",
+      "field": "provenance[decoder_step_model.onnx].sha256",
+      "expected": "8a8bd7177aa2232090f74192266f649e8ac68bfdbfa5c5c37dd2f97ce30dcfeb",
+      "actual": "8a8bd7177aa2232090f74192266f649e8ac68bfdbfa5c5c37dd2f97ce30dcfeb",
+      "expectedSizeBytes": 138466052,
+      "actualSizeBytes": 138466052,
+      "matches": true
+    },
+    {
+      "model": "moonshine-ai/moonshine-streaming-tiny",
+      "field": "provenance[decoder_step_model.onnx.data].sha256",
+      "expected": "706c2c14ea7b82968111bfa7d8aa2d80a4f37c2bb35eaa1e0bfc7cd9873207e8",
+      "actual": "706c2c14ea7b82968111bfa7d8aa2d80a4f37c2bb35eaa1e0bfc7cd9873207e8",
+      "expectedSizeBytes": 138412032,
+      "actualSizeBytes": 138412032,
+      "matches": true
+    },
+    {
+      "model": "moonshine-ai/moonshine-streaming-tiny",
+      "field": "provenance[encoder_chunked_model.onnx].sha256",
+      "expected": "0d8111a8060f80ce525620cbca2d8470752f9843563e4e0b1a9c506ca939c4a8",
+      "actual": "0d8111a8060f80ce525620cbca2d8470752f9843563e4e0b1a9c506ca939c4a8",
+      "expectedSizeBytes": 38433741,
+      "actualSizeBytes": 38433741,
+      "matches": true
+    },
+    {
+      "model": "moonshine-ai/moonshine-streaming-tiny",
+      "field": "provenance[encoder_chunked_model.onnx.data].sha256",
+      "expected": "c20519f11bc55af170553fe4ad8ee632ad69e8307b83347ab1c8e387bf4e4813",
+      "actual": "c20519f11bc55af170553fe4ad8ee632ad69e8307b83347ab1c8e387bf4e4813",
+      "expectedSizeBytes": 37912576,
+      "actualSizeBytes": 37912576,
+      "matches": true
+    },
+    {
+      "model": "moonshine-ai/moonshine-streaming-tiny",
+      "field": "provenance[encoder_model.onnx].sha256",
+      "expected": "df3bcd863a959f5713a04747f17fc0abd76f30804cd0077471119f93cab8b12d",
+      "actual": "df3bcd863a959f5713a04747f17fc0abd76f30804cd0077471119f93cab8b12d",
+      "expectedSizeBytes": 841937,
+      "actualSizeBytes": 841937,
+      "matches": true
+    },
+    {
+      "model": "moonshine-ai/moonshine-streaming-tiny",
+      "field": "provenance[encoder_model.onnx.data].sha256",
+      "expected": "b990c5914f11fe7b5a393afebdc1cc41c2f295e3aee04d3e4f6aef65b1f46dc9",
+      "actual": "b990c5914f11fe7b5a393afebdc1cc41c2f295e3aee04d3e4f6aef65b1f46dc9",
+      "expectedSizeBytes": 37912576,
+      "actualSizeBytes": 37912576,
+      "matches": true
+    },
+    {
+      "model": "moonshine-ai/moonshine-streaming-tiny",
+      "field": "provenance[config.json].sha256",
+      "expected": "166861753adaf928ae99b3709bfb1da47cb76319be58f37c6f9b7a539ce371f0",
+      "actual": "166861753adaf928ae99b3709bfb1da47cb76319be58f37c6f9b7a539ce371f0",
+      "expectedSizeBytes": 1421,
+      "actualSizeBytes": 1421,
+      "matches": true
+    },
+    {
+      "model": "moonshine-ai/moonshine-streaming-tiny",
+      "field": "provenance[generation_config.json].sha256",
+      "expected": "ff376268d9f8176da72ae0a3ca993778eb972a2f13a4ba0a914dbc3d6c832abe",
+      "actual": "ff376268d9f8176da72ae0a3ca993778eb972a2f13a4ba0a914dbc3d6c832abe",
+      "expectedSizeBytes": 167,
+      "actualSizeBytes": 167,
+      "matches": true
+    },
+    {
+      "model": "moonshine-ai/moonshine-streaming-tiny",
+      "field": "provenance[preprocessor_config.json].sha256",
+      "expected": "859e62520a4e44be5bf9559205898ec7adfd2952bdc4f4e62ea724ac6ba460eb",
+      "actual": "859e62520a4e44be5bf9559205898ec7adfd2952bdc4f4e62ea724ac6ba460eb",
+      "expectedSizeBytes": 195,
+      "actualSizeBytes": 195,
+      "matches": true
+    },
+    {
+      "model": "moonshine-ai/moonshine-streaming-tiny",
+      "field": "provenance[processor_config.json].sha256",
+      "expected": "a2325cec2c0f66ba9eadf11b0bc77930b25fa1af57e7c9e4fbbcf0cd3e620bf8",
+      "actual": "a2325cec2c0f66ba9eadf11b0bc77930b25fa1af57e7c9e4fbbcf0cd3e620bf8",
+      "expectedSizeBytes": 159,
+      "actualSizeBytes": 159,
+      "matches": true
+    },
+    {
+      "model": "moonshine-ai/moonshine-streaming-tiny",
+      "field": "provenance[tokenizer_config.json].sha256",
+      "expected": "93bb19c92de5c3d03e4a424ba033b2a81a32bdca6dc6f6dba176934dd8a9c6be",
+      "actual": "93bb19c92de5c3d03e4a424ba033b2a81a32bdca6dc6f6dba176934dd8a9c6be",
+      "expectedSizeBytes": 172,
+      "actualSizeBytes": 172,
+      "matches": true
+    },
+    {
+      "model": "moonshine-ai/moonshine-streaming-tiny",
+      "field": "provenance[tokenizer.json].sha256",
+      "expected": "28bbc54a47dfa33673affa26010f23ac452685b18c76e81451d9b3ea25a54d54",
+      "actual": "28bbc54a47dfa33673affa26010f23ac452685b18c76e81451d9b3ea25a54d54",
+      "expectedSizeBytes": 1676069,
+      "actualSizeBytes": 1676069,
+      "matches": true
+    }
+  ]
+}

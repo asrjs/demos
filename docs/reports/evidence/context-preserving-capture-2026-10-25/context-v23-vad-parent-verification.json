@@ -1,0 +1,1603 @@
+{
+  "scope": "Parent SHA, PCM prefix continuity, full transcript and requested backend audit; physical microphone unverified",
+  "accepted": 34,
+  "total": 36,
+  "checks": [
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-ctc\\webgpu\\realtime\\file.json",
+      "sha256": "023e4ca477bf78b5cd23f574123d387096c8ac8f49eb4e6293862098ab93d49d",
+      "status": "PASS_FILE_FLOW",
+      "exact": true,
+      "actualBackend": "webgpu-hybrid",
+      "transcript": "and so my fellow americans ask not what your country can do for you ask what you can do for your country",
+      "captures": []
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-ctc\\webgpu\\realtime\\mic-speech-detect-vad-only-ten-vad.json",
+      "sha256": "996cf45c69d5c5f3b7ed45d05cb3a9477573b371f15d0afdfe3511e192a66a3e",
+      "status": "PASS_CONTROLLED_MIC",
+      "exact": true,
+      "actualBackend": "webgpu-hybrid",
+      "transcript": "and so my fellow americans ask not what your country can do for you ask what you can do for your country",
+      "captures": [
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-ctc\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-2.f32le",
+          "sha256": "80fd6019db18d4bc4bec445aefae624fbee247144f154168019395de0752895a",
+          "frames": 45696,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 1,
+            "startFrame": 73344,
+            "endFrame": 119040,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-ctc\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-3.f32le",
+          "sha256": "e01470f25265e70eb35415fdaf381fc42662a31307518e33c9f9b696ddb61a4d",
+          "frames": 77952,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 2,
+            "startFrame": 73344,
+            "endFrame": 151296,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-ctc\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-4.f32le",
+          "sha256": "e6c39fb5498f000494c7d83f9899c2e138bbe8e44681733219052c84d41b1100",
+          "frames": 129152,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 3,
+            "startFrame": 73344,
+            "endFrame": 202496,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-ctc\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-5.f32le",
+          "sha256": "e12f4d968189d30606c53c304660013e64d723bec37f51a7f309d4dafc20af53",
+          "frames": 183168,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 4,
+            "startFrame": 73344,
+            "endFrame": 256512,
+            "sampleRate": 16000
+          }
+        }
+      ]
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-ctc\\webgpu\\realtime\\mic-speech-detect-vad-only-firered-vad.json",
+      "sha256": "41bf0af0f628078524832a0bdb3625e25390f1861293debbfb090278e46adabf",
+      "status": "FAIL",
+      "exact": false,
+      "actualBackend": "webgpu-hybrid",
+      "transcript": "and so my fellow american ask not what your country can do for you ask what you can do for your country",
+      "captures": [
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-ctc\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-6.f32le",
+          "sha256": "ee9c699a61d47f3d80247d6893fc32266e284b5aaf48fe7b3ccb4a905df2959b",
+          "frames": 43264,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 1,
+            "startFrame": 74752,
+            "endFrame": 118016,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-ctc\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-7.f32le",
+          "sha256": "1a49a6c0738d37690bd4496b9344761937e3d2c4d3264edeaa10b66da7f99920",
+          "frames": 68096,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 2,
+            "startFrame": 74752,
+            "endFrame": 142848,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-ctc\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-8.f32le",
+          "sha256": "6f1654c0d590d4dd27ea79b1c84fbbb76d17914e1d055f36e03fd2c52f93f1a2",
+          "frames": 75520,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 3,
+            "startFrame": 74752,
+            "endFrame": 150272,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-ctc\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-9.f32le",
+          "sha256": "376a27467be9d66d325646d5ddea011c58ac0170fdf5d622b05c5b0bb675fbbf",
+          "frames": 128256,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 4,
+            "startFrame": 74752,
+            "endFrame": 203008,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-ctc\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-10.f32le",
+          "sha256": "3ff5a5d80988e804a5d47b50938282e1cf288f33198d35510669fb8803ea7d97",
+          "frames": 176384,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 5,
+            "startFrame": 74752,
+            "endFrame": 251136,
+            "sampleRate": 16000
+          }
+        }
+      ]
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-ctc\\wasm\\realtime\\file.json",
+      "sha256": "dfadab5d1ccb9a02d8336efe6665f16ad2f863c37769d74945870c0db894ea1f",
+      "status": "PASS_FILE_FLOW",
+      "exact": true,
+      "actualBackend": "wasm",
+      "transcript": "and so my fellow americans ask not what your country can do for you ask what you can do for your country",
+      "captures": []
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-ctc\\wasm\\realtime\\mic-speech-detect-vad-only-ten-vad.json",
+      "sha256": "69266afa2e5624f6b318a587e58ecb8e4d3e7b640689aa702c18818a7aeb5992",
+      "status": "PASS_CONTROLLED_MIC",
+      "exact": true,
+      "actualBackend": "wasm",
+      "transcript": "and so my fellow americans ask not what your country can do for you ask what you can do for your country",
+      "captures": [
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-ctc\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-2.f32le",
+          "sha256": "80fd6019db18d4bc4bec445aefae624fbee247144f154168019395de0752895a",
+          "frames": 45696,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 1,
+            "startFrame": 73344,
+            "endFrame": 119040,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-ctc\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-3.f32le",
+          "sha256": "e01470f25265e70eb35415fdaf381fc42662a31307518e33c9f9b696ddb61a4d",
+          "frames": 77952,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 2,
+            "startFrame": 73344,
+            "endFrame": 151296,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-ctc\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-4.f32le",
+          "sha256": "e6c39fb5498f000494c7d83f9899c2e138bbe8e44681733219052c84d41b1100",
+          "frames": 129152,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 3,
+            "startFrame": 73344,
+            "endFrame": 202496,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-ctc\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-5.f32le",
+          "sha256": "e12f4d968189d30606c53c304660013e64d723bec37f51a7f309d4dafc20af53",
+          "frames": 183168,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 4,
+            "startFrame": 73344,
+            "endFrame": 256512,
+            "sampleRate": 16000
+          }
+        }
+      ]
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-ctc\\wasm\\realtime\\mic-speech-detect-vad-only-firered-vad.json",
+      "sha256": "bc8fc53be753c8557dc0bf33ccd2a48e8d8f0c44f557290f8f6d7a8c7f79f654",
+      "status": "PASS_CONTROLLED_MIC",
+      "exact": true,
+      "actualBackend": "wasm",
+      "transcript": "and so my fellow americans ask not what your country can do for you ask what you can do for your country",
+      "captures": [
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-ctc\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-6.f32le",
+          "sha256": "f16927827cd2bf68834c3452dd55eb029715b1fb3485bef7d199e8f4b136d1ca",
+          "frames": 42944,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 1,
+            "startFrame": 75072,
+            "endFrame": 118016,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-ctc\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-7.f32le",
+          "sha256": "31c43ce53a039606235af839981050bb92f22fee48f3ec856be801d2613adc3b",
+          "frames": 67776,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 2,
+            "startFrame": 75072,
+            "endFrame": 142848,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-ctc\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-8.f32le",
+          "sha256": "33d75737c889e905f4f3982e03a91944794a270586c6089a99da270a1d9a5ed9",
+          "frames": 75456,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 3,
+            "startFrame": 75072,
+            "endFrame": 150528,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-ctc\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-9.f32le",
+          "sha256": "37ffa57b9cc20ef12bfc15b6a8607e45dcb57aba0be989f8bbfb0f12c653df87",
+          "frames": 128192,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 4,
+            "startFrame": 75072,
+            "endFrame": 203264,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-ctc\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-10.f32le",
+          "sha256": "bda7e455c014da95b7d8881244da3bb6ec456572a1d9cc343a87060f349b87b6",
+          "frames": 176320,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 5,
+            "startFrame": 75072,
+            "endFrame": 251392,
+            "sampleRate": 16000
+          }
+        }
+      ]
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\x-asr\\webgpu\\realtime\\file.json",
+      "sha256": "27476d33c4e69adbba1dfe92cb20665f9edb4265c83f507a74a5b52a85be1f08",
+      "status": "PASS_FILE_FLOW",
+      "exact": true,
+      "actualBackend": "webgpu-hybrid",
+      "transcript": "And so my fellow americans ask not what your country can do for you ask what you can do for your country",
+      "captures": []
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\x-asr\\webgpu\\realtime\\mic-speech-detect-vad-only-ten-vad.json",
+      "sha256": "6c3fd54ad2aa0d2c722024378e274c5cf1c95d745e808028cfe8160290c641b6",
+      "status": "PASS_CONTROLLED_MIC",
+      "exact": true,
+      "actualBackend": "webgpu-hybrid",
+      "transcript": "And so my fellow americans ask not what your country can do for you , ask what you can do for your country",
+      "captures": [
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\x-asr\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-2.f32le",
+          "sha256": "80fd6019db18d4bc4bec445aefae624fbee247144f154168019395de0752895a",
+          "frames": 45696,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 1,
+            "startFrame": 73344,
+            "endFrame": 119040,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\x-asr\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-3.f32le",
+          "sha256": "e01470f25265e70eb35415fdaf381fc42662a31307518e33c9f9b696ddb61a4d",
+          "frames": 77952,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 2,
+            "startFrame": 73344,
+            "endFrame": 151296,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\x-asr\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-4.f32le",
+          "sha256": "e6c39fb5498f000494c7d83f9899c2e138bbe8e44681733219052c84d41b1100",
+          "frames": 129152,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 3,
+            "startFrame": 73344,
+            "endFrame": 202496,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\x-asr\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-5.f32le",
+          "sha256": "e12f4d968189d30606c53c304660013e64d723bec37f51a7f309d4dafc20af53",
+          "frames": 183168,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 4,
+            "startFrame": 73344,
+            "endFrame": 256512,
+            "sampleRate": 16000
+          }
+        }
+      ]
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\x-asr\\webgpu\\realtime\\mic-speech-detect-vad-only-firered-vad.json",
+      "sha256": "f2e7a57f007b2ad0cb073ee7aa53af9702a2c2201633c86db65192397ecb628b",
+      "status": "PASS_CONTROLLED_MIC",
+      "exact": true,
+      "actualBackend": "webgpu-hybrid",
+      "transcript": "And so my fellow americans ask not what your country can do for you , ask what you can do for your country",
+      "captures": [
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\x-asr\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-6.f32le",
+          "sha256": "44e70199f158c3414169270545fc61c8bc1b6d42f44d347ac9ed842cb587e145",
+          "frames": 43008,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 1,
+            "startFrame": 74752,
+            "endFrame": 117760,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\x-asr\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-7.f32le",
+          "sha256": "1ea98a764e794d482c726b13c7ab5d76921464c1a3e52b07d21df53279c55243",
+          "frames": 67840,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 2,
+            "startFrame": 74752,
+            "endFrame": 142592,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\x-asr\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-8.f32le",
+          "sha256": "dc0c57f3236872cb5154b2941237fe5832b1d63db0f53277b680f305bb7d876a",
+          "frames": 75264,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 3,
+            "startFrame": 74752,
+            "endFrame": 150016,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\x-asr\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-9.f32le",
+          "sha256": "a7bfbf293334e047c255d0e7939173c3678662737c1752728477bc621f493d51",
+          "frames": 128512,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 4,
+            "startFrame": 74752,
+            "endFrame": 203264,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\x-asr\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-10.f32le",
+          "sha256": "03365ad32bc8720047bcac69ee211eaad7a203e70fb373a0017fa1dc9d162483",
+          "frames": 176384,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 5,
+            "startFrame": 74752,
+            "endFrame": 251136,
+            "sampleRate": 16000
+          }
+        }
+      ]
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\x-asr\\wasm\\realtime\\file.json",
+      "sha256": "c472ff4fbb9aee8750353192794238273b59b52e4895cc2b2312cfeea8f11337",
+      "status": "PASS_FILE_FLOW",
+      "exact": true,
+      "actualBackend": "wasm",
+      "transcript": "And so my fellow americans ask not what your country can do for you ask what you can do for your country",
+      "captures": []
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\x-asr\\wasm\\realtime\\mic-speech-detect-vad-only-ten-vad.json",
+      "sha256": "1f5e3a17d6816bc0b8d36d38780cff94bbd1e8d1b57b7921240272de4b0b1d44",
+      "status": "PASS_CONTROLLED_MIC",
+      "exact": true,
+      "actualBackend": "wasm",
+      "transcript": "And so my fellow americans ask not what your country can do for you , ask what you can do for your country",
+      "captures": [
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\x-asr\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-2.f32le",
+          "sha256": "5e312b94d6a7d15a898036ce6968a9d324e24845bf251b8f1d48f4d05dc64a05",
+          "frames": 45696,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 1,
+            "startFrame": 73344,
+            "endFrame": 119040,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\x-asr\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-3.f32le",
+          "sha256": "75b05b6a42aae4ae4dbd0e78e49f9e06280e64aa2a927db0e1aa9d20c8887ab8",
+          "frames": 77952,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 2,
+            "startFrame": 73344,
+            "endFrame": 151296,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\x-asr\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-4.f32le",
+          "sha256": "6334c655df3e2a9870d6690bd4db1e781760697bf47dda5a83d01fe138fd3418",
+          "frames": 132480,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 3,
+            "startFrame": 73344,
+            "endFrame": 205824,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\x-asr\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-5.f32le",
+          "sha256": "4db481b2bed3de42beb5ec4544b37c869f34b5df8b270bfd14bfe51358de7ed6",
+          "frames": 184192,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 4,
+            "startFrame": 73344,
+            "endFrame": 257536,
+            "sampleRate": 16000
+          }
+        }
+      ]
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\x-asr\\wasm\\realtime\\mic-speech-detect-vad-only-firered-vad.json",
+      "sha256": "9679faf06127c2631886e0fd261a1abee0d95f3ac6c82244eb58937f735979d0",
+      "status": "PASS_CONTROLLED_MIC",
+      "exact": true,
+      "actualBackend": "wasm",
+      "transcript": "And so my fellow americans ask not what your country can do for you , ask what you can do for your country",
+      "captures": [
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\x-asr\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-6.f32le",
+          "sha256": "a4162de4d6dbe13a3aa0845d2b80da7f59314a5fe1ee2c80d3306b1649b222e8",
+          "frames": 43552,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 1,
+            "startFrame": 73952,
+            "endFrame": 117504,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\x-asr\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-7.f32le",
+          "sha256": "a3265cc169e987109141af50b583b675e19a4a5b4358b3f3fab11d4d15a51399",
+          "frames": 68640,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 2,
+            "startFrame": 73952,
+            "endFrame": 142592,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\x-asr\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-8.f32le",
+          "sha256": "3f88f5d1c924671ffa97364379ed5ac665f7321eaffd92e223368af0a91dd8f3",
+          "frames": 77088,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 3,
+            "startFrame": 73952,
+            "endFrame": 151040,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\x-asr\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-9.f32le",
+          "sha256": "4c64e4acd68834e8ea834491126cfaba81475b97b5ef1aa0608c7eee072eea49",
+          "frames": 129824,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 4,
+            "startFrame": 73952,
+            "endFrame": 203776,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\x-asr\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-10.f32le",
+          "sha256": "d000c8a9866ec58a129c3b000a199cbdcba38d0f71865f247444bc7c1a0a9c01",
+          "frames": 178464,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 5,
+            "startFrame": 73952,
+            "endFrame": 252416,
+            "sampleRate": 16000
+          }
+        }
+      ]
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\moonshine\\webgpu\\realtime\\file.json",
+      "sha256": "1d3cb2e8af96e2fa942e07ca7e17340a62192d8c0b49b9ffdf6ee72d9697de24",
+      "status": "PASS_FILE_FLOW",
+      "exact": true,
+      "actualBackend": "webgpu-hybrid",
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country.",
+      "captures": []
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\moonshine\\webgpu\\realtime\\mic-speech-detect-vad-only-ten-vad.json",
+      "sha256": "5a0d06ddb6f8870cdeca3df9d983f72630e9c24bceca4633f1a2dcd3e0c85789",
+      "status": "PASS_CONTROLLED_MIC",
+      "exact": true,
+      "actualBackend": "webgpu-hybrid",
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country.",
+      "captures": [
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\moonshine\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-2.f32le",
+          "sha256": "83e408b2d7bb1a007f524bc1d7fe4a6bafb213406c97aae2a8e11dc5e20aea59",
+          "frames": 45696,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 1,
+            "startFrame": 73856,
+            "endFrame": 119552,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\moonshine\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-3.f32le",
+          "sha256": "886abf63fffd0e7b7f97db91098e0fce0128d835a7307ce240e64fb2601a37c2",
+          "frames": 77696,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 2,
+            "startFrame": 73856,
+            "endFrame": 151552,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\moonshine\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-4.f32le",
+          "sha256": "fb093d490131bddf4ecedeac08bc21d7b3a9cd16e51c5b09a139d8775a1a9549",
+          "frames": 128896,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 3,
+            "startFrame": 73856,
+            "endFrame": 202752,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\moonshine\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-5.f32le",
+          "sha256": "411d95704b233c8cf32e0598616383f38cdbf93d3fdd9265e45c62fb5df53c38",
+          "frames": 182912,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 4,
+            "startFrame": 73856,
+            "endFrame": 256768,
+            "sampleRate": 16000
+          }
+        }
+      ]
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\moonshine\\webgpu\\realtime\\mic-speech-detect-vad-only-firered-vad.json",
+      "sha256": "5f7c35a731ca3daca179c496e588e3fbe22dd551f41b62ef5a30aac544b355f0",
+      "status": "PASS_CONTROLLED_MIC",
+      "exact": true,
+      "actualBackend": "webgpu-hybrid",
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country.",
+      "captures": [
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\moonshine\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-6.f32le",
+          "sha256": "371ffd0b1c8bfeb948c22a637e2c71547658c89cd01f37d5ce19f8eb1ba51f16",
+          "frames": 43200,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 1,
+            "startFrame": 75072,
+            "endFrame": 118272,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\moonshine\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-7.f32le",
+          "sha256": "e07ddcb157de3e93350cb690d00096d32313e3c5d3fccedecaf91a6814ff7abc",
+          "frames": 68032,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 2,
+            "startFrame": 75072,
+            "endFrame": 143104,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\moonshine\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-8.f32le",
+          "sha256": "842e057d294720934870e80ab3082da2996d1317526445595e11e01faf4dd2cc",
+          "frames": 75456,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 3,
+            "startFrame": 75072,
+            "endFrame": 150528,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\moonshine\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-9.f32le",
+          "sha256": "846ccf3395f9ef086d533eebfe979bf35596c9647802fedffa743b15417807ff",
+          "frames": 128960,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 4,
+            "startFrame": 75072,
+            "endFrame": 204032,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\moonshine\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-10.f32le",
+          "sha256": "24061a3c857cb0914572be137ab87c331b3ca47bc50fcfd6b30f2792616fda6d",
+          "frames": 177088,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 5,
+            "startFrame": 75072,
+            "endFrame": 252160,
+            "sampleRate": 16000
+          }
+        }
+      ]
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\moonshine\\wasm\\realtime\\file.json",
+      "sha256": "7bc2e14c14703d5f18cfe8ebd697ce8b3212c3bfd6414d8dfe471a6eefe3a2c1",
+      "status": "PASS_FILE_FLOW",
+      "exact": true,
+      "actualBackend": "wasm",
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country.",
+      "captures": []
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\moonshine\\wasm\\realtime\\mic-speech-detect-vad-only-ten-vad.json",
+      "sha256": "81ade3c62e67c4bc0868f4e1432a8bfb676ddb088459c4d8d8aa2905aad44d3a",
+      "status": "FAIL",
+      "exact": false,
+      "actualBackend": "wasm",
+      "transcript": "And so, my fellow America, ask not what your country can do for you, ask what you can do for your country.",
+      "captures": [
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\moonshine\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-2.f32le",
+          "sha256": "5d93996461fbf8deaa4841948890434aff7117c44772b92a353ae4ae03dda5be",
+          "frames": 45696,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 1,
+            "startFrame": 73856,
+            "endFrame": 119552,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\moonshine\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-3.f32le",
+          "sha256": "148d93eddd3756eea6d3a7ba22596579fa69a91ef8884d2ad399dc5dadc8ad3c",
+          "frames": 77952,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 2,
+            "startFrame": 73856,
+            "endFrame": 151808,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\moonshine\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-4.f32le",
+          "sha256": "b69060dd32fc09c1ec16c01dc173e47a5258202b7c22f57672ff83f6f5e89461",
+          "frames": 129152,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 3,
+            "startFrame": 73856,
+            "endFrame": 203008,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\moonshine\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-5.f32le",
+          "sha256": "3c3d258be0b32323909bc2e0228b84ac20f19b3d993d5d282997354dd4cc21c3",
+          "frames": 183168,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 4,
+            "startFrame": 73856,
+            "endFrame": 257024,
+            "sampleRate": 16000
+          }
+        }
+      ]
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\moonshine\\wasm\\realtime\\mic-speech-detect-vad-only-firered-vad.json",
+      "sha256": "b0642cef97056bc38b096c6ed0bc177ff367c3493eeec4743f7d0952076feddf",
+      "status": "PASS_CONTROLLED_MIC",
+      "exact": true,
+      "actualBackend": "wasm",
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country.",
+      "captures": [
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\moonshine\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-6.f32le",
+          "sha256": "f16927827cd2bf68834c3452dd55eb029715b1fb3485bef7d199e8f4b136d1ca",
+          "frames": 42944,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 1,
+            "startFrame": 75072,
+            "endFrame": 118016,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\moonshine\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-7.f32le",
+          "sha256": "31c43ce53a039606235af839981050bb92f22fee48f3ec856be801d2613adc3b",
+          "frames": 67776,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 2,
+            "startFrame": 75072,
+            "endFrame": 142848,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\moonshine\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-8.f32le",
+          "sha256": "0534005e11bf4bcbaf542c668c4bf3f3311f71189011af82c9326ba6f8eca5fb",
+          "frames": 75712,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 3,
+            "startFrame": 75072,
+            "endFrame": 150784,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\moonshine\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-9.f32le",
+          "sha256": "37ffa57b9cc20ef12bfc15b6a8607e45dcb57aba0be989f8bbfb0f12c653df87",
+          "frames": 128192,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 4,
+            "startFrame": 75072,
+            "endFrame": 203264,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\moonshine\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-10.f32le",
+          "sha256": "bda7e455c014da95b7d8881244da3bb6ec456572a1d9cc343a87060f349b87b6",
+          "frames": 176320,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 5,
+            "startFrame": 75072,
+            "endFrame": 251392,
+            "sampleRate": 16000
+          }
+        }
+      ]
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-rnnt\\webgpu\\realtime\\file.json",
+      "sha256": "e69a93e4a603a595507f1ba38fc49b4bfa6ccf41f6fa8f3cb39f6574813783ba",
+      "status": "PASS_FILE_FLOW",
+      "exact": true,
+      "actualBackend": "webgpu-hybrid",
+      "transcript": "Ничьих не требуя похвал, Счастлив уж я надеждой сладкой, Что дева с трепетом любви Посмотрит, может быть, украдкой На песни грешные мои. У лукоморья дуб зелёный.",
+      "captures": []
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-rnnt\\webgpu\\realtime\\mic-speech-detect-vad-only-ten-vad.json",
+      "sha256": "83b739838d9689f37c1ecb176335accaa6d7a64e8687564cfa5920a2c965da2c",
+      "status": "PASS_CONTROLLED_MIC",
+      "exact": true,
+      "actualBackend": "webgpu-hybrid",
+      "transcript": "Ничьих не требуя похвал, Счастлив уж я надеждой сладкой, Что дева с трепетом любви Посмотрит, может быть, украдкой На песни грешные мои. У лукоморья дуб зелёный.",
+      "captures": [
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-rnnt\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-2.f32le",
+          "sha256": "3da890931f1530b0298979917c9a6f7e73ccb5ecac137712da4ce7fc26c11e6b",
+          "frames": 85888,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 1,
+            "startFrame": 68224,
+            "endFrame": 154112,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-rnnt\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-3.f32le",
+          "sha256": "caccc8aac97878df9d6faf7747dafadb1f65f25e0f43332bb674f2718ab55fa1",
+          "frames": 156544,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 2,
+            "startFrame": 68224,
+            "endFrame": 224768,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-rnnt\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-4.f32le",
+          "sha256": "34af87ccd76b16c5c2773d86d445bbd5e17a540529c834a150d02b31b9a08aa5",
+          "frames": 193920,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 3,
+            "startFrame": 68224,
+            "endFrame": 262144,
+            "sampleRate": 16000
+          }
+        }
+      ]
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-rnnt\\webgpu\\realtime\\mic-speech-detect-vad-only-firered-vad.json",
+      "sha256": "a2db689c55457a7aecbad35726507ab2c3d6f750e96b14061c942489ea29d880",
+      "status": "PASS_CONTROLLED_MIC",
+      "exact": true,
+      "actualBackend": "webgpu-hybrid",
+      "transcript": "Ничьих не требуя похвал, Счастлив уж я надеждой сладкой, Что дева с трепетом любви Посмотрит, может быть, украдкой На песни грешные мои. У лукоморья дуб зелёный.",
+      "captures": [
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-rnnt\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-5.f32le",
+          "sha256": "3f01ea4f4fe9604b92ab290b7c7bc65bb1643f89e2ed1b101e29d64512f3527d",
+          "frames": 36864,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 1,
+            "startFrame": 69632,
+            "endFrame": 106496,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-rnnt\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-6.f32le",
+          "sha256": "bd17ab2d52c0420d51da5ba5b18e60172ddd39e5aa745760b49107619cc836ea",
+          "frames": 94464,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 2,
+            "startFrame": 69632,
+            "endFrame": 164096,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-rnnt\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-7.f32le",
+          "sha256": "5a9089ae1cbb903cac81388ef7a4abfb110e69ece469ddc3a51897b771ef91ce",
+          "frames": 148736,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 3,
+            "startFrame": 69632,
+            "endFrame": 218368,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-rnnt\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-8.f32le",
+          "sha256": "6102b4ca6b10e425dcadfd3af378677e50653ed99a860bc7bd9e7cfe4bcb64ea",
+          "frames": 187904,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 4,
+            "startFrame": 69632,
+            "endFrame": 257536,
+            "sampleRate": 16000
+          }
+        }
+      ]
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-rnnt\\wasm\\realtime\\file.json",
+      "sha256": "ccbc8f7410565ea2ae46d0e5cd7bd0dcaceaa62c92bdb3d4d366841bd0cb09ac",
+      "status": "PASS_FILE_FLOW",
+      "exact": true,
+      "actualBackend": "wasm",
+      "transcript": "Ничьих не требуя похвал, Счастлив уж я надеждой сладкой, Что дева с трепетом любви Посмотрит, может быть, украдкой На песни грешные мои. У лукоморья дуб зелёный.",
+      "captures": []
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-rnnt\\wasm\\realtime\\mic-speech-detect-vad-only-ten-vad.json",
+      "sha256": "0daf102d8a41d5d54a8f30e76cb47709f5eb91fa225559efb6af136c5abce861",
+      "status": "PASS_CONTROLLED_MIC",
+      "exact": true,
+      "actualBackend": "wasm",
+      "transcript": "Ничьих не требуя похвал, Счастлив уж я надеждой сладкой, Что дева с трепетом любви Посмотрит, может быть, украдкой На песни грешные мои. У лукоморья дуб зелёный.",
+      "captures": [
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-rnnt\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-2.f32le",
+          "sha256": "20f1be8d821f06780781e0be976d6541bf6086972756673930b93c6c5337c7a3",
+          "frames": 85888,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 1,
+            "startFrame": 66176,
+            "endFrame": 152064,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-rnnt\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-3.f32le",
+          "sha256": "0b19e9064607390e19eae6b3636eef2a48fdf1ee74e4c5a9e6537bc55383c0bc",
+          "frames": 156032,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 2,
+            "startFrame": 66176,
+            "endFrame": 222208,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-rnnt\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-4.f32le",
+          "sha256": "4e35b191141737e4bf037758193c864427ee6c101ec3bcc924707e2669e1b839",
+          "frames": 193920,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 3,
+            "startFrame": 66176,
+            "endFrame": 260096,
+            "sampleRate": 16000
+          }
+        }
+      ]
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-rnnt\\wasm\\realtime\\mic-speech-detect-vad-only-firered-vad.json",
+      "sha256": "af47f0eb29b61b346e2082b40978b75bc07436f1520a43cce5793e1e2c2c8c84",
+      "status": "PASS_CONTROLLED_MIC",
+      "exact": true,
+      "actualBackend": "wasm",
+      "transcript": "Ничьих не требуя похвал, Счастлив уж я надеждой сладкой, Что дева с трепетом любви Посмотрит, может быть, украдкой На песни грешные мои. У лукоморья дуб зелёный.",
+      "captures": [
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-rnnt\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-5.f32le",
+          "sha256": "ce4fcd4e1c83b57f4fee7e027b160d17128748c834f693f5d5b50a76ffcd54cb",
+          "frames": 36864,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 1,
+            "startFrame": 69632,
+            "endFrame": 106496,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-rnnt\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-6.f32le",
+          "sha256": "13f0b1a25baddb6d2729a81cfb74881df965997323ac4e02ecdaea647652393f",
+          "frames": 94208,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 2,
+            "startFrame": 69632,
+            "endFrame": 163840,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-rnnt\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-7.f32le",
+          "sha256": "5818ecbd18fc861f2b3d18e284a5e61fc2080e45c6766d7a2a5c08029a4570e2",
+          "frames": 148992,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 3,
+            "startFrame": 69632,
+            "endFrame": 218624,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\gigaam-rnnt\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-8.f32le",
+          "sha256": "0077ed6486103c6cf381f04c67d02d73285882aa95eb2bbad27bea4eb5a15610",
+          "frames": 188160,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 4,
+            "startFrame": 69632,
+            "endFrame": 257792,
+            "sampleRate": 16000
+          }
+        }
+      ]
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\sensevoice\\webgpu\\realtime\\file.json",
+      "sha256": "ccff89c73fe64fd03b5c3dd0be04988340e431eeaace7c66617a5704121680e8",
+      "status": "PASS_FILE_FLOW",
+      "exact": true,
+      "actualBackend": "webgpu-hybrid",
+      "transcript": "And so my fellow Americans ask not what your country can do for you, ask what you can do for your country.",
+      "captures": []
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\sensevoice\\webgpu\\realtime\\mic-speech-detect-vad-only-ten-vad.json",
+      "sha256": "cb135c23ec601df12dd1c11efbc0193a19175aa42991b178f065b22ac46e0d37",
+      "status": "PASS_CONTROLLED_MIC",
+      "exact": true,
+      "actualBackend": "webgpu-hybrid",
+      "transcript": "And so my fellow Americans ask not what your country can do for you, ask what you can do for your country.",
+      "captures": [
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\sensevoice\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-2.f32le",
+          "sha256": "5e312b94d6a7d15a898036ce6968a9d324e24845bf251b8f1d48f4d05dc64a05",
+          "frames": 45696,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 1,
+            "startFrame": 73344,
+            "endFrame": 119040,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\sensevoice\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-3.f32le",
+          "sha256": "75b05b6a42aae4ae4dbd0e78e49f9e06280e64aa2a927db0e1aa9d20c8887ab8",
+          "frames": 77952,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 2,
+            "startFrame": 73344,
+            "endFrame": 151296,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\sensevoice\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-4.f32le",
+          "sha256": "f0e058e4127dbff094d893d98413ac771934361412c0d144e81f2c6c80f03d3b",
+          "frames": 128896,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 3,
+            "startFrame": 73344,
+            "endFrame": 202240,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\sensevoice\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-5.f32le",
+          "sha256": "82de94257b9f6ef8cbaee16293a2cb84bac3b30b832ceade2b24c4abc024da90",
+          "frames": 182912,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 4,
+            "startFrame": 73344,
+            "endFrame": 256256,
+            "sampleRate": 16000
+          }
+        }
+      ]
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\sensevoice\\webgpu\\realtime\\mic-speech-detect-vad-only-firered-vad.json",
+      "sha256": "1dc3fdafdfe913048dc6a66a91e9b6ecac2d0391a7241bc6135725d1daa14ca2",
+      "status": "PASS_CONTROLLED_MIC",
+      "exact": true,
+      "actualBackend": "webgpu-hybrid",
+      "transcript": "And so my fellow Americans ask not what your country can do for you, ask what you can do for your country.",
+      "captures": [
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\sensevoice\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-6.f32le",
+          "sha256": "44e70199f158c3414169270545fc61c8bc1b6d42f44d347ac9ed842cb587e145",
+          "frames": 43008,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 1,
+            "startFrame": 74752,
+            "endFrame": 117760,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\sensevoice\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-7.f32le",
+          "sha256": "1ea98a764e794d482c726b13c7ab5d76921464c1a3e52b07d21df53279c55243",
+          "frames": 67840,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 2,
+            "startFrame": 74752,
+            "endFrame": 142592,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\sensevoice\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-8.f32le",
+          "sha256": "dc0c57f3236872cb5154b2941237fe5832b1d63db0f53277b680f305bb7d876a",
+          "frames": 75264,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 3,
+            "startFrame": 74752,
+            "endFrame": 150016,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\sensevoice\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-9.f32le",
+          "sha256": "a7bfbf293334e047c255d0e7939173c3678662737c1752728477bc621f493d51",
+          "frames": 128512,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 4,
+            "startFrame": 74752,
+            "endFrame": 203264,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\sensevoice\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-10.f32le",
+          "sha256": "03365ad32bc8720047bcac69ee211eaad7a203e70fb373a0017fa1dc9d162483",
+          "frames": 176384,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 5,
+            "startFrame": 74752,
+            "endFrame": 251136,
+            "sampleRate": 16000
+          }
+        }
+      ]
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\sensevoice\\wasm\\realtime\\file.json",
+      "sha256": "8a1cb0190a70073ae9f2f1bb3b3caf709c805297fe43373b1f0400c41fdb3c0b",
+      "status": "PASS_FILE_FLOW",
+      "exact": true,
+      "actualBackend": "wasm",
+      "transcript": "And so my fellow Americans ask not what your country can do for you, ask what you can do for your country.",
+      "captures": []
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\sensevoice\\wasm\\realtime\\mic-speech-detect-vad-only-ten-vad.json",
+      "sha256": "a39e63c3595688a65aa212568b11845708b1b178d2d443a54e77f5b5a47c132b",
+      "status": "PASS_CONTROLLED_MIC",
+      "exact": true,
+      "actualBackend": "wasm",
+      "transcript": "And so my fellow Americans ask not what your country can do for you, ask what you can do for your country.",
+      "captures": [
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\sensevoice\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-2.f32le",
+          "sha256": "83e408b2d7bb1a007f524bc1d7fe4a6bafb213406c97aae2a8e11dc5e20aea59",
+          "frames": 45696,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 1,
+            "startFrame": 72576,
+            "endFrame": 118272,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\sensevoice\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-3.f32le",
+          "sha256": "26cae28d0d8382891a9f8d1c3d3eafe037f64dc16235c7368af1b9f97d523e9c",
+          "frames": 77696,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 2,
+            "startFrame": 72576,
+            "endFrame": 150272,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\sensevoice\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-4.f32le",
+          "sha256": "7490b847c876e6e5e1c22ff51e6989c3dde7017403ff7347b929e7792ac46096",
+          "frames": 128896,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 3,
+            "startFrame": 72576,
+            "endFrame": 201472,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\sensevoice\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-5.f32le",
+          "sha256": "26cbe0eaf8d0ae2f9d7665ab0cd030d9d736626360fc0a1993622051b7161578",
+          "frames": 182912,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 4,
+            "startFrame": 72576,
+            "endFrame": 255488,
+            "sampleRate": 16000
+          }
+        }
+      ]
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\sensevoice\\wasm\\realtime\\mic-speech-detect-vad-only-firered-vad.json",
+      "sha256": "defefe25097bcb1f438138f684f67e2d9c92bcfb397f6faa3aa07b6160859963",
+      "status": "PASS_CONTROLLED_MIC",
+      "exact": true,
+      "actualBackend": "wasm",
+      "transcript": "And so my fellow Americans ask not what your country can do for you, ask what you can do for your country.",
+      "captures": [
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\sensevoice\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-6.f32le",
+          "sha256": "aeef87713141a6967cfde468eb51c9c9c17355f4c69268aad2249b06c87cfbe3",
+          "frames": 43328,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 1,
+            "startFrame": 74432,
+            "endFrame": 117760,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\sensevoice\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-7.f32le",
+          "sha256": "39eddeb8ddfc4980bd07b657a679088a7254e844cededdf3bfdc5fa7cac80c47",
+          "frames": 70464,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 2,
+            "startFrame": 74432,
+            "endFrame": 144896,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\sensevoice\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-8.f32le",
+          "sha256": "269a64d904f73454227f6101fd87bc80c2b7fab2f60d91b8457966cc521c049b",
+          "frames": 78912,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 3,
+            "startFrame": 74432,
+            "endFrame": 153344,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\sensevoice\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-9.f32le",
+          "sha256": "754c175e2462c35b9206431ca449eeba0179f93d2f20860406f50570773808b9",
+          "frames": 167232,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 4,
+            "startFrame": 74432,
+            "endFrame": 241664,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\sensevoice\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-10.f32le",
+          "sha256": "525322f5f08b269c6aaff9a788ed2940594cc9f08fc1127a2a638091bf4adc9c",
+          "frames": 198208,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 5,
+            "startFrame": 74432,
+            "endFrame": 272640,
+            "sampleRate": 16000
+          }
+        }
+      ]
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\qwen\\webgpu\\realtime\\file.json",
+      "sha256": "4999abe7b28ecbc35adc108001d995e4c58a045b20fa7213175fd3561caa33cc",
+      "status": "PASS_FILE_FLOW",
+      "exact": true,
+      "actualBackend": "webgpu-hybrid",
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you; ask what you can do for your country.",
+      "captures": []
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\qwen\\webgpu\\realtime\\mic-speech-detect-vad-only-ten-vad.json",
+      "sha256": "7370027398e4dd63a11f3ba2d020e85dd6aa40265d50bfb191bd0a96193986d2",
+      "status": "PASS_CONTROLLED_MIC",
+      "exact": true,
+      "actualBackend": "webgpu-hybrid",
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you; ask what you can do for your country.",
+      "captures": [
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\qwen\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-2.f32le",
+          "sha256": "83e408b2d7bb1a007f524bc1d7fe4a6bafb213406c97aae2a8e11dc5e20aea59",
+          "frames": 45696,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 1,
+            "startFrame": 73856,
+            "endFrame": 119552,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\qwen\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-3.f32le",
+          "sha256": "886abf63fffd0e7b7f97db91098e0fce0128d835a7307ce240e64fb2601a37c2",
+          "frames": 77696,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 2,
+            "startFrame": 73856,
+            "endFrame": 151552,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\qwen\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-4.f32le",
+          "sha256": "fb093d490131bddf4ecedeac08bc21d7b3a9cd16e51c5b09a139d8775a1a9549",
+          "frames": 128896,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 3,
+            "startFrame": 73856,
+            "endFrame": 202752,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\qwen\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-5.f32le",
+          "sha256": "411d95704b233c8cf32e0598616383f38cdbf93d3fdd9265e45c62fb5df53c38",
+          "frames": 182912,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 4,
+            "startFrame": 73856,
+            "endFrame": 256768,
+            "sampleRate": 16000
+          }
+        }
+      ]
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\qwen\\webgpu\\realtime\\mic-speech-detect-vad-only-firered-vad.json",
+      "sha256": "0468c5d109aaf5303a86c9f0125fd083c416dc8af8ca8fb923a83383826d147a",
+      "status": "PASS_CONTROLLED_MIC",
+      "exact": true,
+      "actualBackend": "webgpu-hybrid",
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you; ask what you can do for your country.",
+      "captures": [
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\qwen\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-6.f32le",
+          "sha256": "371ffd0b1c8bfeb948c22a637e2c71547658c89cd01f37d5ce19f8eb1ba51f16",
+          "frames": 43200,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 1,
+            "startFrame": 75072,
+            "endFrame": 118272,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\qwen\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-7.f32le",
+          "sha256": "e07ddcb157de3e93350cb690d00096d32313e3c5d3fccedecaf91a6814ff7abc",
+          "frames": 68032,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 2,
+            "startFrame": 75072,
+            "endFrame": 143104,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\qwen\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-8.f32le",
+          "sha256": "842e057d294720934870e80ab3082da2996d1317526445595e11e01faf4dd2cc",
+          "frames": 75456,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 3,
+            "startFrame": 75072,
+            "endFrame": 150528,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\qwen\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-9.f32le",
+          "sha256": "a4afe2c61a6a9b4a9a19a924af75e49b22f719ee4f5ec46e6bdc2c24b04857e6",
+          "frames": 128448,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 4,
+            "startFrame": 75072,
+            "endFrame": 203520,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\qwen\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-10.f32le",
+          "sha256": "c491c7829b9040a7736396bced0d6b89955d903c65c7fba3647686fadfa51426",
+          "frames": 176576,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 5,
+            "startFrame": 75072,
+            "endFrame": 251648,
+            "sampleRate": 16000
+          }
+        }
+      ]
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\qwen\\wasm\\realtime\\file.json",
+      "sha256": "beb2d636f5757871d6ae10593707dcd788fc6ceb48cc940ae498444ddb4558cb",
+      "status": "PASS_FILE_FLOW",
+      "exact": true,
+      "actualBackend": "wasm",
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you; ask what you can do for your country.",
+      "captures": []
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\qwen\\wasm\\realtime\\mic-speech-detect-vad-only-ten-vad.json",
+      "sha256": "e3f717b387ea419ecedabdae232c35c8db7ef4f570893536bdc17d0655517e03",
+      "status": "PASS_CONTROLLED_MIC",
+      "exact": true,
+      "actualBackend": "wasm",
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you; ask what you can do for your country.",
+      "captures": [
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\qwen\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-2.f32le",
+          "sha256": "400b7a844ca86d2db231878863604bcbbbad30322223dfd0f205513cf0858115",
+          "frames": 45696,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 1,
+            "startFrame": 73600,
+            "endFrame": 119296,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\qwen\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-3.f32le",
+          "sha256": "ee126face1b6f02f557fa8a10fdd753edd14bbabd075e6d103b782e832c52658",
+          "frames": 77952,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 2,
+            "startFrame": 73600,
+            "endFrame": 151552,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\qwen\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-4.f32le",
+          "sha256": "c342d46227fd3a20867bd949ad1e59a07fbda2378a6f3f0f0f59d570734e8b43",
+          "frames": 129152,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 3,
+            "startFrame": 73600,
+            "endFrame": 202752,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\qwen\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-5.f32le",
+          "sha256": "846e6484fe7fd50cb2886005aca8182fe9ea1384a98e9f9bb99685c3cad2ef6c",
+          "frames": 183424,
+          "context": {
+            "id": "speech-context-1",
+            "revision": 4,
+            "startFrame": 73600,
+            "endFrame": 257024,
+            "sampleRate": 16000
+          }
+        }
+      ]
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\qwen\\wasm\\realtime\\mic-speech-detect-vad-only-firered-vad.json",
+      "sha256": "b48c8901788b197ac024289f5934db2ad6ef9b311f78e50a2dda67a17209a3d8",
+      "status": "PASS_CONTROLLED_MIC",
+      "exact": true,
+      "actualBackend": "wasm",
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you; ask what you can do for your country.",
+      "captures": [
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\qwen\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-6.f32le",
+          "sha256": "912930d2c4a48e48f58c5df58da7105a641c33733024ffa7e247f959e45b690a",
+          "frames": 42944,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 1,
+            "startFrame": 73792,
+            "endFrame": 116736,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\qwen\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-7.f32le",
+          "sha256": "6d6e4f4ecc5166f0100de05c4f923c1b0f805f4cc41c340ba57325473a56b9d9",
+          "frames": 67776,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 2,
+            "startFrame": 73792,
+            "endFrame": 141568,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\qwen\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-8.f32le",
+          "sha256": "79109dffe493041a4f3f21e484ac3b750970cd34018e4bbf750f48d51bb41691",
+          "frames": 76480,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 3,
+            "startFrame": 73792,
+            "endFrame": 150272,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\qwen\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-9.f32le",
+          "sha256": "5208fddbddbc0d155c1c027a9009f188f55477831dac5aa4be586c8144f77aab",
+          "frames": 128704,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 4,
+            "startFrame": 73792,
+            "endFrame": 202496,
+            "sampleRate": 16000
+          }
+        },
+        {
+          "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v23-vad\\qwen\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-10.f32le",
+          "sha256": "617645d1d8d46f45f71b00dc100af8778a16cb5de5045afc892c974789e89999",
+          "frames": 176832,
+          "context": {
+            "id": "speech-context-2",
+            "revision": 5,
+            "startFrame": 73792,
+            "endFrame": 250624,
+            "sampleRate": 16000
+          }
+        }
+      ]
+    }
+  ]
+}

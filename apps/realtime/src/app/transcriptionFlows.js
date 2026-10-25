@@ -1,4 +1,4 @@
-import { loadSpeechModelFromLocalEntries } from '@asrjs/speech-recognition/browser';
+import { loadDemoLocalModel } from '@asrjs/demo-runtime';
 import { fetchRandomSample, hasTestSamples } from '../utils/speechDatasets';
 import { loadHubDemoModel } from '../shared/modelLoader.js';
 import { decodeAudioBufferToMonoPcm, encodeMonoPcmToWavBlob, getCachedAudioFile } from './audioUtils.js';
@@ -169,7 +169,7 @@ export async function loadModelFlow({
       setProgressText('Compiling local model artifacts');
       setProgressPct(null);
 
-      const localLoadResult = await loadSpeechModelFromLocalEntries({
+      const localLoadResult = await loadDemoLocalModel({
         modelId: selectedModel,
         entries: localEntries,
         encoderBackend,

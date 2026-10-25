@@ -8,7 +8,8 @@ const mocks = vi.hoisted(() => ({
   matchesWarmupResult: vi.fn(),
 }));
 
-vi.mock('@asrjs/speech-recognition/browser', () => ({
+vi.mock('@asrjs/speech-recognition/browser', async (importOriginal) => ({
+  ...await importOriginal(),
   loadSpeechModelFromLocalEntries: mocks.loadSpeechModelFromLocalEntries,
 }));
 
@@ -73,7 +74,7 @@ describe('loadModelFlow', () => {
     await loadModelFlow({
       modelSource: 'local',
       modelRef,
-      localEntries: [{ path: 'demo/vocab.txt', basename: 'vocab.txt' }],
+      localEntries: ['vocab.txt', 'encoder-model.fp16.onnx', 'decoder_joint-model.int8.onnx'].map(basename => ({ path: `demo/${basename}`, basename })),
       selectedModel: 'parakeet-tdt-0.6b-v3',
       encoderBackend: 'webgpu',
       decoderBackend: 'wasm',
@@ -105,7 +106,7 @@ describe('loadModelFlow', () => {
     expect(mocks.loadSpeechModelFromLocalEntries).toHaveBeenCalledWith(
       expect.objectContaining({
         modelId: 'parakeet-tdt-0.6b-v3',
-        entries: [{ path: 'demo/vocab.txt', basename: 'vocab.txt' }],
+        entries: expect.arrayContaining([{ path: 'demo/vocab.txt', basename: 'vocab.txt' }]),
         tokenizerName: 'vocab.txt',
         preprocessorName: 'nemo128',
       }),

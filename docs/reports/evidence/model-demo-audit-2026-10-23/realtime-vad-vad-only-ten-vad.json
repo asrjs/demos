@@ -1,0 +1,1771 @@
+{
+  "gate": "vad-only",
+  "backend": "ten-vad",
+  "scope": "Realtime demo, controlled microphone, speech-detect, rough-only gate, local real v3 model",
+  "physicalMicrophone": "UNVERIFIED",
+  "events": [
+    {
+      "type": "log",
+      "text": "[LocalFolder] Folder input fallback selected files {count: 86}"
+    },
+    {
+      "type": "log",
+      "text": "[LocalFolder] Parsing selected local folder entries… {count: 86, folderName: parakeet-tdt-0.6b-v3-onnx}"
+    },
+    {
+      "type": "log",
+      "text": "[LocalFolder] Starting model load from local artifacts"
+    },
+    {
+      "type": "warning",
+      "text": "The powerPreference option is currently ignored when calling requestAdapter() on Windows. See https://crbug.com/369219127"
+    },
+    {
+      "type": "error",
+      "text": "\u001b[0;93m2026-10-23 01:45:07.150749 [W:onnxruntime:, session_state.cc:1398 VerifyEachNodeIsAssignedToAnEp] Some nodes were not assigned to the preferred execution providers which may or may not have an negative impact on performance. e.g. ORT explicitly assigns shape related ops to CPU to improve perf.\u001b[m"
+    },
+    {
+      "type": "error",
+      "text": "\u001b[0;93m2026-10-23 01:45:07.154049 [W:onnxruntime:, session_state.cc:1400 VerifyEachNodeIsAssignedToAnEp] Rerunning with verbose output on a non-minimal build will show node assignments.\u001b[m"
+    },
+    {
+      "type": "log",
+      "text": "[LocalFolder] Selected artifacts {encoder: encoder-model.fp16.onnx, decoder: decoder_joint-model.onnx, tokenizer: vocab.txt, preprocessorBackend: js, preprocessor: null}"
+    },
+    {
+      "type": "log",
+      "text": "[LocalFolder] Model sessions created from local artifacts"
+    },
+    {
+      "type": "log",
+      "text": "[LoadModel] Running warm-up verification transcription"
+    },
+    {
+      "type": "log",
+      "text": "[Cache] Fetching audio from: /realtime/assets/Harvard-L2-1-B6X4PDwP.ogg"
+    },
+    {
+      "type": "log",
+      "text": "[Cache] Cached audio: Harvard-L2-1.ogg"
+    },
+    {
+      "type": "log",
+      "text": "[App] Model verification successful."
+    },
+    {
+      "type": "timeEnd",
+      "text": "LoadModel: 9978.251953125 ms"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] TEN-VAD ready for diagnostics {state: ready, error: null, probability: 0, speaking: false, threshold: 0.5}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger {energy: 0.003, threshold: 0.08, snr: 2.71}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 20480, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 22272}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 18432, endFrame: 22272, logicalEndFrame: 22272, durationSec: 0.24, normalizedPowerAt16k: 435.47}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 20480, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 22528}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 18432, endFrame: 22528, logicalEndFrame: 22528, durationSec: 0.26, normalizedPowerAt16k: 408.42}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-silence-01:45:13, durationSeconds: 0.26, pending: 1, transcriber: main}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-silence-01:45:13, durationSeconds: 0.26, pending: 0, transcriber: main}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 20480, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 22784}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 18432, endFrame: 22784, logicalEndFrame: 22784, durationSec: 0.27, normalizedPowerAt16k: 384.51}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 20480, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 23040}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 18432, endFrame: 23040, logicalEndFrame: 23040, durationSec: 0.29, normalizedPowerAt16k: 363.25}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 20480, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 23296}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 18432, endFrame: 23296, logicalEndFrame: 23296, durationSec: 0.3, normalizedPowerAt16k: 344.25}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 20480, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 23552}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 18432, endFrame: 23552, logicalEndFrame: 23552, durationSec: 0.32, normalizedPowerAt16k: 327.25}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 20480, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 23808}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 18432, endFrame: 23808, logicalEndFrame: 23808, durationSec: 0.34, normalizedPowerAt16k: 312.96}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 20480, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 24064}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 18432, endFrame: 24064, logicalEndFrame: 24064, durationSec: 0.35, normalizedPowerAt16k: 343.97}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 20480, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 24320}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 18432, endFrame: 24320, logicalEndFrame: 24320, durationSec: 0.37, normalizedPowerAt16k: 431.65}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 20480, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 24576}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 18432, endFrame: 24576, logicalEndFrame: 24576, durationSec: 0.38, normalizedPowerAt16k: 483.99}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 20480, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 24832}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 18432, endFrame: 24832, logicalEndFrame: 24832, durationSec: 0.4, normalizedPowerAt16k: 545.44}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 20480, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 25088}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 18432, endFrame: 25088, logicalEndFrame: 25088, durationSec: 0.42, normalizedPowerAt16k: 602.96}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 20480, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-silence-01:45:13, textLength: 3, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-silence-01:45:14, durationSeconds: 0.27, pending: 1, transcriber: main}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-silence-01:45:14, durationSeconds: 0.27, pending: 0, transcriber: main}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 54784}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 18432, endFrame: 54784, logicalEndFrame: 54784, durationSec: 2.27, normalizedPowerAt16k: 684.68}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger {energy: 0.028, threshold: 0.08, snr: 13.36}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-silence-01:45:14, textLength: 3, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-silence-01:45:15, durationSeconds: 0.29, pending: 1, transcriber: main}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-silence-01:45:15, durationSeconds: 0.29, pending: 0, transcriber: main}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-silence-01:45:15, textLength: 3, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-silence-01:45:15, durationSeconds: 0.3, pending: 1, transcriber: main}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-silence-01:45:15, durationSeconds: 0.3, pending: 0, transcriber: main}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger {energy: 0.025, threshold: 0.08, snr: 13.8}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 20480, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 69632}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 18432, endFrame: 69632, logicalEndFrame: 69632, durationSec: 3.2, normalizedPowerAt16k: 567.78}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 20480, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 69888}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 18432, endFrame: 69888, logicalEndFrame: 69888, durationSec: 3.22, normalizedPowerAt16k: 572.28}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 20480, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 70144}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 18432, endFrame: 70144, logicalEndFrame: 70144, durationSec: 3.23, normalizedPowerAt16k: 575.09}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 20480, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 70400}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 18432, endFrame: 70400, logicalEndFrame: 70400, durationSec: 3.25, normalizedPowerAt16k: 577.67}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 20480, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 70656}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 18432, endFrame: 70656, logicalEndFrame: 70656, durationSec: 3.26, normalizedPowerAt16k: 579.8}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 20480, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 70912}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 18432, endFrame: 70912, logicalEndFrame: 70912, durationSec: 3.28, normalizedPowerAt16k: 578.87}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 20480, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 71168}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 18432, endFrame: 71168, logicalEndFrame: 71168, durationSec: 3.3, normalizedPowerAt16k: 576.45}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 20480, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 71424}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 18432, endFrame: 71424, logicalEndFrame: 71424, durationSec: 3.31, normalizedPowerAt16k: 573.81}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 20480, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 71680}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 18432, endFrame: 71680, logicalEndFrame: 71680, durationSec: 3.33, normalizedPowerAt16k: 571.1}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 20480, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 71936}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 18432, endFrame: 71936, logicalEndFrame: 71936, durationSec: 3.34, normalizedPowerAt16k: 568.42}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 20480, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 72192}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 18432, endFrame: 72192, logicalEndFrame: 72192, durationSec: 3.36, normalizedPowerAt16k: 565.76}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 20480, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 72448}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 18432, endFrame: 72448, logicalEndFrame: 72448, durationSec: 3.38, normalizedPowerAt16k: 563.09}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 20480, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 72704}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 18432, endFrame: 72704, logicalEndFrame: 72704, durationSec: 3.39, normalizedPowerAt16k: 560.44}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 20480, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 72960}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 18432, endFrame: 72960, logicalEndFrame: 72960, durationSec: 3.41, normalizedPowerAt16k: 557.81}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 20480, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 73216}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 18432, endFrame: 73216, logicalEndFrame: 73216, durationSec: 3.42, normalizedPowerAt16k: 555.21}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 20480, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 73472}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 18432, endFrame: 73472, logicalEndFrame: 73472, durationSec: 3.44, normalizedPowerAt16k: 552.64}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 20480, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 73728}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 18432, endFrame: 73728, logicalEndFrame: 73728, durationSec: 3.46, normalizedPowerAt16k: 550.1}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 20480, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-silence-01:45:15, textLength: 3, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-silence-01:45:16, durationSeconds: 0.32, pending: 1, transcriber: main}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-silence-01:45:16, durationSeconds: 0.32, pending: 0, transcriber: main}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 89856}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 18432, endFrame: 89856, logicalEndFrame: 89856, durationSec: 4.46, normalizedPowerAt16k: 486.74}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-silence-01:45:16, textLength: 3, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-silence-01:45:17, durationSeconds: 0.34, pending: 1, transcriber: main}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-silence-01:45:17, durationSeconds: 0.34, pending: 0, transcriber: main}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger {energy: 0.027, threshold: 0.08, snr: 14.31}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-silence-01:45:17, textLength: 3, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-silence-01:45:17, durationSeconds: 0.35, pending: 1, transcriber: main}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-silence-01:45:17, durationSeconds: 0.35, pending: 0, transcriber: main}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-silence-01:45:17, textLength: 6, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-silence-01:45:18, durationSeconds: 0.37, pending: 1, transcriber: main}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-silence-01:45:18, durationSeconds: 0.37, pending: 0, transcriber: main}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 23040, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: max-duration {startFrame: 20992, endFrame: 104192, logicalEndFrame: 104192, durationSec: 5.2, normalizedPowerAt16k: 414.76}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Long speech split into a new rough segment {previousAccepted: true, nextStartFrame: 102912}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 104448}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 100864, endFrame: 104448, logicalEndFrame: 104448, durationSec: 0.22, normalizedPowerAt16k: 325.48}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 23808, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: max-duration {startFrame: 21760, endFrame: 104704, logicalEndFrame: 104704, durationSec: 5.18, normalizedPowerAt16k: 416.75}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Long speech split into a new rough segment {previousAccepted: true, nextStartFrame: 103424}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 104960}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 101376, endFrame: 104960, logicalEndFrame: 104960, durationSec: 0.22, normalizedPowerAt16k: 249.51}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 24832, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: max-duration {startFrame: 22784, endFrame: 105216, logicalEndFrame: 105216, durationSec: 5.15, normalizedPowerAt16k: 428.64}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Long speech split into a new rough segment {previousAccepted: true, nextStartFrame: 103936}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 105472}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 101888, endFrame: 105472, logicalEndFrame: 105472, durationSec: 0.22, normalizedPowerAt16k: 367.82}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 25600, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: max-duration {startFrame: 23552, endFrame: 105728, logicalEndFrame: 105728, durationSec: 5.14, normalizedPowerAt16k: 439.55}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Long speech split into a new rough segment {previousAccepted: true, nextStartFrame: 104448}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 105984}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 102400, endFrame: 105984, logicalEndFrame: 105984, durationSec: 0.22, normalizedPowerAt16k: 560.55}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 26624, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: max-duration {startFrame: 24576, endFrame: 106240, logicalEndFrame: 106240, durationSec: 5.1, normalizedPowerAt16k: 433.05}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Long speech split into a new rough segment {previousAccepted: true, nextStartFrame: 104960}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 106496}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 102912, endFrame: 106496, logicalEndFrame: 106496, durationSec: 0.22, normalizedPowerAt16k: 666.31}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 27136, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: max-duration {startFrame: 25088, endFrame: 106752, logicalEndFrame: 106752, durationSec: 5.1, normalizedPowerAt16k: 424.02}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Long speech split into a new rough segment {previousAccepted: true, nextStartFrame: 105472}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 107008}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 103424, endFrame: 107008, logicalEndFrame: 107008, durationSec: 0.22, normalizedPowerAt16k: 706.67}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 27392, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: max-duration {startFrame: 25344, endFrame: 107264, logicalEndFrame: 107264, durationSec: 5.12, normalizedPowerAt16k: 416.09}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Long speech split into a new rough segment {previousAccepted: true, nextStartFrame: 105984}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 107520}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 103936, endFrame: 107520, logicalEndFrame: 107520, durationSec: 0.22, normalizedPowerAt16k: 705.93}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 27648, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: max-duration {startFrame: 25600, endFrame: 107776, logicalEndFrame: 107776, durationSec: 5.14, normalizedPowerAt16k: 406.9}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Long speech split into a new rough segment {previousAccepted: true, nextStartFrame: 106496}"
+    },
+    {
+      "type": "error",
+      "text": "\u001b[0;93m2026-10-23 01:45:18.517349 [W:onnxruntime:, session_state.cc:1398 VerifyEachNodeIsAssignedToAnEp] Some nodes were not assigned to the preferred execution providers which may or may not have an negative impact on performance. e.g. ORT explicitly assigns shape related ops to CPU to improve perf.\u001b[m"
+    },
+    {
+      "type": "error",
+      "text": "\u001b[0;93m2026-10-23 01:45:18.518458 [W:onnxruntime:, session_state.cc:1400 VerifyEachNodeIsAssignedToAnEp] Rerunning with verbose output on a non-minimal build will show node assignments.\u001b[m"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-silence-01:45:18, textLength: 6, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-silence-01:45:18, durationSeconds: 0.38, pending: 1, transcriber: main}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-silence-01:45:18, durationSeconds: 0.38, pending: 0, transcriber: main}"
+    },
+    {
+      "type": "log",
+      "text": "[MicWorker] Ready {source: local, modelId: undefined, info: Object, selection: Object}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-silence-01:45:18, textLength: 6, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-silence-01:45:19, durationSeconds: 0.4, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-silence-01:45:19, durationSeconds: 0.4, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 138752}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 104448, endFrame: 138752, logicalEndFrame: 138752, durationSec: 2.14, normalizedPowerAt16k: 316.89}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger {energy: 0.056, threshold: 0.08, snr: 16.01}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 67840, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: max-duration {startFrame: 65792, endFrame: 148736, logicalEndFrame: 148736, durationSec: 5.18, normalizedPowerAt16k: 307.91}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Long speech split into a new rough segment {previousAccepted: true, nextStartFrame: 147456}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 148992}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 145408, endFrame: 148992, logicalEndFrame: 148992, durationSec: 0.22, normalizedPowerAt16k: 866.53}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 68608, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: max-duration {startFrame: 66560, endFrame: 149248, logicalEndFrame: 149248, durationSec: 5.17, normalizedPowerAt16k: 302.82}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Long speech split into a new rough segment {previousAccepted: true, nextStartFrame: 147968}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 149504}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 145920, endFrame: 149504, logicalEndFrame: 149504, durationSec: 0.22, normalizedPowerAt16k: 732.8}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 69120, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: max-duration {startFrame: 67072, endFrame: 149760, logicalEndFrame: 149760, durationSec: 5.17, normalizedPowerAt16k: 297.86}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Long speech split into a new rough segment {previousAccepted: true, nextStartFrame: 148480}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 150016}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 146432, endFrame: 150016, logicalEndFrame: 150016, durationSec: 0.22, normalizedPowerAt16k: 652.5}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 69120, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: max-duration {startFrame: 67072, endFrame: 150272, logicalEndFrame: 150272, durationSec: 5.2, normalizedPowerAt16k: 296.07}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Long speech split into a new rough segment {previousAccepted: true, nextStartFrame: 148992}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 150528}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 146944, endFrame: 150528, logicalEndFrame: 150528, durationSec: 0.22, normalizedPowerAt16k: 530.14}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 69632, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: max-duration {startFrame: 67584, endFrame: 150784, logicalEndFrame: 150784, durationSec: 5.2, normalizedPowerAt16k: 288.97}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Long speech split into a new rough segment {previousAccepted: true, nextStartFrame: 149504}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 151040}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 147456, endFrame: 151040, logicalEndFrame: 151040, durationSec: 0.22, normalizedPowerAt16k: 327.44}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-silence-01:45:19, textLength: 6, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-silence-01:45:21, durationSeconds: 0.42, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-silence-01:45:21, durationSeconds: 0.42, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 69632, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: max-duration {startFrame: 67584, endFrame: 151296, logicalEndFrame: 151296, durationSec: 5.23, normalizedPowerAt16k: 287.22}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Long speech split into a new rough segment {previousAccepted: true, nextStartFrame: 150016}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 151552}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 147968, endFrame: 151552, logicalEndFrame: 151552, durationSec: 0.22, normalizedPowerAt16k: 161.95}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 69888, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: max-duration {startFrame: 67840, endFrame: 151808, logicalEndFrame: 151808, durationSec: 5.25, normalizedPowerAt16k: 282.27}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Long speech split into a new rough segment {previousAccepted: true, nextStartFrame: 150528}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 152064}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 148480, endFrame: 152064, logicalEndFrame: 152064, durationSec: 0.22, normalizedPowerAt16k: 76.62}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD speech start {startFrame: 69888, gateMode: vad-only}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: max-duration {startFrame: 67840, endFrame: 152320, logicalEndFrame: 152320, durationSec: 5.28, normalizedPowerAt16k: 282.88}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Long speech split into a new rough segment {previousAccepted: true, nextStartFrame: 151040}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-silence-01:45:21, textLength: 6, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-silence-01:45:21, durationSeconds: 2.27, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-silence-01:45:21, durationSeconds: 2.27, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-silence-01:45:21, textLength: 28, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-silence-01:45:21, durationSeconds: 3.2, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-silence-01:45:21, durationSeconds: 3.2, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-silence-01:45:21, textLength: 31, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-silence-01:45:22, durationSeconds: 3.22, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-silence-01:45:22, durationSeconds: 3.22, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-silence-01:45:22, textLength: 32, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-silence-01:45:22, durationSeconds: 3.23, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-silence-01:45:22, durationSeconds: 3.23, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-silence-01:45:22, textLength: 32, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-silence-01:45:22, durationSeconds: 3.25, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-silence-01:45:22, durationSeconds: 3.25, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-silence-01:45:22, textLength: 32, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-silence-01:45:22, durationSeconds: 3.26, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-silence-01:45:22, durationSeconds: 3.26, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-silence-01:45:22, textLength: 32, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-silence-01:45:23, durationSeconds: 3.28, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-silence-01:45:23, durationSeconds: 3.28, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-silence-01:45:23, textLength: 32, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-silence-01:45:23, durationSeconds: 3.3, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-silence-01:45:23, durationSeconds: 3.3, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-silence-01:45:23, textLength: 31, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-silence-01:45:23, durationSeconds: 3.31, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-silence-01:45:23, durationSeconds: 3.31, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Neural VAD finalized speech after sustained silence {endFrame: 192768}"
+    },
+    {
+      "type": "debug",
+      "text": "[StreamingSpeechDetector] Segment ready: silence {startFrame: 148992, endFrame: 192768, logicalEndFrame: 192768, durationSec: 2.74, normalizedPowerAt16k: 139.74}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-silence-01:45:23, textLength: 31, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-silence-01:45:23, durationSeconds: 3.33, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-silence-01:45:23, durationSeconds: 3.33, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-silence-01:45:23, textLength: 31, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-silence-01:45:24, durationSeconds: 3.34, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-silence-01:45:24, durationSeconds: 3.34, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-silence-01:45:24, textLength: 31, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-silence-01:45:24, durationSeconds: 3.36, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-silence-01:45:24, durationSeconds: 3.36, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-silence-01:45:24, textLength: 31, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-silence-01:45:24, durationSeconds: 3.38, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-silence-01:45:24, durationSeconds: 3.38, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-silence-01:45:24, textLength: 32, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-silence-01:45:24, durationSeconds: 3.39, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-silence-01:45:24, durationSeconds: 3.39, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-silence-01:45:24, textLength: 32, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-silence-01:45:25, durationSeconds: 3.41, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-silence-01:45:25, durationSeconds: 3.41, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-silence-01:45:25, textLength: 32, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-silence-01:45:25, durationSeconds: 3.42, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-silence-01:45:25, durationSeconds: 3.42, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-silence-01:45:25, textLength: 32, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-silence-01:45:25, durationSeconds: 3.44, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-silence-01:45:25, durationSeconds: 3.44, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-silence-01:45:25, textLength: 32, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-silence-01:45:25, durationSeconds: 3.46, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-silence-01:45:25, durationSeconds: 3.46, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-silence-01:45:25, textLength: 32, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-silence-01:45:26, durationSeconds: 4.46, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-silence-01:45:26, durationSeconds: 4.46, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-silence-01:45:26, textLength: 36, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-max-duration-01:45:26, durationSeconds: 5.2, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-max-duration-01:45:26, durationSeconds: 5.2, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-max-duration-01:45:26, textLength: 45, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-max-duration-01:45:26, durationSeconds: 5.18, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-max-duration-01:45:26, durationSeconds: 5.18, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-max-duration-01:45:26, textLength: 45, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-max-duration-01:45:26, durationSeconds: 5.15, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-max-duration-01:45:26, durationSeconds: 5.15, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-max-duration-01:45:26, textLength: 42, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-max-duration-01:45:27, durationSeconds: 5.14, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-max-duration-01:45:27, durationSeconds: 5.14, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-max-duration-01:45:27, textLength: 41, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-max-duration-01:45:27, durationSeconds: 5.1, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-max-duration-01:45:27, durationSeconds: 5.1, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-max-duration-01:45:27, textLength: 42, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-max-duration-01:45:27, durationSeconds: 5.1, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-max-duration-01:45:27, durationSeconds: 5.1, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-max-duration-01:45:27, textLength: 41, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-max-duration-01:45:27, durationSeconds: 5.12, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-max-duration-01:45:27, durationSeconds: 5.12, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-max-duration-01:45:27, textLength: 41, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-max-duration-01:45:28, durationSeconds: 5.14, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-max-duration-01:45:28, durationSeconds: 5.14, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-max-duration-01:45:28, textLength: 42, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-silence-01:45:28, durationSeconds: 2.14, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-silence-01:45:28, durationSeconds: 2.14, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-silence-01:45:28, textLength: 28, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-max-duration-01:45:28, durationSeconds: 5.18, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-max-duration-01:45:28, durationSeconds: 5.18, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-max-duration-01:45:28, textLength: 45, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-max-duration-01:45:28, durationSeconds: 5.17, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-max-duration-01:45:28, durationSeconds: 5.17, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-max-duration-01:45:28, textLength: 50, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-max-duration-01:45:28, durationSeconds: 5.17, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-max-duration-01:45:28, durationSeconds: 5.17, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-max-duration-01:45:28, textLength: 49, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-max-duration-01:45:29, durationSeconds: 5.2, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-max-duration-01:45:29, durationSeconds: 5.2, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-max-duration-01:45:29, textLength: 50, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-max-duration-01:45:29, durationSeconds: 5.2, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-max-duration-01:45:29, durationSeconds: 5.2, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-max-duration-01:45:29, textLength: 50, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-max-duration-01:45:29, durationSeconds: 5.23, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-max-duration-01:45:29, durationSeconds: 5.23, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-max-duration-01:45:29, textLength: 50, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-max-duration-01:45:29, durationSeconds: 5.25, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-max-duration-01:45:29, durationSeconds: 5.25, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-max-duration-01:45:29, textLength: 50, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-max-duration-01:45:30, durationSeconds: 5.28, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-max-duration-01:45:30, durationSeconds: 5.28, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-max-duration-01:45:30, textLength: 48, pending: 0}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-silence-01:45:30, durationSeconds: 2.74, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-silence-01:45:30, durationSeconds: 2.74, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] complete {sourceLabel: microphone-silence-01:45:30, textLength: 40, pending: 0}"
+    }
+  ],
+  "pageErrors": [],
+  "startedAt": "2026-10-23T01:44:57",
+  "load": "EXECUTED",
+  "beforeCapture": "A\nASRJS\nSpeech recognition\n\nREALTIME WORKSTATION\n\nLive transcription\n0.2.0 npm-package\n◐\nAppearance\nTranscribe\nPlayground\nLive\nBenchmark\nRealtime VAD Lab\nTranscript & Subtitles\ntune\nModel ready · webgpu-hybrid · Microphone idle\nLoad\nready\nparakeet-tdt-0.6b-v3-onnx\nLocal assets\nModel Loaded\nValidation\nInput language\nEnglish\nFrench\nGerman\nSpanish\nItalian\nPortuguese\nDutch\nPolish\nexpand_more\nLoad Sample\nupload_file\nDrop or click to transcribe\nModel Settings\nArtifact source\nHugging Face\nLocal folder\nexpand_more\nLocal folder\nparakeet-tdt-0.6b-v3-onnx\nfolder_open\nFiles: 86\nEncoder: fp32, fp16, int8\nDecoder: fp32, fp16, int8\nTokenizer: vocab.txt\nFrontend: nemo128\nParakeet TDT 0.6B v3 (Multilingual)\nRuntime Settings\nRuntime backend\nWebGPU\nWASM\nexpand_more\nEncoder\nwebgpu\nwasm\nexpand_more\nDecoder\nwasm\nexpand_more\nThreads\nStride\nEncoder quant\nfp32\nfp16\nint8\nexpand_more\nDecoder quant\nfp32\nfp16\nint8\nexpand_more\nPrompt Settings\nFrontend\nJS frontend\nONNX frontend\nexpand_more\nTokenizer\nvocab.txt\nexpand_more\nVerbose logging\nLog results\nEnable profiling\nCapture\n0.00\nSIG\n-100.0\nAVG\n-100.0\nGATE\n-21.9\nNOISE\n-46.0\nSEGS\n0/0\nAUDIO\n16000Hz\nBUF\n12.0s\nSNR\n0.00\nTHR\n3.00\nWAVEFORM\nidle · main\nRATE target 16000 Hz\n·\nCHUNK 16 ms/256f\n·\nWIN 12.00 s\n·\nSEG inactive\n·\nBUF 0/750 pad 750\n·\nPUB/PAINT 0/s 0/s\nMODE rough-only\n·\nRELEASE 400 ms\n·\nNOISE -46.0 dBFS\n·\nGATE -21.9 dBFS\n·\nFINAL GATE --\n·\nGATE LINES on\n·\nTEN on\n·\nSCALE physical\nWaveform display\nSurface\ncompact stats + waveform + footer metrics\nFull\nStats Only\nWaveform Only\nView\nraw amplitude\nPhysical\nFocus\nBalanced\nGate lines\nwaveform legend\nshow\nhide\nFireRed line\ndiagnostic only\nshow\nhide\nRMS\ndiagnostic\nhide\nshow\nFinal Acceptance\nDuration and normalized 16 kHz energy thresholds used after live segmentation.\nFinal segment gate\nrough-only\nenabled\ndisabled\nAcceptance preset\nUpdates the final segment acceptance thresholds together.\nOpen\nBalanced\nStrict\nCustom\nMin final duration\n240 ms\nMin power\n5.00\nMin integral\n22.00\nAdaptive noise-scaled acceptance controls.\nShow advanced\nDetector tuning\nPreset\nMedium\nMedium\nFast\nSlow\nCustom\nDefault mode\nmanual\nVAD backend\n16 ms hop / 16 ms visual\nFireRed VAD\nTEN-VAD\nGate mode\nrough-only\nRough only\nHybrid\nVAD only\nLive Segmenter\nPeak-energy speech trigger, smoothing, and silence release.\nEnergy threshold\n0.08\nAnalysis window\n80 ms\nEnergy smoothing\n480 ms\nSilence release\n400 ms\nMax segment\n4800 ms\nExtraction Timing\nLookback, overlap, and tail padding applied when a segment is extracted.\nLookback\n128 ms\nOverlap\n80 ms\nTail padding\n160 ms\nNoise Adaptation\nHow the baseline noise floor and onset backtracking adapt over time.\nInitial noise\n0.00500\nFast adapt\n0.15\nSlow adapt\n0.05\nBlend duration\n1.0 s\nSNR display gate\n3.00\nOnset SNR floor\n1.00\nRise threshold\n0.08\nMicrophone\n\nStart capture, switch mode, and send buffered speech.\n\nMode\nManual\nSpeech Detect\nStart Mic\nSend\nAdvanced\nMicrophone idle\nDetector readout\n\nLive rough-gate state, adaptive noise floor, and final segment energy metrics.\n\nLEVEL\n-100.0 dBFS\nwindow -100.0 dBFS\nNOISE FLOOR\n-46.0 dBFS\nconfirmed -46.0 dBFS · rejected -46.0 dBFS\nFINAL POWER\n--\nmin --\nFINAL INTEGRAL\n--\nmin --\nDETECTOR MODE\nrough-only\nreq vad-only\nTEN-VAD\n0.00\ndiagnostic only\nFILTER\narmed\nwaiting\nVAD BUFFER\nempty\nmax 0.00\nWarnings\nSpeech segmentation is running on the rough gate. TEN-VAD is diagnostics-only.\nRequested TEN-VAD-first gating is ignored by this Parakeet-style detector port.\nDecisions\nNo decisions yet.\nSegments\nNo segments yet.\nTranscript & Word Alignment\nNo text yet.\nTOTAL\n--\nAwaiting result\nDECODE\n--\nAwaiting result\nCONFIDENCE\n--\nNo finished utterance\nQUEUE\nclear\nReady\nReference\nASRJS · browser speech lab\nLibrary 0.2.0 · npm-package",
+  "beforeStop": "A\nASRJS\nSpeech recognition\n\nREALTIME WORKSTATION\n\nLive transcription\n0.2.0 npm-package\n◐\nAppearance\nTranscribe\nPlayground\nLive\nBenchmark\nRealtime VAD Lab\nTranscript & Subtitles\ntune\nTranscribing microphone queue (1 pending)… · webgpu-hybrid · Detected a pause. Finalizing utterance…\nLoad\nready\nparakeet-tdt-0.6b-v3-onnx\nLocal assets\nModel Loaded\nValidation\nInput language\nEnglish\nFrench\nGerman\nSpanish\nItalian\nPortuguese\nDutch\nPolish\nexpand_more\nLoad Sample\nupload_file\nDrop or click to transcribe\nModel Settings\nArtifact source\nHugging Face\nLocal folder\nexpand_more\nLocal folder\nparakeet-tdt-0.6b-v3-onnx\nfolder_open\nFiles: 86\nEncoder: fp32, fp16, int8\nDecoder: fp32, fp16, int8\nTokenizer: vocab.txt\nFrontend: nemo128\nParakeet TDT 0.6B v3 (Multilingual)\nRuntime Settings\nRuntime backend\nWebGPU\nWASM\nexpand_more\nEncoder\nwebgpu\nwasm\nexpand_more\nDecoder\nwasm\nexpand_more\nThreads\nStride\nEncoder quant\nfp32\nfp16\nint8\nexpand_more\nDecoder quant\nfp32\nfp16\nint8\nexpand_more\nPrompt Settings\nFrontend\nJS frontend\nONNX frontend\nexpand_more\nTokenizer\nvocab.txt\nexpand_more\nVerbose logging\nLog results\nEnable profiling\nCapture\n-60.00\nSIG\n-100.0\nAVG\n-100.0\nGATE\n-21.9\nNOISE\n-72.7\nSEGS\n12/0\nAUDIO\n16000Hz\nBUF\n12.0s\nSNR\n-60.00\nTHR\n3.00\nWAVEFORM\nlistening · main\nRATE native 44100 Hz -> target 16000 Hz\n·\nCHUNK 16 ms/256f\n·\nWIN 12.00 s\n·\nSEG inactive\n·\nBUF 750/750 pad 0\n·\nPUB/PAINT 20/s 21/s\nMODE vad-only\n·\nRELEASE 400 ms\n·\nNOISE -72.7 dBFS\n·\nGATE -21.9 dBFS\n·\nFINAL GATE p 139.74/1.00 · i 382.32/0.80\n·\nGATE LINES on\n·\nTEN on\n·\nSCALE physical\nWaveform display\nSurface\ncompact stats + waveform + footer metrics\nFull\nStats Only\nWaveform Only\nView\nraw amplitude\nPhysical\nFocus\nBalanced\nGate lines\nwaveform legend\nshow\nhide\nFireRed line\ndiagnostic only\nshow\nhide\nRMS\ndiagnostic\nhide\nshow\nFinal Acceptance\nDuration and normalized 16 kHz energy thresholds used after live segmentation.\nFinal segment gate\nvad-only\nenabled\ndisabled\nAcceptance preset\nUpdates the final segment acceptance thresholds together.\nOpen\nBalanced\nStrict\nCustom\nMin final duration\n240 ms\nMin power\n5.00\nMin integral\n22.00\nAdaptive noise-scaled acceptance controls.\nShow advanced\nDetector tuning\nPreset\nMedium\nMedium\nFast\nSlow\nCustom\nDefault mode\nmanual\nVAD backend\n16 ms hop / 16 ms visual\nFireRed VAD\nTEN-VAD\nGate mode\nvad-only\nRough only\nHybrid\nVAD only\nLive Segmenter\nPeak-energy speech trigger, smoothing, and silence release.\nEnergy threshold\n0.08\nAnalysis window\n80 ms\nEnergy smoothing\n480 ms\nSilence release\n400 ms\nMax segment\n4800 ms\nExtraction Timing\nLookback, overlap, and tail padding applied when a segment is extracted.\nLookback\n128 ms\nOverlap\n80 ms\nTail padding\n160 ms\nNoise Adaptation\nHow the baseline noise floor and onset backtracking adapt over time.\nInitial noise\n0.00500\nFast adapt\n0.15\nSlow adapt\n0.05\nBlend duration\n1.0 s\nSNR display gate\n3.00\nOnset SNR floor\n1.00\nRise threshold\n0.08\nMicrophone\n\nStart capture, switch mode, and send buffered speech.\n\nMode\nManual\nSpeech Detect\nStop Mic\nSend\nAdvanced\nDetected a pause. Finalizing utterance…\nDetector readout\n\nLive rough-gate state, adaptive noise floor, and final segment energy metrics.\n\nLEVEL\n-100.0 dBFS\nwindow -100.0 dBFS\nNOISE FLOOR\n-72.7 dBFS\nconfirmed -100.0 dBFS · rejected -72.7 dBFS\nFINAL POWER\n139.74\nmin 1.00\nFINAL INTEGRAL\n382.32\nmin 0.80\nDETECTOR MODE\nvad-only\nreq vad-only\nTEN-VAD\n0.09\ndiagnostic only\nFILTER\naccepted\naccepted\nVAD BUFFER\n0/12\nmax 0.09\nDecisions\nSegment ready: silence\n01:45:23\nNeural VAD finalized speech after sustained silence\n01:45:23\nLong speech split into a new rough segment\n01:45:21\nSegment ready: max-duration\n01:45:21\nNeural VAD speech start\n01:45:21\nSegments\nsilence\n2.74 s\n16.000 Hz · 148992 -> 192768\nmax-duration\n5.28 s\n16.000 Hz · 67840 -> 152320\nsilence\n0.22 s\n16.000 Hz · 148480 -> 152064\nmax-duration\n5.25 s\n16.000 Hz · 67840 -> 151808\nTranscript & Word Alignment\nCopySRTVTTJSON\nAnd And And And And And And so And so And so And so And so And so, my fellow Americans. And so, my fellow Americans and And so, my fellow Americans, and And so, my fellow Americans, and And so, my fellow Americans, and And so, my fellow Americans, and And so, my fellow Americans, and And so, my fellow Americans, as And so, my fellow Americans, as And so, my fellow Americans, as And so, my fellow Americans, as And so, my fellow Americans, as And so, my fellow Americans, ask And so, my fellow Americans, ask And so, my fellow Americans, ask And so, my fellow Americans, ask And so, my fellow Americans, ask And so, my fellow Americans, ask And so, my fellow Americans, ask not And so, my fellow Americans, ask not what you And so, my fellow Americans, ask not what you So, my fellow Americans, ask not what your So my fellow Americans, ask not what your\nSo1.47s–1.79smy1.95s–2.11sfellow2.11s–2.59sAmericans,2.59s–4.11sask4.11s–4.75snot4.75s–5.07swhat5.71s–5.95syour5.95s–6.11s\nTOTAL\n245 ms\nencode 169 ms\nDECODE\n66 ms\nrtf 0.05x\nCONFIDENCE\n97%\n8 words\nQUEUE\nbusy\nDecoder is processing audio\nReference\nHistory\nClear All\nmicrophone-max-duration-01:45:27\nUnknown language\n01:45:27\n5.1s\n8 words\n97%\nRTF 0.05x\ndownload\nSo my fellow Americans, ask not what your\nmicrophone-max-duration-01:45:26\nUnknown language\n01:45:27\n5.2s\n8 words\n95%\nRTF 0.05x\ndownload\nSo, my fellow Americans, ask not what your\nmicrophone-max-duration-01:45:26\nUnknown language\n01:45:26\n5.2s\n9 words\n94%\nRTF 0.05x\ndownload\nAnd so, my fellow Americans, ask not what you\nmicrophone-max-duration-01:45:26\nUnknown language\n01:45:26\n5.2s\n9 words\n97%\nRTF 0.05x\ndownload\nAnd so, my fellow Americans, ask not what you\nmicrophone-silence-01:45:26\nUnknown language\n01:45:26\n4.5s\n7 words\n98%\nRTF 0.05x\ndownload\nAnd so, my fellow Americans, ask not\nmicrophone-silence-01:45:25\nUnknown language\n01:45:26\n3.5s\n6 words\n94%\nRTF 0.06x\ndownload\nAnd so, my fellow Americans, ask\nmicrophone-silence-01:45:25\nUnknown language\n01:45:25\n3.4s\n6 words\n94%\nRTF 0.12x\ndownload\nAnd so, my fellow Americans, ask\nmicrophone-silence-01:45:25\nUnknown language\n01:45:25\n3.4s\n6 words\n94%\nRTF 0.06x\ndownload\nAnd so, my fellow Americans, ask\nmicrophone-silence-01:45:25\nUnknown language\n01:45:25\n3.4s\n6 words\n94%\nRTF 0.06x\ndownload\nAnd so, my fellow Americans, ask\nmicrophone-silence-01:45:24\nUnknown language\n01:45:25\n3.4s\n6 words\n94%\nRTF 0.06x\ndownload\nAnd so, my fellow Americans, ask\nmicrophone-silence-01:45:24\nUnknown language\n01:45:24\n3.4s\n6 words\n93%\nRTF 0.06x\ndownload\nAnd so, my fellow Americans, ask\nmicrophone-silence-01:45:24\nUnknown language\n01:45:24\n3.4s\n6 words\n93%\nRTF 0.06x\ndownload\nAnd so, my fellow Americans, as\nmicrophone-silence-01:45:24\nUnknown language\n01:45:24\n3.3s\n6 words\n93%\nRTF 0.06x\ndownload\nAnd so, my fellow Americans, as\nmicrophone-silence-01:45:23\nUnknown language\n01:45:24\n3.3s\n6 words\n94%\nRTF 0.06x\ndownload\nAnd so, my fellow Americans, as\nmicrophone-silence-01:45:23\nUnknown language\n01:45:24\n3.3s\n6 words\n93%\nRTF 0.08x\ndownload\nAnd so, my fellow Americans, as\nmicrophone-silence-01:45:23\nUnknown language\n01:45:23\n3.3s\n6 words\n92%\nRTF 0.07x\ndownload\nAnd so, my fellow Americans, as\nmicrophone-silence-01:45:23\nUnknown language\n01:45:23\n3.3s\n6 words\n90%\nRTF 0.07x\ndownload\nAnd so, my fellow Americans, and\nmicrophone-silence-01:45:22\nUnknown language\n01:45:23\n3.3s\n6 words\n90%\nRTF 0.07x\ndownload\nAnd so, my fellow Americans, and\nmicrophone-silence-01:45:22\nUnknown language\n01:45:22\n3.2s\n6 words\n90%\nRTF 0.07x\ndownload\nAnd so, my fellow Americans, and\nmicrophone-silence-01:45:22\nUnknown language\n01:45:22\n3.2s\n6 words\n87%\nRTF 0.07x\ndownload\nAnd so, my fellow Americans, and\nmicrophone-silence-01:45:22\nUnknown language\n01:45:22\n3.2s\n6 words\n88%\nRTF 0.07x\ndownload\nAnd so, my fellow Americans, and\nmicrophone-silence-01:45:21\nUnknown language\n01:45:22\n3.2s\n6 words\n91%\nRTF 0.08x\ndownload\nAnd so, my fellow Americans and\nmicrophone-silence-01:45:21\nUnknown language\n01:45:21\n2.3s\n5 words\n91%\nRTF 0.22x\ndownload\nAnd so, my fellow Americans.\nmicrophone-silence-01:45:21\nUnknown language\n01:45:21\n0.4s\n2 words\n56%\nRTF 0.43x\ndownload\nAnd so\nmicrophone-silence-01:45:19\nUnknown language\n01:45:21\n0.4s\n2 words\n63%\nRTF 3.06x\ndownload\nAnd so\nmicrophone-silence-01:45:18\nUnknown language\n01:45:19\n0.4s\n2 words\n67%\nRTF 2.58x\ndownload\nAnd so\nmicrophone-silence-01:45:18\nUnknown language\n01:45:18\n0.4s\n2 words\n62%\nRTF 2.18x\ndownload\nAnd so\nmicrophone-silence-01:45:17\nUnknown language\n01:45:18\n0.4s\n2 words\n52%\nRTF 0.84x\ndownload\nAnd so\nmicrophone-silence-01:45:17\nUnknown language\n01:45:17\n0.3s\n1 words\n48%\nRTF 0.83x\ndownload\nAnd\nmicrophone-silence-01:45:16\nUnknown language\n01:45:17\n0.3s\n1 words\n51%\nRTF 2.18x\ndownload\nAnd\nmicrophone-silence-01:45:15\nUnknown language\n01:45:16\n0.3s\n1 words\n51%\nRTF 3.97x\ndownload\nAnd\nmicrophone-silence-01:45:15\nUnknown language\n01:45:15\n0.3s\n1 words\n51%\nRTF 1.41x\ndownload\nAnd\nmicrophone-silence-01:45:14\nUnknown language\n01:45:15\n0.3s\n1 words\n48%\nRTF 2.51x\ndownload\nAnd\nmicrophone-silence-01:45:13\nUnknown language\n01:45:14\n0.3s\n1 words\n47%\nRTF 5.59x\ndownload\nAnd\nASRJS · browser speech lab\nLibrary 0.2.0 · npm-package",
+  "messagesBeforeStop": [
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 6400,
+      "sampleRate": 16000,
+      "at": 19626.26000000164
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 6656,
+      "sampleRate": 16000,
+      "at": 20900.16000000015
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 36352,
+      "sampleRate": 16000,
+      "at": 21101.900000002235
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 51200,
+      "sampleRate": 16000,
+      "at": 21623.929999999702
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 51456,
+      "sampleRate": 16000,
+      "at": 21903.295000001788
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 51712,
+      "sampleRate": 16000,
+      "at": 22162.615000002086
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 51968,
+      "sampleRate": 16000,
+      "at": 22410.920000001788
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 52224,
+      "sampleRate": 16000,
+      "at": 22666.734999999404
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 52480,
+      "sampleRate": 16000,
+      "at": 22911.199999999255
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 52736,
+      "sampleRate": 16000,
+      "at": 23159.21499999985
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 52992,
+      "sampleRate": 16000,
+      "at": 23426.445000000298
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 53248,
+      "sampleRate": 16000,
+      "at": 23687.295000001788
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 53504,
+      "sampleRate": 16000,
+      "at": 23902.43499999866
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 53760,
+      "sampleRate": 16000,
+      "at": 24103.045000001788
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 54016,
+      "sampleRate": 16000,
+      "at": 24318.08999999985
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 54272,
+      "sampleRate": 16000,
+      "at": 24538.115000002086
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 54528,
+      "sampleRate": 16000,
+      "at": 24748.60000000149
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 54784,
+      "sampleRate": 16000,
+      "at": 24950.620000001043
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 55040,
+      "sampleRate": 16000,
+      "at": 25185.120000001043
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 55296,
+      "sampleRate": 16000,
+      "at": 25612.91000000015
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 71424,
+      "sampleRate": 16000,
+      "at": 25830.289999999106
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 83200,
+      "sampleRate": 16000,
+      "at": 26054.33999999985
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 82944,
+      "sampleRate": 16000,
+      "at": 26303.629999998957
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 82432,
+      "sampleRate": 16000,
+      "at": 26567.865000002086
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 82176,
+      "sampleRate": 16000,
+      "at": 26826.449999999255
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 81664,
+      "sampleRate": 16000,
+      "at": 27082.16000000015
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 81664,
+      "sampleRate": 16000,
+      "at": 27351.530000001192
+    }
+  ],
+  "afterStop": "A\nASRJS\nSpeech recognition\n\nREALTIME WORKSTATION\n\nLive transcription\n0.2.0 npm-package\n◐\nAppearance\nTranscribe\nPlayground\nLive\nBenchmark\nRealtime VAD Lab\nTranscript & Subtitles\ntune\nModel ready · webgpu-hybrid · Microphone stopped\nLoad\nready\nparakeet-tdt-0.6b-v3-onnx\nLocal assets\nModel Loaded\nValidation\nInput language\nEnglish\nFrench\nGerman\nSpanish\nItalian\nPortuguese\nDutch\nPolish\nexpand_more\nLoad Sample\nupload_file\nDrop or click to transcribe\nModel Settings\nArtifact source\nHugging Face\nLocal folder\nexpand_more\nLocal folder\nparakeet-tdt-0.6b-v3-onnx\nfolder_open\nFiles: 86\nEncoder: fp32, fp16, int8\nDecoder: fp32, fp16, int8\nTokenizer: vocab.txt\nFrontend: nemo128\nParakeet TDT 0.6B v3 (Multilingual)\nRuntime Settings\nRuntime backend\nWebGPU\nWASM\nexpand_more\nEncoder\nwebgpu\nwasm\nexpand_more\nDecoder\nwasm\nexpand_more\nThreads\nStride\nEncoder quant\nfp32\nfp16\nint8\nexpand_more\nDecoder quant\nfp32\nfp16\nint8\nexpand_more\nPrompt Settings\nFrontend\nJS frontend\nONNX frontend\nexpand_more\nTokenizer\nvocab.txt\nexpand_more\nVerbose logging\nLog results\nEnable profiling\nCapture\n-60.00\nSIG\n-100.0\nAVG\n-100.0\nGATE\n-21.9\nNOISE\n-73.2\nSEGS\n12/0\nAUDIO\n16000Hz\nBUF\n12.0s\nSNR\n-60.00\nTHR\n3.00\nWAVEFORM\nlistening · main\nRATE target 16000 Hz\n·\nCHUNK 16 ms/256f\n·\nWIN 12.00 s\n·\nSEG inactive\n·\nBUF 750/750 pad 0\n·\nPUB/PAINT 0/s 0/s\nMODE vad-only\n·\nRELEASE 400 ms\n·\nNOISE -73.2 dBFS\n·\nGATE -21.9 dBFS\n·\nFINAL GATE p 139.74/1.00 · i 382.32/0.80\n·\nGATE LINES on\n·\nTEN on\n·\nSCALE physical\nWaveform display\nSurface\ncompact stats + waveform + footer metrics\nFull\nStats Only\nWaveform Only\nView\nraw amplitude\nPhysical\nFocus\nBalanced\nGate lines\nwaveform legend\nshow\nhide\nFireRed line\ndiagnostic only\nshow\nhide\nRMS\ndiagnostic\nhide\nshow\nFinal Acceptance\nDuration and normalized 16 kHz energy thresholds used after live segmentation.\nFinal segment gate\nvad-only\nenabled\ndisabled\nAcceptance preset\nUpdates the final segment acceptance thresholds together.\nOpen\nBalanced\nStrict\nCustom\nMin final duration\n240 ms\nMin power\n5.00\nMin integral\n22.00\nAdaptive noise-scaled acceptance controls.\nShow advanced\nDetector tuning\nPreset\nMedium\nMedium\nFast\nSlow\nCustom\nDefault mode\nmanual\nVAD backend\n16 ms hop / 16 ms visual\nFireRed VAD\nTEN-VAD\nGate mode\nvad-only\nRough only\nHybrid\nVAD only\nLive Segmenter\nPeak-energy speech trigger, smoothing, and silence release.\nEnergy threshold\n0.08\nAnalysis window\n80 ms\nEnergy smoothing\n480 ms\nSilence release\n400 ms\nMax segment\n4800 ms\nExtraction Timing\nLookback, overlap, and tail padding applied when a segment is extracted.\nLookback\n128 ms\nOverlap\n80 ms\nTail padding\n160 ms\nNoise Adaptation\nHow the baseline noise floor and onset backtracking adapt over time.\nInitial noise\n0.00500\nFast adapt\n0.15\nSlow adapt\n0.05\nBlend duration\n1.0 s\nSNR display gate\n3.00\nOnset SNR floor\n1.00\nRise threshold\n0.08\nMicrophone\n\nStart capture, switch mode, and send buffered speech.\n\nMode\nManual\nSpeech Detect\nStart Mic\nSend\nAdvanced\nMicrophone stopped\nDetector readout\n\nLive rough-gate state, adaptive noise floor, and final segment energy metrics.\n\nLEVEL\n-100.0 dBFS\nwindow -100.0 dBFS\nNOISE FLOOR\n-73.2 dBFS\nconfirmed -100.0 dBFS · rejected -73.2 dBFS\nFINAL POWER\n139.74\nmin 1.00\nFINAL INTEGRAL\n382.32\nmin 0.80\nDETECTOR MODE\nvad-only\nreq vad-only\nTEN-VAD\n0.09\ndiagnostic only\nFILTER\naccepted\naccepted\nVAD BUFFER\n0/12\nmax 0.09\nDecisions\nSegment ready: silence\n01:45:23\nNeural VAD finalized speech after sustained silence\n01:45:23\nLong speech split into a new rough segment\n01:45:21\nSegment ready: max-duration\n01:45:21\nNeural VAD speech start\n01:45:21\nSegments\nsilence\n2.74 s\n16.000 Hz · 148992 -> 192768\nmax-duration\n5.28 s\n16.000 Hz · 67840 -> 152320\nsilence\n0.22 s\n16.000 Hz · 148480 -> 152064\nmax-duration\n5.25 s\n16.000 Hz · 67840 -> 151808\nTranscript & Word Alignment\nCopySRTVTTJSON\nAnd And And And And And And so And so And so And so And so And so, my fellow Americans. And so, my fellow Americans and And so, my fellow Americans, and And so, my fellow Americans, and And so, my fellow Americans, and And so, my fellow Americans, and And so, my fellow Americans, and And so, my fellow Americans, as And so, my fellow Americans, as And so, my fellow Americans, as And so, my fellow Americans, as And so, my fellow Americans, as And so, my fellow Americans, ask And so, my fellow Americans, ask And so, my fellow Americans, ask And so, my fellow Americans, ask And so, my fellow Americans, ask And so, my fellow Americans, ask And so, my fellow Americans, ask not And so, my fellow Americans, ask not what you And so, my fellow Americans, ask not what you So, my fellow Americans, ask not what your So my fellow Americans, ask not what your No, my fellow Americans, ask not what your Oh my fellow Americans, ask not what your Oh my fellow Americans, ask not what your Oh, my fellow Americans, ask not what your your country can do for you. Ask not what your country can do for you ask. Ask not what your country can do for you. Ask not. Ask not what your country can do for you ask not. Ask not what your country can do for you, ask not. Ask not what your country can do for you, ask not. Ask not what your country can do for you, ask not. Ask not what your country can do for you, ask not. Ask not what your country can do for you ask for That's what you can do for your country.\nThat's9.47s–9.71swhat9.71s–9.87syou9.87s–10.11scan10.11s–10.27sdo10.27s–10.51sfor10.51s–10.75syour10.75s–10.91scountry.10.91s–11.63s\nTOTAL\n197 ms\nencode 151 ms\nDECODE\n40 ms\nrtf 0.07x\nCONFIDENCE\n94%\n8 words\nQUEUE\nclear\nReady\nReference\nHistory\nClear All\nmicrophone-silence-01:45:30\nUnknown language\n01:45:30\n2.7s\n8 words\n94%\nRTF 0.07x\ndownload\nThat's what you can do for your country.\nmicrophone-max-duration-01:45:30\nUnknown language\n01:45:30\n5.3s\n11 words\n97%\nRTF 0.04x\ndownload\nAsk not what your country can do for you ask for\nmicrophone-max-duration-01:45:29\nUnknown language\n01:45:30\n5.2s\n11 words\n95%\nRTF 0.04x\ndownload\nAsk not what your country can do for you, ask not.\nmicrophone-max-duration-01:45:29\nUnknown language\n01:45:29\n5.2s\n11 words\n95%\nRTF 0.04x\ndownload\nAsk not what your country can do for you, ask not.\nmicrophone-max-duration-01:45:29\nUnknown language\n01:45:29\n5.2s\n11 words\n95%\nRTF 0.04x\ndownload\nAsk not what your country can do for you, ask not.\nmicrophone-max-duration-01:45:29\nUnknown language\n01:45:29\n5.2s\n11 words\n94%\nRTF 0.05x\ndownload\nAsk not what your country can do for you, ask not.\nmicrophone-max-duration-01:45:28\nUnknown language\n01:45:29\n5.2s\n11 words\n96%\nRTF 0.04x\ndownload\nAsk not what your country can do for you ask not.\nmicrophone-max-duration-01:45:28\nUnknown language\n01:45:28\n5.2s\n11 words\n91%\nRTF 0.04x\ndownload\nAsk not what your country can do for you. Ask not.\nmicrophone-max-duration-01:45:28\nUnknown language\n01:45:28\n5.2s\n10 words\n93%\nRTF 0.04x\ndownload\nAsk not what your country can do for you ask.\nmicrophone-silence-01:45:28\nUnknown language\n01:45:28\n2.1s\n6 words\n90%\nRTF 0.08x\ndownload\nyour country can do for you.\nmicrophone-max-duration-01:45:28\nUnknown language\n01:45:28\n5.1s\n8 words\n90%\nRTF 0.04x\ndownload\nOh, my fellow Americans, ask not what your\nmicrophone-max-duration-01:45:27\nUnknown language\n01:45:28\n5.1s\n8 words\n92%\nRTF 0.04x\ndownload\nOh my fellow Americans, ask not what your\nmicrophone-max-duration-01:45:27\nUnknown language\n01:45:27\n5.1s\n8 words\n93%\nRTF 0.04x\ndownload\nOh my fellow Americans, ask not what your\nmicrophone-max-duration-01:45:27\nUnknown language\n01:45:27\n5.1s\n8 words\n88%\nRTF 0.05x\ndownload\nNo, my fellow Americans, ask not what your\nmicrophone-max-duration-01:45:27\nUnknown language\n01:45:27\n5.1s\n8 words\n97%\nRTF 0.05x\ndownload\nSo my fellow Americans, ask not what your\nmicrophone-max-duration-01:45:26\nUnknown language\n01:45:27\n5.2s\n8 words\n95%\nRTF 0.05x\ndownload\nSo, my fellow Americans, ask not what your\nmicrophone-max-duration-01:45:26\nUnknown language\n01:45:26\n5.2s\n9 words\n94%\nRTF 0.05x\ndownload\nAnd so, my fellow Americans, ask not what you\nmicrophone-max-duration-01:45:26\nUnknown language\n01:45:26\n5.2s\n9 words\n97%\nRTF 0.05x\ndownload\nAnd so, my fellow Americans, ask not what you\nmicrophone-silence-01:45:26\nUnknown language\n01:45:26\n4.5s\n7 words\n98%\nRTF 0.05x\ndownload\nAnd so, my fellow Americans, ask not\nmicrophone-silence-01:45:25\nUnknown language\n01:45:26\n3.5s\n6 words\n94%\nRTF 0.06x\ndownload\nAnd so, my fellow Americans, ask\nmicrophone-silence-01:45:25\nUnknown language\n01:45:25\n3.4s\n6 words\n94%\nRTF 0.12x\ndownload\nAnd so, my fellow Americans, ask\nmicrophone-silence-01:45:25\nUnknown language\n01:45:25\n3.4s\n6 words\n94%\nRTF 0.06x\ndownload\nAnd so, my fellow Americans, ask\nmicrophone-silence-01:45:25\nUnknown language\n01:45:25\n3.4s\n6 words\n94%\nRTF 0.06x\ndownload\nAnd so, my fellow Americans, ask\nmicrophone-silence-01:45:24\nUnknown language\n01:45:25\n3.4s\n6 words\n94%\nRTF 0.06x\ndownload\nAnd so, my fellow Americans, ask\nmicrophone-silence-01:45:24\nUnknown language\n01:45:24\n3.4s\n6 words\n93%\nRTF 0.06x\ndownload\nAnd so, my fellow Americans, ask\nmicrophone-silence-01:45:24\nUnknown language\n01:45:24\n3.4s\n6 words\n93%\nRTF 0.06x\ndownload\nAnd so, my fellow Americans, as\nmicrophone-silence-01:45:24\nUnknown language\n01:45:24\n3.3s\n6 words\n93%\nRTF 0.06x\ndownload\nAnd so, my fellow Americans, as\nmicrophone-silence-01:45:23\nUnknown language\n01:45:24\n3.3s\n6 words\n94%\nRTF 0.06x\ndownload\nAnd so, my fellow Americans, as\nmicrophone-silence-01:45:23\nUnknown language\n01:45:24\n3.3s\n6 words\n93%\nRTF 0.08x\ndownload\nAnd so, my fellow Americans, as\nmicrophone-silence-01:45:23\nUnknown language\n01:45:23\n3.3s\n6 words\n92%\nRTF 0.07x\ndownload\nAnd so, my fellow Americans, as\nmicrophone-silence-01:45:23\nUnknown language\n01:45:23\n3.3s\n6 words\n90%\nRTF 0.07x\ndownload\nAnd so, my fellow Americans, and\nmicrophone-silence-01:45:22\nUnknown language\n01:45:23\n3.3s\n6 words\n90%\nRTF 0.07x\ndownload\nAnd so, my fellow Americans, and\nmicrophone-silence-01:45:22\nUnknown language\n01:45:22\n3.2s\n6 words\n90%\nRTF 0.07x\ndownload\nAnd so, my fellow Americans, and\nmicrophone-silence-01:45:22\nUnknown language\n01:45:22\n3.2s\n6 words\n87%\nRTF 0.07x\ndownload\nAnd so, my fellow Americans, and\nmicrophone-silence-01:45:22\nUnknown language\n01:45:22\n3.2s\n6 words\n88%\nRTF 0.07x\ndownload\nAnd so, my fellow Americans, and\nmicrophone-silence-01:45:21\nUnknown language\n01:45:22\n3.2s\n6 words\n91%\nRTF 0.08x\ndownload\nAnd so, my fellow Americans and\nmicrophone-silence-01:45:21\nUnknown language\n01:45:21\n2.3s\n5 words\n91%\nRTF 0.22x\ndownload\nAnd so, my fellow Americans.\nmicrophone-silence-01:45:21\nUnknown language\n01:45:21\n0.4s\n2 words\n56%\nRTF 0.43x\ndownload\nAnd so\nmicrophone-silence-01:45:19\nUnknown language\n01:45:21\n0.4s\n2 words\n63%\nRTF 3.06x\ndownload\nAnd so\nmicrophone-silence-01:45:18\nUnknown language\n01:45:19\n0.4s\n2 words\n67%\nRTF 2.58x\ndownload\nAnd so\nmicrophone-silence-01:45:18\nUnknown language\n01:45:18\n0.4s\n2 words\n62%\nRTF 2.18x\ndownload\nAnd so\nmicrophone-silence-01:45:17\nUnknown language\n01:45:18\n0.4s\n2 words\n52%\nRTF 0.84x\ndownload\nAnd so\nmicrophone-silence-01:45:17\nUnknown language\n01:45:17\n0.3s\n1 words\n48%\nRTF 0.83x\ndownload\nAnd\nmicrophone-silence-01:45:16\nUnknown language\n01:45:17\n0.3s\n1 words\n51%\nRTF 2.18x\ndownload\nAnd\nmicrophone-silence-01:45:15\nUnknown language\n01:45:16\n0.3s\n1 words\n51%\nRTF 3.97x\ndownload\nAnd\nmicrophone-silence-01:45:15\nUnknown language\n01:45:15\n0.3s\n1 words\n51%\nRTF 1.41x\ndownload\nAnd\nmicrophone-silence-01:45:14\nUnknown language\n01:45:15\n0.3s\n1 words\n48%\nRTF 2.51x\ndownload\nAnd\nmicrophone-silence-01:45:13\nUnknown language\n01:45:14\n0.3s\n1 words\n47%\nRTF 5.59x\ndownload\nAnd\nASRJS · browser speech lab\nLibrary 0.2.0 · npm-package",
+  "workerMessages": [
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 6400,
+      "sampleRate": 16000,
+      "at": 19626.26000000164
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 6656,
+      "sampleRate": 16000,
+      "at": 20900.16000000015
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 36352,
+      "sampleRate": 16000,
+      "at": 21101.900000002235
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 51200,
+      "sampleRate": 16000,
+      "at": 21623.929999999702
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 51456,
+      "sampleRate": 16000,
+      "at": 21903.295000001788
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 51712,
+      "sampleRate": 16000,
+      "at": 22162.615000002086
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 51968,
+      "sampleRate": 16000,
+      "at": 22410.920000001788
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 52224,
+      "sampleRate": 16000,
+      "at": 22666.734999999404
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 52480,
+      "sampleRate": 16000,
+      "at": 22911.199999999255
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 52736,
+      "sampleRate": 16000,
+      "at": 23159.21499999985
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 52992,
+      "sampleRate": 16000,
+      "at": 23426.445000000298
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 53248,
+      "sampleRate": 16000,
+      "at": 23687.295000001788
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 53504,
+      "sampleRate": 16000,
+      "at": 23902.43499999866
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 53760,
+      "sampleRate": 16000,
+      "at": 24103.045000001788
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 54016,
+      "sampleRate": 16000,
+      "at": 24318.08999999985
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 54272,
+      "sampleRate": 16000,
+      "at": 24538.115000002086
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 54528,
+      "sampleRate": 16000,
+      "at": 24748.60000000149
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 54784,
+      "sampleRate": 16000,
+      "at": 24950.620000001043
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 55040,
+      "sampleRate": 16000,
+      "at": 25185.120000001043
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 55296,
+      "sampleRate": 16000,
+      "at": 25612.91000000015
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 71424,
+      "sampleRate": 16000,
+      "at": 25830.289999999106
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 83200,
+      "sampleRate": 16000,
+      "at": 26054.33999999985
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 82944,
+      "sampleRate": 16000,
+      "at": 26303.629999998957
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 82432,
+      "sampleRate": 16000,
+      "at": 26567.865000002086
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 82176,
+      "sampleRate": 16000,
+      "at": 26826.449999999255
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 81664,
+      "sampleRate": 16000,
+      "at": 27082.16000000015
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 81664,
+      "sampleRate": 16000,
+      "at": 27351.530000001192
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 81920,
+      "sampleRate": 16000,
+      "at": 27582.969999998808
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 82176,
+      "sampleRate": 16000,
+      "at": 27797.22500000149
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 34304,
+      "sampleRate": 16000,
+      "at": 28008.199999999255
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 82944,
+      "sampleRate": 16000,
+      "at": 28184.18499999866
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 82688,
+      "sampleRate": 16000,
+      "at": 28390.81500000134
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 82688,
+      "sampleRate": 16000,
+      "at": 28622.495000001043
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 83200,
+      "sampleRate": 16000,
+      "at": 28844.394999999553
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 83200,
+      "sampleRate": 16000,
+      "at": 29115.890000000596
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 83712,
+      "sampleRate": 16000,
+      "at": 29333.620000001043
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 83968,
+      "sampleRate": 16000,
+      "at": 29547.550000000745
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 84480,
+      "sampleRate": 16000,
+      "at": 29781.144999999553
+    },
+    {
+      "type": "TRANSCRIBE_MONO_PCM",
+      "samples": 43776,
+      "sampleRate": 16000,
+      "at": 30008.420000001788
+    }
+  ],
+  "status": "OBSERVED"
+}

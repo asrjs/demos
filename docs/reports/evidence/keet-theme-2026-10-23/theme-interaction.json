@@ -1,0 +1,43 @@
+{
+  "toggle": "VERIFIED",
+  "reloadPersistence": "VERIFIED",
+  "crossAppNavigationPreference": "VERIFIED",
+  "turkishFontSubsets": [
+    {
+      "family": "Plus Jakarta Sans",
+      "weight": "400"
+    },
+    {
+      "family": "Plus Jakarta Sans",
+      "weight": "400"
+    },
+    {
+      "family": "Plus Jakarta Sans",
+      "weight": "600"
+    },
+    {
+      "family": "Plus Jakarta Sans",
+      "weight": "700"
+    },
+    {
+      "family": "Crimson Pro",
+      "weight": "400"
+    },
+    {
+      "family": "Crimson Pro",
+      "weight": "400"
+    },
+    {
+      "family": "JetBrains Mono",
+      "weight": "400"
+    },
+    {
+      "family": "JetBrains Mono",
+      "weight": "400"
+    },
+    {
+      "family": "JetBrains Mono",
+      "weight": "500"
+    }
+  ]
+}

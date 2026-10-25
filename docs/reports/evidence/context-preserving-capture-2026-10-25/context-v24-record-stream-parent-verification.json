@@ -1,0 +1,151 @@
+{
+  "scope": "Parent SHA, PCM prefix continuity, full transcript and requested backend audit; physical microphone unverified",
+  "accepted": 16,
+  "total": 16,
+  "checks": [
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v24-record-stream\\moonshine\\webgpu\\playground\\file.json",
+      "sha256": "dd02de4bd65a59e3f810d517b49a2a1a2ed1ed65ef2803b234eb31bab1dfbd93",
+      "status": "PASS_FILE_FLOW",
+      "exact": true,
+      "actualBackend": "webgpu",
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country.",
+      "captures": []
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v24-record-stream\\moonshine\\webgpu\\playground\\playground-record-then-transcribe.json",
+      "sha256": "51dab3d1a4122ec3726b64270072e3f88ccaf3904b76a353830d105b8b1f3017",
+      "status": "PASS_CONTROLLED_RECORD_THEN_TRANSCRIBE",
+      "exact": true,
+      "actualBackend": "webgpu",
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country.",
+      "captures": []
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v24-record-stream\\moonshine\\webgpu\\playground\\streaming.json",
+      "sha256": "e2c29f767ae0a5bddbe4591f138ea03b0553419484ddd8fe8cb7540e93809e50",
+      "status": "PASS_NATIVE_STREAMING",
+      "exact": true,
+      "actualBackend": "webgpu",
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country.",
+      "captures": []
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v24-record-stream\\moonshine\\webgpu\\playground\\stream-recorded.json",
+      "sha256": "05c8a277f90b3a784f513094abf79da725ca31553a956f0c0155e6830f151ff0",
+      "status": "PASS_NATIVE_RECORDED_STREAMING",
+      "exact": true,
+      "actualBackend": "webgpu",
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country.",
+      "captures": []
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v24-record-stream\\moonshine\\wasm\\playground\\file.json",
+      "sha256": "1d54db46173f94a7de5b650791083c640387c99484dd2a5b04402e3561e01bf3",
+      "status": "PASS_FILE_FLOW",
+      "exact": true,
+      "actualBackend": "wasm",
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country.",
+      "captures": []
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v24-record-stream\\moonshine\\wasm\\playground\\playground-record-then-transcribe.json",
+      "sha256": "5c8ac8428a90795e2af8d8d5083a3d25d021d5e93e6d207d758a7ae593e9a88d",
+      "status": "PASS_CONTROLLED_RECORD_THEN_TRANSCRIBE",
+      "exact": true,
+      "actualBackend": "wasm",
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country.",
+      "captures": []
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v24-record-stream\\moonshine\\wasm\\playground\\streaming.json",
+      "sha256": "03a2fd7bea228c79365d52558fbf4fed7f53a9d919de5284370795a39e02f3eb",
+      "status": "PASS_NATIVE_STREAMING",
+      "exact": true,
+      "actualBackend": "wasm",
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country.",
+      "captures": []
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v24-record-stream\\moonshine\\wasm\\playground\\stream-recorded.json",
+      "sha256": "93fca8374d749a4d72045a31a2cdc0f296db3ca00f07610d6535f0481a9368a4",
+      "status": "PASS_NATIVE_RECORDED_STREAMING",
+      "exact": true,
+      "actualBackend": "wasm",
+      "transcript": "And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country.",
+      "captures": []
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v24-record-stream\\x-asr\\webgpu\\playground\\file.json",
+      "sha256": "a9fc272043bc533def5f86cd8b0e71fd93408d5bbe608b423e087b51e17f872d",
+      "status": "PASS_FILE_FLOW",
+      "exact": true,
+      "actualBackend": "webgpu",
+      "transcript": "And so my fellow americans ask not what your country can do for you ask what you can do for your country",
+      "captures": []
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v24-record-stream\\x-asr\\webgpu\\playground\\playground-record-then-transcribe.json",
+      "sha256": "de9d33cfe81754be5a1f5858a7784175a69efe67742a8a7f38cea758acc895e1",
+      "status": "PASS_CONTROLLED_RECORD_THEN_TRANSCRIBE",
+      "exact": true,
+      "actualBackend": "webgpu",
+      "transcript": "And so my fellow americans ask not what your country can do for you , ask what you can do for your country",
+      "captures": []
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v24-record-stream\\x-asr\\webgpu\\playground\\streaming.json",
+      "sha256": "abcdac6635a00411f509057cb27c5710fd5dcb4fc314064482e4a2efcc52f0ab",
+      "status": "PASS_NATIVE_STREAMING",
+      "exact": true,
+      "actualBackend": "webgpu",
+      "transcript": "And so my fellow americans ask not what your country can do for you ask what you can do for your country",
+      "captures": []
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v24-record-stream\\x-asr\\webgpu\\playground\\stream-recorded.json",
+      "sha256": "4ee77a3f79085cae1236da4617531778e7b4ed8364dab8e5a362aa23f5073591",
+      "status": "PASS_NATIVE_RECORDED_STREAMING",
+      "exact": true,
+      "actualBackend": "webgpu",
+      "transcript": "And so my fellow americans ask not what your country can do for you , ask what you can do for your country",
+      "captures": []
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v24-record-stream\\x-asr\\wasm\\playground\\file.json",
+      "sha256": "d733934f61186279f0361ceecffe9cca313399501e1f5e36ad16826ac6ff2953",
+      "status": "PASS_FILE_FLOW",
+      "exact": true,
+      "actualBackend": "wasm",
+      "transcript": "And so my fellow americans ask not what your country can do for you ask what you can do for your country",
+      "captures": []
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v24-record-stream\\x-asr\\wasm\\playground\\playground-record-then-transcribe.json",
+      "sha256": "e041243813eb91c8edf709b1ef9c8078dd2cfeb3a16c511e0fc1b2c57e537523",
+      "status": "PASS_CONTROLLED_RECORD_THEN_TRANSCRIBE",
+      "exact": true,
+      "actualBackend": "wasm",
+      "transcript": "And so my fellow americans ask not what your country can do for you , ask what you can do for your country",
+      "captures": []
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v24-record-stream\\x-asr\\wasm\\playground\\streaming.json",
+      "sha256": "e673cb11ce8b817a990da0c49ef5028caf4fda5956239943bfd60ec62caf76ad",
+      "status": "PASS_NATIVE_STREAMING",
+      "exact": true,
+      "actualBackend": "wasm",
+      "transcript": "And so my fellow americans ask not what your country can do for you ask what you can do for your country",
+      "captures": []
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\context-v24-record-stream\\x-asr\\wasm\\playground\\stream-recorded.json",
+      "sha256": "0c508478d455018f28c9729f645dcfcac1006369aa32fd84e1b86a072e6dcdb6",
+      "status": "PASS_NATIVE_RECORDED_STREAMING",
+      "exact": true,
+      "actualBackend": "wasm",
+      "transcript": "And so my fellow americans ask not what your country can do for you , ask what you can do for your country",
+      "captures": []
+    }
+  ]
+}

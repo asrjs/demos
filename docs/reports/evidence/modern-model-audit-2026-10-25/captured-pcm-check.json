@@ -1,0 +1,591 @@
+{
+  "scope": "Byte count and SHA verification only, not quality acceptance",
+  "checkedCaptures": 117,
+  "captures": [
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\qwen-v16-capture-tool-retest\\realtime\\mic-pcm-capture\\mic-manual-manual-none-request-2.json",
+      "frames": 336128,
+      "sha256": "62fccacd07371567ea32c3561b30eb2342f5077d893e881f37b9d44865e3c26c"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\wasm\\realtime\\mic-pcm-capture\\mic-manual-manual-none-request-2.json",
+      "frames": 336384,
+      "sha256": "51340eedaeae410f0ad5f7378a658f58f048a0d411a0c17a4cfb0b04534d40df"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-10.json",
+      "frames": 54016,
+      "sha256": "4bebe5863a0940999e6cf27c0a776e0f223759f231bfad0939a5d89a3954d75c"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-11.json",
+      "frames": 49408,
+      "sha256": "f33791801b983f09e5ae7d8fe0ff4c1a32253bf56346999f3c78162afb3814d9"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-7.json",
+      "frames": 33600,
+      "sha256": "d58760c7dd6f5e65e98cba2750b1df1e334bb2ffec399af01858f9cf7ea8e621"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-8.json",
+      "frames": 26112,
+      "sha256": "8b61f08094933eed38bc2c549d2322f52f2b0a80a3e5fc05451b26782be8d557"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-9.json",
+      "frames": 8960,
+      "sha256": "44a4e946be49904298d3611812a7d68fde5992bad3c0005c95b82c18b42f0c05"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-3.json",
+      "frames": 36096,
+      "sha256": "978293eee6a2b78dc8f12e1ee86f7b9756056b6dc4d8bb7a782584d886db69e8"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-4.json",
+      "frames": 33536,
+      "sha256": "f16ee7697aa30e816efa24ba76eec119fa02747f3b3ad350ab798fc367b32713"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-5.json",
+      "frames": 52480,
+      "sha256": "c5c836237f056407d97368fb51cc53413a954e90ee6e7b4154119a65e833d057"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-6.json",
+      "frames": 55296,
+      "sha256": "f1cabb5c2382d21ce3d3db827b2ab057176898e527814abc74a500b951959560"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\webgpu\\realtime\\mic-pcm-capture\\mic-manual-manual-none-request-2.json",
+      "frames": 336896,
+      "sha256": "3e5067edb3371edeee18d23ffb288381fe5ed787f2e6a2688ebb913e9658dac6"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-10.json",
+      "frames": 54016,
+      "sha256": "a0fd84c578cd5e938e74d2a2c85c761a66740a4b1c5cd984acf91a54b3ba3b8d"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-11.json",
+      "frames": 49408,
+      "sha256": "415e36132c8bc966a6b084a71805c1eb97a1c6d030b2333038752079a4a3f1e6"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-7.json",
+      "frames": 33344,
+      "sha256": "8721395d73604f093a1c8fccee98def8e8f85cc063e1e6d19b902f3435560443"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-8.json",
+      "frames": 26112,
+      "sha256": "9ab4d492980e383654318b871816968a47e6015d029da10a914126e23b5f16b2"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-9.json",
+      "frames": 8960,
+      "sha256": "24cb62ffc3506773b2559469548ff03fd3c1d355b092b9101eb59ef925c688bf"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-3.json",
+      "frames": 36096,
+      "sha256": "47bc18398612588fcc28727ece83780cc8eed0c03656ea52e268914f3c7605d8"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-4.json",
+      "frames": 33280,
+      "sha256": "d74f689c8e38bc12be2d3809f4efdf2915cf1531488861a0ec2b93e3e6d26e58"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-5.json",
+      "frames": 52480,
+      "sha256": "7633ce8a1c1db031c43c833709cd671669b33b75ea75d7129c8072f3058f8756"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-6.json",
+      "frames": 55296,
+      "sha256": "9f8d1207a9f816c36d95d61f95775d37afbd48898f48f65e93f881f50bb71927"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\wasm\\realtime\\mic-pcm-capture\\mic-manual-manual-none-request-2.json",
+      "frames": 342528,
+      "sha256": "605b23fcb4ff38b03459de13eef15e77a4d744cfd79cbcb256ea9cf915a3e13d"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-6.json",
+      "frames": 27264,
+      "sha256": "446ba7711f21af2e689e79ba3b532bf6cca20af3df04e3ae69e615eeba8d35ef"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-7.json",
+      "frames": 58880,
+      "sha256": "888490bc40de32203b25dc5d31c5b901881287924c2bc65af616a84a4ddaaaf9"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-8.json",
+      "frames": 55552,
+      "sha256": "d832d13baaa8d4ee2a7ea58cd7fc3a3fe7398394ea953622622bf789051f7462"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-9.json",
+      "frames": 40448,
+      "sha256": "e1832b0dcf40aa1f74b126bda888301cad63b5ef8c8cab0d6e2a91350f271ec3"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-3.json",
+      "frames": 76288,
+      "sha256": "9bd058fadfff71d90f9a381597df0c8e8afd141f5fe16f38b2f1fa50a4f9cd01"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-4.json",
+      "frames": 73472,
+      "sha256": "df546d60e9bc39533703c6efc4964cd6c8a842af2f164f071f949cf1f2095d36"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-5.json",
+      "frames": 39168,
+      "sha256": "e937b33ea14dc6ac3087ede4229fbd705a51bca34008a11679626d0db8cd790f"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\webgpu\\realtime\\mic-pcm-capture\\mic-manual-manual-none-request-2.json",
+      "frames": 340992,
+      "sha256": "a382bd8990a5b88a02e25c32344032a1873c33e58d36c67a5efce9a1378419b3"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-6.json",
+      "frames": 27264,
+      "sha256": "446ba7711f21af2e689e79ba3b532bf6cca20af3df04e3ae69e615eeba8d35ef"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-7.json",
+      "frames": 58880,
+      "sha256": "888490bc40de32203b25dc5d31c5b901881287924c2bc65af616a84a4ddaaaf9"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-8.json",
+      "frames": 55552,
+      "sha256": "d832d13baaa8d4ee2a7ea58cd7fc3a3fe7398394ea953622622bf789051f7462"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-9.json",
+      "frames": 40448,
+      "sha256": "e1832b0dcf40aa1f74b126bda888301cad63b5ef8c8cab0d6e2a91350f271ec3"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-3.json",
+      "frames": 76288,
+      "sha256": "9bd058fadfff71d90f9a381597df0c8e8afd141f5fe16f38b2f1fa50a4f9cd01"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-4.json",
+      "frames": 73472,
+      "sha256": "df546d60e9bc39533703c6efc4964cd6c8a842af2f164f071f949cf1f2095d36"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-5.json",
+      "frames": 39168,
+      "sha256": "e937b33ea14dc6ac3087ede4229fbd705a51bca34008a11679626d0db8cd790f"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\wasm\\realtime\\mic-pcm-capture\\mic-manual-manual-none-request-2.json",
+      "frames": 336640,
+      "sha256": "feee1226e0d0191bd0276d0976198a39577ad22d590c03cdb7de503a39a1a95f"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-10.json",
+      "frames": 54016,
+      "sha256": "a0fd84c578cd5e938e74d2a2c85c761a66740a4b1c5cd984acf91a54b3ba3b8d"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-11.json",
+      "frames": 49408,
+      "sha256": "415e36132c8bc966a6b084a71805c1eb97a1c6d030b2333038752079a4a3f1e6"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-7.json",
+      "frames": 33344,
+      "sha256": "8721395d73604f093a1c8fccee98def8e8f85cc063e1e6d19b902f3435560443"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-8.json",
+      "frames": 26112,
+      "sha256": "9ab4d492980e383654318b871816968a47e6015d029da10a914126e23b5f16b2"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-9.json",
+      "frames": 8960,
+      "sha256": "24cb62ffc3506773b2559469548ff03fd3c1d355b092b9101eb59ef925c688bf"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-3.json",
+      "frames": 36096,
+      "sha256": "aeb729efdd9e0ab457946fe07ad9746591ba018b2660ec8c9dcec29e2818f2b6"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-4.json",
+      "frames": 33536,
+      "sha256": "987acf31052c238a17e00041f3e0fe647138a98396306d97cbde2b054e337fcd"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-5.json",
+      "frames": 52736,
+      "sha256": "bacc0f3679db479d2f5ab11ecae1943e4dbf148b7da6594c9a88b0c5b13ef552"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-6.json",
+      "frames": 54784,
+      "sha256": "fa5d3be9feae85925ce8857124fe1972dbbdbedf31162305a28eac783e051bcb"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\webgpu\\realtime\\mic-pcm-capture\\mic-manual-manual-none-request-2.json",
+      "frames": 336128,
+      "sha256": "ed53ede13196574a422886318983a92cd342d185f08f957a51e40ea899663cfd"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-10.json",
+      "frames": 54272,
+      "sha256": "5e6d31dcd77053277157151d2ca61401ef8b2f22cced5b5b26f2fc09028a503e"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-11.json",
+      "frames": 49408,
+      "sha256": "f33791801b983f09e5ae7d8fe0ff4c1a32253bf56346999f3c78162afb3814d9"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-7.json",
+      "frames": 33600,
+      "sha256": "d58760c7dd6f5e65e98cba2750b1df1e334bb2ffec399af01858f9cf7ea8e621"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-8.json",
+      "frames": 26112,
+      "sha256": "8b61f08094933eed38bc2c549d2322f52f2b0a80a3e5fc05451b26782be8d557"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-9.json",
+      "frames": 8704,
+      "sha256": "6e1941da6f8b2f6765b98c4899b8289b8df24d57420eac05dd0ea8b2f5505337"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-3.json",
+      "frames": 36096,
+      "sha256": "aeb729efdd9e0ab457946fe07ad9746591ba018b2660ec8c9dcec29e2818f2b6"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-4.json",
+      "frames": 33536,
+      "sha256": "987acf31052c238a17e00041f3e0fe647138a98396306d97cbde2b054e337fcd"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-5.json",
+      "frames": 52736,
+      "sha256": "bacc0f3679db479d2f5ab11ecae1943e4dbf148b7da6594c9a88b0c5b13ef552"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-6.json",
+      "frames": 54784,
+      "sha256": "fa5d3be9feae85925ce8857124fe1972dbbdbedf31162305a28eac783e051bcb"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\x-asr\\wasm\\realtime\\mic-pcm-capture\\mic-manual-manual-none-request-2.json",
+      "frames": 337152,
+      "sha256": "60bd87215fed03f3257cb0e9d2410a80fdbd66623e6d49f4b02763a8ff104c2f"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\x-asr\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-10.json",
+      "frames": 54528,
+      "sha256": "39813d3bf8ab8290cadfc862b653aaad4b6003c976155fe813f38b70ce8603fb"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\x-asr\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-11.json",
+      "frames": 49152,
+      "sha256": "2966b82c37722df592f83833eb1883eada8ce90e5ade20f558f074a177587a2b"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\x-asr\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-7.json",
+      "frames": 33376,
+      "sha256": "268f4e92654815b1dc9ac2eb5a440999a7e9ec243135e201158dd976bf24fd32"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\x-asr\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-8.json",
+      "frames": 26112,
+      "sha256": "e93ffe3122fdd35e3a6c92d19df41247b9d3a25fb2c7c11b8bac5e668868289e"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\x-asr\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-9.json",
+      "frames": 8960,
+      "sha256": "c6b8480926d24249b3410dc0d51b4c535139d78d611c6d39fd411618a5264b93"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\x-asr\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-3.json",
+      "frames": 36096,
+      "sha256": "508dde4a37338a2adcf4596f5cfdcc6b3ef4457a2b20d3d670c8130eb5164584"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\x-asr\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-4.json",
+      "frames": 33536,
+      "sha256": "bff76a34c0b7d09a44d19a6d0ef3b22dec303bdaa3d8ba001bb8446f87dd19b0"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\x-asr\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-5.json",
+      "frames": 52480,
+      "sha256": "8d2ea0709144d9847e9d0aec2d3650833fbfc812b2aebcb5943646193b045a96"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\x-asr\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-6.json",
+      "frames": 55296,
+      "sha256": "d2b699bf83d87f12e755ef563a8630985519a82d5ac43e75c6598197196008c3"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\x-asr\\webgpu\\realtime\\mic-pcm-capture\\mic-manual-manual-none-request-2.json",
+      "frames": 336128,
+      "sha256": "2f74b35a26de186ad8027076db3970dc9f1fd15092c0863a9500d19e9cd50192"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\x-asr\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-10.json",
+      "frames": 54272,
+      "sha256": "5e6d31dcd77053277157151d2ca61401ef8b2f22cced5b5b26f2fc09028a503e"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\x-asr\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-11.json",
+      "frames": 49408,
+      "sha256": "f33791801b983f09e5ae7d8fe0ff4c1a32253bf56346999f3c78162afb3814d9"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\x-asr\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-7.json",
+      "frames": 33600,
+      "sha256": "9de9f9af18f1ee0563ca34c4e13ef7bb14827ad3720d3725a9cb21c25822656d"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\x-asr\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-8.json",
+      "frames": 26112,
+      "sha256": "8b61f08094933eed38bc2c549d2322f52f2b0a80a3e5fc05451b26782be8d557"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\x-asr\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-9.json",
+      "frames": 8704,
+      "sha256": "6e1941da6f8b2f6765b98c4899b8289b8df24d57420eac05dd0ea8b2f5505337"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\x-asr\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-3.json",
+      "frames": 36096,
+      "sha256": "508dde4a37338a2adcf4596f5cfdcc6b3ef4457a2b20d3d670c8130eb5164584"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\x-asr\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-4.json",
+      "frames": 33536,
+      "sha256": "bff76a34c0b7d09a44d19a6d0ef3b22dec303bdaa3d8ba001bb8446f87dd19b0"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\x-asr\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-5.json",
+      "frames": 52480,
+      "sha256": "8d2ea0709144d9847e9d0aec2d3650833fbfc812b2aebcb5943646193b045a96"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\x-asr\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-6.json",
+      "frames": 55296,
+      "sha256": "d2b699bf83d87f12e755ef563a8630985519a82d5ac43e75c6598197196008c3"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\wasm\\realtime\\mic-pcm-capture\\mic-manual-manual-none-request-2.json",
+      "frames": 337152,
+      "sha256": "ac428588e8c3667e02bbbf2683d5ea3b4885791a86d8af40eaa6d33a984b47bd"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-10.json",
+      "frames": 54016,
+      "sha256": "a0fd84c578cd5e938e74d2a2c85c761a66740a4b1c5cd984acf91a54b3ba3b8d"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-11.json",
+      "frames": 49408,
+      "sha256": "415e36132c8bc966a6b084a71805c1eb97a1c6d030b2333038752079a4a3f1e6"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-7.json",
+      "frames": 33344,
+      "sha256": "8721395d73604f093a1c8fccee98def8e8f85cc063e1e6d19b902f3435560443"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-8.json",
+      "frames": 26112,
+      "sha256": "9ab4d492980e383654318b871816968a47e6015d029da10a914126e23b5f16b2"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-9.json",
+      "frames": 8960,
+      "sha256": "24cb62ffc3506773b2559469548ff03fd3c1d355b092b9101eb59ef925c688bf"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-3.json",
+      "frames": 36096,
+      "sha256": "47bc18398612588fcc28727ece83780cc8eed0c03656ea52e268914f3c7605d8"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-4.json",
+      "frames": 33280,
+      "sha256": "d74f689c8e38bc12be2d3809f4efdf2915cf1531488861a0ec2b93e3e6d26e58"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-5.json",
+      "frames": 52480,
+      "sha256": "7633ce8a1c1db031c43c833709cd671669b33b75ea75d7129c8072f3058f8756"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-6.json",
+      "frames": 55296,
+      "sha256": "9f8d1207a9f816c36d95d61f95775d37afbd48898f48f65e93f881f50bb71927"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\webgpu\\realtime\\mic-pcm-capture\\mic-manual-manual-none-request-2.json",
+      "frames": 336384,
+      "sha256": "989642f86003a38fcf323180d74e3abfedfab0f10c812ab71d34a9d40e6be4b6"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-10.json",
+      "frames": 54272,
+      "sha256": "5e6d31dcd77053277157151d2ca61401ef8b2f22cced5b5b26f2fc09028a503e"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-11.json",
+      "frames": 49408,
+      "sha256": "f33791801b983f09e5ae7d8fe0ff4c1a32253bf56346999f3c78162afb3814d9"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-7.json",
+      "frames": 33600,
+      "sha256": "d58760c7dd6f5e65e98cba2750b1df1e334bb2ffec399af01858f9cf7ea8e621"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-8.json",
+      "frames": 26112,
+      "sha256": "8b61f08094933eed38bc2c549d2322f52f2b0a80a3e5fc05451b26782be8d557"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-9.json",
+      "frames": 8704,
+      "sha256": "6e1941da6f8b2f6765b98c4899b8289b8df24d57420eac05dd0ea8b2f5505337"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-3.json",
+      "frames": 36096,
+      "sha256": "47bc18398612588fcc28727ece83780cc8eed0c03656ea52e268914f3c7605d8"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-4.json",
+      "frames": 33280,
+      "sha256": "d74f689c8e38bc12be2d3809f4efdf2915cf1531488861a0ec2b93e3e6d26e58"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-5.json",
+      "frames": 52480,
+      "sha256": "7633ce8a1c1db031c43c833709cd671669b33b75ea75d7129c8072f3058f8756"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-6.json",
+      "frames": 55296,
+      "sha256": "9f8d1207a9f816c36d95d61f95775d37afbd48898f48f65e93f881f50bb71927"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v18-x-asr\\x-asr\\wasm\\realtime\\mic-pcm-capture\\mic-manual-manual-none-request-2.json",
+      "frames": 336640,
+      "sha256": "a353cd0ec59e1c302df061d893b16b3d18d336957b9b8602a62153d089953379"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v18-x-asr\\x-asr\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-10.json",
+      "frames": 54272,
+      "sha256": "5e6d31dcd77053277157151d2ca61401ef8b2f22cced5b5b26f2fc09028a503e"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v18-x-asr\\x-asr\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-11.json",
+      "frames": 49408,
+      "sha256": "f33791801b983f09e5ae7d8fe0ff4c1a32253bf56346999f3c78162afb3814d9"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v18-x-asr\\x-asr\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-7.json",
+      "frames": 33600,
+      "sha256": "d58760c7dd6f5e65e98cba2750b1df1e334bb2ffec399af01858f9cf7ea8e621"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v18-x-asr\\x-asr\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-8.json",
+      "frames": 26112,
+      "sha256": "8b61f08094933eed38bc2c549d2322f52f2b0a80a3e5fc05451b26782be8d557"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v18-x-asr\\x-asr\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-9.json",
+      "frames": 8704,
+      "sha256": "6e1941da6f8b2f6765b98c4899b8289b8df24d57420eac05dd0ea8b2f5505337"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v18-x-asr\\x-asr\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-3.json",
+      "frames": 36096,
+      "sha256": "508dde4a37338a2adcf4596f5cfdcc6b3ef4457a2b20d3d670c8130eb5164584"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v18-x-asr\\x-asr\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-4.json",
+      "frames": 33536,
+      "sha256": "bff76a34c0b7d09a44d19a6d0ef3b22dec303bdaa3d8ba001bb8446f87dd19b0"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v18-x-asr\\x-asr\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-5.json",
+      "frames": 52480,
+      "sha256": "8d2ea0709144d9847e9d0aec2d3650833fbfc812b2aebcb5943646193b045a96"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v18-x-asr\\x-asr\\wasm\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-6.json",
+      "frames": 55296,
+      "sha256": "d2b699bf83d87f12e755ef563a8630985519a82d5ac43e75c6598197196008c3"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v18-x-asr\\x-asr\\webgpu\\realtime\\mic-pcm-capture\\mic-manual-manual-none-request-2.json",
+      "frames": 336384,
+      "sha256": "c8da2db547cb53b883d2f84120ec4793a5a3f1589eca7263ca13aee4de5a4301"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v18-x-asr\\x-asr\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-10.json",
+      "frames": 54272,
+      "sha256": "5e6d31dcd77053277157151d2ca61401ef8b2f22cced5b5b26f2fc09028a503e"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v18-x-asr\\x-asr\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-11.json",
+      "frames": 49408,
+      "sha256": "f33791801b983f09e5ae7d8fe0ff4c1a32253bf56346999f3c78162afb3814d9"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v18-x-asr\\x-asr\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-7.json",
+      "frames": 33600,
+      "sha256": "d58760c7dd6f5e65e98cba2750b1df1e334bb2ffec399af01858f9cf7ea8e621"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v18-x-asr\\x-asr\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-8.json",
+      "frames": 26112,
+      "sha256": "8b61f08094933eed38bc2c549d2322f52f2b0a80a3e5fc05451b26782be8d557"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v18-x-asr\\x-asr\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-firered-vad-request-9.json",
+      "frames": 8704,
+      "sha256": "6e1941da6f8b2f6765b98c4899b8289b8df24d57420eac05dd0ea8b2f5505337"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v18-x-asr\\x-asr\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-3.json",
+      "frames": 36096,
+      "sha256": "508dde4a37338a2adcf4596f5cfdcc6b3ef4457a2b20d3d670c8130eb5164584"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v18-x-asr\\x-asr\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-4.json",
+      "frames": 33536,
+      "sha256": "bff76a34c0b7d09a44d19a6d0ef3b22dec303bdaa3d8ba001bb8446f87dd19b0"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v18-x-asr\\x-asr\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-5.json",
+      "frames": 52480,
+      "sha256": "8d2ea0709144d9847e9d0aec2d3650833fbfc812b2aebcb5943646193b045a96"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v18-x-asr\\x-asr\\webgpu\\realtime\\mic-pcm-capture\\mic-speech-detect-vad-only-ten-vad-request-6.json",
+      "frames": 55296,
+      "sha256": "d2b699bf83d87f12e755ef563a8630985519a82d5ac43e75c6598197196008c3"
+    }
+  ]
+}
