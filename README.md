@@ -24,6 +24,9 @@ framework sources live on the `framework-examples` branch of `asrjs/demos`.
 Clone the three checkouts side by side, then install dependencies and build:
 
 ```sh
+git clone --branch checkpoint/2026-w43-library https://github.com/asrjs/speech-recognition.git ../speech-recognition
+git clone --branch checkpoint/2026-w43-demos https://github.com/asrjs/demos.git ../demos
+
 npm --prefix ../speech-recognition ci
 npm ci
 npm --prefix ../demos ci
@@ -33,7 +36,7 @@ npm run preview:suite
 ```
 
 For example, place the directories as `speech-recognition/`, `demos/` and
-`frameworks/` under one parent. Check out `framework-examples` in `demos`; this
+`frameworks/` under one parent. Check out `framework-examples` in `frameworks` and `checkpoint/2026-w43-demos` in `demos`; this
 workspace expects to be in its sibling `frameworks/` directory.
 
 Open `http://127.0.0.1:4190/` for all seven applications. Keeping the hostname and port fixed lets them share the browser model cache. Standalone `dev:react`, `dev:svelte` and `dev:vue` commands use separate origins and therefore separate caches. Each example loads a model
