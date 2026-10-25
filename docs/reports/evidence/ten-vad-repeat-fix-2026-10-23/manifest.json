@@ -1,0 +1,14 @@
+{
+  "libraryBaseHead": "e534fb517dcd15a52ac8b52bff85551df89d3673",
+  "libraryWorkingPatch": "ten-vad-fixed.patch",
+  "sha256": {
+    "speech-recognition\\src\\runtime\\streaming-detector.ts": "3defd4bc4af2c7bd6a78e7fe850ff5290be90476adc9ef407a9e3c7742239dad",
+    "speech-recognition\\dist\\runtime\\streaming-detector.js": "d748e03def30d49196c0d7912c47fbf1bcfcca2ac64535ea4b4e293e26c8c45a",
+    "speech-recognition\\tests\\streaming-detector-vad-history.test.ts": "54e0575919b46ddfbdab9deb3f8d35a795ecc91208d9a2bfd3858fed339ae37b",
+    "demos\\node_modules\\@asrjs\\speech-recognition\\dist\\runtime\\streaming-detector.js": "d748e03def30d49196c0d7912c47fbf1bcfcca2ac64535ea4b4e293e26c8c45a",
+    "demos\\vendor\\asrjs-speech-recognition-0.2.0-ten-vad-20261023.tgz": "c26d5a3b44a5dbf5ac83b24ed031aeca2e7ae8caa6556eb89c6bcd82eb25533e",
+    "demos\\vendor\\asrjs-speech-recognition-0.2.0-exact12-20261022.tgz": "572ad801aee0b1a72bc4b4c105b5211f6e1b0aeb0f969ba19eded693871de62e"
+  },
+  "physicalMicrophone": "UNVERIFIED",
+  "ci": "NOT_RUN_FOR_LOCAL_CHANGES"
+}

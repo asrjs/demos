@@ -1,0 +1,1069 @@
+[
+  {
+    "app": "showcase",
+    "pageErrors": [],
+    "body": "A\nASRJS\nSpeech recognition\n\nSHOWCASE WORKSTATION\n\nTranscribe\n0.2.0 npm-package\n\u25d0\nAppearance\nTranscribe\nPlayground\nLive\nBenchmark\nMODEL CONFIGURATION\nModel Source\nHuggingFace\nLocal folder\nexpand_more\nModel\nParakeet TDT 0.6B v2 (English)\nParakeet TDT 0.6B v3 (Multilingual)\nParakeet Realtime EOU 120M v1 (English)\nOrukeet 0.6B (Multilingual, community fine-tune of Parakeet TDT v3)\nCanary 180M Flash (Multilingual AED)\nCanary 1B (Multilingual AED)\nCanary 1B v2 (Multilingual AED)\nGoogle MedASR (Medical English)\nNemotron 3.5 ASR Streaming 0.6B\nWav2Vec2 Base 960h\nParakeet HF CTC 110M (English)\nOmnilingual ASR CTC 300M (1,600+ languages)\nWav2Vec2 XLS-R 300M (Turkish Common Voice v7)\nMoonshine Tiny (English streaming-capable AED)\nQwen3-ASR 0.6B (multilingual, language-tagged)\nexpand_more\nParakeet TDT 0.6B v2 (English)\n\nParakeet preset over the NeMo TDT implementation boundary.\n\nRuntime Backend\nWebGPU\nWASM\nexpand_more\nEncoder Backend\nwebgpu\nwasm\nexpand_more\nDecoder Backend\nwasm\nexpand_more\nThreads\nStride\nEncoder\nfp16\nint8\nfp32\nexpand_more\nDecoder\nfp16\nint8\nfp32\nexpand_more\nFrontend\nJS frontend\nONNX frontend\nexpand_more\n\nShared pure-JS NeMo frontend. This is the expected path for hosted RNNT models and for local folders without nemo*.onnx frontend assets.\n\nThis hosted model is configured for the shared JS frontend by default. Separate nemo80/nemo128 ONNX preprocessors are optional, not required.\n\nVerbose\nLog results\nEnable profiling\nbolt\nLoad Model\nStatus:\nIdle\ncheck_circle\nMulti-threaded (12 cores)\nTEST & TRANSCRIBE\nLanguage\nEnglish\nexpand_more\nLoad English Sample\ncloud_upload\n\nDrag & drop audio file here, or click to select\n\nSupports .wav, .mp3, .ogg\n\nTRANSCRIPTION COMPARISON\nTranscription\n\nTranscription will appear here...\n\nReference Text\nASRJS \u00b7 browser speech lab\nLibrary 0.2.0 \u00b7 npm-package",
+    "buttons": [
+      "\u25d0Appearance",
+      "boltLoad Model",
+      "Load English Sample"
+    ],
+    "selects": [
+      {
+        "i": 0,
+        "value": "huggingface",
+        "label": null,
+        "options": [
+          {
+            "v": "huggingface",
+            "t": "HuggingFace"
+          },
+          {
+            "v": "local",
+            "t": "Local folder"
+          }
+        ]
+      },
+      {
+        "i": 1,
+        "value": "parakeet-tdt-0.6b-v2",
+        "label": null,
+        "options": [
+          {
+            "v": "parakeet-tdt-0.6b-v2",
+            "t": "Parakeet TDT 0.6B v2 (English)"
+          },
+          {
+            "v": "parakeet-tdt-0.6b-v3",
+            "t": "Parakeet TDT 0.6B v3 (Multilingual)"
+          },
+          {
+            "v": "parakeet-realtime-eou-120m-v1",
+            "t": "Parakeet Realtime EOU 120M v1 (English)"
+          },
+          {
+            "v": "oruk/orukeet",
+            "t": "Orukeet 0.6B (Multilingual, community fine-tune of Parakeet TDT v3)"
+          },
+          {
+            "v": "nvidia/canary-180m-flash",
+            "t": "Canary 180M Flash (Multilingual AED)"
+          },
+          {
+            "v": "nvidia/canary-1b",
+            "t": "Canary 1B (Multilingual AED)"
+          },
+          {
+            "v": "nvidia/canary-1b-v2",
+            "t": "Canary 1B v2 (Multilingual AED)"
+          },
+          {
+            "v": "google/medasr",
+            "t": "Google MedASR (Medical English)"
+          },
+          {
+            "v": "nemotron-3.5-asr-streaming-0.6b",
+            "t": "Nemotron 3.5 ASR Streaming 0.6B"
+          },
+          {
+            "v": "facebook/wav2vec2-base-960h",
+            "t": "Wav2Vec2 Base 960h"
+          },
+          {
+            "v": "ctaguchi/parakeet-hf-ctc-110m-en",
+            "t": "Parakeet HF CTC 110M (English)"
+          },
+          {
+            "v": "OpenVoiceOS/omnilingual-asr-ctc-300m-onnx",
+            "t": "Omnilingual ASR CTC 300M (1,600+ languages)"
+          },
+          {
+            "v": "mpoyraz/wav2vec2-xls-r-300m-cv7-turkish",
+            "t": "Wav2Vec2 XLS-R 300M (Turkish Common Voice v7)"
+          },
+          {
+            "v": "UsefulSensors/moonshine-tiny",
+            "t": "Moonshine Tiny (English streaming-capable AED)"
+          },
+          {
+            "v": "Qwen/Qwen3-ASR-0.6B-hf",
+            "t": "Qwen3-ASR 0.6B (multilingual, language-tagged)"
+          }
+        ]
+      },
+      {
+        "i": 2,
+        "value": "webgpu-hybrid",
+        "label": null,
+        "options": [
+          {
+            "v": "webgpu-hybrid",
+            "t": "WebGPU"
+          },
+          {
+            "v": "wasm",
+            "t": "WASM"
+          }
+        ]
+      },
+      {
+        "i": 3,
+        "value": "webgpu",
+        "label": null,
+        "options": [
+          {
+            "v": "webgpu",
+            "t": "webgpu"
+          },
+          {
+            "v": "wasm",
+            "t": "wasm"
+          }
+        ]
+      },
+      {
+        "i": 4,
+        "value": "wasm",
+        "label": null,
+        "options": [
+          {
+            "v": "wasm",
+            "t": "wasm"
+          }
+        ]
+      },
+      {
+        "i": 5,
+        "value": "fp16",
+        "label": null,
+        "options": [
+          {
+            "v": "fp16",
+            "t": "fp16"
+          },
+          {
+            "v": "int8",
+            "t": "int8"
+          },
+          {
+            "v": "fp32",
+            "t": "fp32"
+          }
+        ]
+      },
+      {
+        "i": 6,
+        "value": "int8",
+        "label": null,
+        "options": [
+          {
+            "v": "fp16",
+            "t": "fp16"
+          },
+          {
+            "v": "int8",
+            "t": "int8"
+          },
+          {
+            "v": "fp32",
+            "t": "fp32"
+          }
+        ]
+      },
+      {
+        "i": 7,
+        "value": "js",
+        "label": null,
+        "options": [
+          {
+            "v": "js",
+            "t": "JS frontend"
+          },
+          {
+            "v": "onnx",
+            "t": "ONNX frontend"
+          }
+        ]
+      },
+      {
+        "i": 8,
+        "value": "en",
+        "label": null,
+        "options": [
+          {
+            "v": "en",
+            "t": "English"
+          }
+        ]
+      }
+    ],
+    "desktop": {
+      "scroll": 1440,
+      "viewport": 1440,
+      "theme": "light",
+      "bg": "rgb(242, 240, 233)",
+      "font": "\"Segoe UI\", system-ui, sans-serif"
+    },
+    "mobile": {
+      "scroll": 390,
+      "viewport": 390
+    }
+  },
+  {
+    "app": "playground",
+    "pageErrors": [],
+    "body": "A\nASRJS\nSpeech recognition\n\nPLAYGROUND WORKSTATION\n\nPlayground\n0.2.0 npm-package\n\u25d0\nAppearance\nTranscribe\nPlayground\nLive\nBenchmark\nTranscribe & Inspect\nBenchmark Lab\n\nUniversal 16-Family Developer Workbench, envelope inspector and live code generator.\n\nMODEL ARCHITECTURE & LOADING MODE\n\nChoose between Universal Catalog loading for all built-in model families or direct Parakeet presets.\n\nUniversal Catalog Mode\n\nSupports all built-in model families (Parakeet, Orukeet, Whisper, Canary, MedASR, Moonshine, Qwen3-ASR, Wav2Vec2, SenseVoice, GigaAM, Nemotron) via loadBuiltInSpeechModel().\n\nParakeet Easy Mode\n\nUses loadSpeechModel() with Parakeet options and dual canonical/native envelope.\n\nParakeet Native Helper Mode\n\nUses the direct Parakeet helper with lower-level native response fields for parity verification.\n\nMODEL SETUP\n\nPick model, execution backend, and tuning parameters.\n\nCatalog Model (Grouped by Family)\nParakeet TDT 0.6B v2 (English)\nParakeet TDT 0.6B v3 (Multilingual)\nParakeet Realtime EOU 120M v1 (English)\nOrukeet 0.6B (Multilingual, community fine-tune of Parakeet TDT v3)\nCanary 180M Flash (Multilingual AED)\nCanary 1B (Multilingual AED)\nCanary 1B v2 (Multilingual AED)\nGoogle MedASR (Medical English)\nNemotron 3.5 ASR Streaming 0.6B\nWav2Vec2 Base 960h\nParakeet HF CTC 110M (English)\nOmnilingual ASR CTC 300M (1,600+ languages)\nWav2Vec2 XLS-R 300M (Turkish Common Voice v7)\nMoonshine Tiny (English streaming-capable AED)\nQwen3-ASR 0.6B (multilingual, language-tagged)\nQwen3-ASR (experimental)\nWhisper Base\nWhisper Large v3\nGigaAM (experimental)\nGigaAM RNN-T (experimental)\nSenseVoice (experimental)\nX-ASR (experimental)\n\nID: parakeet-tdt-0.6b-v2\n\nFamily: parakeet\n\nRepo: ysdede/parakeet-tdt-0.6b-v2-onnx\n\nLanguages: English\n\nBackend\nwebgpu-hybrid\nwebgpu\nwasm\nCPU Threads\nLoad Model\nDispose\nTRANSCRIPTION OPTIONS\n\nControls language, detail level, and response format.\n\nLanguage\nEnglish\nCanonical detail\ntext\nsegments\nwords\ndetailed\nResponse flavor\ncanonical supported\ncanonical\ncanonical+native\nnative\nAudio prep\nNative decode + linear resample\nBrowser target-rate AudioContext\nResampler\njs path\nlinear\nReturn token ids\nReturn frame indices\nReturn log probabilities\nReturn TDT step details\nReturn decoder state snapshot\nEnable ORT profiling\nSTATUS\n\nLive load and transcription state.\n\nIdle\n\nLOAD PROGRESS\n\nNo load activity yet.\n\nTRANSCRIPTION PROGRESS\n\nNo transcription activity yet.\n\n4 threads\n\u00b7\nIdle\n\u00b7\nparakeet-tdt-0.6b-v2\n\u00b7\nwebgpu-hybrid\nTEST & TRANSCRIBE AUDIO\n\nUpload an audio file, record from microphone, or use the bundled Harvard sentences sample.\n\nRecord Mic\n\u25b6 Sample\n\u2601\nDrag & drop audio file here, or click to select\nSupports .wav, .mp3, .ogg, .flac, .webm\nBundled sample\nBenchmark repeats\nTranscribe\nStream Chunks\nBenchmark\n\nCURRENT OUTPUT\n\nCanonical + native envelope\n\n{ canonical, native }\n\nUniversal catalog handles all models with a unified canonical transcript interface.\n\nSELECTED OPTIONS\n\n{\n  \"strategy\": \"universal-catalog\",\n  \"modelId\": \"parakeet-tdt-0.6b-v2\",\n  \"source\": \"huggingface\",\n  \"backend\": \"webgpu-hybrid\",\n  \"language\": \"en\",\n  \"detail\": \"detailed\",\n  \"responseFlavor\": \"canonical+native\",\n  \"audioPrepMode\": \"native-linear\",\n  \"audioResamplerQuality\": \"linear\"\n}\nTRANSCRIPT & WORD ALIGNMENT\n\nCanonical or native text output with interactive click-to-seek word timestamps.\n\nNo transcript yet. Load a model and click Transcribe or Stream Chunks.\n\nAUDIO PREPARATION\n\nBrowser-side decode, downmix, and sample-rate preparation before inference.\n\nNo audio prepared yet.\n\nLATEST INFERENCE METRICS\n\nNormalized metrics from canonical or native output.\n\nNo metrics yet.\n\nBENCHMARK LAB\n\nRepeat the same audio through the loaded model to inspect throughput, stability, and latency.\n\nRun repeated inference to inspect stability, wall time, and model timings.\n\nOUTPUT JSON\n{\n  \"status\": \"run a transcription\"\n}\nCOPYABLE CODE SNIPPET\n\nReady-to-run TypeScript/JavaScript code for your selected model, backend, and options.\n\n@asrjs/speech-recognition/builtins\nCopy Code\nimport { PcmAudioBuffer } from '@asrjs/speech-recognition';\nimport { loadBuiltInSpeechModel } from '@asrjs/speech-recognition/builtins';\n\nconst model = await loadBuiltInSpeechModel({\n  modelId: 'parakeet-tdt-0.6b-v2',\n  backend: 'webgpu-hybrid',\n});\n\n// Offline / Batch Transcription\nconst result = await model.transcribe(\n  PcmAudioBuffer.fromMono(pcmFloat32, 16000),\n  { detail: 'detailed', responseFlavor: 'canonical+native', language: 'en' }\n);\n\n// Stateful Streaming (available only when the loaded model supports it)\n// model.supportsStreaming is false; the batch transcription above is the supported path.\nAPI CONTRACT\n\nUniversal Catalog mode dynamically supports all built-in models (Parakeet, Whisper, Canary, MedASR, Moonshine, Qwen3-ASR, etc.) via loadBuiltInSpeechModel().\n\nCURRENT MODE\n\nuniversal-catalog\n\nRESPONSE: CANONICAL + NATIVE ENVELOPE\n\nDETAIL: DETAILED\n\nSELECTED OPTIONS\n\n{\n  \"strategy\": \"universal-catalog\",\n  \"modelId\": \"parakeet-tdt-0.6b-v2\",\n  \"source\": \"huggingface\",\n  \"backend\": \"webgpu-hybrid\",\n  \"language\": \"en\",\n  \"detail\": \"detailed\",\n  \"responseFlavor\": \"canonical+native\",\n  \"audioPrepMode\": \"native-linear\",\n  \"audioResamplerQuality\": \"linear\"\n}\nLOAD REQUEST\n{\n  \"status\": \"load a model to inspect the request\"\n}\nLOAD RESOLUTION\n{\n  \"status\": \"no resolution yet\"\n}\nTRANSCRIPTION REQUEST\n{\n  \"status\": \"run a transcription to inspect the request\"\n}\nCANONICAL OUTPUT\n{\n  \"status\": \"canonical output unavailable for this response\"\n}\nNATIVE OUTPUT\n{\n  \"status\": \"native output unavailable for this response\"\n}\nLOAD EVENTS\n\nLoad a model to inspect progress phases and asset activity.\n\nTRANSCRIPTION EVENTS\n\nRun transcription to inspect per-stage progress, remaining time, and metrics.\n\nASRJS \u00b7 browser speech lab\nLibrary 0.2.0 \u00b7 npm-package",
+    "buttons": [
+      "\u25d0Appearance",
+      "Transcribe & Inspect",
+      "Benchmark Lab",
+      "Universal Catalog ModeSupports all built-in model families (Parakeet, Orukeet, Whisper, Canary, MedASR, Moonshine, Qwen3-ASR, Wav2Vec2, SenseVoice, GigaAM, Nemotron) via loadBuiltInSpeechModel().",
+      "Parakeet Easy ModeUses loadSpeechModel() with Parakeet options and dual canonical/native envelope.",
+      "Parakeet Native Helper ModeUses the direct Parakeet helper with lower-level native response fields for parity verification.",
+      "Load Model",
+      "Dispose",
+      "Record Mic",
+      "\u25b6 Sample",
+      "\u2601Drag & drop audio file here, or click to selectSupports .wav, .mp3, .ogg, .flac, .webmBundled sample",
+      "Transcribe",
+      "Stream Chunks",
+      "Benchmark",
+      "Copy Code"
+    ],
+    "selects": [
+      {
+        "i": 0,
+        "value": "parakeet-tdt-0.6b-v2",
+        "label": null,
+        "options": [
+          {
+            "v": "parakeet-tdt-0.6b-v2",
+            "t": "Parakeet TDT 0.6B v2 (English)"
+          },
+          {
+            "v": "parakeet-tdt-0.6b-v3",
+            "t": "Parakeet TDT 0.6B v3 (Multilingual)"
+          },
+          {
+            "v": "parakeet-realtime-eou-120m-v1",
+            "t": "Parakeet Realtime EOU 120M v1 (English)"
+          },
+          {
+            "v": "oruk/orukeet",
+            "t": "Orukeet 0.6B (Multilingual, community fine-tune of Parakeet TDT v3)"
+          },
+          {
+            "v": "nvidia/canary-180m-flash",
+            "t": "Canary 180M Flash (Multilingual AED)"
+          },
+          {
+            "v": "nvidia/canary-1b",
+            "t": "Canary 1B (Multilingual AED)"
+          },
+          {
+            "v": "nvidia/canary-1b-v2",
+            "t": "Canary 1B v2 (Multilingual AED)"
+          },
+          {
+            "v": "google/medasr",
+            "t": "Google MedASR (Medical English)"
+          },
+          {
+            "v": "nemotron-3.5-asr-streaming-0.6b",
+            "t": "Nemotron 3.5 ASR Streaming 0.6B"
+          },
+          {
+            "v": "facebook/wav2vec2-base-960h",
+            "t": "Wav2Vec2 Base 960h"
+          },
+          {
+            "v": "ctaguchi/parakeet-hf-ctc-110m-en",
+            "t": "Parakeet HF CTC 110M (English)"
+          },
+          {
+            "v": "OpenVoiceOS/omnilingual-asr-ctc-300m-onnx",
+            "t": "Omnilingual ASR CTC 300M (1,600+ languages)"
+          },
+          {
+            "v": "mpoyraz/wav2vec2-xls-r-300m-cv7-turkish",
+            "t": "Wav2Vec2 XLS-R 300M (Turkish Common Voice v7)"
+          },
+          {
+            "v": "UsefulSensors/moonshine-tiny",
+            "t": "Moonshine Tiny (English streaming-capable AED)"
+          },
+          {
+            "v": "Qwen/Qwen3-ASR-0.6B-hf",
+            "t": "Qwen3-ASR 0.6B (multilingual, language-tagged)"
+          },
+          {
+            "v": "Qwen/Qwen3-ASR-0.6B",
+            "t": "Qwen3-ASR (experimental)"
+          },
+          {
+            "v": "openai/whisper-base",
+            "t": "Whisper Base"
+          },
+          {
+            "v": "openai/whisper-large-v3",
+            "t": "Whisper Large v3"
+          },
+          {
+            "v": "gigaam-multilingual-ctc",
+            "t": "GigaAM (experimental)"
+          },
+          {
+            "v": "gigaam-v3-e2e-rnnt",
+            "t": "GigaAM RNN-T (experimental)"
+          },
+          {
+            "v": "SenseVoiceSmall",
+            "t": "SenseVoice (experimental)"
+          },
+          {
+            "v": "x-asr-zh-en-160ms",
+            "t": "X-ASR (experimental)"
+          }
+        ]
+      },
+      {
+        "i": 1,
+        "value": "webgpu-hybrid",
+        "label": null,
+        "options": [
+          {
+            "v": "webgpu-hybrid",
+            "t": "webgpu-hybrid"
+          },
+          {
+            "v": "webgpu",
+            "t": "webgpu"
+          },
+          {
+            "v": "wasm",
+            "t": "wasm"
+          }
+        ]
+      },
+      {
+        "i": 2,
+        "value": "en",
+        "label": null,
+        "options": [
+          {
+            "v": "en",
+            "t": "English"
+          }
+        ]
+      },
+      {
+        "i": 3,
+        "value": "detailed",
+        "label": null,
+        "options": [
+          {
+            "v": "text",
+            "t": "text"
+          },
+          {
+            "v": "segments",
+            "t": "segments"
+          },
+          {
+            "v": "words",
+            "t": "words"
+          },
+          {
+            "v": "detailed",
+            "t": "detailed"
+          }
+        ]
+      },
+      {
+        "i": 4,
+        "value": "canonical+native",
+        "label": null,
+        "options": [
+          {
+            "v": "canonical",
+            "t": "canonical"
+          },
+          {
+            "v": "canonical+native",
+            "t": "canonical+native"
+          },
+          {
+            "v": "native",
+            "t": "native"
+          }
+        ]
+      },
+      {
+        "i": 5,
+        "value": "native-linear",
+        "label": null,
+        "options": [
+          {
+            "v": "native-linear",
+            "t": "Native decode + linear resample"
+          },
+          {
+            "v": "browser-target-rate",
+            "t": "Browser target-rate AudioContext"
+          }
+        ]
+      },
+      {
+        "i": 6,
+        "value": "linear",
+        "label": null,
+        "options": [
+          {
+            "v": "linear",
+            "t": "linear"
+          }
+        ]
+      }
+    ],
+    "desktop": {
+      "scroll": 1440,
+      "viewport": 1440,
+      "theme": "light",
+      "bg": "rgb(242, 240, 233)",
+      "font": "\"Segoe UI\", system-ui, sans-serif"
+    },
+    "mobile": {
+      "scroll": 390,
+      "viewport": 390
+    }
+  },
+  {
+    "app": "realtime",
+    "pageErrors": [],
+    "body": "A\nASRJS\nSpeech recognition\n\nREALTIME WORKSTATION\n\nLive transcription\n0.2.0 npm-package\n\u25d0\nAppearance\nTranscribe\nPlayground\nLive\nBenchmark\nRealtime VAD Lab\nTranscript & Subtitles\ntune\nIdle \u00b7 webgpu-hybrid \u00b7 Microphone idle\nLoad\nidle\nParakeet TDT 0.6B v2 (English)\nRevision main\nLoad Model\nValidation\nInput language\nEnglish\nexpand_more\nLoad Sample\nupload_file\nDrop or click to transcribe\nModel Settings\nArtifact source\nHugging Face\nLocal folder\nexpand_more\nModel\nParakeet TDT 0.6B v2 (English)\nParakeet TDT 0.6B v3 (Multilingual)\nParakeet Realtime EOU 120M v1 (English)\nOrukeet 0.6B (Multilingual, community fine-tune of Parakeet TDT v3)\nCanary 180M Flash (Multilingual AED)\nCanary 1B (Multilingual AED)\nCanary 1B v2 (Multilingual AED)\nGoogle MedASR (Medical English)\nNemotron 3.5 ASR Streaming 0.6B\nWav2Vec2 Base 960h\nParakeet HF CTC 110M (English)\nOmnilingual ASR CTC 300M (1,600+ languages)\nWav2Vec2 XLS-R 300M (Turkish Common Voice v7)\nMoonshine Tiny (English streaming-capable AED)\nQwen3-ASR 0.6B (multilingual, language-tagged)\nexpand_more\nParakeet TDT 0.6B v2 (English)\nRuntime Settings\nRuntime backend\nWebGPU\nWASM\nexpand_more\nEncoder\nwebgpu\nwasm\nexpand_more\nDecoder\nwasm\nexpand_more\nThreads\nStride\nEncoder quant\nfp16\nint8\nfp32\nexpand_more\nDecoder quant\nfp16\nint8\nfp32\nexpand_more\nPrompt Settings\nFrontend\nJS frontend\nONNX frontend\nexpand_more\nJS default\nVerbose logging\nLog results\nEnable profiling\nCapture\n0.00\nSIG\n-100.0\nAVG\n-100.0\nGATE\n-21.9\nNOISE\n-46.0\nSEGS\n0/0\nAUDIO\n16000Hz\nBUF\n12.0s\nSNR\n0.00\nTHR\n3.00\nWAVEFORM\nidle \u00b7 main\nRATE target 16000 Hz\n\u00b7\nCHUNK 16 ms/256f\n\u00b7\nWIN 12.00 s\n\u00b7\nSEG inactive\n\u00b7\nBUF 0/750 pad 750\n\u00b7\nPUB/PAINT 0/s 0/s\nMODE rough-only\n\u00b7\nRELEASE 400 ms\n\u00b7\nNOISE -46.0 dBFS\n\u00b7\nGATE -21.9 dBFS\n\u00b7\nFINAL GATE --\n\u00b7\nGATE LINES on\n\u00b7\nFIRERED on\n\u00b7\nSCALE physical\nWaveform display\nSurface\ncompact stats + waveform + footer metrics\nFull\nStats Only\nWaveform Only\nView\nraw amplitude\nPhysical\nFocus\nBalanced\nGate lines\nwaveform legend\nshow\nhide\nFireRed line\ndiagnostic only\nshow\nhide\nRMS\ndiagnostic\nhide\nshow\nFinal Acceptance\nDuration and normalized 16 kHz energy thresholds used after live segmentation.\nFinal segment gate\nrough-only\nenabled\ndisabled\nAcceptance preset\nUpdates the final segment acceptance thresholds together.\nOpen\nBalanced\nStrict\nCustom\nMin final duration\n240 ms\nMin power\n5.00\nMin integral\n22.00\nAdaptive noise-scaled acceptance controls.\nShow advanced\nDetector tuning\nPreset\nMedium\nMedium\nFast\nSlow\nCustom\nDefault mode\nmanual\nVAD backend\n10 ms hop / 20 ms visual\nFireRed VAD\nTEN-VAD\nGate mode\nrough-only\nRough only\nHybrid\nVAD only\nLive Segmenter\nPeak-energy speech trigger, smoothing, and silence release.\nEnergy threshold\n0.08\nAnalysis window\n80 ms\nEnergy smoothing\n480 ms\nSilence release\n400 ms\nMax segment\n4800 ms\nExtraction Timing\nLookback, overlap, and tail padding applied when a segment is extracted.\nLookback\n128 ms\nOverlap\n80 ms\nTail padding\n160 ms\nNoise Adaptation\nHow the baseline noise floor and onset backtracking adapt over time.\nInitial noise\n0.00500\nFast adapt\n0.15\nSlow adapt\n0.05\nBlend duration\n1.0 s\nSNR display gate\n3.00\nOnset SNR floor\n1.00\nRise threshold\n0.08\nMicrophone\n\nStart capture, switch mode, and send buffered speech.\n\nMode\nManual\nSpeech Detect\nStart Mic\nAdvanced\nMicrophone idle\nDetector readout\n\nLive rough-gate state, adaptive noise floor, and final segment energy metrics.\n\nLEVEL\n-100.0 dBFS\nwindow -100.0 dBFS\nNOISE FLOOR\n-46.0 dBFS\nconfirmed -46.0 dBFS \u00b7 rejected -46.0 dBFS\nFINAL POWER\n--\nmin --\nFINAL INTEGRAL\n--\nmin --\nDETECTOR MODE\nrough-only\nreq rough-only\nFIRERED-VAD\n0.00\ndiagnostic only\nFILTER\narmed\nwaiting\nVAD BUFFER\nempty\nmax 0.00\nWarnings\nSpeech segmentation is running on the rough gate. FireRed VAD is diagnostics-only.\nDecisions\nNo decisions yet.\nSegments\nNo segments yet.\nTranscript & Word Alignment\nNo text yet.\nTOTAL\n--\nAwaiting result\nDECODE\n--\nAwaiting result\nCONFIDENCE\n--\nNo finished utterance\nQUEUE\nclear\nReady\nReference\nASRJS \u00b7 browser speech lab\nLibrary 0.2.0 \u00b7 npm-package",
+    "buttons": [
+      "\u25d0Appearance",
+      "Realtime VAD Lab",
+      "Transcript & Subtitles",
+      "tune",
+      "Load Model",
+      "Load Sample",
+      "Show advanced",
+      "Start Mic",
+      "Advanced"
+    ],
+    "selects": [
+      {
+        "i": 0,
+        "value": "en",
+        "label": null,
+        "options": [
+          {
+            "v": "en",
+            "t": "English"
+          }
+        ]
+      },
+      {
+        "i": 1,
+        "value": "huggingface",
+        "label": null,
+        "options": [
+          {
+            "v": "huggingface",
+            "t": "Hugging Face"
+          },
+          {
+            "v": "local",
+            "t": "Local folder"
+          }
+        ]
+      },
+      {
+        "i": 2,
+        "value": "parakeet-tdt-0.6b-v2",
+        "label": null,
+        "options": [
+          {
+            "v": "parakeet-tdt-0.6b-v2",
+            "t": "Parakeet TDT 0.6B v2 (English)"
+          },
+          {
+            "v": "parakeet-tdt-0.6b-v3",
+            "t": "Parakeet TDT 0.6B v3 (Multilingual)"
+          },
+          {
+            "v": "parakeet-realtime-eou-120m-v1",
+            "t": "Parakeet Realtime EOU 120M v1 (English)"
+          },
+          {
+            "v": "oruk/orukeet",
+            "t": "Orukeet 0.6B (Multilingual, community fine-tune of Parakeet TDT v3)"
+          },
+          {
+            "v": "nvidia/canary-180m-flash",
+            "t": "Canary 180M Flash (Multilingual AED)"
+          },
+          {
+            "v": "nvidia/canary-1b",
+            "t": "Canary 1B (Multilingual AED)"
+          },
+          {
+            "v": "nvidia/canary-1b-v2",
+            "t": "Canary 1B v2 (Multilingual AED)"
+          },
+          {
+            "v": "google/medasr",
+            "t": "Google MedASR (Medical English)"
+          },
+          {
+            "v": "nemotron-3.5-asr-streaming-0.6b",
+            "t": "Nemotron 3.5 ASR Streaming 0.6B"
+          },
+          {
+            "v": "facebook/wav2vec2-base-960h",
+            "t": "Wav2Vec2 Base 960h"
+          },
+          {
+            "v": "ctaguchi/parakeet-hf-ctc-110m-en",
+            "t": "Parakeet HF CTC 110M (English)"
+          },
+          {
+            "v": "OpenVoiceOS/omnilingual-asr-ctc-300m-onnx",
+            "t": "Omnilingual ASR CTC 300M (1,600+ languages)"
+          },
+          {
+            "v": "mpoyraz/wav2vec2-xls-r-300m-cv7-turkish",
+            "t": "Wav2Vec2 XLS-R 300M (Turkish Common Voice v7)"
+          },
+          {
+            "v": "UsefulSensors/moonshine-tiny",
+            "t": "Moonshine Tiny (English streaming-capable AED)"
+          },
+          {
+            "v": "Qwen/Qwen3-ASR-0.6B-hf",
+            "t": "Qwen3-ASR 0.6B (multilingual, language-tagged)"
+          }
+        ]
+      },
+      {
+        "i": 3,
+        "value": "webgpu-hybrid",
+        "label": null,
+        "options": [
+          {
+            "v": "webgpu-hybrid",
+            "t": "WebGPU"
+          },
+          {
+            "v": "wasm",
+            "t": "WASM"
+          }
+        ]
+      },
+      {
+        "i": 4,
+        "value": "webgpu",
+        "label": null,
+        "options": [
+          {
+            "v": "webgpu",
+            "t": "webgpu"
+          },
+          {
+            "v": "wasm",
+            "t": "wasm"
+          }
+        ]
+      },
+      {
+        "i": 5,
+        "value": "wasm",
+        "label": null,
+        "options": [
+          {
+            "v": "wasm",
+            "t": "wasm"
+          }
+        ]
+      },
+      {
+        "i": 6,
+        "value": "fp16",
+        "label": null,
+        "options": [
+          {
+            "v": "fp16",
+            "t": "fp16"
+          },
+          {
+            "v": "int8",
+            "t": "int8"
+          },
+          {
+            "v": "fp32",
+            "t": "fp32"
+          }
+        ]
+      },
+      {
+        "i": 7,
+        "value": "int8",
+        "label": null,
+        "options": [
+          {
+            "v": "fp16",
+            "t": "fp16"
+          },
+          {
+            "v": "int8",
+            "t": "int8"
+          },
+          {
+            "v": "fp32",
+            "t": "fp32"
+          }
+        ]
+      },
+      {
+        "i": 8,
+        "value": "js",
+        "label": null,
+        "options": [
+          {
+            "v": "js",
+            "t": "JS frontend"
+          },
+          {
+            "v": "onnx",
+            "t": "ONNX frontend"
+          }
+        ]
+      },
+      {
+        "i": 9,
+        "value": "full",
+        "label": null,
+        "options": [
+          {
+            "v": "full",
+            "t": "Full"
+          },
+          {
+            "v": "stats-only",
+            "t": "Stats Only"
+          },
+          {
+            "v": "waveform-only",
+            "t": "Waveform Only"
+          }
+        ]
+      },
+      {
+        "i": 10,
+        "value": "physical",
+        "label": null,
+        "options": [
+          {
+            "v": "physical",
+            "t": "Physical"
+          },
+          {
+            "v": "focus",
+            "t": "Focus"
+          },
+          {
+            "v": "adaptive",
+            "t": "Balanced"
+          }
+        ]
+      },
+      {
+        "i": 11,
+        "value": "on",
+        "label": null,
+        "options": [
+          {
+            "v": "on",
+            "t": "show"
+          },
+          {
+            "v": "off",
+            "t": "hide"
+          }
+        ]
+      },
+      {
+        "i": 12,
+        "value": "on",
+        "label": null,
+        "options": [
+          {
+            "v": "on",
+            "t": "show"
+          },
+          {
+            "v": "off",
+            "t": "hide"
+          }
+        ]
+      },
+      {
+        "i": 13,
+        "value": "off",
+        "label": null,
+        "options": [
+          {
+            "v": "off",
+            "t": "hide"
+          },
+          {
+            "v": "on",
+            "t": "show"
+          }
+        ]
+      },
+      {
+        "i": 14,
+        "value": "on",
+        "label": null,
+        "options": [
+          {
+            "v": "on",
+            "t": "enabled"
+          },
+          {
+            "v": "off",
+            "t": "disabled"
+          }
+        ]
+      },
+      {
+        "i": 15,
+        "value": "balanced",
+        "label": null,
+        "options": [
+          {
+            "v": "open",
+            "t": "Open"
+          },
+          {
+            "v": "balanced",
+            "t": "Balanced"
+          },
+          {
+            "v": "strict",
+            "t": "Strict"
+          },
+          {
+            "v": "custom",
+            "t": "Custom"
+          }
+        ]
+      },
+      {
+        "i": 16,
+        "value": "generic-streaming",
+        "label": null,
+        "options": [
+          {
+            "v": "realtime-rnnt",
+            "t": "Medium"
+          },
+          {
+            "v": "generic-streaming",
+            "t": "Medium"
+          },
+          {
+            "v": "aggressive",
+            "t": "Fast"
+          },
+          {
+            "v": "conservative",
+            "t": "Slow"
+          },
+          {
+            "v": "custom",
+            "t": "Custom"
+          }
+        ]
+      },
+      {
+        "i": 17,
+        "value": "firered-vad",
+        "label": null,
+        "options": [
+          {
+            "v": "firered-vad",
+            "t": "FireRed VAD"
+          },
+          {
+            "v": "ten-vad",
+            "t": "TEN-VAD"
+          }
+        ]
+      },
+      {
+        "i": 18,
+        "value": "rough-only",
+        "label": null,
+        "options": [
+          {
+            "v": "rough-only",
+            "t": "Rough only"
+          },
+          {
+            "v": "hybrid",
+            "t": "Hybrid"
+          },
+          {
+            "v": "vad-only",
+            "t": "VAD only"
+          }
+        ]
+      },
+      {
+        "i": 19,
+        "value": "manual",
+        "label": null,
+        "options": [
+          {
+            "v": "manual",
+            "t": "Manual"
+          },
+          {
+            "v": "speech-detect",
+            "t": "Speech Detect"
+          }
+        ]
+      }
+    ],
+    "desktop": {
+      "scroll": 1440,
+      "viewport": 1440,
+      "theme": "light",
+      "bg": "rgb(242, 240, 233)",
+      "font": "\"Segoe UI\", system-ui, sans-serif"
+    },
+    "mobile": {
+      "scroll": 390,
+      "viewport": 390
+    }
+  },
+  {
+    "app": "benchmark",
+    "pageErrors": [],
+    "body": "A\nASRJS\nSpeech recognition\n\nBENCHMARK WORKSTATION\n\nBenchmark\n0.2.0 npm-package\n\u25d0\nAppearance\nTranscribe\nPlayground\nLive\nBenchmark\nnvidia / blackwell\nNo model loaded\n0 valid runs\n\u2699 Benchmark Setup\n\ud83d\udcca Overview & Sweet-Spot\n\ud83d\udcc8 Interactive Charts\n\u2696 Compare & Pivot\n\ud83d\uddc2 Run Data & Export\n1. MODEL & RUNTIME\nParakeet Preset\nHuggingFace Hub\nLocal Folder\nModel Family / Preset (All 16 Families)\nParakeet TDT 0.6B v2 (English)\nParakeet TDT 0.6B v3 (Multilingual)\nParakeet Realtime EOU 120M v1 (English)\nOrukeet 0.6B (Multilingual, community fine-tune of Parakeet TDT v3)\nCanary 180M Flash (Multilingual AED)\nCanary 1B (Multilingual AED)\nCanary 1B v2 (Multilingual AED)\nGoogle MedASR (Medical English)\nNemotron 3.5 ASR Streaming 0.6B\nWav2Vec2 Base 960h\nParakeet HF CTC 110M (English)\nOmnilingual ASR CTC 300M (1,600+ languages)\nWav2Vec2 XLS-R 300M (Turkish Common Voice v7)\nMoonshine Tiny (English streaming-capable AED)\nQwen3-ASR 0.6B (multilingual, language-tagged)\nWhisper Base\nWhisper Large v3\nExecution Backend\nWebGPU Hybrid (WebGPU enc + WASM dec)\nWebGPU Pure\nWASM Pure (CPU)\nEncoder Quant\nfp16\nint8\nfp32\nDecoder Quant\nfp16\nint8\nfp32\nPreprocessor\nJS (Pure WebMel)\nONNX (nemo128.onnx)\nWASM Threads\nLoad Model\n2. AUDIO SOURCE & SAMPLING PLAN\nHuggingFace Dataset\nLocal Duration Catalog\nHuggingFace Dataset ID\nConfig\ndefault\nSplit\ntest\ntrain\nvalidation\nOffset\nSamples\nRefresh Splits\nPreview Samples (0)\n\nReady: ysdede/parrot-radiology-asr-en (default/test)\n\n3. BENCHMARK EXECUTION & SNAPSHOTS\nRepeats\nWarmups\nRandom Seed\nSeeded Random Sampling\nBoost Repeats for Long Audio (\u226530s \u2192 2x)\n\u25b6 Start Benchmark\nStop\nSave Snapshot\nExport JSON\nExport CSV\nClear Runs\n\nReady\n\nHardware & Lifecycle Telemetry\nWEBGPU ADAPTER\nnvidia / blackwell\nCPU CONCURRENCY\n12 logical cores\nDEVICE MEMORY\n32 GiB\nLAST MODEL LOAD TIME\n-\nLAST LOAD HEAP DELTA\n-\nASRJS \u00b7 browser speech lab\nLibrary 0.2.0 \u00b7 npm-package",
+    "buttons": [
+      "\u25d0Appearance",
+      "\u2699 Benchmark Setup",
+      "\ud83d\udcca Overview & Sweet-Spot",
+      "\ud83d\udcc8 Interactive Charts",
+      "\u2696 Compare & Pivot",
+      "\ud83d\uddc2 Run Data & Export",
+      "HuggingFace Hub",
+      "Local Folder",
+      "Load Model",
+      "HuggingFace Dataset",
+      "Local Duration Catalog",
+      "Refresh Splits",
+      "Preview Samples (0)",
+      "\u25b6 Start Benchmark",
+      "Stop",
+      "Save Snapshot",
+      "Export JSON",
+      "Export CSV",
+      "Clear Runs"
+    ],
+    "selects": [
+      {
+        "i": 0,
+        "value": "parakeet-tdt-0.6b-v2",
+        "label": null,
+        "options": [
+          {
+            "v": "parakeet-tdt-0.6b-v2",
+            "t": "Parakeet TDT 0.6B v2 (English)"
+          },
+          {
+            "v": "parakeet-tdt-0.6b-v3",
+            "t": "Parakeet TDT 0.6B v3 (Multilingual)"
+          },
+          {
+            "v": "parakeet-realtime-eou-120m-v1",
+            "t": "Parakeet Realtime EOU 120M v1 (English)"
+          },
+          {
+            "v": "oruk/orukeet",
+            "t": "Orukeet 0.6B (Multilingual, community fine-tune of Parakeet TDT v3)"
+          },
+          {
+            "v": "nvidia/canary-180m-flash",
+            "t": "Canary 180M Flash (Multilingual AED)"
+          },
+          {
+            "v": "nvidia/canary-1b",
+            "t": "Canary 1B (Multilingual AED)"
+          },
+          {
+            "v": "nvidia/canary-1b-v2",
+            "t": "Canary 1B v2 (Multilingual AED)"
+          },
+          {
+            "v": "google/medasr",
+            "t": "Google MedASR (Medical English)"
+          },
+          {
+            "v": "nemotron-3.5-asr-streaming-0.6b",
+            "t": "Nemotron 3.5 ASR Streaming 0.6B"
+          },
+          {
+            "v": "facebook/wav2vec2-base-960h",
+            "t": "Wav2Vec2 Base 960h"
+          },
+          {
+            "v": "ctaguchi/parakeet-hf-ctc-110m-en",
+            "t": "Parakeet HF CTC 110M (English)"
+          },
+          {
+            "v": "OpenVoiceOS/omnilingual-asr-ctc-300m-onnx",
+            "t": "Omnilingual ASR CTC 300M (1,600+ languages)"
+          },
+          {
+            "v": "mpoyraz/wav2vec2-xls-r-300m-cv7-turkish",
+            "t": "Wav2Vec2 XLS-R 300M (Turkish Common Voice v7)"
+          },
+          {
+            "v": "UsefulSensors/moonshine-tiny",
+            "t": "Moonshine Tiny (English streaming-capable AED)"
+          },
+          {
+            "v": "Qwen/Qwen3-ASR-0.6B-hf",
+            "t": "Qwen3-ASR 0.6B (multilingual, language-tagged)"
+          },
+          {
+            "v": "openai/whisper-base",
+            "t": "Whisper Base"
+          },
+          {
+            "v": "openai/whisper-large-v3",
+            "t": "Whisper Large v3"
+          }
+        ]
+      },
+      {
+        "i": 1,
+        "value": "webgpu-hybrid",
+        "label": null,
+        "options": [
+          {
+            "v": "webgpu-hybrid",
+            "t": "WebGPU Hybrid (WebGPU enc + WASM dec)"
+          },
+          {
+            "v": "webgpu",
+            "t": "WebGPU Pure"
+          },
+          {
+            "v": "wasm",
+            "t": "WASM Pure (CPU)"
+          }
+        ]
+      },
+      {
+        "i": 2,
+        "value": "fp16",
+        "label": null,
+        "options": [
+          {
+            "v": "fp16",
+            "t": "fp16"
+          },
+          {
+            "v": "int8",
+            "t": "int8"
+          },
+          {
+            "v": "fp32",
+            "t": "fp32"
+          }
+        ]
+      },
+      {
+        "i": 3,
+        "value": "int8",
+        "label": null,
+        "options": [
+          {
+            "v": "fp16",
+            "t": "fp16"
+          },
+          {
+            "v": "int8",
+            "t": "int8"
+          },
+          {
+            "v": "fp32",
+            "t": "fp32"
+          }
+        ]
+      },
+      {
+        "i": 4,
+        "value": "js",
+        "label": null,
+        "options": [
+          {
+            "v": "js",
+            "t": "JS (Pure WebMel)"
+          },
+          {
+            "v": "onnx",
+            "t": "ONNX (nemo128.onnx)"
+          }
+        ]
+      },
+      {
+        "i": 5,
+        "value": "default",
+        "label": null,
+        "options": [
+          {
+            "v": "default",
+            "t": "default"
+          }
+        ]
+      },
+      {
+        "i": 6,
+        "value": "test",
+        "label": null,
+        "options": [
+          {
+            "v": "test",
+            "t": "test"
+          },
+          {
+            "v": "train",
+            "t": "train"
+          },
+          {
+            "v": "validation",
+            "t": "validation"
+          }
+        ]
+      }
+    ],
+    "desktop": {
+      "scroll": 1440,
+      "viewport": 1440,
+      "theme": "light",
+      "bg": "rgb(242, 240, 233)",
+      "font": "\"Segoe UI\", system-ui, sans-serif"
+    },
+    "mobile": {
+      "scroll": 390,
+      "viewport": 390
+    }
+  }
+]

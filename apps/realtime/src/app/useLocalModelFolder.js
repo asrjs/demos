@@ -10,13 +10,18 @@ import {
   createLocalFolderEntriesFromFiles,
   getLocalFolderNameFromEntries,
 } from './localFolderHelpers.js';
+import {
+  collectSpeechModelLocalEntries,
+} from '@asrjs/speech-recognition/browser';
+import { getDemoModelLoadingState } from '@asrjs/demo-runtime';
 import { MODEL_SOURCE_OPTIONS } from './constants.js';
-import { collectParakeetLocalEntries } from '@asrjs/speech-recognition/presets/parakeet';
 
 export function useLocalModelFolder({
   modelSource,
   selectedModel,
   backend,
+  encoderBackend,
+  decoderBackend,
   preprocessorBackend,
   currentPreprocessor,
   currentEncoderQuant,
@@ -27,6 +32,8 @@ export function useLocalModelFolder({
   setDecoderQuantOptions,
   setEncoderQuant,
   setDecoderQuant,
+  setEncoderBackend,
+  setDecoderBackend,
   setPreprocessor,
   setPreprocessorBackend,
 }) {
@@ -39,14 +46,22 @@ export function useLocalModelFolder({
   const [localTokenizerName, setLocalTokenizerName] = useState('vocab.txt');
   const [localPreprocessorOptions, setLocalPreprocessorOptions] = useState([]);
   const [localDetectedArtifacts, setLocalDetectedArtifacts] = useState({
-    encoder: [],
-    decoder: [],
-    tokenizers: [],
-    preprocessors: [],
+    encoder: [], decoder: [], tokenizers: [], preprocessors: [],
   });
 
   function applyLocalEntries(entries, folderName = '') {
+    const loadingState = getDemoModelLoadingState({
+      modelId: selectedModel,
+      source: modelSource,
+      entries,
+      backend,
+      encoderBackend,
+      decoderBackend,
+      encoderQuant: currentEncoderQuant,
+      decoderQuant: currentDecoderQuant,
+    });
     const selection = buildLocalFolderSelection(entries, {
+      loadingState,
       selectedModel,
       modelSource,
       backend,
@@ -67,6 +82,8 @@ export function useLocalModelFolder({
     setDecoderQuantOptions(selection.decoderQuantOptions);
     setEncoderQuant(selection.encoderQuant);
     setDecoderQuant(selection.decoderQuant);
+    setEncoderBackend(selection.encoderBackend);
+    setDecoderBackend(selection.decoderBackend);
     setLocalTokenizerOptions(selection.localTokenizerOptions);
     setLocalTokenizerName(selection.localTokenizerName);
     setLocalPreprocessorOptions(selection.localPreprocessorOptions);
@@ -75,6 +92,13 @@ export function useLocalModelFolder({
     setLocalDetectedArtifacts(selection.localDetectedArtifacts);
     setStatus(selection.status);
   }
+
+  // Reinspect only when source/model/backend policy changes, not on every setter render.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!localEntries.length) return;
+    applyLocalEntries(localEntries, localFolderName);
+  }, [selectedModel, backend, modelSource]);
 
   async function restorePersistedLocalFolder({ requestPermission = false } = {}) {
     if (!localHandlePersistenceSupported) return false;
@@ -103,7 +127,7 @@ export function useLocalModelFolder({
       }
 
       console.log('[LocalFolder] Restoring persisted directory handle', { name: dirHandle.name });
-      const entries = await collectParakeetLocalEntries(dirHandle);
+      const entries = await collectSpeechModelLocalEntries(dirHandle);
       applyLocalEntries(entries, dirHandle.name || '');
       setNeedsLocalHandleReconnect(false);
       setStatus(`Restored local folder "${dirHandle.name || ''}"`);
@@ -124,10 +148,10 @@ export function useLocalModelFolder({
   async function pickLocalModelFolder() {
     try {
       console.log('[LocalFolder] Folder selection requested');
-      if (typeof window !== 'undefined' && typeof window.showDirectoryPicker === 'function') {
+      if (supportsDirectoryHandlePersistence()) {
         const dirHandle = await window.showDirectoryPicker({ mode: 'read' });
         console.log('[LocalFolder] Directory handle acquired', { name: dirHandle.name });
-        const entries = await collectParakeetLocalEntries(dirHandle);
+        const entries = await collectSpeechModelLocalEntries(dirHandle);
         applyLocalEntries(entries, dirHandle.name || '');
         if (localHandlePersistenceSupported) {
           try {

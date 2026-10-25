@@ -1,0 +1,61 @@
+{
+  "scope": "Six real-weight fixture matrices, 18 explicit flows each; controlled microphone only, no blanket model or physical-microphone PASS",
+  "matrices": [
+    {
+      "model": "Qwen3-ASR 0.6B",
+      "version": "v16",
+      "accepted": 16,
+      "total": 18,
+      "failed": 2,
+      "verification": "tmp\\real-e2e\\remaining-models-20261025\\qwen-v16\\parent-matrix-verification.json",
+      "verificationSha256": "1ac525d1b666f15798999c71b283dc54819a0f7b64f13df0c0b25020246c857c"
+    },
+    {
+      "model": "SenseVoice Small",
+      "version": "v17",
+      "accepted": 16,
+      "total": 18,
+      "failed": 2,
+      "verification": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\parent-matrix-verification.json",
+      "verificationSha256": "a4beb5aa4e78eefee4ee0b5187588e6a2fa95be648340d548c02a3a5c1e69009"
+    },
+    {
+      "model": "GigaAM multilingual CTC",
+      "version": "v17",
+      "accepted": 10,
+      "total": 18,
+      "failed": 8,
+      "verification": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-ctc\\parent-matrix-verification.json",
+      "verificationSha256": "9cf6cc7bcc0d501e013f964af0bc8f88963eb038813bc391a5c8f964278c08d2"
+    },
+    {
+      "model": "GigaAM v3 E2E RNN-T",
+      "version": "v17",
+      "accepted": 12,
+      "total": 18,
+      "failed": 6,
+      "verification": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\parent-matrix-verification.json",
+      "verificationSha256": "85ecb7e676011bee256a2749493432fed68c12062627a714f0ef4beea0324370"
+    },
+    {
+      "model": "Moonshine Streaming Tiny",
+      "version": "v18",
+      "accepted": 13,
+      "total": 18,
+      "failed": 5,
+      "verification": "tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\parent-matrix-verification.json",
+      "verificationSha256": "386c59190abde18e8bf289e564e8629a30e06d30ac4674d86f1823102871270a"
+    },
+    {
+      "model": "X-ASR 160ms",
+      "version": "v18",
+      "accepted": 14,
+      "total": 18,
+      "failed": 4,
+      "verification": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v18-x-asr\\x-asr\\parent-matrix-verification.json",
+      "verificationSha256": "9f7325a098a915b949e43aba1f544d9f352acfa67d60ce60682a6443b64fa798"
+    }
+  ],
+  "accepted": 81,
+  "total": 108
+}

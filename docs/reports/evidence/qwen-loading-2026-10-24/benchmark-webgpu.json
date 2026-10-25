@@ -1,0 +1,20 @@
+{
+  "app": "benchmark",
+  "status": "PASS_UI_FIXTURE",
+  "pageErrors": [],
+  "console": [
+    "The powerPreference option is currently ignored when calling requestAdapter() on Windows. See https://crbug.com/369219127",
+    "The powerPreference option is currently ignored when calling requestAdapter() on Windows. See https://crbug.com/369219127",
+    "\u001b[0;93m2026-10-24 14:48:53.992875 [W:onnxruntime:, session_state.cc:1398 VerifyEachNodeIsAssignedToAnEp] Some nodes were not assigned to the preferred execution providers which may or may not have an negative impact on performance. e.g. ORT explicitly assigns shape related ops to CPU to improve perf.\u001b[m",
+    "\u001b[0;93m2026-10-24 14:48:53.995244 [W:onnxruntime:, session_state.cc:1400 VerifyEachNodeIsAssignedToAnEp] Rerunning with verbose output on a non-minimal build will show node assignments.\u001b[m",
+    "\u001b[0;93m2026-10-24 14:48:59.002304 [W:onnxruntime:, session_state.cc:1398 VerifyEachNodeIsAssignedToAnEp] Some nodes were not assigned to the preferred execution providers which may or may not have an negative impact on performance. e.g. ORT explicitly assigns shape related ops to CPU to improve perf.\u001b[m",
+    "\u001b[0;93m2026-10-24 14:48:59.002799 [W:onnxruntime:, session_state.cc:1400 VerifyEachNodeIsAssignedToAnEp] Rerunning with verbose output on a non-minimal build will show node assignments.\u001b[m",
+    "\u001b[0;93m2026-10-24 14:49:06.106039 [W:onnxruntime:, session_state.cc:1398 VerifyEachNodeIsAssignedToAnEp] Some nodes were not assigned to the preferred execution providers which may or may not have an negative impact on performance. e.g. ORT explicitly assigns shape related ops to CPU to improve perf.\u001b[m",
+    "\u001b[0;93m2026-10-24 14:49:06.106524 [W:onnxruntime:, session_state.cc:1400 VerifyEachNodeIsAssignedToAnEp] Rerunning with verbose output on a non-minimal build will show node assignments.\u001b[m"
+  ],
+  "loadSeconds": 89.40599999999995,
+  "load": "EXECUTED",
+  "transcript": "And so, my fellow Americans, ask not what your country can do for you; ask what you can do for your country.",
+  "transcriptionSeconds": 5.014999999999873,
+  "fileGpuDispatches": 64409
+}

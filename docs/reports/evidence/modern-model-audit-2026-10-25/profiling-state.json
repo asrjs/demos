@@ -1,0 +1,133 @@
+{
+  "scope": "Visible Realtime/Playground controls observed off; Showcase has separate fresh-browser persisted-state check; Benchmark exposes no control. Saved true preservation unit-tested.",
+  "checks": [
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\wasm\\benchmark\\file.json",
+      "profilingSelection": {
+        "controlCount": 0,
+        "enabled": null
+      },
+      "uiObservation": "control-not-observed"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\wasm\\playground\\file.json",
+      "profilingSelection": {
+        "controlCount": 1,
+        "enabled": false
+      },
+      "uiObservation": "visible-off"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\wasm\\realtime\\file.json",
+      "profilingSelection": {
+        "controlCount": 1,
+        "enabled": false
+      },
+      "uiObservation": "visible-off"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\wasm\\showcase\\file.json",
+      "profilingSelection": {
+        "controlCount": 0,
+        "enabled": null
+      },
+      "uiObservation": "control-not-observed"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\webgpu\\benchmark\\file.json",
+      "profilingSelection": {
+        "controlCount": 0,
+        "enabled": null
+      },
+      "uiObservation": "control-not-observed"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\webgpu\\playground\\file.json",
+      "profilingSelection": {
+        "controlCount": 1,
+        "enabled": false
+      },
+      "uiObservation": "visible-off"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\webgpu\\realtime\\file.json",
+      "profilingSelection": {
+        "controlCount": 1,
+        "enabled": false
+      },
+      "uiObservation": "visible-off"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\moonshine-streaming-v18\\webgpu\\showcase\\file.json",
+      "profilingSelection": {
+        "controlCount": 0,
+        "enabled": null
+      },
+      "uiObservation": "control-not-observed"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v18-x-asr\\x-asr\\wasm\\benchmark\\file.json",
+      "profilingSelection": {
+        "controlCount": 0,
+        "enabled": null
+      },
+      "uiObservation": "control-not-observed"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v18-x-asr\\x-asr\\wasm\\playground\\file.json",
+      "profilingSelection": {
+        "controlCount": 1,
+        "enabled": false
+      },
+      "uiObservation": "visible-off"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v18-x-asr\\x-asr\\wasm\\realtime\\file.json",
+      "profilingSelection": {
+        "controlCount": 1,
+        "enabled": false
+      },
+      "uiObservation": "visible-off"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v18-x-asr\\x-asr\\wasm\\showcase\\file.json",
+      "profilingSelection": {
+        "controlCount": 0,
+        "enabled": null
+      },
+      "uiObservation": "control-not-observed"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v18-x-asr\\x-asr\\webgpu\\benchmark\\file.json",
+      "profilingSelection": {
+        "controlCount": 0,
+        "enabled": null
+      },
+      "uiObservation": "control-not-observed"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v18-x-asr\\x-asr\\webgpu\\playground\\file.json",
+      "profilingSelection": {
+        "controlCount": 1,
+        "enabled": false
+      },
+      "uiObservation": "visible-off"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v18-x-asr\\x-asr\\webgpu\\realtime\\file.json",
+      "profilingSelection": {
+        "controlCount": 1,
+        "enabled": false
+      },
+      "uiObservation": "visible-off"
+    },
+    {
+      "path": "tmp\\real-e2e\\remaining-models-20261025\\modern-four-v18-x-asr\\x-asr\\webgpu\\showcase\\file.json",
+      "profilingSelection": {
+        "controlCount": 0,
+        "enabled": null
+      },
+      "uiObservation": "control-not-observed"
+    }
+  ]
+}

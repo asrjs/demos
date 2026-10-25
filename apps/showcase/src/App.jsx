@@ -1,5 +1,7 @@
 import { DEMO_MODELS, MODEL_OPTIONS, getCanonicalRevision, getDescriptorEncoderQuantOptions, getDescriptorDecoderQuantOptions, getDescriptorDefaultEncoderQuant, getDescriptorDefaultDecoderQuant, getDescriptorEncoderBackendOptions, getDescriptorDecoderBackendOptions, getDescriptorPreprocessorBackendOptions, getDescriptorDefaultPreprocessorName, getDescriptorDefaultPreprocessorBackend, resolvePreprocessorBackendForSource } from "@asrjs/demo-runtime";
+import { resolveProfilingSetting } from '@asrjs/demo-runtime';
 import React, { useState, useRef, useEffect } from 'react';
+import { getDemoModelSourceOptions, resolveDemoModelSource, getDemoModelLoadingState, loadDemoLocalModel, matchesWarmupResult } from '@asrjs/demo-runtime';
 import {
   buildSpeechTranscriptionOptions,
   detectSpeechModelRepoQuantizations,
@@ -9,8 +11,6 @@ import {
 import {
   collectSpeechModelLocalEntries,
   createSpeechModelLocalEntries,
-  inspectSpeechModelLocalEntries,
-  loadSpeechModelFromLocalEntries,
   encodeMonoPcmToWavBlob,
 } from '@asrjs/speech-recognition/browser';
 import { fetchRandomSample, hasTestSamples, SPEECH_DATASETS } from './utils/speechDatasets';
@@ -20,7 +20,7 @@ import {
   loadHubDemoModel,
 } from './shared/modelLoader.js';
 import warmupAudioUrl from './assets/Harvard-L2-1.ogg?url';
-import { WordPills, normalizeTranscript, useDemoTheme } from '@asrjs/demo-ui';
+import { WordPills, useDemoTheme } from '@asrjs/demo-ui';
 import './App.css';
 
 const SETTINGS_STORAGE_KEY = 'asrjs.browser-demo.settings.v2';
@@ -33,9 +33,6 @@ const MODEL_SOURCE_OPTIONS = {
 };
 
 // showDirectoryPicker is blocked in cross-origin iframes (e.g. HF Spaces)
-const isInIframe = (() => {
-  try { return window.self !== window.top; } catch { return true; }
-})();
 function supportsDirectoryHandlePersistence() {
   if (typeof window === 'undefined' || typeof window.showDirectoryPicker !== 'function' || typeof indexedDB === 'undefined') return false;
   // showDirectoryPicker is blocked in cross-origin iframes (e.g. HF Spaces)
@@ -293,10 +290,7 @@ export default function App() {
   const initialSelectedModel = initialSettings.selectedModel;
   const initialModelSource = initialSettings.modelSource;
   const resolvedInitialModel = DEMO_MODELS[initialSelectedModel] ? initialSelectedModel : 'parakeet-tdt-0.6b-v2';
-  const resolvedInitialModelSource =
-    initialModelSource === MODEL_SOURCE_OPTIONS.LOCAL && !isInIframe
-      ? MODEL_SOURCE_OPTIONS.LOCAL
-      : MODEL_SOURCE_OPTIONS.HUGGINGFACE;
+  const resolvedInitialModelSource = resolveDemoModelSource(resolvedInitialModel, initialModelSource);
   const initialDefaultPreprocessorName = getDescriptorDefaultPreprocessorName(resolvedInitialModel);
   const initialDefaultPreprocessorBackend = resolvePreprocessorBackendForSource(
     resolvedInitialModel,
@@ -374,9 +368,7 @@ export default function App() {
   const [verboseLog, setVerboseLog] = useState(Boolean(initialSettings.verboseLog));
   const [frameStride, setFrameStride] = useState(Number.isInteger(initialSettings.frameStride) ? initialSettings.frameStride : 1);
   const [dumpDetail, setDumpDetail] = useState(Boolean(initialSettings.dumpDetail));
-  const [enableProfiling, setEnableProfiling] = useState(
-    initialSettings.enableProfiling === undefined ? true : Boolean(initialSettings.enableProfiling)
-  );
+  const [enableProfiling, setEnableProfiling] = useState(resolveProfilingSetting(initialSettings));
   const [audioUrl, setAudioUrl] = useState(null);
   const [sampleDownload, setSampleDownload] = useState(null);
   const [isDownloadingSample, setIsDownloadingSample] = useState(false);
@@ -398,7 +390,7 @@ export default function App() {
 
   const isModelReady = modelLoaded;
   const isLoading = isModelLoading;
-  const supportsLocalSource = modelConfig?.loading?.supportsLocalSource === true;
+  const modelSourceOptions = getDemoModelSourceOptions(selectedModel);
   const supportsSplitQuantization = modelConfig?.loading?.supportsSplitQuantization !== false;
   const supportsPreprocessorBackend = modelConfig?.loading?.supportsPreprocessorBackend !== false;
   const preprocessorBackendOptions = getDescriptorPreprocessorBackendOptions(selectedModel);
@@ -440,10 +432,9 @@ export default function App() {
   }, [selectedModel, modelSource]);
 
   useEffect(() => {
-    if (supportsLocalSource || modelSource !== MODEL_SOURCE_OPTIONS.LOCAL) return;
-    setModelSource(MODEL_SOURCE_OPTIONS.HUGGINGFACE);
-    setStatus('This model is available through HuggingFace only.');
-  }, [modelSource, supportsLocalSource]);
+    const nextSource = resolveDemoModelSource(selectedModel, modelSource);
+    if (nextSource !== modelSource) setModelSource(nextSource);
+  }, [modelSource, selectedModel]);
 
   useEffect(() => {
     if (!testLanguageOptions.length) return;
@@ -467,16 +458,12 @@ export default function App() {
   }, [backend, decoderBackend, encoderBackend, modelConfig, selectedModel]);
 
   useEffect(() => {
-    const nextEncOptions = modelConfig?.loading?.availableEncoderQuantizations || ['fp32'];
-    const nextDecOptions = modelConfig?.loading?.availableDecoderQuantizations || ['fp32'];
-    const nextDefaultEnc = modelConfig?.loading?.defaultEncoderQuantization || nextEncOptions[0] || 'fp32';
-    const nextDefaultDec = modelConfig?.loading?.defaultDecoderQuantization || nextDecOptions[0] || 'fp32';
-
-    setEncoderQuantOptions(nextEncOptions);
-    setDecoderQuantOptions(nextDecOptions);
-    setEncoderQuant((current) => (nextEncOptions.includes(current) ? current : nextDefaultEnc));
-    setDecoderQuant((current) => (nextDecOptions.includes(current) ? current : nextDefaultDec));
-  }, [modelConfig]);
+    const state = getDemoModelLoadingState({ modelId: selectedModel, source: modelSource, entries: localEntries });
+    setEncoderQuantOptions(state.encoderQuantOptions);
+    setDecoderQuantOptions(state.decoderQuantOptions);
+    setEncoderQuant(current => state.encoderQuantOptions.includes(current) ? current : state.encoderQuant);
+    setDecoderQuant(current => state.decoderQuantOptions.includes(current) ? current : state.decoderQuant);
+  }, [modelConfig, selectedModel, modelSource, localEntries]);
 
   useEffect(() => {
     if (!supportsCanaryPrompting || !modelConfig?.languages?.length) return;
@@ -723,13 +710,15 @@ export default function App() {
   function handleModelChange(nextModel) {
     if (nextModel === selectedModel) return;
     const nextConfig = DEMO_MODELS[nextModel];
+    const nextSource = resolveDemoModelSource(nextModel, modelSource);
+    setModelSource(nextSource);
     setSelectedModel(nextModel);
     setModelRevision(getCanonicalRevision(nextModel));
     setLoadedFromCache(false);
     setPreprocessor(getDescriptorDefaultPreprocessorName(nextModel));
     setPreprocessorBackend(
       resolvePreprocessorBackendForSource(nextModel, getDescriptorDefaultPreprocessorBackend(nextModel), {
-        modelSource,
+        modelSource: nextSource,
         localPreprocessorCount: localPreprocessorOptions.length,
       }),
     );
@@ -737,15 +726,19 @@ export default function App() {
       setCanaryTargetLanguage(nextConfig.defaultTargetLanguage || 'en');
     }
     if (localEntries.length > 0) {
-      applyLocalEntries(localEntries, localFolderName, {
+      try { applyLocalEntries(localEntries, localFolderName, {
         modelId: nextModel,
-        modelSource,
+        modelSource: nextSource,
         updateStatus: false,
-      });
+      }); } catch {
+        setLocalEntries([]);
+        setLocalFolderName('');
+      }
     }
   }
 
   function handleModelSourceChange(nextSource) {
+    nextSource = resolveDemoModelSource(selectedModel, nextSource);
     if (nextSource === modelSource) return;
     setModelSource(nextSource);
     if (nextSource === MODEL_SOURCE_OPTIONS.HUGGINGFACE) {
@@ -796,20 +789,15 @@ export default function App() {
     setLocalEntries(entries);
     setLocalFolderName(folderName);
 
-    const inspection = inspectSpeechModelLocalEntries(modelId, entries);
-    const encOptions = [...inspection.encoderQuantizations];
-    const decOptions = [...inspection.decoderQuantizations];
-    const nextEncOptions = encOptions.length ? encOptions : ['fp32'];
-    const nextDecOptions = decOptions.length ? decOptions : ['fp32'];
+    const state = getDemoModelLoadingState({ modelId, source: 'local', entries, backend, encoderBackend, decoderBackend, encoderQuant, decoderQuant });
+    const inspection = state.inspection;
+    const nextEncOptions = state.encoderQuantOptions;
+    const nextDecOptions = state.decoderQuantOptions;
 
     setEncoderQuantOptions(nextEncOptions);
     setDecoderQuantOptions(nextDecOptions);
-    setEncoderQuant((current) =>
-      nextEncOptions.includes(current) ? current : pickPreferredQuant(nextEncOptions, backend, 'encoder')
-    );
-    setDecoderQuant((current) =>
-      nextDecOptions.includes(current) ? current : pickPreferredQuant(nextDecOptions, backend, 'decoder')
-    );
+    setEncoderQuant(state.encoderQuant);
+    setDecoderQuant(state.decoderQuant);
 
     const dedupedTokenizer = [...inspection.tokenizerNames];
     if (dedupedTokenizer.length) {
@@ -837,15 +825,15 @@ export default function App() {
     }
 
     setLocalDetectedArtifacts({
-      encoder: encOptions,
-      decoder: decOptions,
+      encoder: nextEncOptions,
+      decoder: nextDecOptions,
       tokenizers: dedupedTokenizer,
       preprocessors: dedupedPreprocessor,
     });
 
     console.log('[LocalFolder] Detected artifacts', {
-      encoder: encOptions,
-      decoder: decOptions,
+      encoder: nextEncOptions,
+      decoder: nextDecOptions,
       tokenizers: dedupedTokenizer,
       preprocessors: dedupedPreprocessor,
     });
@@ -902,7 +890,7 @@ export default function App() {
   async function pickLocalModelFolder() {
     try {
       console.log('[LocalFolder] Folder selection requested');
-      if (typeof window !== 'undefined' && typeof window.showDirectoryPicker === 'function') {
+      if (supportsDirectoryHandlePersistence()) {
         const dirHandle = await window.showDirectoryPicker({ mode: 'read' });
         console.log('[LocalFolder] Directory handle acquired', { name: dirHandle.name });
         const entries = await collectSpeechModelLocalEntries(dirHandle);
@@ -1066,7 +1054,7 @@ export default function App() {
         setProgressText('Compiling local model artifacts');
         setProgressPct(null);
 
-        const localLoadResult = await loadSpeechModelFromLocalEntries({
+        const localLoadResult = await loadDemoLocalModel({
           modelId: selectedModel,
           entries: localEntries,
           encoderBackend,
@@ -1196,11 +1184,7 @@ export default function App() {
           enableProfiling,
         });
         const transcriptText = getResultText(response);
-        const normalizedUtterance = normalizeTranscript(transcriptText);
-        const matchedExpectedText =
-          modelConfig?.warmup?.mode === 'non-empty'
-            ? normalizedUtterance.length > 0
-            : expectedTexts.some((text) => normalizedUtterance.includes(normalizeTranscript(text)));
+        const matchedExpectedText = matchesWarmupResult(modelConfig, [transcriptText]);
 
         if (matchedExpectedText) {
           console.log('[App] Model verification successful.');
@@ -1363,10 +1347,9 @@ export default function App() {
                       disabled={isLoading || isModelReady}
                       className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-primary focus:border-primary dark:text-white appearance-none"
                     >
-                      <option value={MODEL_SOURCE_OPTIONS.HUGGINGFACE}>HuggingFace</option>
-                      {!isInIframe && supportsLocalSource && (
-                        <option value={MODEL_SOURCE_OPTIONS.LOCAL}>Local folder</option>
-                      )}
+                      {modelSourceOptions.map(source => (
+                        <option key={source} value={source}>{source === 'local' ? 'Local folder' : 'Hugging Face'}</option>
+                      ))}
                     </select>
                     <span className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
                       expand_more
@@ -1374,8 +1357,6 @@ export default function App() {
                   </div>
                 </div>
 
-                {modelSource === MODEL_SOURCE_OPTIONS.HUGGINGFACE && (
-                  <>
                     <div>
                       <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
                         Model
@@ -1398,8 +1379,6 @@ export default function App() {
                         </span>
                       </div>
                     </div>
-                  </>
-                )}
 
                 {modelSource === MODEL_SOURCE_OPTIONS.LOCAL && (
                   <div className="space-y-2">
@@ -1458,14 +1437,6 @@ export default function App() {
                   </div>
                 )}
 
-                {modelConfig?.description && (
-                  <div className="rounded-xl border border-amber-200/70 bg-[linear-gradient(135deg,rgba(251,191,36,0.12),rgba(249,115,22,0.08))] px-4 py-3 text-sm text-gray-700 dark:border-amber-900/60 dark:bg-[linear-gradient(135deg,rgba(120,53,15,0.38),rgba(67,20,7,0.18))] dark:text-gray-200">
-                    <div className="font-semibold text-gray-900 dark:text-white">
-                      {modelConfig.displayName}
-                    </div>
-                    <p className="mt-1 leading-relaxed">{modelConfig.description}</p>
-                  </div>
-                )}
                 {/* Backend and Precision */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="col-span-2">
@@ -1558,7 +1529,7 @@ export default function App() {
                   </div>
                 </div>
 
-                {supportsSplitQuantization ? (
+                {(supportsSplitQuantization || modelSource === MODEL_SOURCE_OPTIONS.LOCAL) ? (
                   <>
                     <div>
                       <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
@@ -1602,11 +1573,7 @@ export default function App() {
                       </div>
                     </div>
                   </>
-                ) : (
-                  <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-3 text-sm text-gray-600 dark:text-gray-300">
-                    This model ships as a single ONNX bundle. Separate encoder/decoder quantization is not exposed in the demo UI.
-                  </div>
-                )}
+                ) : null}
 
                 {supportsPreprocessorBackend ? (
                   <div>
@@ -1667,11 +1634,7 @@ export default function App() {
                       </p>
                     )}
                   </div>
-                ) : (
-                  <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-3 text-sm text-gray-600 dark:text-gray-300">
-                    MedASR uses the built-in LASR CTC frontend path in this demo. There is no separate preprocessor backend toggle.
-                  </div>
-                )}
+                ) : null}
 
                 {supportsCanaryPrompting && (
                   <div className="rounded-2xl border border-sky-200 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.18),transparent_55%),linear-gradient(135deg,rgba(14,165,233,0.08),rgba(59,130,246,0.03))] p-4 dark:border-sky-900/60 dark:bg-[radial-gradient(circle_at_top_left,rgba(12,74,110,0.62),transparent_55%),linear-gradient(135deg,rgba(8,47,73,0.72),rgba(15,23,42,0.4))]">
@@ -1855,7 +1818,7 @@ export default function App() {
                 {/* Load Model Button */}
                 <button
                   onClick={loadModel}
-                  disabled={isLoading || isModelReady}
+                  disabled={isLoading || isModelReady || (modelSource === MODEL_SOURCE_OPTIONS.LOCAL && (!localEntries.length || !encoderQuantOptions.length || !decoderQuantOptions.length))}
                   className="w-full bg-primary hover:bg-opacity-90 text-white font-medium py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="material-icons-outlined text-sm">bolt</span>
@@ -2030,7 +1993,7 @@ export default function App() {
                     )}
                   </div>
                   <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 min-h-[160px]">
-                    <p className="text-lg leading-relaxed text-gray-800 dark:text-gray-200 font-medium">
+                    <p className="asr-transcript-text text-gray-800 dark:text-gray-200">
                       {text || 'Transcription will appear here...'}
                     </p>
                   </div>

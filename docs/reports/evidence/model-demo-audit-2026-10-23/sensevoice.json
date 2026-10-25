@@ -1,0 +1,33 @@
+{
+  "family": "sensevoice",
+  "startedAt": "2026-10-23T01:38:42",
+  "spec": {
+    "modelId": "SenseVoiceSmall",
+    "artifacts": {
+      "modelUrl": "http://127.0.0.1:8999/__external_models__/onnx/sensevoice/small/model.onnx",
+      "tokenizerUrl": "http://127.0.0.1:8999/__external_models__/onnx/sensevoice/small/vocab.txt",
+      "cmvnUrl": "http://127.0.0.1:8999/__external_models__/onnx/sensevoice/small/am.mvn"
+    },
+    "family": "sensevoice",
+    "fixture": "http://127.0.0.1:8999/__fixtures__/jfk-short.wav",
+    "expected": "And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country."
+  },
+  "pageErrors": [],
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "\u001b[0;93m2026-10-23 01:38:53.844400 [W:onnxruntime:, session_state.cc:1398 VerifyEachNodeIsAssignedToAnEp] Some nodes were not assigned to the preferred execution providers which may or may not have an negative impact on performance. e.g. ORT explicitly assigns shape related ops to CPU to improve perf.\u001b[m",
+    "\u001b[0;93m2026-10-23 01:38:53.846214 [W:onnxruntime:, session_state.cc:1400 VerifyEachNodeIsAssignedToAnEp] Rerunning with verbose output on a non-minimal build will show node assignments.\u001b[m"
+  ],
+  "run": {
+    "stage": "completed",
+    "fixtureSha256": "59dfb9a4acb36fe2a2affc14bacbee2920ff435cb13cc314a08c13f66ba7860e",
+    "durationSeconds": 11,
+    "loadMs": 8349.27499999851,
+    "supportsStreaming": false,
+    "offlineMs": 1928.8650000020862,
+    "offlineText": "And so my fellow Americans ask not what your country can do for you, ask what you can do for your country.",
+    "exactNormalizedMatch": true,
+    "status": "FIXTURE_MATCH",
+    "disposed": true
+  }
+}

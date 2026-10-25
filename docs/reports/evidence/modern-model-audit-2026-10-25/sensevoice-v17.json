@@ -1,0 +1,199 @@
+{
+  "scope": "Independent receipt audit, not a blanket model PASS; controlled audio only.",
+  "checkedReceipts": 18,
+  "acceptedFlows": 16,
+  "failedFlows": [
+    "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\webgpu\\playground\\streaming.json",
+    "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\wasm\\playground\\streaming.json"
+  ],
+  "checks": [
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\webgpu\\showcase\\file.json",
+      "sha256": "355b6f85058bff696162ccd026b5f5ba03e5ff3efaa8c87807f8ffede24489d2",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so my fellow Americans ask not what your country can do for you, ask what you can do for your country."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\webgpu\\realtime\\file.json",
+      "sha256": "2c3b45bcca34d25ecd348ded7d36b71aa173a65ea603cb4ecf9650ab02d66bcd",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so my fellow Americans ask not what your country can do for you, ask what you can do for your country."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\webgpu\\playground\\file.json",
+      "sha256": "f43423386497f864b6363ec4c0601f5ff88c4400191ae722b32526d8d2e937bc",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so my fellow Americans ask not what your country can do for you, ask what you can do for your country."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\webgpu\\benchmark\\file.json",
+      "sha256": "5473b4dde8933949935189b2eba19b8d5bb0298158d7c4952db8e79aaeee9f5d",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so my fellow Americans ask not what your country can do for you, ask what you can do for your country."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\webgpu\\realtime\\mic-manual-manual-none.json",
+      "sha256": "497aa914de740d2dc2028a6e07744bbea581d6edb422b03b184e6f94140dccf9",
+      "status": "PASS_CONTROLLED_MIC",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so my fellow Americans ask not what your country can do for you, ask what you can do for your country."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\webgpu\\realtime\\mic-speech-detect-vad-only-ten-vad.json",
+      "sha256": "9bf3d4d9bd7f79ebe802f6a7d221e398be6eeae2c3ee37f1ddb44fd84817be28",
+      "status": "PASS_CONTROLLED_MIC",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so my fellow Americans. Ask not. What your country can do for you. Ask what you can do for your country."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\webgpu\\realtime\\mic-speech-detect-vad-only-firered-vad.json",
+      "sha256": "3e79e52addf14a356fe9ee9b20528f52f5a3b70ec490e51175c822bce770a099",
+      "status": "PASS_CONTROLLED_MIC",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so my fellow Americans. Ask. Not. What your country can do for you. Ask what you can do for your country."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\webgpu\\playground\\playground-record-then-transcribe.json",
+      "sha256": "71284354f9a003dff881c6302098d533f136249a8eb35b1b8919585802a8b245",
+      "status": "PASS_CONTROLLED_RECORD_THEN_TRANSCRIBE",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so my fellow Americans ask not what your country can do for you, ask what you can do for your country."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\webgpu\\playground\\streaming.json",
+      "sha256": "39a298d46a48bc3cc60b295069d5bcaf47ad14bb3b1d486160735ef126a74168",
+      "status": "FAIL",
+      "runtimeStatus": "UNSUPPORTED",
+      "exactText": true,
+      "streamingStatus": "UNSUPPORTED_OFFLINE_FALLBACK",
+      "errors": [
+        "Flow runtime not verified",
+        "Native streaming was unsupported or failed; offline fallback is not a streaming PASS",
+        "Multiple native streaming steps were not verified"
+      ],
+      "transcript": "And so my fellow Americans ask not what your country can do for you, ask what you can do for your country."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\wasm\\showcase\\file.json",
+      "sha256": "9b960e04a1acdbbea7f57fd266d6b1410e57eab1617645a50518615bdd60060b",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so my fellow Americans ask not what your country can do for you, ask what you can do for your country."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\wasm\\realtime\\file.json",
+      "sha256": "5d64af996313c7a53c8a3d97c6213f9fb4be732c3e805f1bbf3d250c7fadfbdf",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so my fellow Americans ask not what your country can do for you, ask what you can do for your country."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\wasm\\playground\\file.json",
+      "sha256": "1f4ba3f3dfc8794058a85bb3b1fc3dba4bee771a03437a4e7f78240e5fa43f4a",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so my fellow Americans ask not what your country can do for you, ask what you can do for your country."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\wasm\\benchmark\\file.json",
+      "sha256": "d4906c5a8c8264c61fe70d1251a42f8ad261cb26fb470c421d8f64661d05f65d",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so my fellow Americans ask not what your country can do for you, ask what you can do for your country."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\wasm\\realtime\\mic-manual-manual-none.json",
+      "sha256": "7db4f9fa24b5233f66b5fcda8c40e5f9f6991d031e4d98f362357597f605074a",
+      "status": "PASS_CONTROLLED_MIC",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so my fellow Americans ask not what your country can do for you, ask what you can do for your country."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\wasm\\realtime\\mic-speech-detect-vad-only-ten-vad.json",
+      "sha256": "1c78b2f09cc28f56cfac64d04afb78ef5f8aa194690aa859f047b8f1c0df2dc4",
+      "status": "PASS_CONTROLLED_MIC",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so my fellow Americans. Ask not. What your country can do for you. Ask what you can do for your country."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\wasm\\realtime\\mic-speech-detect-vad-only-firered-vad.json",
+      "sha256": "9736439df6d3102738146ce2e8e90356d145be6e17e9d9310a959f5d13aaea09",
+      "status": "PASS_CONTROLLED_MIC",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so my fellow Americans. Ask. Not. What your country can do for you. Ask what you can do for your country."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\wasm\\playground\\playground-record-then-transcribe.json",
+      "sha256": "68c401c16fd02b019ed18a17f2e58e48776fcda82fa34480f4a5f32b72f4a721",
+      "status": "PASS_CONTROLLED_RECORD_THEN_TRANSCRIBE",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "And so my fellow Americans ask not what your country can do for you, ask what you can do for your country."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\sensevoice\\wasm\\playground\\streaming.json",
+      "sha256": "ffc1f3fbaeaa997d6d3577a7cb7f03668bc55771739c6222ff3f8c336709e09e",
+      "status": "FAIL",
+      "runtimeStatus": "UNSUPPORTED",
+      "exactText": true,
+      "streamingStatus": "UNSUPPORTED_OFFLINE_FALLBACK",
+      "errors": [
+        "Flow runtime not verified",
+        "Native streaming was unsupported or failed; offline fallback is not a streaming PASS",
+        "Multiple native streaming steps were not verified"
+      ],
+      "transcript": "And so my fellow Americans ask not what your country can do for you, ask what you can do for your country."
+    }
+  ]
+}

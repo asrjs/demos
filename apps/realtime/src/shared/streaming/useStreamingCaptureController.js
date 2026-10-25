@@ -70,6 +70,7 @@ export function useStreamingCaptureController({
   useEffect(() => {
     const controller = createBrowserRealtimeMicrophoneController({
       isRealtimeEouModel,
+      transcriptionContext: { maxDurationSeconds: 30, maxGapSeconds: 3 },
       profileId,
       config: resolvedConfig,
       micMode,

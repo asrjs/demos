@@ -1,123 +1,59 @@
-# ASRJS Companion Demos Suite (`@asrjs/demos`)
+# ASRJS demo suite
 
-Unified companion demo applications, benchmarks, and interactive workstations for **[@asrjs/speech-recognition](https://github.com/asrjs/speech-recognition)**.
+Four browser workspaces for developing and using `@asrjs/speech-recognition`: explore models, test integrations, inspect live capture, and measure performance. They share one installed library, theme, model catalog and runtime helpers.
 
----
+## The project
 
-## 🏛 Apps Architecture
+The goal is a practical speech recognition library for web, Node.js and Bun developers: offline inference with WebGPU and WASM, a consistent TypeScript API, and streaming where the model supports it. The demos are working examples and engineering workbenches for that library.
 
-The four task-oriented applications live under `apps/`. They share `@asrjs/demo-ui` for the shell and light/dark theme, and `@asrjs/demo-runtime` for catalog helpers and the showcase/realtime hub loader. The central portal links all four workspaces. See [suite conventions and migration map](docs/suite-apps.md).
+This project grows from working ports and experiments:
 
-```
-demos/
-├── apps/
-│   ├── showcase/     # Flagship multilingual transcription & Canary AST translation showcase
-│   ├── playground/   # 16-family universal catalog, live code snippet generator, and stateful streaming stepper
-│   ├── realtime/     # Realtime microphone, neural VAD (FireRedVAD & TEN-VAD) lab, and subtitle workstation
-│   └── benchmark/    # Multi-family benchmarking, long-form sweet-spot planner, 8 SVG charts, and snapshot comparison
-├── packages/
-│   ├── demo-runtime/ # Shared catalog, hub loader, and suite navigation
-│   └── ui/           # Shared @asrjs/demo-ui (theme, word pills, SVG charts, subtitle export, WER/CER math)
-├── references/       # Historical demos; 11 subtree imports plus one file snapshot (see below)
-└── vite.shared.js    # Shared Vite configuration (COOP/COEP, worker format: 'es', dynamic @asrjs aliases)
-```
+- Parakeet TDT was optimized in `parakeet.js`, carried through a Transformers.js fork, then integrated here with custom ONNX execution paths.
+- Whisper Large v3 Turbo uses a purpose-built four-graph ONNX export to support browser execution.
+- Browser workstations combine model streaming with TEN-VAD and FireRed-VAD, live waveform and speech-region views, and repeatable transcription and benchmark flows.
 
-### 1. Flagship Showcase (`apps/showcase`)
-- **Origin**: `asrjs/browser-demo` & `ysdede/transformers-v4-parakeet-demo`
-- **Purpose**: Client-side multilingual transcription and speech translation demos.
-- **Key Features**:
-  - Full Hugging Face dataset sampler (JFK, LibriSpeech, MInDS-14, FLEURS)
-  - Canary-1B Speech-to-Text and Speech Translation (AST)
-  - Interactive click-to-seek word timestamp pills
-  - SRT / VTT / JSON transcription history export
+These are implementation lineage and current project capabilities; support and backend behavior still depend on each model descriptor and its tested artifacts. See the [library README](https://github.com/asrjs/speech-recognition) for installation, API, runtime selection and model integration. See its [architecture](https://github.com/asrjs/speech-recognition/blob/main/docs/architecture.md) and [workspace map](https://github.com/asrjs/speech-recognition/blob/main/docs/WORKSPACE_CONTEXT.md) for library design and project history.
 
-### 2. Developer Playground (`apps/playground`)
-- **Origin**: `asrjs/playground`
-- **Purpose**: Developer workbench for exploring model architectures, inspecting envelopes, and generating ready-to-run code.
-- **Key Features**:
-  - **Universal Catalog Mode**: uses `loadBuiltInSpeechModel()`; available execution paths depend on each model's artifacts and backend support.
-  - **Live Code Snippet Panel**: generates copy-paste ready TypeScript/JavaScript code for the selected model, backend, and options
-  - **Streaming Stepper**: uses `createStreamingTranscriber()` only when the handle reports support; otherwise runs one labelled offline transcription. Nemotron's persistent state path remains experimental pending numerical parity evidence.
-  - Dual Canonical & Native envelope inspection side-by-side
+## Choose a workspace
 
-### 3. Realtime & Neural VAD Workstation (`apps/realtime`)
-- **Origin**: `asrjs/streaming-demo` + consolidated `asrjs/vad-demo`
-- **Purpose**: Low-latency microphone streaming, neural VAD endpointing, and live subtitle station.
-- **Key Features**:
-  - Dual Workspace: `Realtime VAD Lab` (live waveform, energy thresholds, VAD timeline) and `Transcript & Subtitles`
-  - Integrated Neural VAD backends: **FireRedVAD** and **TEN-VAD**
-  - Gate modes: `rough-only`, `hybrid`, and `vad-only`
-  - Instant `.srt`, `.vtt`, and `.json` subtitle file download
+| Workspace | Use it to |
+| --- | --- |
+| [Showcase](apps/showcase) | Load audio and try supported models in the browser. |
+| [Playground](apps/playground) | Inspect model options and transcript output; generate an integration example. |
+| [Realtime](apps/realtime) | Exercise microphone capture, streaming, TEN-VAD and FireRed-VAD with waveform and speech-region views. |
+| [Benchmark](apps/benchmark) | Run comparable measurements and inspect/export results. |
 
-### 4. Benchmark Workbench (`apps/benchmark`)
-- **Origin**: `asrjs/benchmark-demo` + `ysdede/tdt-webgpu-demo` (branch `feat/browser-benchmark-lab`) + `ysdede/parakeet.js-benchmark`
-- **Purpose**: Systematic performance profiling, RTFx analysis, and long-form chunk sweet-spot optimization.
-- **Key Features**:
-  - **5-Tab Console**: Setup, Overview & Sweet-Spot, 8 Interactive SVG Charts, Compare & Pivot, Run Data & Export
-  - **Target Duration Bucket Planner**: benchmark across standard durations (`2s, 4s, 6s, 10s, 15s, 20s, 30s`)
-  - **Long-Form Overlapped-Window Sweet-Spot Simulator**: profiles window duration vs. overlap to find maximum throughput
-  - **Snapshot Manager & Pivot Table**: persistent run comparisons with baseline delta % and Markdown leaderboard generation
+Every workspace follows the same theme and shared interface components. Their roles differ by task, while actual controls come from the library's model and runtime capabilities. A model loading successfully does not by itself establish transcription quality, streaming support or full WebGPU execution.
 
----
+## Framework examples
 
-## 📚 References & Pioneering Implementations (`references/`)
+Small React, Svelte and Vue bindings subscribe to the same library controller. Their example apps and package sources are available on the [`framework-examples` branch](https://github.com/asrjs/demos/tree/framework-examples): [React](https://github.com/asrjs/demos/tree/framework-examples/examples/react), [Svelte](https://github.com/asrjs/demos/tree/framework-examples/examples/svelte), [Vue](https://github.com/asrjs/demos/tree/framework-examples/examples/vue). The workspace README documents setup alongside the library and demo-suite checkouts.
 
-The migration contains 11 subtree import records. `transformers-v4-parakeet-demo-cr` was added as a file snapshot in commit `992d4cf`; preservation of that source's earlier history is not established. No history was rewritten during the audit repair.
-- `references/tdt-webgpu-demo`: The original Transformers.js Parakeet TDT WebGPU demo on Hugging Face Spaces.
-- `references/tdt-webgpu-benchmark-lab`: The `feat/browser-benchmark-lab` exploration introducing target-duration benchmarking and sweet-spot simulation.
-- `references/transformers-v4-parakeet-demo-cr`: Clean room variant using ONNX Runtime Web directly.
-- `references/parakeet.js-benchmark`: Chart.js benchmark application with pivot analysis and compare table.
-- `references/parakeet.js-demo`: Hugging Face Space parent/system theme integration and dark/light synchronization.
-- `references/webgpu-whisper-v2`: WebGPU/WASM Whisper implementation.
-- `references/vad-demo`: Standalone VAD prototype (now unified into `apps/realtime`).
-- `references/firered-vad-web`: Standalone WebAssembly/WebGPU FireRedVAD demonstrator.
+The historical applications and experiments are retained in [`references/`](references/) where available. They are research and provenance sources; the four workspaces above are the current suite.
 
----
+## Run locally
 
-## 🚀 Getting Started
+Use Node.js 22 or newer with npm. The app manifests and lockfile pin a local speech-package archive under `vendor/`; that exact archive must exist before `npm ci`. Inspect an app's `package.json` for the current filename rather than substituting a different build. From this directory:
 
-### Prerequisites
-- Node.js 22+ (required by the pinned speech package)
-- Modern Web browser with WebGPU support (Chrome 113+, Edge 113+, or Safari Technology Preview)
-
-### Development
-```bash
+```sh
 npm ci
-
-# Launch Developer Playground
-npm run dev:playground
-
-# Launch Realtime & Neural VAD Workstation
-npm run dev:realtime
-
-# Launch Benchmark Workbench
-npm run dev:benchmark
-
-# Launch Flagship Showcase
 npm run dev:showcase
 ```
 
-### Production Build
-```bash
-# Build the central portal and all 4 applications
+Use `dev:playground`, `dev:realtime`, or `dev:benchmark` for another workspace. Available commands are listed in the root [`package.json`](package.json).
+
+Build and preview the central suite:
+
+```sh
 npm run build
 npm run preview:suite
-
-# Build independent app outputs instead
-npm run build:apps
-
-# Or build individual applications
-npm run build:showcase
-npm run build:playground
-npm run build:realtime
-npm run build:benchmark
 ```
 
-### Speech Library Source Selection
+Build each workspace independently with `npm run build:apps` or a `build:<workspace>` script. Run the suite checks with `npm test`.
 
-Demo builds and development servers use the pinned `@asrjs/speech-recognition` package by default. After the repository-local `vendor/asrjs-speech-recognition-0.2.0.tgz` archive has been generated, run `npm install` to install it. Package mode resolves that installed package and does not read or alias a sibling source checkout.
+## Use a library checkout while developing
 
-To opt into a sibling source checkout while developing the library, set `ASRJS_SOURCE=source` and optionally `ASRJS_LIB_DIR` before starting Vite. For example, in PowerShell:
+By default, the suite uses its installed `@asrjs/speech-recognition` dependency. To develop against the sibling library checkout, choose source mode explicitly in PowerShell:
 
 ```powershell
 $env:ASRJS_SOURCE = 'source'
@@ -125,16 +61,4 @@ $env:ASRJS_LIB_DIR = '..\speech-recognition'
 npm run dev:realtime
 ```
 
-Source builds report the source commit and a `-dirty` suffix when the checkout has uncommitted changes. Package builds report the installed package version and `npm-package` provenance.
-
-The realtime app's `predev` and `prebuild` steps copy the installed ONNX Runtime Web WASM modules and binaries into `apps/realtime/public/ort/`. Vite emits these as app-local assets, so production runtime URLs follow the configured base path instead of pointing at a development filesystem path.
-
----
-
-## 🌐 Hugging Face Spaces Deployment
-
-Each app in `apps/*` can be deployed directly to a Hugging Face Static Space:
-1. Set the Space SDK to **static**.
-2. Run `npm run build:<app>`.
-3. Copy the contents of `apps/<app>/dist` to your Hugging Face Space repository.
-4. The applications automatically honor Hugging Face iframe theme changes via `?__theme=` and parent window messages.
+Unset `ASRJS_SOURCE` to return to the installed package. Source and package provenance are shown by the suite at runtime. For dependency direction, theme conventions and app responsibilities, see [suite conventions](docs/suite-apps.md).

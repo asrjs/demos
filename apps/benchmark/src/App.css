@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Syne:wght@600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root,
 [data-theme="dark"],
@@ -71,7 +70,7 @@ body {
   min-height: 100vh;
   background: var(--bg-base);
   color: var(--text-primary);
-  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--demo-font-family);
   font-size: 13.5px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -127,7 +126,7 @@ pre,
 }
 
 .brand-title {
-  font-family: 'Syne', 'Manrope', sans-serif;
+  font-family: var(--demo-font-display);
   font-size: 18px;
   font-weight: 700;
   color: var(--text-primary);

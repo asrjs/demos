@@ -3,9 +3,9 @@ import {
   buildSpeechModelLoadOptions,
   detectSpeechModelRepoQuantizations,
   getSpeechModelLanguageName,
-  resolveSpeechModelComponentBackends,
 } from '@asrjs/speech-recognition';
 import { createBrowserTranscriptionWorkerClient } from '@asrjs/speech-recognition/browser';
+import { pickPreferredQuant } from '@asrjs/speech-recognition/io';
 import { SPEECH_DATASETS } from './utils/speechDatasets';
 import { buildLayoutApp } from './app/buildLayoutApp.js';
 import {
@@ -29,8 +29,17 @@ import {
 } from './app/modelDescriptors.js';
 import { loadSettings, saveSettings } from './app/settingsStorage.js';
 import { useDemoTheme } from '@asrjs/demo-ui';
+import {
+  getDemoModelLoadingState,
+  getDemoModelSourceOptions,
+  resolveDemoModelSource,
+  resolveProfilingSetting,
+  prepareCapturedPcm,
+  rebaseCapturedTranscriptTimes,
+} from '@asrjs/demo-runtime';
 import { createTranscriptionRecordFromResult } from './app/transcriptionRecord.js';
 import { buildTranscriptionOptions } from './app/transcriptionHelpers.js';
+import { createCaptureTranscript } from './app/captureTranscript.js';
 import { releaseCurrentModel } from './app/modelLifecycle.js';
 import { useLocalModelFolder } from './app/useLocalModelFolder.js';
 import { encodeMonoPcmToWavBlob } from './app/audioUtils.js';
@@ -64,15 +73,6 @@ function buildHistoryClipFilename(sourceLabel, timestamp = Date.now()) {
   return `${baseName}-${timestamp}.wav`;
 }
 
-function appendTranscriptText(previousText, nextText) {
-  const previous = String(previousText ?? '').trim();
-  const next = String(nextText ?? '').trim();
-  if (!next) {
-    return previous;
-  }
-  return previous ? `${previous} ${next}` : next;
-}
-
 function logMicrophoneQueue(message, meta = {}) {
   console.debug(`[MicQueue] ${message}`, meta);
 }
@@ -81,11 +81,9 @@ export default function App() {
   const initialSettings = loadSettings();
   const initialSelectedModel = initialSettings.selectedModel;
   const initialModelSource = initialSettings.modelSource;
-  const resolvedInitialModel = DEMO_MODELS[initialSelectedModel] ? initialSelectedModel : 'parakeet-tdt-0.6b-v2';
-  const resolvedInitialModelSource =
-    initialModelSource === MODEL_SOURCE_OPTIONS.LOCAL && !isInIframe
-      ? MODEL_SOURCE_OPTIONS.LOCAL
-      : MODEL_SOURCE_OPTIONS.HUGGINGFACE;
+  const initialModelCandidate = DEMO_MODELS[initialSelectedModel] ? initialSelectedModel : 'parakeet-tdt-0.6b-v2';
+  const resolvedInitialModel = initialModelCandidate;
+  const resolvedInitialModelSource = resolveDemoModelSource(resolvedInitialModel, initialModelSource);
   const initialDefaultPreprocessorName = getDescriptorDefaultPreprocessorName(resolvedInitialModel);
   const initialDefaultPreprocessorBackend = resolvePreprocessorBackendForSource(
     resolvedInitialModel,
@@ -149,9 +147,7 @@ export default function App() {
   const [verboseLog, setVerboseLog] = useState(Boolean(initialSettings.verboseLog));
   const [frameStride, setFrameStride] = useState(Number.isInteger(initialSettings.frameStride) ? initialSettings.frameStride : 1);
   const [dumpDetail, setDumpDetail] = useState(Boolean(initialSettings.dumpDetail));
-  const [enableProfiling, setEnableProfiling] = useState(
-    initialSettings.enableProfiling === undefined ? true : Boolean(initialSettings.enableProfiling)
-  );
+  const [enableProfiling, setEnableProfiling] = useState(resolveProfilingSetting(initialSettings));
   const [audioUrl, setAudioUrl] = useState(null);
   const [sampleDownload, setSampleDownload] = useState(null);
   const [isDownloadingSample, setIsDownloadingSample] = useState(false);
@@ -172,6 +168,7 @@ export default function App() {
   const audioRef = useRef(null);
   const transcriptionsRef = useRef([]);
   const micTranscriptionQueueRef = useRef([]);
+  const captureTranscriptRef = useRef(createCaptureTranscript());
   const micQueueRunningRef = useRef(false);
   const micPendingJobsRef = useRef(0);
   const isMicActiveRef = useRef(false);
@@ -198,6 +195,8 @@ export default function App() {
     modelSource,
     selectedModel,
     backend,
+    encoderBackend,
+    decoderBackend,
     preprocessorBackend,
     currentPreprocessor: preprocessor,
     currentEncoderQuant: encoderQuant,
@@ -208,14 +207,17 @@ export default function App() {
     setDecoderQuantOptions,
     setEncoderQuant,
     setDecoderQuant,
+    setEncoderBackend,
+    setDecoderBackend,
     setPreprocessor,
     setPreprocessorBackend,
   });
 
   const isModelReady = modelLoaded;
   const isLoading = isModelLoading;
-  const supportsLocalSource = modelConfig?.loading?.supportsLocalSource === true;
-  const supportsSplitQuantization = modelConfig?.loading?.supportsSplitQuantization !== false;
+  const modelSourceOptions = getDemoModelSourceOptions(selectedModel);
+  const supportsLocalSource = modelSourceOptions.includes(MODEL_SOURCE_OPTIONS.LOCAL);
+  const supportsSplitQuantization = encoderQuantOptions.length > 1 || decoderQuantOptions.length > 1;
   const supportsPreprocessorBackend = modelConfig?.loading?.supportsPreprocessorBackend !== false;
   const preprocessorBackendOptions = getDescriptorPreprocessorBackendOptions(selectedModel);
   const defaultPreprocessorName = getDescriptorDefaultPreprocessorName(selectedModel);
@@ -296,8 +298,22 @@ export default function App() {
       };
       let workerModelInfo = null;
       if (modelSource === MODEL_SOURCE_OPTIONS.LOCAL) {
+        const loadingState = getDemoModelLoadingState({
+          modelId: selectedModel,
+          source: modelSource,
+          entries: localEntries,
+          backend,
+          encoderBackend,
+          decoderBackend,
+          encoderQuant,
+          decoderQuant,
+        });
         workerModelInfo = await workerClient.loadLocalModel({
           ...commonLoadOptions,
+          encoderBackend: loadingState.encoderBackend,
+          decoderBackend: loadingState.decoderBackend,
+          encoderQuant: loadingState.encoderQuant,
+          decoderQuant: loadingState.decoderQuant,
           entries: localEntries,
           tokenizerName: localTokenizerName,
         });
@@ -372,9 +388,16 @@ export default function App() {
         }
 
         setLatestMetrics(canonicalResult?.meta?.metrics ?? null);
-        setText((previous) => appendTranscriptText(previous, canonicalResult?.text ?? ''));
+        if (job.captureTranscript === captureTranscriptRef.current) {
+          setText(job.captureTranscript.update(canonicalResult?.text ?? '', job.context));
+        }
+        if (job.context) {
+          for (const record of transcriptionsRef.current) {
+            if (record.captureContextId === job.context.id && record.clipUrl) URL.revokeObjectURL(record.clipUrl);
+          }
+        }
         updateTranscriptions((prev) => [
-          createTranscriptionRecordFromResult({
+          { ...createTranscriptionRecordFromResult({
             result,
             filename: job.sourceLabel,
             duration: job.durationSeconds,
@@ -385,8 +408,8 @@ export default function App() {
             clipUrl,
             clipFilename: buildHistoryClipFilename(job.sourceLabel, clipTimestamp),
             clipMimeType: clipBlob.type || 'audio/wav',
-          }),
-          ...prev,
+          }), captureContextId: job.context?.id },
+          ...prev.filter((record) => !job.context || record.captureContextId !== job.context.id),
         ]);
 
         logMicrophoneQueue('complete', {
@@ -458,7 +481,7 @@ export default function App() {
     };
   }
 
-  function queueMicrophoneTranscription(pcm, sampleRate, sourceLabel, startTimeSeconds = null) {
+  function queueMicrophoneTranscription(pcm, sampleRate, sourceLabel, startTimeSeconds = null, context = null) {
     return new Promise((resolve) => {
       if (!pcm.length || isUnmountingRef.current) {
         resolve(emptyMicrophoneTranscriptResult());
@@ -470,6 +493,16 @@ export default function App() {
         return;
       }
 
+      // VAD contexts already own exact frame bounds. Manual capture may carry
+      // long exact-zero device padding; preserve all nonzero and internal audio.
+      let captureWindow = null;
+      if (!context) {
+        const prepared = prepareCapturedPcm(pcm, sampleRate);
+        captureWindow = { originalFrames: prepared.originalFrames, startFrame: prepared.startFrame,
+          endFrame: prepared.endFrame, policy: prepared.policy };
+        pcm = prepared.pcm;
+        if (startTimeSeconds !== null) startTimeSeconds += prepared.startFrame / sampleRate;
+      }
       const durationSeconds = pcm.length / sampleRate;
       if (durationSeconds * 1000 < MIC_MIN_UTTERANCE_MS) {
         onMicStatus(isMicActiveRef.current ? 'Listening for speech…' : 'Microphone stopped');
@@ -504,6 +537,8 @@ export default function App() {
       micTranscriptionQueueRef.current.push({
         transcriber,
         transcriberLabel,
+        context,
+        captureTranscript: captureTranscriptRef.current,
         pcm,
         sampleRate,
         sourceLabel,
@@ -513,10 +548,14 @@ export default function App() {
         task,
         targetLanguage,
         dumpDetail,
-        settle: resolve,
+        settle: (result) => resolve(rebaseCapturedTranscriptTimes(
+          result, captureWindow?.startFrame ?? 0, sampleRate,
+        )),
       });
       logMicrophoneQueue('enqueue', {
         sourceLabel,
+        context,
+        captureWindow,
         durationSeconds: Number(durationSeconds.toFixed(2)),
         pending: micTranscriptionQueueRef.current.length,
         transcriber: transcriberLabel,
@@ -556,6 +595,7 @@ export default function App() {
         request.sampleRate,
         `microphone-${request.segmentReason ?? request.reason}-${new Date().toLocaleTimeString()}`,
         request.startTimeSeconds,
+        request.context,
       ),
     onStatus: (nextStatus) => setStatus(resolveAppStatus(nextStatus)),
   });
@@ -582,6 +622,7 @@ export default function App() {
       setIsPlaying(false);
       setReferenceText('');
       setSampleDownload(null);
+      captureTranscriptRef.current = createCaptureTranscript(text);
       await startMicrophoneCapture();
     } catch (error) {
       console.error('[Mic] Failed to start microphone:', error);
@@ -618,10 +659,12 @@ export default function App() {
   }, [selectedModel, modelSource]);
 
   useEffect(() => {
-    if (supportsLocalSource || modelSource !== MODEL_SOURCE_OPTIONS.LOCAL) return;
-    setModelSource(MODEL_SOURCE_OPTIONS.HUGGINGFACE);
-    setStatus('This model is available through HuggingFace only.');
-  }, [modelSource, supportsLocalSource]);
+    const resolved = resolveDemoModelSource(selectedModel, modelSource);
+    if (resolved && resolved !== modelSource) {
+      setModelSource(resolved);
+      setStatus(`Using ${resolved} source for this model.`);
+    }
+  }, [modelSource, selectedModel]);
 
   useEffect(() => {
     if (!testLanguageOptions.length) return;
@@ -630,21 +673,25 @@ export default function App() {
   }, [selectedLanguage, testLanguageOptions]);
 
   useEffect(() => {
-    const nextEncOptions = modelConfig?.loading?.availableEncoderBackends || ['webgpu', 'wasm'];
-    const nextDecOptions = modelConfig?.loading?.availableDecoderBackends || ['webgpu', 'wasm'];
-    const resolvedBackends = resolveSpeechModelComponentBackends(selectedModel, {
+    const loadingState = getDemoModelLoadingState({
+      modelId: selectedModel,
+      source: modelSource,
+      entries: localEntries,
       backend,
       encoderBackend,
       decoderBackend,
+      encoderQuant,
+      decoderQuant,
     });
 
-    setEncoderBackendOptions(nextEncOptions);
-    setDecoderBackendOptions(nextDecOptions);
-    setEncoderBackend(resolvedBackends.encoderBackend);
-    setDecoderBackend(resolvedBackends.decoderBackend);
-  }, [backend, decoderBackend, encoderBackend, modelConfig, selectedModel]);
+    setEncoderBackendOptions(modelConfig?.loading?.availableEncoderBackends || ['webgpu', 'wasm']);
+    setDecoderBackendOptions(modelConfig?.loading?.availableDecoderBackends || ['webgpu', 'wasm']);
+    setEncoderBackend(loadingState.encoderBackend);
+    setDecoderBackend(loadingState.decoderBackend);
+  }, [backend, decoderBackend, encoderBackend, encoderQuant, decoderQuant, localEntries, modelConfig, modelSource, selectedModel]);
 
   useEffect(() => {
+    if (modelSource === MODEL_SOURCE_OPTIONS.LOCAL) return;
     const nextEncOptions = modelConfig?.loading?.availableEncoderQuantizations || ['fp32'];
     const nextDecOptions = modelConfig?.loading?.availableDecoderQuantizations || ['fp32'];
     const nextDefaultEnc = modelConfig?.loading?.defaultEncoderQuantization || nextEncOptions[0] || 'fp32';
@@ -654,7 +701,7 @@ export default function App() {
     setDecoderQuantOptions(nextDecOptions);
     setEncoderQuant((current) => (nextEncOptions.includes(current) ? current : nextDefaultEnc));
     setDecoderQuant((current) => (nextDecOptions.includes(current) ? current : nextDefaultDec));
-  }, [modelConfig]);
+  }, [modelConfig, modelSource]);
 
   useEffect(() => {
     if (!supportsCanaryPrompting || !modelConfig?.languages?.length) return;
@@ -722,13 +769,6 @@ export default function App() {
   // Inspect selected repo+branch files and filter quantization options accordingly.
   useEffect(() => {
     if (modelSource !== MODEL_SOURCE_OPTIONS.HUGGINGFACE) return;
-    if (!supportsSplitQuantization) {
-      setEncoderQuantOptions(['fp32']);
-      setDecoderQuantOptions(['fp32']);
-      setEncoderQuant('fp32');
-      setDecoderQuant('fp32');
-      return () => {};
-    }
 
     let cancelled = false;
     const revision = modelRevision || getCanonicalRevision(selectedModel);
@@ -738,14 +778,17 @@ export default function App() {
       if (cancelled) return;
       const encOptions = [...detected.encoder];
       const decOptions = [...detected.decoder];
-      const nextEncOptions =
-        encOptions.length || !modelConfig?.loading?.availableEncoderQuantizations?.length
-          ? encOptions
-          : modelConfig.loading.availableEncoderQuantizations;
-      const nextDecOptions =
-        decOptions.length || !modelConfig?.loading?.availableDecoderQuantizations?.length
-          ? decOptions
-          : modelConfig.loading.availableDecoderQuantizations;
+      const declared = getDemoModelLoadingState({
+        modelId: selectedModel,
+        source: modelSource,
+        backend,
+        encoderBackend,
+        decoderBackend,
+        encoderQuant,
+        decoderQuant,
+      });
+      const nextEncOptions = encOptions.length ? encOptions : declared.encoderQuantOptions;
+      const nextDecOptions = decOptions.length ? decOptions : declared.decoderQuantOptions;
       const nextDefaultEnc = modelConfig?.loading?.defaultEncoderQuantization || nextEncOptions[0] || 'fp32';
       const nextDefaultDec = modelConfig?.loading?.defaultDecoderQuantization || nextDecOptions[0] || 'fp32';
 
@@ -762,7 +805,7 @@ export default function App() {
     return () => {
       cancelled = true;
     };
-  }, [modelConfig, modelRevision, modelSource, selectedModel, supportsSplitQuantization]);
+  }, [backend, decoderBackend, decoderQuant, encoderBackend, encoderQuant, modelConfig, modelRevision, modelSource, selectedModel]);
 
   // Detect SharedArrayBuffer and threading capabilities
   useEffect(() => {
@@ -889,13 +932,16 @@ export default function App() {
   function handleModelChange(nextModel) {
     if (nextModel === selectedModel) return;
     const nextConfig = DEMO_MODELS[nextModel];
+    const nextSource = resolveDemoModelSource(nextModel, modelSource);
+    if (!nextSource) return;
     setSelectedModel(nextModel);
+    setModelSource(nextSource);
     setModelRevision(getCanonicalRevision(nextModel));
     setLoadedFromCache(false);
     setPreprocessor(getDescriptorDefaultPreprocessorName(nextModel));
     setPreprocessorBackend(
       resolvePreprocessorBackendForSource(nextModel, getDescriptorDefaultPreprocessorBackend(nextModel), {
-        modelSource,
+        modelSource: nextSource,
         localPreprocessorCount: localPreprocessorOptions.length,
       }),
     );
@@ -906,6 +952,7 @@ export default function App() {
 
   function handleModelSourceChange(nextSource) {
     if (nextSource === modelSource) return;
+    if (!modelSourceOptions.includes(nextSource)) return;
     setModelSource(nextSource);
     if (nextSource === MODEL_SOURCE_OPTIONS.HUGGINGFACE) {
       setPreprocessor(getDescriptorDefaultPreprocessorName(selectedModel));
@@ -1086,6 +1133,7 @@ export default function App() {
     getBuiltInModelLanguageName: getSpeechModelLanguageName,
     isInIframe,
     supportsLocalSource,
+    modelSourceOptions,
     modelConfig,
     handleModelSourceChange,
     selectedModel,

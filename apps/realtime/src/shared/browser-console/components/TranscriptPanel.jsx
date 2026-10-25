@@ -50,7 +50,7 @@ export function TranscriptPanel({ app }) {
         </div>
       ) : null}
     >
-      <div className="transcript-body">
+      <div className="transcript-body asr-transcript-text">
         {text || 'No text yet.'}
       </div>
       <WordPills words={latestWords} offsetSeconds={latestRecord?.startTimeSeconds ?? 0} className="mt-3 max-h-36" />

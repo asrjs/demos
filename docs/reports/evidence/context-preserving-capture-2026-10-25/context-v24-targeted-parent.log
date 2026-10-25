@@ -1,0 +1,13 @@
+
+ RUN  v4.0.18 N:/github/asrjs/speech-recognition
+
+ ✓ tests/speech-context.test.ts (13 tests) 14ms
+ ✓ tests/x-asr-decode-abort.test.ts (3 tests) 71ms
+ ✓ tests/x-asr.test.ts (8 tests) 55ms
+ ✓ tests/browser-controller.test.ts (19 tests) 560ms
+
+ Test Files  4 passed (4)
+      Tests  43 passed (43)
+   Start at  16:12:31
+   Duration  5.49s (transform 7.65s, setup 0ms, import 9.37s, tests 699ms, environment 1ms)
+

@@ -1,0 +1,146 @@
+[
+  {
+    "app": "showcase",
+    "dark": {
+      "theme": "dark",
+      "bg": "rgb(17, 25, 23)",
+      "width": 390,
+      "scroll": 390
+    },
+    "persistedWithoutQuery": "dark",
+    "unnamedControls": [
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "id": "",
+        "value": "huggingface"
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "id": "",
+        "value": "parakeet-tdt-0.6b-v2"
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "id": "",
+        "value": "webgpu-hybrid"
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "id": "",
+        "value": "webgpu"
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "id": "",
+        "value": "wasm"
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "id": "",
+        "value": "10"
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "id": "",
+        "value": "1"
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "id": "",
+        "value": "fp16"
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "id": "",
+        "value": "int8"
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "id": "",
+        "value": "js"
+      },
+      {
+        "tag": "TEXTAREA",
+        "type": "textarea",
+        "id": "",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "app": "playground",
+    "dark": {
+      "theme": "dark",
+      "bg": "rgb(17, 25, 23)",
+      "width": 390,
+      "scroll": 390
+    },
+    "persistedWithoutQuery": "dark",
+    "unnamedControls": [
+      {
+        "tag": "INPUT",
+        "type": "file",
+        "id": "",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "app": "realtime",
+    "dark": {
+      "theme": "dark",
+      "bg": "rgb(17, 25, 23)",
+      "width": 390,
+      "scroll": 390
+    },
+    "persistedWithoutQuery": "dark",
+    "unnamedControls": [
+      {
+        "tag": "TEXTAREA",
+        "type": "textarea",
+        "id": "",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "app": "benchmark",
+    "dark": {
+      "theme": "dark",
+      "bg": "rgb(17, 25, 23)",
+      "width": 390,
+      "scroll": 390
+    },
+    "persistedWithoutQuery": "dark",
+    "unnamedControls": [
+      {
+        "tag": "INPUT",
+        "type": "file",
+        "id": "",
+        "value": ""
+      },
+      {
+        "tag": "INPUT",
+        "type": "file",
+        "id": "",
+        "value": ""
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "id": "",
+        "value": ""
+      }
+    ]
+  }
+]

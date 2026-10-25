@@ -1,0 +1,33 @@
+{
+  "files": {
+    "packages\\ui\\src\\theme.css": "d4c3f436106b2e9d8841697204e01cffc0fc8598fb181622c83cd488585f502c",
+    "packages\\ui\\src\\keet-fonts.css": "33bf3fd4c9df3cefadf59bafdbfebc8655718fa59068544ade8f88e271c43905",
+    "packages\\ui\\src\\components\\DemoShell.jsx": "7b1b918c2b1fe13eb9e37d8dd49a65d5d9fc053e23d376e69e400b8aac35451b",
+    "apps\\benchmark\\src\\App.css": "02990750ae9f6d9e27afd8aafe2b25d4ca20a4a733d5d5c92b541262d7eba2a5",
+    "apps\\showcase\\src\\App.jsx": "43ae40d6174c4d4ab1dfd9e1b6c871ef30852f8aa3cbfec49936c83c153e023c",
+    "apps\\playground\\src\\App.jsx": "0b455b2a4140729ac79ade18426c3c6df484a3dca53f0f8049d3e7b2ca71a08a",
+    "apps\\realtime\\src\\shared\\browser-console\\components\\TranscriptPanel.jsx": "e6b0d639ccd221f4390d1076f3c28d8d40f6f30d65fe9157c69707809c3c855e",
+    "packages\\ui\\src\\fonts\\crimson-pro-latin-400-normal.woff2": "d2a3a146387d91b8d476d508849dd1d93a3cbde85d1e0d303e3d5c970726a703",
+    "packages\\ui\\src\\fonts\\crimson-pro-latin-500-normal.woff2": "7d264f53a589d61475041f980a2f35a88cde1ec7012a8f661419e99769492684",
+    "packages\\ui\\src\\fonts\\crimson-pro-latin-ext-400-normal.woff2": "fa39b28ba18ffac71ca8dad08e94cce160af7179f24662ff1beea3bdecc15b9c",
+    "packages\\ui\\src\\fonts\\crimson-pro-latin-ext-500-normal.woff2": "7c01941ce4dd82d32c9ecab14ee0045389c2c61044a2f4b7c3e56775146e482f",
+    "packages\\ui\\src\\fonts\\crimson-pro-LICENSE.txt": "a36998c273ee904e6303921fce9da2fe49c96b42cfb0bc1b70de9c3b58546a41",
+    "packages\\ui\\src\\fonts\\jetbrains-mono-latin-400-normal.woff2": "14425ba9c695763c1547f48a206b7aa60350a33ae23de09f0407877f3fcd89eb",
+    "packages\\ui\\src\\fonts\\jetbrains-mono-latin-500-normal.woff2": "cb182feeed4d798ff6961d3c79f7026279448fca0676438aaecb21f3fc39553a",
+    "packages\\ui\\src\\fonts\\jetbrains-mono-latin-ext-400-normal.woff2": "505dfba8ecbe77e82765f36d317ed7ef4ac42719dc5f4ae68d1c483fd22d0d14",
+    "packages\\ui\\src\\fonts\\jetbrains-mono-latin-ext-500-normal.woff2": "879df9319f1cbf633bee1dd489e376a9e1e8c458f4abddcfe381cb83b5e6b027",
+    "packages\\ui\\src\\fonts\\jetbrains-mono-LICENSE.txt": "403581b69dac5cff4079205e01c6b467e56af449ecbd7247693ddb1baafa005b",
+    "packages\\ui\\src\\fonts\\plus-jakarta-sans-latin-400-normal.woff2": "221a4135d06a4b33abbd535e9a0da4e565d19545ddd9267c4e678a916d54d9b6",
+    "packages\\ui\\src\\fonts\\plus-jakarta-sans-latin-500-normal.woff2": "bad081c8dbc15aed6c5e4cde5461914f7b3bdc295b7a7aed177e4beddb79bffa",
+    "packages\\ui\\src\\fonts\\plus-jakarta-sans-latin-600-normal.woff2": "8872bb5c9111df9bd3162c2394aee6354d782b13408a4dd5bbf65c48207206e6",
+    "packages\\ui\\src\\fonts\\plus-jakarta-sans-latin-700-normal.woff2": "2050755bf475817c96ac7d914c7f07cc3c2d11ff4b3fb4747b8d41de584aad17",
+    "packages\\ui\\src\\fonts\\plus-jakarta-sans-latin-ext-400-normal.woff2": "65b5680bf2ba9c6c42af74ddd2e8aadde93af7c523454ebb3d4e32fdba3f94db",
+    "packages\\ui\\src\\fonts\\plus-jakarta-sans-latin-ext-500-normal.woff2": "d1584f50c388cae7e570bed35be331fa4a9afd6832ef45a32fa8bf81930e6db9",
+    "packages\\ui\\src\\fonts\\plus-jakarta-sans-latin-ext-600-normal.woff2": "080a1fea8589c2bd4fa08750d0d99b3388be63df8c41a649de05cb2dda1ec007",
+    "packages\\ui\\src\\fonts\\plus-jakarta-sans-latin-ext-700-normal.woff2": "b202ec87899e78825db955e6ab43858b88c0cd444abe2dfac2e763f837b8f234",
+    "packages\\ui\\src\\fonts\\plus-jakarta-sans-LICENSE.txt": "e07fd1167c2aaaa6fb965dd66e1e73b13c9c95b76b2d648b6e938780f30b37af",
+    "packages\\ui\\src\\fonts\\README.md": "049ffce97e7f668b6dfa78fe8974f42c851a4b0fa29804e58fa5d64385fb694c"
+  },
+  "keetThemeReference": "N:/github/ysdede/keet/src/index.css",
+  "keetThemeSha256": "99141fc7e3f87b8f1121c7cb2346723988ae5b50abe3d25f1ac3125a3b85e4cf"
+}

@@ -1,0 +1,10 @@
+{
+  "apps/realtime/src/App.jsx": "a70f0c1889b1f959147e9f2c3e188467643be91ac7149fdc27bcdb3bf3ded697",
+  "apps/realtime/src/app/captureTranscript.js": "3dc14a9adabc143b57b55ea7520da11b907364dc95a0c3a10545b093b123b225",
+  "apps/realtime/src/shared/streaming/useStreamingCaptureController.js": "e5a67e9263079922220496279115f71991c36b0be3406de2272e2ea7026861ed",
+  "apps/playground/src/App.jsx": "e0f541bed3994397a5dd79f6d164e156c2584d79144ee1212d73bbe66d50e193",
+  "apps/playground/src/recorded-audio.js": "122bb7be976fd768ee9d5d516fa2c59cb5d04491f0030375225820ca5162a264",
+  "packages/demo-runtime/src/capture-transcription.js": "9e0d6bde336a343aa3cdab44dd1de83028617de0c91376506fc3cdfcd3d09d55",
+  "scripts/e2e/remaining-model-flows.py": "d3aa4982290189043e9feda98599b6f4c3d61138ef969ae85ea0eba3b3ec63d1",
+  "scripts/e2e/test_remaining_model_evidence.py": "afdb43607b8d58000b1f6ced977e56be02bf75ffb3819ca48fbbbaf95edefa22"
+}

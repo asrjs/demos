@@ -1,0 +1,777 @@
+[
+  {
+    "theme": "light",
+    "width": 1440,
+    "scroll": 1440,
+    "font": "\"Plus Jakarta Sans\", sans-serif",
+    "headingFont": "\"Plus Jakarta Sans\", sans-serif",
+    "bg": "rgb(249, 247, 242)",
+    "text": "rgb(61, 64, 91)",
+    "brand": "#6b705c",
+    "fontLoaded": true,
+    "loadedFonts": [
+      {
+        "family": "Material Icons Outlined",
+        "weight": "400"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "400"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "500"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "600"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "700"
+      },
+      {
+        "family": "Crimson Pro",
+        "weight": "400"
+      }
+    ],
+    "fonts": [
+      "http://127.0.0.1:4190/showcase/assets/plus-jakarta-sans-latin-700-normal-CfpNZvy6.woff2",
+      "http://127.0.0.1:4190/showcase/assets/plus-jakarta-sans-latin-600-normal-DLTa1BUW.woff2",
+      "http://127.0.0.1:4190/showcase/assets/plus-jakarta-sans-latin-400-normal-Dhut76fR.woff2",
+      "http://127.0.0.1:4190/showcase/assets/plus-jakarta-sans-latin-500-normal-Bf-nb4oT.woff2",
+      "http://127.0.0.1:4190/showcase/assets/crimson-pro-latin-400-normal-B4SlG4wx.woff2"
+    ],
+    "app": "showcase",
+    "pageErrors": []
+  },
+  {
+    "theme": "light",
+    "width": 390,
+    "scroll": 390,
+    "font": "\"Plus Jakarta Sans\", sans-serif",
+    "headingFont": "\"Plus Jakarta Sans\", sans-serif",
+    "bg": "rgb(249, 247, 242)",
+    "text": "rgb(61, 64, 91)",
+    "brand": "#6b705c",
+    "fontLoaded": true,
+    "loadedFonts": [
+      {
+        "family": "Material Icons Outlined",
+        "weight": "400"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "400"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "500"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "600"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "700"
+      },
+      {
+        "family": "Crimson Pro",
+        "weight": "400"
+      }
+    ],
+    "fonts": [
+      "https://fonts.gstatic.com/s/materialiconsoutlined/v110/gok-H7zzDkdnRel8-DQ6KAXJ69wP1tGnf4ZGhUce.woff2",
+      "http://127.0.0.1:4190/showcase/assets/plus-jakarta-sans-latin-400-normal-Dhut76fR.woff2",
+      "http://127.0.0.1:4190/showcase/assets/plus-jakarta-sans-latin-500-normal-Bf-nb4oT.woff2",
+      "http://127.0.0.1:4190/showcase/assets/plus-jakarta-sans-latin-600-normal-DLTa1BUW.woff2",
+      "http://127.0.0.1:4190/showcase/assets/plus-jakarta-sans-latin-700-normal-CfpNZvy6.woff2",
+      "http://127.0.0.1:4190/showcase/assets/crimson-pro-latin-400-normal-B4SlG4wx.woff2"
+    ],
+    "app": "showcase",
+    "pageErrors": []
+  },
+  {
+    "theme": "dark",
+    "width": 1440,
+    "scroll": 1440,
+    "font": "\"Plus Jakarta Sans\", sans-serif",
+    "headingFont": "\"Plus Jakarta Sans\", sans-serif",
+    "bg": "rgb(32, 33, 31)",
+    "text": "rgb(238, 237, 229)",
+    "brand": "#b7b7a4",
+    "fontLoaded": true,
+    "loadedFonts": [
+      {
+        "family": "Material Icons Outlined",
+        "weight": "400"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "400"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "500"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "600"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "700"
+      },
+      {
+        "family": "Crimson Pro",
+        "weight": "400"
+      }
+    ],
+    "fonts": [
+      "https://fonts.gstatic.com/s/materialiconsoutlined/v110/gok-H7zzDkdnRel8-DQ6KAXJ69wP1tGnf4ZGhUce.woff2",
+      "http://127.0.0.1:4190/showcase/assets/plus-jakarta-sans-latin-400-normal-Dhut76fR.woff2",
+      "http://127.0.0.1:4190/showcase/assets/plus-jakarta-sans-latin-500-normal-Bf-nb4oT.woff2",
+      "http://127.0.0.1:4190/showcase/assets/plus-jakarta-sans-latin-600-normal-DLTa1BUW.woff2",
+      "http://127.0.0.1:4190/showcase/assets/plus-jakarta-sans-latin-700-normal-CfpNZvy6.woff2",
+      "http://127.0.0.1:4190/showcase/assets/crimson-pro-latin-400-normal-B4SlG4wx.woff2"
+    ],
+    "app": "showcase",
+    "pageErrors": []
+  },
+  {
+    "theme": "dark",
+    "width": 390,
+    "scroll": 390,
+    "font": "\"Plus Jakarta Sans\", sans-serif",
+    "headingFont": "\"Plus Jakarta Sans\", sans-serif",
+    "bg": "rgb(32, 33, 31)",
+    "text": "rgb(238, 237, 229)",
+    "brand": "#b7b7a4",
+    "fontLoaded": true,
+    "loadedFonts": [
+      {
+        "family": "Material Icons Outlined",
+        "weight": "400"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "400"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "500"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "600"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "700"
+      },
+      {
+        "family": "Crimson Pro",
+        "weight": "400"
+      }
+    ],
+    "fonts": [
+      "https://fonts.gstatic.com/s/materialiconsoutlined/v110/gok-H7zzDkdnRel8-DQ6KAXJ69wP1tGnf4ZGhUce.woff2",
+      "http://127.0.0.1:4190/showcase/assets/plus-jakarta-sans-latin-400-normal-Dhut76fR.woff2",
+      "http://127.0.0.1:4190/showcase/assets/plus-jakarta-sans-latin-500-normal-Bf-nb4oT.woff2",
+      "http://127.0.0.1:4190/showcase/assets/plus-jakarta-sans-latin-600-normal-DLTa1BUW.woff2",
+      "http://127.0.0.1:4190/showcase/assets/plus-jakarta-sans-latin-700-normal-CfpNZvy6.woff2",
+      "http://127.0.0.1:4190/showcase/assets/crimson-pro-latin-400-normal-B4SlG4wx.woff2"
+    ],
+    "app": "showcase",
+    "pageErrors": []
+  },
+  {
+    "theme": "light",
+    "width": 1440,
+    "scroll": 1440,
+    "font": "\"Plus Jakarta Sans\", sans-serif",
+    "headingFont": "\"Plus Jakarta Sans\", sans-serif",
+    "bg": "rgb(249, 247, 242)",
+    "text": "rgb(61, 64, 91)",
+    "brand": "#6b705c",
+    "fontLoaded": true,
+    "loadedFonts": [
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "400"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "500"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "600"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "700"
+      },
+      {
+        "family": "Crimson Pro",
+        "weight": "400"
+      },
+      {
+        "family": "JetBrains Mono",
+        "weight": "400"
+      }
+    ],
+    "fonts": [
+      "https://fonts.gstatic.com/s/materialiconsoutlined/v110/gok-H7zzDkdnRel8-DQ6KAXJ69wP1tGnf4ZGhUce.woff2",
+      "http://127.0.0.1:4190/playground/assets/plus-jakarta-sans-latin-700-normal-CfpNZvy6.woff2",
+      "http://127.0.0.1:4190/playground/assets/plus-jakarta-sans-latin-600-normal-DLTa1BUW.woff2",
+      "http://127.0.0.1:4190/playground/assets/plus-jakarta-sans-latin-400-normal-Dhut76fR.woff2",
+      "http://127.0.0.1:4190/playground/assets/plus-jakarta-sans-latin-500-normal-Bf-nb4oT.woff2",
+      "http://127.0.0.1:4190/playground/assets/jetbrains-mono-latin-400-normal-V6pRDFza.woff2",
+      "http://127.0.0.1:4190/playground/assets/crimson-pro-latin-400-normal-B4SlG4wx.woff2"
+    ],
+    "app": "playground",
+    "pageErrors": []
+  },
+  {
+    "theme": "light",
+    "width": 390,
+    "scroll": 390,
+    "font": "\"Plus Jakarta Sans\", sans-serif",
+    "headingFont": "\"Plus Jakarta Sans\", sans-serif",
+    "bg": "rgb(249, 247, 242)",
+    "text": "rgb(61, 64, 91)",
+    "brand": "#6b705c",
+    "fontLoaded": true,
+    "loadedFonts": [
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "400"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "500"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "600"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "700"
+      },
+      {
+        "family": "Crimson Pro",
+        "weight": "400"
+      },
+      {
+        "family": "JetBrains Mono",
+        "weight": "400"
+      }
+    ],
+    "fonts": [
+      "https://fonts.gstatic.com/s/materialiconsoutlined/v110/gok-H7zzDkdnRel8-DQ6KAXJ69wP1tGnf4ZGhUce.woff2",
+      "http://127.0.0.1:4190/playground/assets/plus-jakarta-sans-latin-400-normal-Dhut76fR.woff2",
+      "http://127.0.0.1:4190/playground/assets/plus-jakarta-sans-latin-500-normal-Bf-nb4oT.woff2",
+      "http://127.0.0.1:4190/playground/assets/plus-jakarta-sans-latin-600-normal-DLTa1BUW.woff2",
+      "http://127.0.0.1:4190/playground/assets/plus-jakarta-sans-latin-700-normal-CfpNZvy6.woff2",
+      "http://127.0.0.1:4190/playground/assets/crimson-pro-latin-400-normal-B4SlG4wx.woff2",
+      "http://127.0.0.1:4190/playground/assets/jetbrains-mono-latin-400-normal-V6pRDFza.woff2"
+    ],
+    "app": "playground",
+    "pageErrors": []
+  },
+  {
+    "theme": "dark",
+    "width": 1440,
+    "scroll": 1440,
+    "font": "\"Plus Jakarta Sans\", sans-serif",
+    "headingFont": "\"Plus Jakarta Sans\", sans-serif",
+    "bg": "rgb(32, 33, 31)",
+    "text": "rgb(238, 237, 229)",
+    "brand": "#b7b7a4",
+    "fontLoaded": true,
+    "loadedFonts": [
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "400"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "500"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "600"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "700"
+      },
+      {
+        "family": "Crimson Pro",
+        "weight": "400"
+      },
+      {
+        "family": "JetBrains Mono",
+        "weight": "400"
+      }
+    ],
+    "fonts": [
+      "https://fonts.gstatic.com/s/materialiconsoutlined/v110/gok-H7zzDkdnRel8-DQ6KAXJ69wP1tGnf4ZGhUce.woff2",
+      "http://127.0.0.1:4190/playground/assets/plus-jakarta-sans-latin-400-normal-Dhut76fR.woff2",
+      "http://127.0.0.1:4190/playground/assets/plus-jakarta-sans-latin-500-normal-Bf-nb4oT.woff2",
+      "http://127.0.0.1:4190/playground/assets/plus-jakarta-sans-latin-600-normal-DLTa1BUW.woff2",
+      "http://127.0.0.1:4190/playground/assets/plus-jakarta-sans-latin-700-normal-CfpNZvy6.woff2",
+      "http://127.0.0.1:4190/playground/assets/crimson-pro-latin-400-normal-B4SlG4wx.woff2",
+      "http://127.0.0.1:4190/playground/assets/jetbrains-mono-latin-400-normal-V6pRDFza.woff2"
+    ],
+    "app": "playground",
+    "pageErrors": []
+  },
+  {
+    "theme": "dark",
+    "width": 390,
+    "scroll": 390,
+    "font": "\"Plus Jakarta Sans\", sans-serif",
+    "headingFont": "\"Plus Jakarta Sans\", sans-serif",
+    "bg": "rgb(32, 33, 31)",
+    "text": "rgb(238, 237, 229)",
+    "brand": "#b7b7a4",
+    "fontLoaded": true,
+    "loadedFonts": [
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "400"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "500"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "600"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "700"
+      },
+      {
+        "family": "Crimson Pro",
+        "weight": "400"
+      },
+      {
+        "family": "JetBrains Mono",
+        "weight": "400"
+      }
+    ],
+    "fonts": [
+      "https://fonts.gstatic.com/s/materialiconsoutlined/v110/gok-H7zzDkdnRel8-DQ6KAXJ69wP1tGnf4ZGhUce.woff2",
+      "http://127.0.0.1:4190/playground/assets/plus-jakarta-sans-latin-400-normal-Dhut76fR.woff2",
+      "http://127.0.0.1:4190/playground/assets/plus-jakarta-sans-latin-500-normal-Bf-nb4oT.woff2",
+      "http://127.0.0.1:4190/playground/assets/plus-jakarta-sans-latin-600-normal-DLTa1BUW.woff2",
+      "http://127.0.0.1:4190/playground/assets/plus-jakarta-sans-latin-700-normal-CfpNZvy6.woff2",
+      "http://127.0.0.1:4190/playground/assets/crimson-pro-latin-400-normal-B4SlG4wx.woff2",
+      "http://127.0.0.1:4190/playground/assets/jetbrains-mono-latin-400-normal-V6pRDFza.woff2"
+    ],
+    "app": "playground",
+    "pageErrors": []
+  },
+  {
+    "theme": "light",
+    "width": 1440,
+    "scroll": 1440,
+    "font": "\"Plus Jakarta Sans\", sans-serif",
+    "headingFont": "\"Plus Jakarta Sans\", sans-serif",
+    "bg": "rgb(249, 247, 242)",
+    "text": "rgb(61, 64, 91)",
+    "brand": "#6b705c",
+    "fontLoaded": true,
+    "loadedFonts": [
+      {
+        "family": "Material Icons Outlined",
+        "weight": "400"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "400"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "500"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "600"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "700"
+      },
+      {
+        "family": "Crimson Pro",
+        "weight": "400"
+      },
+      {
+        "family": "JetBrains Mono",
+        "weight": "400"
+      },
+      {
+        "family": "JetBrains Mono",
+        "weight": "500"
+      }
+    ],
+    "fonts": [
+      "https://fonts.gstatic.com/s/materialiconsoutlined/v110/gok-H7zzDkdnRel8-DQ6KAXJ69wP1tGnf4ZGhUce.woff2",
+      "http://127.0.0.1:4190/realtime/assets/plus-jakarta-sans-latin-700-normal-CfpNZvy6.woff2",
+      "http://127.0.0.1:4190/realtime/assets/plus-jakarta-sans-latin-600-normal-DLTa1BUW.woff2",
+      "http://127.0.0.1:4190/realtime/assets/plus-jakarta-sans-latin-400-normal-Dhut76fR.woff2",
+      "http://127.0.0.1:4190/realtime/assets/plus-jakarta-sans-latin-500-normal-Bf-nb4oT.woff2",
+      "http://127.0.0.1:4190/realtime/assets/jetbrains-mono-latin-500-normal-BWZEU5yA.woff2",
+      "http://127.0.0.1:4190/realtime/assets/jetbrains-mono-latin-400-normal-V6pRDFza.woff2",
+      "http://127.0.0.1:4190/realtime/assets/crimson-pro-latin-400-normal-B4SlG4wx.woff2"
+    ],
+    "app": "realtime",
+    "pageErrors": []
+  },
+  {
+    "theme": "light",
+    "width": 390,
+    "scroll": 390,
+    "font": "\"Plus Jakarta Sans\", sans-serif",
+    "headingFont": "\"Plus Jakarta Sans\", sans-serif",
+    "bg": "rgb(249, 247, 242)",
+    "text": "rgb(61, 64, 91)",
+    "brand": "#6b705c",
+    "fontLoaded": true,
+    "loadedFonts": [
+      {
+        "family": "Material Icons Outlined",
+        "weight": "400"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "400"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "500"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "600"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "700"
+      },
+      {
+        "family": "Crimson Pro",
+        "weight": "400"
+      },
+      {
+        "family": "JetBrains Mono",
+        "weight": "400"
+      },
+      {
+        "family": "JetBrains Mono",
+        "weight": "500"
+      }
+    ],
+    "fonts": [
+      "https://fonts.gstatic.com/s/materialiconsoutlined/v110/gok-H7zzDkdnRel8-DQ6KAXJ69wP1tGnf4ZGhUce.woff2",
+      "http://127.0.0.1:4190/realtime/assets/plus-jakarta-sans-latin-400-normal-Dhut76fR.woff2",
+      "http://127.0.0.1:4190/realtime/assets/plus-jakarta-sans-latin-500-normal-Bf-nb4oT.woff2",
+      "http://127.0.0.1:4190/realtime/assets/plus-jakarta-sans-latin-600-normal-DLTa1BUW.woff2",
+      "http://127.0.0.1:4190/realtime/assets/plus-jakarta-sans-latin-700-normal-CfpNZvy6.woff2",
+      "http://127.0.0.1:4190/realtime/assets/crimson-pro-latin-400-normal-B4SlG4wx.woff2",
+      "http://127.0.0.1:4190/realtime/assets/jetbrains-mono-latin-400-normal-V6pRDFza.woff2",
+      "http://127.0.0.1:4190/realtime/assets/jetbrains-mono-latin-500-normal-BWZEU5yA.woff2"
+    ],
+    "app": "realtime",
+    "pageErrors": []
+  },
+  {
+    "theme": "dark",
+    "width": 1440,
+    "scroll": 1440,
+    "font": "\"Plus Jakarta Sans\", sans-serif",
+    "headingFont": "\"Plus Jakarta Sans\", sans-serif",
+    "bg": "rgb(32, 33, 31)",
+    "text": "rgb(238, 237, 229)",
+    "brand": "#b7b7a4",
+    "fontLoaded": true,
+    "loadedFonts": [
+      {
+        "family": "Material Icons Outlined",
+        "weight": "400"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "400"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "500"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "600"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "700"
+      },
+      {
+        "family": "Crimson Pro",
+        "weight": "400"
+      },
+      {
+        "family": "JetBrains Mono",
+        "weight": "400"
+      },
+      {
+        "family": "JetBrains Mono",
+        "weight": "500"
+      }
+    ],
+    "fonts": [
+      "https://fonts.gstatic.com/s/materialiconsoutlined/v110/gok-H7zzDkdnRel8-DQ6KAXJ69wP1tGnf4ZGhUce.woff2",
+      "http://127.0.0.1:4190/realtime/assets/plus-jakarta-sans-latin-400-normal-Dhut76fR.woff2",
+      "http://127.0.0.1:4190/realtime/assets/plus-jakarta-sans-latin-500-normal-Bf-nb4oT.woff2",
+      "http://127.0.0.1:4190/realtime/assets/plus-jakarta-sans-latin-600-normal-DLTa1BUW.woff2",
+      "http://127.0.0.1:4190/realtime/assets/plus-jakarta-sans-latin-700-normal-CfpNZvy6.woff2",
+      "http://127.0.0.1:4190/realtime/assets/crimson-pro-latin-400-normal-B4SlG4wx.woff2",
+      "http://127.0.0.1:4190/realtime/assets/jetbrains-mono-latin-400-normal-V6pRDFza.woff2",
+      "http://127.0.0.1:4190/realtime/assets/jetbrains-mono-latin-500-normal-BWZEU5yA.woff2"
+    ],
+    "app": "realtime",
+    "pageErrors": []
+  },
+  {
+    "theme": "dark",
+    "width": 390,
+    "scroll": 390,
+    "font": "\"Plus Jakarta Sans\", sans-serif",
+    "headingFont": "\"Plus Jakarta Sans\", sans-serif",
+    "bg": "rgb(32, 33, 31)",
+    "text": "rgb(238, 237, 229)",
+    "brand": "#b7b7a4",
+    "fontLoaded": true,
+    "loadedFonts": [
+      {
+        "family": "Material Icons Outlined",
+        "weight": "400"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "400"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "500"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "600"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "700"
+      },
+      {
+        "family": "Crimson Pro",
+        "weight": "400"
+      },
+      {
+        "family": "JetBrains Mono",
+        "weight": "400"
+      },
+      {
+        "family": "JetBrains Mono",
+        "weight": "500"
+      }
+    ],
+    "fonts": [
+      "https://fonts.gstatic.com/s/materialiconsoutlined/v110/gok-H7zzDkdnRel8-DQ6KAXJ69wP1tGnf4ZGhUce.woff2",
+      "http://127.0.0.1:4190/realtime/assets/plus-jakarta-sans-latin-400-normal-Dhut76fR.woff2",
+      "http://127.0.0.1:4190/realtime/assets/plus-jakarta-sans-latin-500-normal-Bf-nb4oT.woff2",
+      "http://127.0.0.1:4190/realtime/assets/plus-jakarta-sans-latin-600-normal-DLTa1BUW.woff2",
+      "http://127.0.0.1:4190/realtime/assets/plus-jakarta-sans-latin-700-normal-CfpNZvy6.woff2",
+      "http://127.0.0.1:4190/realtime/assets/crimson-pro-latin-400-normal-B4SlG4wx.woff2",
+      "http://127.0.0.1:4190/realtime/assets/jetbrains-mono-latin-400-normal-V6pRDFza.woff2",
+      "http://127.0.0.1:4190/realtime/assets/jetbrains-mono-latin-500-normal-BWZEU5yA.woff2"
+    ],
+    "app": "realtime",
+    "pageErrors": []
+  },
+  {
+    "theme": "light",
+    "width": 1440,
+    "scroll": 1440,
+    "font": "\"Plus Jakarta Sans\", sans-serif",
+    "headingFont": "\"Plus Jakarta Sans\", sans-serif",
+    "bg": "rgb(249, 247, 242)",
+    "text": "rgb(61, 64, 91)",
+    "brand": "#6b705c",
+    "fontLoaded": true,
+    "loadedFonts": [
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "400"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "600"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "700"
+      },
+      {
+        "family": "JetBrains Mono",
+        "weight": "400"
+      },
+      {
+        "family": "JetBrains Mono",
+        "weight": "500"
+      }
+    ],
+    "fonts": [
+      "http://127.0.0.1:4190/benchmark/assets/plus-jakarta-sans-latin-700-normal-CfpNZvy6.woff2",
+      "http://127.0.0.1:4190/benchmark/assets/plus-jakarta-sans-latin-600-normal-DLTa1BUW.woff2",
+      "http://127.0.0.1:4190/benchmark/assets/plus-jakarta-sans-latin-400-normal-Dhut76fR.woff2",
+      "http://127.0.0.1:4190/benchmark/assets/jetbrains-mono-latin-400-normal-V6pRDFza.woff2",
+      "http://127.0.0.1:4190/benchmark/assets/jetbrains-mono-latin-500-normal-BWZEU5yA.woff2"
+    ],
+    "app": "benchmark",
+    "pageErrors": []
+  },
+  {
+    "theme": "light",
+    "width": 390,
+    "scroll": 390,
+    "font": "\"Plus Jakarta Sans\", sans-serif",
+    "headingFont": "\"Plus Jakarta Sans\", sans-serif",
+    "bg": "rgb(249, 247, 242)",
+    "text": "rgb(61, 64, 91)",
+    "brand": "#6b705c",
+    "fontLoaded": true,
+    "loadedFonts": [
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "400"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "600"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "700"
+      },
+      {
+        "family": "JetBrains Mono",
+        "weight": "400"
+      },
+      {
+        "family": "JetBrains Mono",
+        "weight": "500"
+      }
+    ],
+    "fonts": [
+      "http://127.0.0.1:4190/benchmark/assets/plus-jakarta-sans-latin-400-normal-Dhut76fR.woff2",
+      "http://127.0.0.1:4190/benchmark/assets/plus-jakarta-sans-latin-600-normal-DLTa1BUW.woff2",
+      "http://127.0.0.1:4190/benchmark/assets/plus-jakarta-sans-latin-700-normal-CfpNZvy6.woff2",
+      "http://127.0.0.1:4190/benchmark/assets/jetbrains-mono-latin-400-normal-V6pRDFza.woff2",
+      "http://127.0.0.1:4190/benchmark/assets/jetbrains-mono-latin-500-normal-BWZEU5yA.woff2"
+    ],
+    "app": "benchmark",
+    "pageErrors": []
+  },
+  {
+    "theme": "dark",
+    "width": 1440,
+    "scroll": 1440,
+    "font": "\"Plus Jakarta Sans\", sans-serif",
+    "headingFont": "\"Plus Jakarta Sans\", sans-serif",
+    "bg": "rgb(32, 33, 31)",
+    "text": "rgb(238, 237, 229)",
+    "brand": "#b7b7a4",
+    "fontLoaded": true,
+    "loadedFonts": [
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "400"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "600"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "700"
+      },
+      {
+        "family": "JetBrains Mono",
+        "weight": "400"
+      },
+      {
+        "family": "JetBrains Mono",
+        "weight": "500"
+      }
+    ],
+    "fonts": [
+      "http://127.0.0.1:4190/benchmark/assets/plus-jakarta-sans-latin-400-normal-Dhut76fR.woff2",
+      "http://127.0.0.1:4190/benchmark/assets/plus-jakarta-sans-latin-600-normal-DLTa1BUW.woff2",
+      "http://127.0.0.1:4190/benchmark/assets/plus-jakarta-sans-latin-700-normal-CfpNZvy6.woff2",
+      "http://127.0.0.1:4190/benchmark/assets/jetbrains-mono-latin-400-normal-V6pRDFza.woff2",
+      "http://127.0.0.1:4190/benchmark/assets/jetbrains-mono-latin-500-normal-BWZEU5yA.woff2"
+    ],
+    "app": "benchmark",
+    "pageErrors": []
+  },
+  {
+    "theme": "dark",
+    "width": 390,
+    "scroll": 390,
+    "font": "\"Plus Jakarta Sans\", sans-serif",
+    "headingFont": "\"Plus Jakarta Sans\", sans-serif",
+    "bg": "rgb(32, 33, 31)",
+    "text": "rgb(238, 237, 229)",
+    "brand": "#b7b7a4",
+    "fontLoaded": true,
+    "loadedFonts": [
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "400"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "600"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "weight": "700"
+      },
+      {
+        "family": "JetBrains Mono",
+        "weight": "400"
+      },
+      {
+        "family": "JetBrains Mono",
+        "weight": "500"
+      }
+    ],
+    "fonts": [
+      "http://127.0.0.1:4190/benchmark/assets/plus-jakarta-sans-latin-400-normal-Dhut76fR.woff2",
+      "http://127.0.0.1:4190/benchmark/assets/plus-jakarta-sans-latin-600-normal-DLTa1BUW.woff2",
+      "http://127.0.0.1:4190/benchmark/assets/plus-jakarta-sans-latin-700-normal-CfpNZvy6.woff2",
+      "http://127.0.0.1:4190/benchmark/assets/jetbrains-mono-latin-400-normal-V6pRDFza.woff2",
+      "http://127.0.0.1:4190/benchmark/assets/jetbrains-mono-latin-500-normal-BWZEU5yA.woff2"
+    ],
+    "app": "benchmark",
+    "pageErrors": []
+  }
+]

@@ -11,6 +11,13 @@ const snippetOptions = {
 };
 
 describe('playground model examples', () => {
+  it('emits local artifact loading and omits the automatic-language UI marker', () => {
+    const snippet = buildLiveCodeSnippet({ ...snippetOptions, source: 'local', language: 'auto', encoderBackend: 'webgpu', decoderBackend: 'wasm', encoderQuant: 'fp32', decoderQuant: 'fp16' });
+    expect(snippet).toContain('loadSpeechModelFromLocalEntries');
+    expect(snippet).toContain("decoderQuant: 'fp16'");
+    expect(snippet).not.toContain("language: 'auto'");
+    expect(snippet).not.toContain('loadBuiltInSpeechModel');
+  });
   it('preserves the exact catalog load request and its nested options', () => {
     const options = { cpuThreads: 4, enableProfiling: true, language: 'en' };
     const request = { modelId: 'moonshine-tiny', backend: 'wasm', options };

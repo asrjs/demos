@@ -1,0 +1,211 @@
+{
+  "scope": "Independent receipt audit, not a blanket model PASS; controlled audio only.",
+  "checkedReceipts": 18,
+  "acceptedFlows": 12,
+  "failedFlows": [
+    "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\webgpu\\realtime\\mic-speech-detect-vad-only-ten-vad.json",
+    "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\webgpu\\realtime\\mic-speech-detect-vad-only-firered-vad.json",
+    "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\webgpu\\playground\\streaming.json",
+    "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\wasm\\realtime\\mic-speech-detect-vad-only-ten-vad.json",
+    "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\wasm\\realtime\\mic-speech-detect-vad-only-firered-vad.json",
+    "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\wasm\\playground\\streaming.json"
+  ],
+  "checks": [
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\webgpu\\showcase\\file.json",
+      "sha256": "16725bcf954cc3b791b7dd3ea14ad0220096f761feaf645df5c24b92146644be",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "Ничьих не требуя похвал, Счастлив уж я надеждой сладкой, Что дева с трепетом любви Посмотрит, может быть, украдкой На песни грешные мои. У лукоморья дуб зелёный."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\webgpu\\realtime\\file.json",
+      "sha256": "4a7659d9dc61bb905af4d8ce6c9419ff135da522d8a52b1e10fcfcebd7ed4c17",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "Ничьих не требуя похвал, Счастлив уж я надеждой сладкой, Что дева с трепетом любви Посмотрит, может быть, украдкой На песни грешные мои. У лукоморья дуб зелёный."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\webgpu\\playground\\file.json",
+      "sha256": "3bb77afe2c498d6d948cb530dc2828ec9f85267d8e01429070bb589645b9d716",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "Ничьих не требуя похвал, Счастлив уж я надеждой сладкой, Что дева с трепетом любви Посмотрит, может быть, украдкой На песни грешные мои. У лукоморья дуб зелёный."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\webgpu\\benchmark\\file.json",
+      "sha256": "2f018343ee30cfff5226241c55e2dd46f9534db7a7b3aa42fee0e67ef86f0ece",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "Ничьих не требуя похвал, Счастлив уж я надеждой сладкой, Что дева с трепетом любви Посмотрит, может быть, украдкой На песни грешные мои. У лукоморья дуб зелёный."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\webgpu\\realtime\\mic-manual-manual-none.json",
+      "sha256": "2cf2e4254a6a1efa89f1b1e3ddf4ce9cc367745dd5d5b3dca0cc3986fc7214fe",
+      "status": "PASS_CONTROLLED_MIC",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "Ничьих не требуя похвал, Счастлив уж я надеждой сладкой, Что дева с трепетом любви Посмотрит, может быть, украдкой На песни грешные мои. У лукоморья дуб зелёный"
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\webgpu\\realtime\\mic-speech-detect-vad-only-ten-vad.json",
+      "sha256": "bfeffb7b058e2c8435427717032bd7b5b01d75c25018cf42189101162076da60",
+      "status": "FAIL",
+      "runtimeStatus": "EXECUTED",
+      "exactText": false,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [
+        "Transcript is partial, duplicated, or differs from exact oracle"
+      ],
+      "transcript": "Ничьих не требуя похвал, счастлив уж я надеждой сладкой, Что дева с трепетом люб Там любви посмотрит, может быть, украдкой на песни грешные мои. У Лукоморья дуб зелёный."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\webgpu\\realtime\\mic-speech-detect-vad-only-firered-vad.json",
+      "sha256": "d305b9f743e34e0b4c826a41e4c1794bc54d898fbbcad79d903a06635b7069eb",
+      "status": "FAIL",
+      "runtimeStatus": "EXECUTED",
+      "exactText": false,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [
+        "Transcript is partial, duplicated, or differs from exact oracle"
+      ],
+      "transcript": "Ничьих не требуя похвал, ни Счастлив уж я надеждой сладкой, Что дева с трепетом любви Посмотрит, может быть, украдкой на песни грешные мои. У лукоморья дуб зелёный."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\webgpu\\playground\\playground-record-then-transcribe.json",
+      "sha256": "14f81e5039bcf295a6b41817339c0cc635cda68446d97ec7c7277a65678d44f6",
+      "status": "PASS_CONTROLLED_RECORD_THEN_TRANSCRIBE",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "Ничьих не требуя похвал, Счастлив уж я надеждой сладкой, Что дева с трепетом любви Посмотрит, может быть украдкой На песни грешные мои. У лукоморья дуб зелёный"
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\webgpu\\playground\\streaming.json",
+      "sha256": "2e20e8250f40b5bb36508eb5b567f40be6918ef18e0240a4cfb6dae9e4e634b9",
+      "status": "FAIL",
+      "runtimeStatus": "UNSUPPORTED",
+      "exactText": true,
+      "streamingStatus": "UNSUPPORTED_OFFLINE_FALLBACK",
+      "errors": [
+        "Flow runtime not verified",
+        "Native streaming was unsupported or failed; offline fallback is not a streaming PASS",
+        "Multiple native streaming steps were not verified"
+      ],
+      "transcript": "Ничьих не требуя похвал, Счастлив уж я надеждой сладкой, Что дева с трепетом любви Посмотрит, может быть, украдкой На песни грешные мои. У лукоморья дуб зелёный."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\wasm\\showcase\\file.json",
+      "sha256": "bfbb498b3112cc3291ab7ec7b08251e85f6e5fabfcd23a8165e33bef0f2b2f2e",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "Ничьих не требуя похвал, Счастлив уж я надеждой сладкой, Что дева с трепетом любви Посмотрит, может быть, украдкой На песни грешные мои. У лукоморья дуб зелёный."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\wasm\\realtime\\file.json",
+      "sha256": "c9eb3762c07b0ac04d13fa7a730a9fc37bf8d9a30b9211da898b2eb9cb2141a8",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "Ничьих не требуя похвал, Счастлив уж я надеждой сладкой, Что дева с трепетом любви Посмотрит, может быть, украдкой На песни грешные мои. У лукоморья дуб зелёный."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\wasm\\playground\\file.json",
+      "sha256": "b0fef5505e756a620c129717129dd8020714474f85d4362e7bf9c72faac2279d",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "Ничьих не требуя похвал, Счастлив уж я надеждой сладкой, Что дева с трепетом любви Посмотрит, может быть, украдкой На песни грешные мои. У лукоморья дуб зелёный."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\wasm\\benchmark\\file.json",
+      "sha256": "fc60776d19c6fdd9377f9a81b14edb765580ed7bf1f31ac08b7dc825c4e7a775",
+      "status": "PASS_FILE_FLOW",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "Ничьих не требуя похвал, Счастлив уж я надеждой сладкой, Что дева с трепетом любви Посмотрит, может быть, украдкой На песни грешные мои. У лукоморья дуб зелёный."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\wasm\\realtime\\mic-manual-manual-none.json",
+      "sha256": "901cc49bc7a0dcd8ca64a6bf589dcd9f4d8099fe6010823b8afc32e00148ea96",
+      "status": "PASS_CONTROLLED_MIC",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "Ничьих не требуя похвал, Счастлив уж я надеждой сладкой, Что дева с трепетом любви Посмотрит, может быть украдкой На песни грешные мои. У лукоморья дуб зелёный"
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\wasm\\realtime\\mic-speech-detect-vad-only-ten-vad.json",
+      "sha256": "0c6b09c5554b1a2bf010cf0062e6aa642eadc9046dc88205a6e53a40f8c62f39",
+      "status": "FAIL",
+      "runtimeStatus": "EXECUTED",
+      "exactText": false,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [
+        "Transcript is partial, duplicated, or differs from exact oracle"
+      ],
+      "transcript": "Ничьих не требуя похвал, счастлив уж я надеждой сладкой, Что дева с трепетом люб Там любви посмотрит, может быть, украдкой на песни грешные мои. У Лукоморья дуб зелёный."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\wasm\\realtime\\mic-speech-detect-vad-only-firered-vad.json",
+      "sha256": "9ea7364765a314dc0742d0e33e02fb77f5b2f8fd12e062fdd50c4e0dd62202f7",
+      "status": "FAIL",
+      "runtimeStatus": "EXECUTED",
+      "exactText": false,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [
+        "Transcript is partial, duplicated, or differs from exact oracle"
+      ],
+      "transcript": "Ничьих не требуя похвал, ни Счастлив уж я надеждой сладкой, Что дева с трепетом любви Посмотрит, может быть, украдкой на песни грешные мои. У лукоморья дуб зелёный."
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\wasm\\playground\\playground-record-then-transcribe.json",
+      "sha256": "1333c1c76eca0ea53e78a3fdf5d5c1f9c79507d0f819caff51b1d5d188419030",
+      "status": "PASS_CONTROLLED_RECORD_THEN_TRANSCRIBE",
+      "runtimeStatus": "EXECUTED",
+      "exactText": true,
+      "streamingStatus": "NOT_REQUESTED",
+      "errors": [],
+      "transcript": "Ничьих не требуя похвал, Счастлив уж я надеждой сладкой, Что дева с трепетом любви Посмотрит, может быть украдкой На песни грешные мои. У лукоморья дуб зелёный"
+    },
+    {
+      "path": "N:\\github\\asrjs\\demos\\tmp\\real-e2e\\remaining-models-20261025\\modern-four-v17\\gigaam-rnnt\\wasm\\playground\\streaming.json",
+      "sha256": "1c0c86a04d9c4c4312008595d3606750ce136a67eca12f7c19c11bcbc1042db1",
+      "status": "FAIL",
+      "runtimeStatus": "UNSUPPORTED",
+      "exactText": true,
+      "streamingStatus": "UNSUPPORTED_OFFLINE_FALLBACK",
+      "errors": [
+        "Flow runtime not verified",
+        "Native streaming was unsupported or failed; offline fallback is not a streaming PASS",
+        "Multiple native streaming steps were not verified"
+      ],
+      "transcript": "Ничьих не требуя похвал, Счастлив уж я надеждой сладкой, Что дева с трепетом любви Посмотрит, может быть, украдкой На песни грешные мои. У лукоморья дуб зелёный."
+    }
+  ]
+}

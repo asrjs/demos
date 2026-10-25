@@ -19,7 +19,7 @@ export function ModelSidebar({ app, hidden = false }) {
   const {
     MODEL_SOURCE_OPTIONS,
     isInIframe,
-    supportsLocalSource,
+    modelSourceOptions = [],
     modelConfig,
     modelSourceValue,
     handleModelSourceChange,
@@ -123,7 +123,7 @@ export function ModelSidebar({ app, hidden = false }) {
               {modelSource === MODEL_SOURCE_OPTIONS.LOCAL ? 'Local assets' : `Revision ${modelRevision}`}
             </div>
           </div>
-          <button onClick={loadModel} disabled={isLoading || isModelReady} type="button" className="compact-button-dark compact-button--block">
+          <button onClick={loadModel} disabled={isLoading || isModelReady || (modelSource === MODEL_SOURCE_OPTIONS.LOCAL && (!localEntries.length || !encoderQuantOptions.length || !decoderQuantOptions.length))} type="button" className="compact-button-dark compact-button--block">
             {isModelReady ? 'Model Loaded' : isLoading ? 'Loading…' : 'Load Model'}
           </button>
           {progressPct !== null ? (
@@ -196,30 +196,31 @@ export function ModelSidebar({ app, hidden = false }) {
                 disabled={isLoading || isModelReady}
                 className="compact-control"
               >
-                <option value={MODEL_SOURCE_OPTIONS.HUGGINGFACE}>Hugging Face</option>
-                {!isInIframe && supportsLocalSource ? <option value={MODEL_SOURCE_OPTIONS.LOCAL}>Local folder</option> : null}
+                {modelSourceOptions.map((source) => (
+                  <option key={source} value={source}>{source === MODEL_SOURCE_OPTIONS.LOCAL ? 'Local folder' : 'Hugging Face'}</option>
+                ))}
               </select>
               <span className="material-icons-outlined select-wrap__chevron icon-sm">expand_more</span>
             </div>
           </Field>
 
-          {modelSource === MODEL_SOURCE_OPTIONS.HUGGINGFACE ? (
-            <Field label="Model">
-              <div className="select-wrap">
-                <select
-                  value={selectedModel}
-                  onChange={(e) => handleModelChange(e.target.value)}
-                  disabled={isLoading || isModelReady}
-                  className="compact-control"
-                >
-                  {MODEL_OPTIONS.map((opt) => (
-                    <option key={opt.key} value={opt.key}>{opt.displayName}</option>
-                  ))}
-                </select>
-                <span className="material-icons-outlined select-wrap__chevron icon-sm">expand_more</span>
-              </div>
-            </Field>
-          ) : (
+          <Field label="Model">
+            <div className="select-wrap">
+              <select
+                value={selectedModel}
+                onChange={(e) => handleModelChange(e.target.value)}
+                disabled={isLoading || isModelReady}
+                className="compact-control"
+              >
+                {MODEL_OPTIONS.map((opt) => (
+                  <option key={opt.key} value={opt.key}>{opt.displayName}</option>
+                ))}
+              </select>
+              <span className="material-icons-outlined select-wrap__chevron icon-sm">expand_more</span>
+            </div>
+          </Field>
+
+          {modelSource === MODEL_SOURCE_OPTIONS.LOCAL ? (
             <div className="app-stack--sm">
               <input
                 ref={modelFolderInputRef}
@@ -251,7 +252,7 @@ export function ModelSidebar({ app, hidden = false }) {
                 <div>Frontend: {localDetectedArtifacts.preprocessors.length ? localDetectedArtifacts.preprocessors.join(', ') : 'none'}</div>
               </div>
             </div>
-          )}
+          ) : null}
 
           {modelConfig?.description ? (
             <div className="demo-soft-box type-caption text-ink" title={modelConfig.description}>
@@ -344,9 +345,7 @@ export function ModelSidebar({ app, hidden = false }) {
               ) : null}
               {hostedModelUsesJsFrontend ? <div className="type-caption">JS default</div> : null}
             </>
-          ) : (
-            <div className="type-caption">Built-in MedASR frontend</div>
-          )}
+          ) : null}
           {supportsCanaryPrompting ? (
             <div className="demo-soft-box app-stack--xs">
               <div className="flex-row flex-row--between gap-2">

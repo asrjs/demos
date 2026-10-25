@@ -1,0 +1,157 @@
+{
+  "app": "realtime",
+  "load": "PASS",
+  "file": "PASS",
+  "microphoneControlled": "FAIL",
+  "physicalMicrophone": "UNVERIFIED",
+  "console": [
+    {
+      "type": "log",
+      "text": "[LocalFolder] Folder input fallback selected files {count: 86}"
+    },
+    {
+      "type": "log",
+      "text": "[LocalFolder] Parsing selected local folder entries\u2026 {count: 86, folderName: parakeet-tdt-0.6b-v3-onnx}"
+    },
+    {
+      "type": "log",
+      "text": "[LocalFolder] Starting model load from local artifacts"
+    },
+    {
+      "type": "warning",
+      "text": "The powerPreference option is currently ignored when calling requestAdapter() on Windows. See https://crbug.com/369219127"
+    },
+    {
+      "type": "error",
+      "text": "\u001b[0;93m2026-10-22 21:43:09.636454 [W:onnxruntime:, session_state.cc:1398 VerifyEachNodeIsAssignedToAnEp] Some nodes were not assigned to the preferred execution providers which may or may not have an negative impact on performance. e.g. ORT explicitly assigns shape related ops to CPU to improve perf.\u001b[m"
+    },
+    {
+      "type": "error",
+      "text": "\u001b[0;93m2026-10-22 21:43:09.638684 [W:onnxruntime:, session_state.cc:1400 VerifyEachNodeIsAssignedToAnEp] Rerunning with verbose output on a non-minimal build will show node assignments.\u001b[m"
+    },
+    {
+      "type": "log",
+      "text": "[LocalFolder] Selected artifacts {encoder: encoder-model.fp16.onnx, decoder: decoder_joint-model.onnx, tokenizer: vocab.txt, preprocessorBackend: js, preprocessor: null}"
+    },
+    {
+      "type": "log",
+      "text": "[LocalFolder] Model sessions created from local artifacts"
+    },
+    {
+      "type": "log",
+      "text": "[LoadModel] Running warm-up verification transcription"
+    },
+    {
+      "type": "log",
+      "text": "[Cache] Fetching audio from: /realtime/assets/Harvard-L2-1-B6X4PDwP.ogg"
+    },
+    {
+      "type": "log",
+      "text": "[Cache] Cached audio: Harvard-L2-1.ogg"
+    },
+    {
+      "type": "log",
+      "text": "[App] Model verification successful."
+    },
+    {
+      "type": "timeEnd",
+      "text": "LoadModel: 8624.56494140625 ms"
+    },
+    {
+      "type": "timeEnd",
+      "text": "Transcribe-jfk2.en.wav: 807.239013671875 ms"
+    },
+    {
+      "type": "error",
+      "text": "\u001b[0;93m2026-10-22 21:43:19.340369 [W:onnxruntime:, session_state.cc:1398 VerifyEachNodeIsAssignedToAnEp] Some nodes were not assigned to the preferred execution providers which may or may not have an negative impact on performance. e.g. ORT explicitly assigns shape related ops to CPU to improve perf.\u001b[m"
+    },
+    {
+      "type": "error",
+      "text": "\u001b[0;93m2026-10-22 21:43:19.344470 [W:onnxruntime:, session_state.cc:1400 VerifyEachNodeIsAssignedToAnEp] Rerunning with verbose output on a non-minimal build will show node assignments.\u001b[m"
+    },
+    {
+      "type": "log",
+      "text": "[MicWorker] Ready {source: local, modelId: undefined, info: Object, selection: Object}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] enqueue {sourceLabel: microphone-stop-21:43:27, durationSeconds: 12.54, pending: 1, transcriber: worker}"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] start {sourceLabel: microphone-stop-21:43:27, durationSeconds: 12.54, pending: 0, transcriber: worker}"
+    },
+    {
+      "type": "error",
+      "text": "[Mic] Transcription failed: Error: NeMo TDT encoder output shape [1, 1024, 151] matches neither axis of encoded_lengths=150.\n    at h (http://127.0.0.1:4190/realtime/assets/index-B411HT1i.js:111:12040)\n    at r.onmessage (http://127.0.0.1:4190/realtime/assets/index-B411HT1i.js:111:12394)"
+    },
+    {
+      "type": "debug",
+      "text": "[MicQueue] failed {sourceLabel: microphone-stop-21:43:27, pending: 0, error: NeMo TDT encoder output shape [1, 1024, 151] matches neither axis of encoded_lengths=150.}"
+    }
+  ],
+  "pageErrors": [],
+  "requests": [
+    "http://127.0.0.1:4190/realtime/ort/ort-wasm-simd-threaded.jsep.mjs",
+    "http://127.0.0.1:4190/realtime/ort/ort-wasm-simd-threaded.jsep.mjs",
+    "http://127.0.0.1:4190/realtime/ort/ort-wasm-simd-threaded.jsep.mjs",
+    "http://127.0.0.1:4190/realtime/ort/ort-wasm-simd-threaded.jsep.mjs",
+    "http://127.0.0.1:4190/realtime/ort/ort-wasm-simd-threaded.jsep.wasm",
+    "http://127.0.0.1:4190/realtime/ort/ort-wasm-simd-threaded.jsep.mjs",
+    "http://127.0.0.1:4190/realtime/ort/ort-wasm-simd-threaded.jsep.mjs",
+    "http://127.0.0.1:4190/realtime/ort/ort-wasm-simd-threaded.jsep.mjs",
+    "http://127.0.0.1:4190/realtime/ort/ort-wasm-simd-threaded.jsep.mjs",
+    "http://127.0.0.1:4190/realtime/ort/ort-wasm-simd-threaded.jsep.mjs",
+    "http://127.0.0.1:4190/realtime/ort/ort-wasm-simd-threaded.jsep.wasm"
+  ],
+  "loadBody": "A\nASRJS\nSpeech recognition\n\nREALTIME WORKSTATION\n\nLive transcription\n0.2.0 npm-package\n\u25d0\nAppearance\nTranscribe\nPlayground\nLive\nBenchmark\nRealtime VAD Lab\nTranscript & Subtitles\ntune\nModel ready \u00b7 webgpu-hybrid \u00b7 Microphone idle\nLoad\nready\nparakeet-tdt-0.6b-v3-onnx\nLocal assets\nModel Loaded\nValidation\nInput language\nEnglish\nFrench\nGerman\nSpanish\nItalian\nPortuguese\nDutch\nPolish\nexpand_more\nLoad Sample\nupload_file\nDrop or click to transcribe\nModel Settings\nArtifact source\nHugging Face\nLocal folder\nexpand_more\nLocal folder\nparakeet-tdt-0.6b-v3-onnx\nfolder_open\nFiles: 86\nEncoder: fp32, fp16, int8\nDecoder: fp32, fp16, int8\nTokenizer: vocab.txt\nFrontend: nemo128\nParakeet TDT 0.6B v3 (Multilingual)\nRuntime Settings\nRuntime backend\nWebGPU\nWASM\nexpand_more\nEncoder\nwebgpu\nwasm\nexpand_more\nDecoder\nwasm\nexpand_more\nThreads\nStride\nEncoder quant\nfp32\nfp16\nint8\nexpand_more\nDecoder quant\nfp32\nfp16\nint8\nexpand_more\nPrompt Settings\nFrontend\nJS frontend\nONNX frontend\nexpand_more\nTokenizer\nvocab.txt\nexpand_more\nVerbose logging\nLog results\nEnable profiling\nCapture\n0.00\nSIG\n-100.0\nAVG\n-100.0\nGATE\n-21.9\nNOISE\n-46.0\nSEGS\n0/0\nAUDIO\n16000Hz\nBUF\n12.0s\nSNR\n0.00\nTHR\n3.00\nWAVEFORM\nidle \u00b7 main\nRATE target 16000 Hz\n\u00b7\nCHUNK 16 ms/256f\n\u00b7\nWIN 12.00 s\n\u00b7\nSEG inactive\n\u00b7\nBUF 0/750 pad 750\n\u00b7\nPUB/PAINT 0/s 0/s\nMODE rough-only\n\u00b7\nRELEASE 400 ms\n\u00b7\nNOISE -46.0 dBFS\n\u00b7\nGATE -21.9 dBFS\n\u00b7\nFINAL GATE --\n\u00b7\nGATE LINES on\n\u00b7\nFIRERED on\n\u00b7\nSCALE physical\nWaveform display\nSurface\ncompact stats + waveform + footer metrics\nFull\nStats Only\nWaveform Only\nView\nraw amplitude\nPhysical\nFocus\nBalanced\nGate lines\nwaveform legend\nshow\nhide\nFireRed line\ndiagnostic only\nshow\nhide\nRMS\ndiagnostic\nhide\nshow\nFinal Acceptance\nDuration and normalized 16 kHz energy thresholds used after live segmentation.\nFinal segment gate\nrough-only\nenabled\ndisabled\nAcceptance preset\nUpdates the final segment acceptance thresholds together.\nOpen\nBalanced\nStrict\nCustom\nMin final duration\n240 ms\nMin power\n5.00\nMin integral\n22.00\nAdaptive noise-scaled acceptance controls.\nShow advanced\nDetector tuning\nPreset\nMedium\nMedium\nFast\nSlow\nCustom\nDefault mode\nmanual\nVAD backend\n10 ms hop / 20 ms visual\nFireRed VAD\nTEN-VAD\nGate mode\nrough-only\nRough only\nHybrid\nVAD only\nLive Segmenter\nPeak-energy speech trigger, smoothing, and silence release.\nEnergy threshold\n0.08\nAnalysis window\n80 ms\nEnergy smoothing\n480 ms\nSilence release\n400 ms\nMax segment\n4800 ms\nExtraction Timing\nLookback, overlap, and tail padding applied when a segment is extracted.\nLookback\n128 ms\nOverlap\n80 ms\nTail padding\n160 ms\nNoise Adaptation\nHow the baseline noise floor and onset backtracking adapt over time.\nInitial noise\n0.00500\nFast adapt\n0.15\nSlow adapt\n0.05\nBlend duration\n1.0 s\nSNR display gate\n3.00\nOnset SNR floor\n1.00\nRise threshold\n0.08\nMicrophone\n\nStart capture, switch mode, and send buffered speech.\n\nMode\nManual\nSpeech Detect\nStart Mic\nAdvanced\nMicrophone idle\nDetector readout\n\nLive rough-gate state, adaptive noise floor, and final segment energy metrics.\n\nLEVEL\n-100.0 dBFS\nwindow -100.0 dBFS\nNOISE FLOOR\n-46.0 dBFS\nconfirmed -46.0 dBFS \u00b7 rejected -46.0 dBFS\nFINAL POWER\n--\nmin --\nFINAL INTEGRAL\n--\nmin --\nDETECTOR MODE\nrough-only\nreq rough-only\nFIRERED-VAD\n0.00\ndiagnostic only\nFILTER\narmed\nwaiting\nVAD BUFFER\nempty\nmax 0.00\nWarnings\nSpeech segmentation is running on the rough gate. FireRed VAD is diagnostics-only.\nDecisions\nNo decisions yet.\nSegments\nNo segments yet.\nTranscript & Word Alignment\nNo text yet.\nTOTAL\n--\nAwaiting result\nDECODE\n--\nAwaiting result\nCONFIDENCE\n--\nNo finished utterance\nQUEUE\nclear\nReady\nReference\nASRJS \u00b7 browser speech lab\nLibrary 0.2.0 \u00b7 npm-package",
+  "fileBody": "A\nASRJS\nSpeech recognition\n\nREALTIME WORKSTATION\n\nLive transcription\n0.2.0 npm-package\n\u25d0\nAppearance\nTranscribe\nPlayground\nLive\nBenchmark\nRealtime VAD Lab\nTranscript & Subtitles\ntune\nModel ready \u00b7 webgpu-hybrid \u00b7 Microphone idle\nLoad\nready\nparakeet-tdt-0.6b-v3-onnx\nLocal assets\nModel Loaded\nValidation\nInput language\nEnglish\nFrench\nGerman\nSpanish\nItalian\nPortuguese\nDutch\nPolish\nexpand_more\nLoad Sample\nupload_file\nDrop or click to transcribe\nModel Settings\nArtifact source\nHugging Face\nLocal folder\nexpand_more\nLocal folder\nparakeet-tdt-0.6b-v3-onnx\nfolder_open\nFiles: 86\nEncoder: fp32, fp16, int8\nDecoder: fp32, fp16, int8\nTokenizer: vocab.txt\nFrontend: nemo128\nParakeet TDT 0.6B v3 (Multilingual)\nRuntime Settings\nRuntime backend\nWebGPU\nWASM\nexpand_more\nEncoder\nwebgpu\nwasm\nexpand_more\nDecoder\nwasm\nexpand_more\nThreads\nStride\nEncoder quant\nfp32\nfp16\nint8\nexpand_more\nDecoder quant\nfp32\nfp16\nint8\nexpand_more\nPrompt Settings\nFrontend\nJS frontend\nONNX frontend\nexpand_more\nTokenizer\nvocab.txt\nexpand_more\nVerbose logging\nLog results\nEnable profiling\nCapture\n0.00\nSIG\n-100.0\nAVG\n-100.0\nGATE\n-21.9\nNOISE\n-46.0\nSEGS\n0/0\nAUDIO\n16000Hz\nBUF\n12.0s\nSNR\n0.00\nTHR\n3.00\nWAVEFORM\nidle \u00b7 main\nRATE target 16000 Hz\n\u00b7\nCHUNK 16 ms/256f\n\u00b7\nWIN 12.00 s\n\u00b7\nSEG inactive\n\u00b7\nBUF 0/750 pad 750\n\u00b7\nPUB/PAINT 0/s 0/s\nMODE rough-only\n\u00b7\nRELEASE 400 ms\n\u00b7\nNOISE -46.0 dBFS\n\u00b7\nGATE -21.9 dBFS\n\u00b7\nFINAL GATE --\n\u00b7\nGATE LINES on\n\u00b7\nFIRERED on\n\u00b7\nSCALE physical\nWaveform display\nSurface\ncompact stats + waveform + footer metrics\nFull\nStats Only\nWaveform Only\nView\nraw amplitude\nPhysical\nFocus\nBalanced\nGate lines\nwaveform legend\nshow\nhide\nFireRed line\ndiagnostic only\nshow\nhide\nRMS\ndiagnostic\nhide\nshow\nFinal Acceptance\nDuration and normalized 16 kHz energy thresholds used after live segmentation.\nFinal segment gate\nrough-only\nenabled\ndisabled\nAcceptance preset\nUpdates the final segment acceptance thresholds together.\nOpen\nBalanced\nStrict\nCustom\nMin final duration\n240 ms\nMin power\n5.00\nMin integral\n22.00\nAdaptive noise-scaled acceptance controls.\nShow advanced\nDetector tuning\nPreset\nMedium\nMedium\nFast\nSlow\nCustom\nDefault mode\nmanual\nVAD backend\n10 ms hop / 20 ms visual\nFireRed VAD\nTEN-VAD\nGate mode\nrough-only\nRough only\nHybrid\nVAD only\nLive Segmenter\nPeak-energy speech trigger, smoothing, and silence release.\nEnergy threshold\n0.08\nAnalysis window\n80 ms\nEnergy smoothing\n480 ms\nSilence release\n400 ms\nMax segment\n4800 ms\nExtraction Timing\nLookback, overlap, and tail padding applied when a segment is extracted.\nLookback\n128 ms\nOverlap\n80 ms\nTail padding\n160 ms\nNoise Adaptation\nHow the baseline noise floor and onset backtracking adapt over time.\nInitial noise\n0.00500\nFast adapt\n0.15\nSlow adapt\n0.05\nBlend duration\n1.0 s\nSNR display gate\n3.00\nOnset SNR floor\n1.00\nRise threshold\n0.08\nMicrophone\n\nStart capture, switch mode, and send buffered speech.\n\nMode\nManual\nSpeech Detect\nStart Mic\nAdvanced\nMicrophone idle\nDetector readout\n\nLive rough-gate state, adaptive noise floor, and final segment energy metrics.\n\nLEVEL\n-100.0 dBFS\nwindow -100.0 dBFS\nNOISE FLOOR\n-46.0 dBFS\nconfirmed -46.0 dBFS \u00b7 rejected -46.0 dBFS\nFINAL POWER\n--\nmin --\nFINAL INTEGRAL\n--\nmin --\nDETECTOR MODE\nrough-only\nreq rough-only\nFIRERED-VAD\n0.00\ndiagnostic only\nFILTER\narmed\nwaiting\nVAD BUFFER\nempty\nmax 0.00\nWarnings\nSpeech segmentation is running on the rough gate. FireRed VAD is diagnostics-only.\nDecisions\nNo decisions yet.\nSegments\nNo segments yet.\nTranscript & Word Alignment\nCopySRTVTTJSON\nAnd so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country.\nAnd0.24s\u20130.56sso,0.56s\u20131.04smy1.04s\u20131.28sfellow1.28s\u20131.76sAmericans,1.76s\u20133.28sask3.28s\u20133.92snot4.24s\u20134.56swhat5.20s\u20135.52syour5.68s\u20136.00scountry6.00s\u20136.56scan6.56s\u20136.80sdo6.80s\u20137.12sfor7.12s\u20137.44syou,7.44s\u20138.16sask8.16s\u20138.72swhat8.72s\u20138.96syou8.96s\u20139.28scan9.28s\u20139.52sdo9.52s\u20139.68sfor9.68s\u20139.92syour9.92s\u201310.08scountry.10.08s\u201310.88s\nTOTAL\n803 ms\nencode 598 ms\nDECODE\n144 ms\nrtf 0.07x\nCONFIDENCE\n99%\n22 words\nQUEUE\nclear\nReady\nReference\nHistory\nClear All\njfk2.en.wav\nEnglish\n21:43:14\n11.0s\n22 words\n99%\nRTF 0.07x\nAnd so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country.\nASRJS \u00b7 browser speech lab\nLibrary 0.2.0 \u00b7 npm-package",
+  "captureBoundary": [
+    {
+      "inputSamples": 200704,
+      "submittedSamples": 192000,
+      "sampleRate": 16000
+    }
+  ],
+  "microphoneBody": "A\nASRJS\nSpeech recognition\n\nREALTIME WORKSTATION\n\nLive transcription\n0.2.0 npm-package\n\u25d0\nAppearance\nTranscribe\nPlayground\nLive\nBenchmark\nRealtime VAD Lab\nTranscript & Subtitles\ntune\nMicrophone transcription failed: NeMo TDT encoder output shape [1, 1024, 151] matches neither axis of encoded_lengths=150. \u00b7 webgpu-hybrid \u00b7 Microphone stopped\nLoad\nready\nparakeet-tdt-0.6b-v3-onnx\nLocal assets\nModel Loaded\nValidation\nInput language\nEnglish\nFrench\nGerman\nSpanish\nItalian\nPortuguese\nDutch\nPolish\nexpand_more\nLoad Sample\nupload_file\nDrop or click to transcribe\nModel Settings\nArtifact source\nHugging Face\nLocal folder\nexpand_more\nLocal folder\nparakeet-tdt-0.6b-v3-onnx\nfolder_open\nFiles: 86\nEncoder: fp32, fp16, int8\nDecoder: fp32, fp16, int8\nTokenizer: vocab.txt\nFrontend: nemo128\nParakeet TDT 0.6B v3 (Multilingual)\nRuntime Settings\nRuntime backend\nWebGPU\nWASM\nexpand_more\nEncoder\nwebgpu\nwasm\nexpand_more\nDecoder\nwasm\nexpand_more\nThreads\nStride\nEncoder quant\nfp32\nfp16\nint8\nexpand_more\nDecoder quant\nfp32\nfp16\nint8\nexpand_more\nPrompt Settings\nFrontend\nJS frontend\nONNX frontend\nexpand_more\nTokenizer\nvocab.txt\nexpand_more\nVerbose logging\nLog results\nEnable profiling\nCapture\n0.00\nSIG\n-100.0\nAVG\n-100.0\nGATE\n-21.9\nNOISE\n-46.0\nSEGS\n0/0\nAUDIO\n16000Hz\nBUF\n12.0s\nSNR\n0.00\nTHR\n3.00\nWAVEFORM\nidle \u00b7 main\nRATE target 16000 Hz\n\u00b7\nCHUNK 16 ms/256f\n\u00b7\nWIN 12.00 s\n\u00b7\nSEG inactive\n\u00b7\nBUF 0/750 pad 750\n\u00b7\nPUB/PAINT 0/s 0/s\nMODE rough-only\n\u00b7\nRELEASE 400 ms\n\u00b7\nNOISE -46.0 dBFS\n\u00b7\nGATE -21.9 dBFS\n\u00b7\nFINAL GATE --\n\u00b7\nGATE LINES on\n\u00b7\nFIRERED on\n\u00b7\nSCALE physical\nWaveform display\nSurface\ncompact stats + waveform + footer metrics\nFull\nStats Only\nWaveform Only\nView\nraw amplitude\nPhysical\nFocus\nBalanced\nGate lines\nwaveform legend\nshow\nhide\nFireRed line\ndiagnostic only\nshow\nhide\nRMS\ndiagnostic\nhide\nshow\nFinal Acceptance\nDuration and normalized 16 kHz energy thresholds used after live segmentation.\nFinal segment gate\nrough-only\nenabled\ndisabled\nAcceptance preset\nUpdates the final segment acceptance thresholds together.\nOpen\nBalanced\nStrict\nCustom\nMin final duration\n240 ms\nMin power\n5.00\nMin integral\n22.00\nAdaptive noise-scaled acceptance controls.\nShow advanced\nDetector tuning\nPreset\nMedium\nMedium\nFast\nSlow\nCustom\nDefault mode\nmanual\nVAD backend\n10 ms hop / 20 ms visual\nFireRed VAD\nTEN-VAD\nGate mode\nrough-only\nRough only\nHybrid\nVAD only\nLive Segmenter\nPeak-energy speech trigger, smoothing, and silence release.\nEnergy threshold\n0.08\nAnalysis window\n80 ms\nEnergy smoothing\n480 ms\nSilence release\n400 ms\nMax segment\n4800 ms\nExtraction Timing\nLookback, overlap, and tail padding applied when a segment is extracted.\nLookback\n128 ms\nOverlap\n80 ms\nTail padding\n160 ms\nNoise Adaptation\nHow the baseline noise floor and onset backtracking adapt over time.\nInitial noise\n0.00500\nFast adapt\n0.15\nSlow adapt\n0.05\nBlend duration\n1.0 s\nSNR display gate\n3.00\nOnset SNR floor\n1.00\nRise threshold\n0.08\nMicrophone\n\nStart capture, switch mode, and send buffered speech.\n\nMode\nManual\nSpeech Detect\nStart Mic\nAdvanced\nMicrophone stopped\nDetector readout\n\nLive rough-gate state, adaptive noise floor, and final segment energy metrics.\n\nLEVEL\n-100.0 dBFS\nwindow -100.0 dBFS\nNOISE FLOOR\n-46.0 dBFS\nconfirmed -46.0 dBFS \u00b7 rejected -46.0 dBFS\nFINAL POWER\n--\nmin --\nFINAL INTEGRAL\n--\nmin --\nDETECTOR MODE\nrough-only\nreq rough-only\nFIRERED-VAD\n0.00\ndiagnostic only\nFILTER\narmed\nwaiting\nVAD BUFFER\nempty\nmax 0.00\nWarnings\nSpeech segmentation is running on the rough gate. FireRed VAD is diagnostics-only.\nDecisions\nNo decisions yet.\nSegments\nNo segments yet.\nTranscript & Word Alignment\nCopySRTVTTJSON\nAnd so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country.\nAnd0.24s\u20130.56sso,0.56s\u20131.04smy1.04s\u20131.28sfellow1.28s\u20131.76sAmericans,1.76s\u20133.28sask3.28s\u20133.92snot4.24s\u20134.56swhat5.20s\u20135.52syour5.68s\u20136.00scountry6.00s\u20136.56scan6.56s\u20136.80sdo6.80s\u20137.12sfor7.12s\u20137.44syou,7.44s\u20138.16sask8.16s\u20138.72swhat8.72s\u20138.96syou8.96s\u20139.28scan9.28s\u20139.52sdo9.52s\u20139.68sfor9.68s\u20139.92syour9.92s\u201310.08scountry.10.08s\u201310.88s\nTOTAL\n803 ms\nencode 598 ms\nDECODE\n144 ms\nrtf 0.07x\nCONFIDENCE\n99%\n22 words\nQUEUE\nclear\nReady\nReference\nHistory\nClear All\njfk2.en.wav\nEnglish\n21:43:14\n11.0s\n22 words\n99%\nRTF 0.07x\nAnd so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country.\nASRJS \u00b7 browser speech lab\nLibrary 0.2.0 \u00b7 npm-package",
+  "buttons": [
+    "\u25d0Appearance",
+    "Realtime VAD Lab",
+    "Transcript & Subtitles",
+    "tune",
+    "Model Loaded",
+    "Load Sample",
+    "folder_open",
+    "Show advanced",
+    "Start Mic",
+    "Advanced",
+    "Copy",
+    "SRT",
+    "VTT",
+    "JSON",
+    "And0.24s\u20130.56s",
+    "so,0.56s\u20131.04s",
+    "my1.04s\u20131.28s",
+    "fellow1.28s\u20131.76s",
+    "Americans,1.76s\u20133.28s",
+    "ask3.28s\u20133.92s",
+    "not4.24s\u20134.56s",
+    "what5.20s\u20135.52s",
+    "your5.68s\u20136.00s",
+    "country6.00s\u20136.56s",
+    "can6.56s\u20136.80s",
+    "do6.80s\u20137.12s",
+    "for7.12s\u20137.44s",
+    "you,7.44s\u20138.16s",
+    "ask8.16s\u20138.72s",
+    "what8.72s\u20138.96s",
+    "you8.96s\u20139.28s",
+    "can9.28s\u20139.52s",
+    "do9.52s\u20139.68s",
+    "for9.68s\u20139.92s",
+    "your9.92s\u201310.08s",
+    "country.10.08s\u201310.88s",
+    "Clear All"
+  ],
+  "exception": "AssertionError()"
+}

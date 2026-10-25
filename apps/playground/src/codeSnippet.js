@@ -6,6 +6,11 @@ export function buildLiveCodeSnippet({
   responseFlavor,
   language,
   supportsStreaming = false,
+  source = 'huggingface',
+  encoderBackend,
+  decoderBackend,
+  encoderQuant,
+  decoderQuant,
 }) {
   if (loadStrategy === 'universal-catalog') {
     const streamExample = supportsStreaming
@@ -19,18 +24,34 @@ export function buildLiveCodeSnippet({
   }
 }`
       : `// model.supportsStreaming is false; the batch transcription above is the supported path.`;
-    return `import { PcmAudioBuffer } from '@asrjs/speech-recognition';
+    const modelLoadExample = source === 'local'
+      ? `import { PcmAudioBuffer } from '@asrjs/speech-recognition';
+import { collectSpeechModelLocalEntries, loadSpeechModelFromLocalEntries } from '@asrjs/speech-recognition/browser';
+
+const directoryHandle = await window.showDirectoryPicker({ mode: 'read' });
+const entries = await collectSpeechModelLocalEntries(directoryHandle);
+const model = await loadSpeechModelFromLocalEntries({
+  modelId: '${modelId}',
+  entries,
+  backend: '${backend}',
+  encoderBackend: '${encoderBackend || 'webgpu'}',
+  decoderBackend: '${decoderBackend || 'wasm'}',
+  encoderQuant: '${encoderQuant || 'fp32'}',
+  decoderQuant: '${decoderQuant || 'fp32'}',
+});`
+      : `import { PcmAudioBuffer } from '@asrjs/speech-recognition';
 import { loadBuiltInSpeechModel } from '@asrjs/speech-recognition/builtins';
 
 const model = await loadBuiltInSpeechModel({
   modelId: '${modelId}',
   backend: '${backend}',
-});
+});`;
+    return `${modelLoadExample}
 
 // Offline / Batch Transcription
 const result = await model.transcribe(
   PcmAudioBuffer.fromMono(pcmFloat32, 16000),
-  { detail: '${detail}', responseFlavor: '${responseFlavor}', language: '${language}' }
+  { detail: '${detail}', responseFlavor: '${responseFlavor}'${language === 'auto' ? '' : `, language: '${language}'`} }
 );
 
 // Stateful Streaming (available only when the loaded model supports it)

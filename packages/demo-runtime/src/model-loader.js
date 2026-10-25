@@ -1,6 +1,7 @@
 import {
   buildSpeechModelLoadOptions, createSpeechPipeline, getSpeechModelDescriptor,
 } from '@asrjs/speech-recognition';
+import { assertDemoModelRuntimeBackend } from './model-loading.js';
 
 function stableValue(value) {
   if (Array.isArray(value)) return value.map(stableValue);
@@ -33,7 +34,12 @@ export function createDemoHubLoader({ createPipeline = createSpeechPipeline } = 
     loadModel(options) {
       if (closed) return Promise.reject(new Error('Demo model loader has been disposed.'));
       const run = async () => {
-        if (!getSpeechModelDescriptor(options.modelId)) throw new Error(`Unknown demo model "${options.modelId}".`);
+        const descriptor = getSpeechModelDescriptor(options.modelId);
+        if (!descriptor) throw new Error(`Unknown demo model "${options.modelId}".`);
+        assertDemoModelRuntimeBackend(descriptor, options.backend);
+        if (descriptor.loading.supportsHubSource === false) {
+          throw new Error('This model requires a local folder. Select Local folder before loading.');
+        }
         const request = buildDemoModelLoadRequest(options);
         const cacheKey = getDemoModelCacheKey(request);
         const fromCache = pipeline.listLoadedModels().includes(cacheKey);

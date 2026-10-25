@@ -1,0 +1,7 @@
+{
+  "snapshotAt": "2026-10-24T16:28:19.320082+00:00",
+  "archive": "receipts.json.gz",
+  "sha256": "c4589a2844ec6ca7bf92eb19b2bb6eb0cc71fa326b09caf3d162811594f08f13",
+  "receiptCount": 423,
+  "policy": "Original JSON receipt snapshots, including failures and setup errors. No audio, models, browser profile, or screenshots. Historical runs are not latest-version certification. Running/UNVERIFIED receipts remain unaccepted."
+}

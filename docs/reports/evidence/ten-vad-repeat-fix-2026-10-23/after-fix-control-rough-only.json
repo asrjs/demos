@@ -1,0 +1,371 @@
+{
+  "phase": "after-fix-control",
+  "gate": "rough-only",
+  "status": "PASS_CONTROLLED_FIXTURE",
+  "physicalMicrophone": "UNVERIFIED",
+  "fixtureSha256": "59dfb9a4acb36fe2a2affc14bacbee2920ff435cb13cc314a08c13f66ba7860e",
+  "captureFixtureSha256": "ee34fbf8474167329f04294d01fbffcdd79a014da8f534ce06e21750943061b6",
+  "pageErrors": [],
+  "startedAt": "2026-10-23T02:20:33",
+  "modelDir": "N:\\models\\onnx\\nemo\\parakeet-tdt-0.6b-v3-onnx",
+  "load": "EXECUTED",
+  "beforeCaptureBody": "A\nASRJS\nLive transcription\n◐\nAppearance\nTranscribe\nPlayground\nLive\nBenchmark\nRealtime VAD Lab\nTranscript & Subtitles\ntune\nModel ready · webgpu-hybrid · Microphone idle\nLoad\nready\nparakeet-tdt-0.6b-v3-onnx\nLocal assets\nModel Loaded\nValidation\nInput language\nEnglish\nFrench\nGerman\nSpanish\nItalian\nPortuguese\nDutch\nPolish\nexpand_more\nLoad Sample\nupload_file\nDrop or click to transcribe\nModel Settings\nArtifact source\nHugging Face\nLocal folder\nexpand_more\nLocal folder\nparakeet-tdt-0.6b-v3-onnx\nfolder_open\nFiles: 86\nEncoder: fp32, fp16, int8\nDecoder: fp32, fp16, int8\nTokenizer: vocab.txt\nFrontend: nemo128\nParakeet TDT 0.6B v3 (Multilingual)\nRuntime Settings\nRuntime backend\nWebGPU\nWASM\nexpand_more\nEncoder\nwebgpu\nwasm\nexpand_more\nDecoder\nwasm\nexpand_more\nThreads\nStride\nEncoder quant\nfp32\nfp16\nint8\nexpand_more\nDecoder quant\nfp32\nfp16\nint8\nexpand_more\nPrompt Settings\nFrontend\nJS frontend\nONNX frontend\nexpand_more\nTokenizer\nvocab.txt\nexpand_more\nVerbose logging\nLog results\nEnable profiling\nCapture\n0.00\nSIG\n-100.0\nAVG\n-100.0\nGATE\n-21.9\nNOISE\n-46.0\nSEGS\n0/0\nAUDIO\n16000Hz\nBUF\n12.0s\nSNR\n0.00\nTHR\n3.00\nWAVEFORM\nidle · main\nRATE target 16000 Hz\n·\nCHUNK 16 ms/256f\n·\nWIN 12.00 s\n·\nSEG inactive\n·\nBUF 0/750 pad 750\n·\nPUB/PAINT 0/s 0/s\nMODE rough-only\n·\nRELEASE 400 ms\n·\nNOISE -46.0 dBFS\n·\nGATE -21.9 dBFS\n·\nFINAL GATE --\n·\nGATE LINES on\n·\nTEN on\n·\nSCALE physical\nWaveform display\nSurface\ncompact stats + waveform + footer metrics\nFull\nStats Only\nWaveform Only\nView\nraw amplitude\nPhysical\nFocus\nBalanced\nGate lines\nwaveform legend\nshow\nhide\nFireRed line\ndiagnostic only\nshow\nhide\nRMS\ndiagnostic\nhide\nshow\nFinal Acceptance\nDuration and normalized 16 kHz energy thresholds used after live segmentation.\nFinal segment gate\nrough-only\nenabled\ndisabled\nAcceptance preset\nUpdates the final segment acceptance thresholds together.\nOpen\nBalanced\nStrict\nCustom\nMin final duration\n240 ms\nMin power\n5.00\nMin integral\n22.00\nAdaptive noise-scaled acceptance controls.\nShow advanced\nDetector tuning\nPreset\nMedium\nMedium\nFast\nSlow\nCustom\nDefault mode\nmanual\nVAD backend\n16 ms hop / 16 ms visual\nFireRed VAD\nTEN-VAD\nGate mode\nrough-only\nRough only\nHybrid\nVAD only\nLive Segmenter\nPeak-energy speech trigger, smoothing, and silence release.\nEnergy threshold\n0.08\nAnalysis window\n80 ms\nEnergy smoothing\n480 ms\nSilence release\n400 ms\nMax segment\n4800 ms\nExtraction Timing\nLookback, overlap, and tail padding applied when a segment is extracted.\nLookback\n128 ms\nOverlap\n80 ms\nTail padding\n160 ms\nNoise Adaptation\nHow the baseline noise floor and onset backtracking adapt over time.\nInitial noise\n0.00500\nFast adapt\n0.15\nSlow adapt\n0.05\nBlend duration\n1.0 s\nSNR display gate\n3.00\nOnset SNR floor\n1.00\nRise threshold\n0.08\nMicrophone\n\nStart capture, switch mode, and send buffered speech.\n\nMode\nManual\nSpeech Detect\nStart Mic\nSend\nAdvanced\nMicrophone idle\nDetector readout\n\nLive rough-gate state, adaptive noise floor, and final segment energy metrics.\n\nLEVEL\n-100.0 dBFS\nwindow -100.0 dBFS\nNOISE FLOOR\n-46.0 dBFS\nconfirmed -46.0 dBFS · rejected -46.0 dBFS\nFINAL POWER\n--\nmin --\nFINAL INTEGRAL\n--\nmin --\nDETECTOR MODE\nrough-only\nreq rough-only\nTEN-VAD\n0.00\ndiagnostic only\nFILTER\narmed\nwaiting\nVAD BUFFER\nempty\nmax 0.00\nWarnings\nSpeech segmentation is running on the rough gate. TEN-VAD is diagnostics-only.\nDecisions\nNo decisions yet.\nSegments\nNo segments yet.\nTranscript & Word Alignment\nNo text yet.\nTOTAL\n--\nAwaiting result\nDECODE\n--\nAwaiting result\nCONFIDENCE\n--\nNo finished utterance\nQUEUE\nclear\nReady\nReference\nASRJS\nLibrary 0.2.0 · npm-package",
+  "beforeStopEvidence": {
+    "decisions": [
+      {
+        "message": "[StreamingSpeechDetector] TEN-VAD ready for diagnostics",
+        "meta": {
+          "state": "ready",
+          "error": null,
+          "probability": 0,
+          "speaking": false,
+          "threshold": 0.5
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger",
+        "meta": {
+          "energy": 0.003,
+          "threshold": 0.08,
+          "snr": 2.95
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Rough gate speech start",
+        "meta": {
+          "startFrame": 12800,
+          "energy": 0.107,
+          "noiseFloor": 0.00124,
+          "snr": 19.36
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Rough gate finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 57600,
+          "energy": 0.028,
+          "noiseFloor": 0.00124
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 10752,
+          "endFrame": 57600,
+          "logicalEndFrame": 57600,
+          "durationSec": 2.93,
+          "normalizedPowerAt16k": 532.09
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger",
+        "meta": {
+          "energy": 0.028,
+          "threshold": 0.08,
+          "snr": 13.49
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger",
+        "meta": {
+          "energy": 0.024,
+          "threshold": 0.08,
+          "snr": 14.11
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Rough gate speech start",
+        "meta": {
+          "startFrame": 66560,
+          "energy": 0.113,
+          "noiseFloor": 0.00092,
+          "snr": 20.9
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Rough gate finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 96000,
+          "energy": 0.026,
+          "noiseFloor": 0.00092
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 56320,
+          "endFrame": 96000,
+          "logicalEndFrame": 96000,
+          "durationSec": 2.48,
+          "normalizedPowerAt16k": 248.99
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger",
+        "meta": {
+          "energy": 0.026,
+          "threshold": 0.08,
+          "snr": 14.5
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Rough gate speech start",
+        "meta": {
+          "startFrame": 99840,
+          "energy": 0.159,
+          "noiseFloor": 0.00133,
+          "snr": 20.77
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Long speech split at a quiet chunk before the hard limit",
+        "meta": {
+          "endFrame": 175872,
+          "segmentDurationMs": 4752
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: max-duration",
+        "meta": {
+          "startFrame": 94720,
+          "endFrame": 175872,
+          "logicalEndFrame": 175872,
+          "durationSec": 5.07,
+          "normalizedPowerAt16k": 258.72
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Long speech split into a new rough segment",
+        "meta": {
+          "previousAccepted": true,
+          "nextStartFrame": 174592
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Rough gate finalized speech after sustained silence",
+        "meta": {
+          "endFrame": 200960,
+          "energy": 0,
+          "noiseFloor": 0.00133
+        }
+      },
+      {
+        "message": "[StreamingSpeechDetector] Segment ready: silence",
+        "meta": {
+          "startFrame": 172544,
+          "endFrame": 200960,
+          "logicalEndFrame": 200960,
+          "durationSec": 1.78,
+          "normalizedPowerAt16k": 106.31
+        }
+      }
+    ],
+    "jobs": [
+      {
+        "sourceLabel": "microphone-silence-02:20:49",
+        "durationSeconds": 2.93,
+        "pending": 1,
+        "transcriber": "main"
+      },
+      {
+        "sourceLabel": "microphone-silence-02:20:52",
+        "durationSeconds": 2.48,
+        "pending": 1,
+        "transcriber": "main"
+      },
+      {
+        "sourceLabel": "microphone-max-duration-02:20:57",
+        "durationSeconds": 5.07,
+        "pending": 1,
+        "transcriber": "worker"
+      },
+      {
+        "sourceLabel": "microphone-silence-02:20:59",
+        "durationSeconds": 1.78,
+        "pending": 1,
+        "transcriber": "worker"
+      }
+    ],
+    "completedJobs": 4
+  },
+  "decisions": [
+    {
+      "message": "[StreamingSpeechDetector] TEN-VAD ready for diagnostics",
+      "meta": {
+        "state": "ready",
+        "error": null,
+        "probability": 0,
+        "speaking": false,
+        "threshold": 0.5
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger",
+      "meta": {
+        "energy": 0.003,
+        "threshold": 0.08,
+        "snr": 2.95
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Rough gate speech start",
+      "meta": {
+        "startFrame": 12800,
+        "energy": 0.107,
+        "noiseFloor": 0.00124,
+        "snr": 19.36
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Rough gate finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 57600,
+        "energy": 0.028,
+        "noiseFloor": 0.00124
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 10752,
+        "endFrame": 57600,
+        "logicalEndFrame": 57600,
+        "durationSec": 2.93,
+        "normalizedPowerAt16k": 532.09
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger",
+      "meta": {
+        "energy": 0.028,
+        "threshold": 0.08,
+        "snr": 13.49
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger",
+      "meta": {
+        "energy": 0.024,
+        "threshold": 0.08,
+        "snr": 14.11
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Rough gate speech start",
+      "meta": {
+        "startFrame": 66560,
+        "energy": 0.113,
+        "noiseFloor": 0.00092,
+        "snr": 20.9
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Rough gate finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 96000,
+        "energy": 0.026,
+        "noiseFloor": 0.00092
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 56320,
+        "endFrame": 96000,
+        "logicalEndFrame": 96000,
+        "durationSec": 2.48,
+        "normalizedPowerAt16k": 248.99
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Near-threshold audio stayed below live start trigger",
+      "meta": {
+        "energy": 0.026,
+        "threshold": 0.08,
+        "snr": 14.5
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Rough gate speech start",
+      "meta": {
+        "startFrame": 99840,
+        "energy": 0.159,
+        "noiseFloor": 0.00133,
+        "snr": 20.77
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Long speech split at a quiet chunk before the hard limit",
+      "meta": {
+        "endFrame": 175872,
+        "segmentDurationMs": 4752
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: max-duration",
+      "meta": {
+        "startFrame": 94720,
+        "endFrame": 175872,
+        "logicalEndFrame": 175872,
+        "durationSec": 5.07,
+        "normalizedPowerAt16k": 258.72
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Long speech split into a new rough segment",
+      "meta": {
+        "previousAccepted": true,
+        "nextStartFrame": 174592
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Rough gate finalized speech after sustained silence",
+      "meta": {
+        "endFrame": 200960,
+        "energy": 0,
+        "noiseFloor": 0.00133
+      }
+    },
+    {
+      "message": "[StreamingSpeechDetector] Segment ready: silence",
+      "meta": {
+        "startFrame": 172544,
+        "endFrame": 200960,
+        "logicalEndFrame": 200960,
+        "durationSec": 1.78,
+        "normalizedPowerAt16k": 106.31
+      }
+    }
+  ],
+  "jobs": [
+    {
+      "sourceLabel": "microphone-silence-02:20:49",
+      "durationSeconds": 2.93,
+      "pending": 1,
+      "transcriber": "main"
+    },
+    {
+      "sourceLabel": "microphone-silence-02:20:52",
+      "durationSeconds": 2.48,
+      "pending": 1,
+      "transcriber": "main"
+    },
+    {
+      "sourceLabel": "microphone-max-duration-02:20:57",
+      "durationSeconds": 5.07,
+      "pending": 1,
+      "transcriber": "worker"
+    },
+    {
+      "sourceLabel": "microphone-silence-02:20:59",
+      "durationSeconds": 1.78,
+      "pending": 1,
+      "transcriber": "worker"
+    }
+  ],
+  "completedJobs": 4,
+  "transcript": "And so my fellow Americans. Ask not. What your country can do for you, ask what you can do for your country.",
+  "afterStopBody": "A\nASRJS\nLive transcription\n◐\nAppearance\nTranscribe\nPlayground\nLive\nBenchmark\nRealtime VAD Lab\nTranscript & Subtitles\ntune\nModel ready · webgpu-hybrid · Microphone stopped\nLoad\nready\nparakeet-tdt-0.6b-v3-onnx\nLocal assets\nModel Loaded\nValidation\nInput language\nEnglish\nFrench\nGerman\nSpanish\nItalian\nPortuguese\nDutch\nPolish\nexpand_more\nLoad Sample\nupload_file\nDrop or click to transcribe\nModel Settings\nArtifact source\nHugging Face\nLocal folder\nexpand_more\nLocal folder\nparakeet-tdt-0.6b-v3-onnx\nfolder_open\nFiles: 86\nEncoder: fp32, fp16, int8\nDecoder: fp32, fp16, int8\nTokenizer: vocab.txt\nFrontend: nemo128\nParakeet TDT 0.6B v3 (Multilingual)\nRuntime Settings\nRuntime backend\nWebGPU\nWASM\nexpand_more\nEncoder\nwebgpu\nwasm\nexpand_more\nDecoder\nwasm\nexpand_more\nThreads\nStride\nEncoder quant\nfp32\nfp16\nint8\nexpand_more\nDecoder quant\nfp32\nfp16\nint8\nexpand_more\nPrompt Settings\nFrontend\nJS frontend\nONNX frontend\nexpand_more\nTokenizer\nvocab.txt\nexpand_more\nVerbose logging\nLog results\nEnable profiling\nCapture\n-60.00\nSIG\n-100.0\nAVG\n-100.0\nGATE\n-21.9\nNOISE\n-72.3\nSEGS\n4/0\nAUDIO\n16000Hz\nBUF\n12.0s\nSNR\n-60.00\nTHR\n3.00\nWAVEFORM\nlistening · main\nRATE target 16000 Hz\n·\nCHUNK 16 ms/256f\n·\nWIN 12.00 s\n·\nSEG inactive\n·\nBUF 750/750 pad 0\n·\nPUB/PAINT 0/s 0/s\nMODE rough-only\n·\nRELEASE 400 ms\n·\nNOISE -72.3 dBFS\n·\nGATE -21.9 dBFS\n·\nFINAL GATE p 106.31/1.00 · i 188.81/0.80\n·\nGATE LINES on\n·\nTEN on\n·\nSCALE physical\nWaveform display\nSurface\ncompact stats + waveform + footer metrics\nFull\nStats Only\nWaveform Only\nView\nraw amplitude\nPhysical\nFocus\nBalanced\nGate lines\nwaveform legend\nshow\nhide\nFireRed line\ndiagnostic only\nshow\nhide\nRMS\ndiagnostic\nhide\nshow\nFinal Acceptance\nDuration and normalized 16 kHz energy thresholds used after live segmentation.\nFinal segment gate\nrough-only\nenabled\ndisabled\nAcceptance preset\nUpdates the final segment acceptance thresholds together.\nOpen\nBalanced\nStrict\nCustom\nMin final duration\n240 ms\nMin power\n5.00\nMin integral\n22.00\nAdaptive noise-scaled acceptance controls.\nShow advanced\nDetector tuning\nPreset\nMedium\nMedium\nFast\nSlow\nCustom\nDefault mode\nmanual\nVAD backend\n16 ms hop / 16 ms visual\nFireRed VAD\nTEN-VAD\nGate mode\nrough-only\nRough only\nHybrid\nVAD only\nLive Segmenter\nPeak-energy speech trigger, smoothing, and silence release.\nEnergy threshold\n0.08\nAnalysis window\n80 ms\nEnergy smoothing\n480 ms\nSilence release\n400 ms\nMax segment\n4800 ms\nExtraction Timing\nLookback, overlap, and tail padding applied when a segment is extracted.\nLookback\n128 ms\nOverlap\n80 ms\nTail padding\n160 ms\nNoise Adaptation\nHow the baseline noise floor and onset backtracking adapt over time.\nInitial noise\n0.00500\nFast adapt\n0.15\nSlow adapt\n0.05\nBlend duration\n1.0 s\nSNR display gate\n3.00\nOnset SNR floor\n1.00\nRise threshold\n0.08\nMicrophone\n\nStart capture, switch mode, and send buffered speech.\n\nMode\nManual\nSpeech Detect\nStart Mic\nSend\nAdvanced\nMicrophone stopped\nDetector readout\n\nLive rough-gate state, adaptive noise floor, and final segment energy metrics.\n\nLEVEL\n-100.0 dBFS\nwindow -100.0 dBFS\nNOISE FLOOR\n-72.3 dBFS\nconfirmed -100.0 dBFS · rejected -72.3 dBFS\nFINAL POWER\n106.31\nmin 1.00\nFINAL INTEGRAL\n188.81\nmin 0.80\nDETECTOR MODE\nrough-only\nreq rough-only\nTEN-VAD\n0.09\ndiagnostic only\nFILTER\naccepted\naccepted\nVAD BUFFER\n0/12\nmax 0.09\nWarnings\nSpeech segmentation is running on the rough gate. TEN-VAD is diagnostics-only.\nDecisions\nSegment ready: silence\n02:20:59\nRough gate finalized speech after sustained silence\n02:20:59\nLong speech split into a new rough segment\n02:20:57\nSegment ready: max-duration\n02:20:57\nLong speech split at a quiet chunk before the hard limit\n02:20:57\nSegments\nsilence\n1.78 s\n16.000 Hz · 172544 -> 200960\nmax-duration\n5.07 s\n16.000 Hz · 94720 -> 175872\nsilence\n2.48 s\n16.000 Hz · 56320 -> 96000\nsilence\n2.93 s\n16.000 Hz · 10752 -> 57600\nTranscript & Word Alignment\nCopySRTVTTJSON\nAnd so my fellow Americans. Ask not. What your country can do for you, ask what you can do for your country.\nTOTAL\n394 ms\nencode 301 ms\nDECODE\n71 ms\nrtf 0.22x\nCONFIDENCE\n--\nNo finished utterance\nQUEUE\nclear\nReady\nReference\nHistory\nClear All\nmicrophone-silence-02:20:59\nUnknown language\n02:20:59\n1.8s\n0 words\nRTF 0.22x\ndownload\nmicrophone-max-duration-02:20:57\nUnknown language\n02:20:59\n5.1s\n15 words\n96%\nRTF 0.31x\ndownload\nWhat your country can do for you, ask what you can do for your country.\nmicrophone-silence-02:20:52\nUnknown language\n02:20:56\n2.5s\n2 words\n87%\nRTF 1.60x\ndownload\nAsk not.\nmicrophone-silence-02:20:49\nUnknown language\n02:20:51\n2.9s\n5 words\n94%\nRTF 0.65x\ndownload\nAnd so my fellow Americans.\nASRJS\nLibrary 0.2.0 · npm-package",
+  "verificationErrors": [],
+  "browserVersion": "155.0.8059.86"
+}

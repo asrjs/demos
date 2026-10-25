@@ -1,0 +1,17 @@
+showcase
+switch UsefulSensors/moonshine-tiny errors []
+switch parakeet-tdt-0.6b-v2 errors []
+switch Qwen/Qwen3-ASR-0.6B-hf errors []
+realtime
+switch UsefulSensors/moonshine-tiny errors []
+switch parakeet-tdt-0.6b-v2 errors []
+switch Qwen/Qwen3-ASR-0.6B-hf errors []
+playground
+switch UsefulSensors/moonshine-tiny errors []
+switch parakeet-tdt-0.6b-v2 errors []
+switch Qwen/Qwen3-ASR-0.6B-hf errors []
+benchmark
+switch UsefulSensors/moonshine-tiny errors []
+switch parakeet-tdt-0.6b-v2 errors []
+switch Qwen/Qwen3-ASR-0.6B-hf errors []
+[{"app": "showcase", "pageErrors": [], "selected": "Qwen/Qwen3-ASR-0.6B-hf", "folderDetected": true}, {"app": "realtime", "pageErrors": [], "selected": "Qwen/Qwen3-ASR-0.6B-hf", "folderDetected": true}, {"app": "playground", "pageErrors": [], "selected": "Qwen/Qwen3-ASR-0.6B-hf", "folderDetected": true}, {"app": "benchmark", "pageErrors": [], "selected": "Qwen/Qwen3-ASR-0.6B-hf", "folderDetected": true}]
