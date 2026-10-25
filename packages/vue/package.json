@@ -1,0 +1,25 @@
+{
+  "name": "@asrjs/speech-recognition-vue",
+  "version": "0.1.0",
+  "description": "Vue composable adapter for @asrjs/speech-recognition",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc -p tsconfig.json --noEmit"
+  },
+  "peerDependencies": {
+    "@asrjs/speech-recognition": ">=0.2.0 <0.3.0",
+    "vue": ">=3.5.0 <4.0.0"
+  }
+}

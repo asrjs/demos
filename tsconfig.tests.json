@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.example.json",
+  "compilerOptions": {
+    "types": ["node", "vite/client"]
+  },
+  "include": ["tests/adapters.test.ts"]
+}

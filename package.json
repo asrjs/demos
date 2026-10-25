@@ -1,0 +1,45 @@
+{
+  "name": "@asrjs/frameworks",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "examples/react",
+    "examples/svelte",
+    "examples/vue"
+  ],
+  "scripts": {
+    "build:core": "npm --prefix ../speech-recognition run build",
+    "build:packages": "npm run build --workspace=@asrjs/speech-recognition-react && npm run build --workspace=@asrjs/speech-recognition-svelte && npm run build --workspace=@asrjs/speech-recognition-vue",
+    "build:examples": "vite build --config vite.react.config.ts && vite build --config vite.svelte.config.ts && vite build --config vite.vue.config.ts",
+    "build": "npm run build:core && npm run build:packages && npm run build:examples",
+    "dev:react": "vite --config vite.react.config.ts",
+    "dev:svelte": "vite --config vite.svelte.config.ts",
+    "dev:vue": "vite --config vite.vue.config.ts",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.tests.json --noEmit && tsc -p tsconfig.react-example.json --noEmit && svelte-check --workspace examples/svelte --tsconfig ./tsconfig.json && vue-tsc -p examples/vue/tsconfig.json --noEmit",
+    "build:suite": "npm run build:core && npm run build:packages && node scripts/build-suite.mjs --build-frameworks",
+    "preview:suite": "node scripts/serve-suite.mjs"
+  },
+  "dependencies": {
+    "@asrjs/speech-recognition": "file:../speech-recognition"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^6.0.0",
+    "@types/node": "24.1.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-vue": "^6.0.0",
+    "happy-dom": "^21.0.4",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "svelte": "5.57.2",
+    "svelte-check": "^4.0.0",
+    "typescript": "5.9.3",
+    "vite": "^7.3.1",
+    "vitest": "4.0.18",
+    "vue": "3.5.44",
+    "vue-tsc": "^3.0.0"
+  }
+}

@@ -1,0 +1,96 @@
+@import "./fonts.css";
+
+/* Palette and font match the companion suite's Keet theme. */
+@layer base {
+  :root {
+    color-scheme: light dark;
+    font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+    color: #3d405b;
+    background: #f9f7f2;
+    font-synthesis: none;
+  }
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+  }
+  main,
+  .app {
+    width: min(44rem, calc(100% - 2rem));
+    margin: 4rem auto;
+  }
+  h1 {
+    margin: 0 0 2rem;
+    font-size: 1.65rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+  }
+  label {
+    display: grid;
+    gap: 0.5rem;
+    margin: 1rem 0;
+    font-weight: 500;
+  }
+  input,
+  select,
+  button {
+    font: inherit;
+    border: 1px solid #b7b7a4;
+    border-radius: 0.5rem;
+    padding: 0.65rem 0.8rem;
+    color: inherit;
+    background: #fff;
+  }
+  input,
+  select {
+    width: 100%;
+  }
+  button {
+    cursor: pointer;
+    margin: 0.4rem 0.5rem 0.4rem 0;
+  }
+  button:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+  :focus-visible {
+    outline: 3px solid #a94d35;
+    outline-offset: 3px;
+  }
+  output,
+  pre,
+  .result {
+    display: block;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    line-height: 1.65;
+    margin-top: 1.5rem;
+  }
+  [role="alert"],
+  .error {
+    color: #ac3f38;
+  }
+  [role="status"] {
+    color: #6b705c;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color: #eeede5;
+      background: #20211f;
+    }
+    input,
+    select,
+    button {
+      background: #272824;
+      border-color: #626451;
+    }
+    [role="alert"],
+    .error {
+      color: #f0a49a;
+    }
+    [role="status"] {
+      color: #b7b7a4;
+    }
+  }
+}

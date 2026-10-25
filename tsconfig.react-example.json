@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.example.json",
+  "compilerOptions": {
+    "jsx": "react-jsx"
+  },
+  "include": ["examples/react/**/*.tsx", "examples/react/**/*.ts"]
+}

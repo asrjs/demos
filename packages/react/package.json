@@ -1,0 +1,31 @@
+{
+  "name": "@asrjs/speech-recognition-react",
+  "version": "0.1.0",
+  "description": "React bindings for @asrjs/speech-recognition",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "peerDependencies": {
+    "@asrjs/speech-recognition": ">=0.2.0 <0.3.0",
+    "react": ">=18.0.0 <20.0.0"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
+}

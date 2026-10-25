@@ -1,0 +1,14 @@
+{
+  "name": "@asrjs/example-speech-recognition-svelte",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --config ../../vite.svelte.config.ts",
+    "build": "vite build --config ../../vite.svelte.config.ts"
+  },
+  "dependencies": {
+    "@asrjs/speech-recognition": "file:../../../speech-recognition",
+    "@asrjs/speech-recognition-svelte": "*",
+    "svelte": "^5.0.0"
+  }
+}
