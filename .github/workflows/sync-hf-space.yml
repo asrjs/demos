@@ -1,0 +1,69 @@
+name: Sync demos to a Hugging Face Space
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/**'
+      - 'packages/**'
+      - 'scripts/build-suite.mjs'
+      - 'scripts/export-hf-space.mjs'
+      - 'scripts/suite-portal.*'
+      - 'vite.shared.js'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/sync-hf-space.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: hf-space
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      HF_SPACE_ID: ${{ vars.HF_SPACE_ID || 'ysdede/asrjs-demos' }}
+      HAS_HF_TOKEN: ${{ secrets.HF_TOKEN != '' }}
+    steps:
+      - name: Skip without an HF_TOKEN secret
+        if: env.HAS_HF_TOKEN != 'true'
+        run: echo "::notice::HF_TOKEN is not set; skipping the Hugging Face Space sync."
+
+      - uses: actions/checkout@v4
+        if: env.HAS_HF_TOKEN == 'true'
+
+      - uses: actions/setup-node@v4
+        if: env.HAS_HF_TOKEN == 'true'
+        with:
+          node-version: 22.x
+          cache: npm
+
+      - name: Install dependencies
+        if: env.HAS_HF_TOKEN == 'true'
+        run: npm ci
+
+      # The Space serves the suite at its root.
+      - name: Build the four apps and the portal
+        if: env.HAS_HF_TOKEN == 'true'
+        run: node scripts/build-suite.mjs --base=/
+
+      # HF sends COOP/COEP from the Space README, so the service worker is
+      # removed; on *.hf.space it only adds a reload and stale-chunk risk.
+      - name: Create the prebuilt static export
+        if: env.HAS_HF_TOKEN == 'true'
+        run: node scripts/export-hf-space.mjs
+
+      - name: Push the export to the Space
+        if: env.HAS_HF_TOKEN == 'true'
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          python -m pip install --quiet "huggingface_hub==0.36.2"
+          hf repo create "$HF_SPACE_ID" --repo-type space --space_sdk static --exist-ok
+          hf upload "$HF_SPACE_ID" hf_export . \
+            --repo-type space \
+            --delete '*' \
+            --commit-message "Sync prebuilt demos (${GITHUB_SHA::7})"
