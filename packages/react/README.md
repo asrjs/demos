@@ -1,25 +1,53 @@
-# React binding
+# @asrjs/speech-recognition-react
 
-This package is a local development build and has not been published to npm. Build it from the framework workspace before use.
+React bindings for [`@asrjs/speech-recognition`](https://www.npmjs.com/package/@asrjs/speech-recognition): local speech recognition in the browser with WebGPU and WASM.
 
-`@asrjs/speech-recognition-react` connects the core controller to React's external store API.
+```sh
+npm install @asrjs/speech-recognition @asrjs/speech-recognition-react
+```
+
+## Usage
+
+Create one controller, load a model, and read its state from any component.
 
 ```tsx
-import { useSpeechRecognition } from "@asrjs/speech-recognition-react";
-import type { SpeechController } from "@asrjs/speech-recognition/controller";
+import { useEffect, useState } from 'react';
+import { createSpeechController } from '@asrjs/speech-recognition/controller';
+import { useSpeechRecognition } from '@asrjs/speech-recognition-react';
 
-export function Transcript({ controller }: { controller: SpeechController }) {
+export function App() {
+  const [controller] = useState(createSpeechController);
   const { state } = useSpeechRecognition(controller);
+
+  useEffect(() => {
+    void controller.load({ modelId: 'parakeet-tdt-0.6b-v3', backend: 'webgpu-hybrid' });
+    return () => void controller.dispose();
+  }, [controller]);
+
   return (
-    <p aria-live="polite">
-      {state.result?.text ?? state.partial?.text ?? state.status}
-    </p>
+    <>
+      <input
+        type="file"
+        accept="audio/*"
+        disabled={state.status !== 'ready'}
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          if (file) void controller.transcribeSource(file);
+        }}
+      />
+      <p aria-live="polite">{state.result?.text ?? state.partial?.text ?? state.status}</p>
+    </>
   );
 }
 ```
 
-Create and load the controller in your application. The hook subscribes for the component lifetime and removes that subscription when it unmounts. It does not load or dispose the controller. This keeps ownership explicit and works when several components read the same recognition state.
+`useSpeechRecognition(controller)` returns `{ state, controller }`. `state` is the controller's immutable snapshot: `status`, `progress`, `loadWarnings`, `result`, `partial`, `error` and `supportsStreaming`.
 
-See [the React example](../../examples/react/) for model loading, file decoding, transcription and native streaming.
+The hook only subscribes. It never loads or disposes the controller, so several components can share one model. Dispose the controller where you created it.
 
-The peer range is React 18 or 19; this workspace tests React 19.3.1. The core package owns model loading, runtime work, transcript revisions and disposal. This package only adapts controller state to React.
+## Requirements
+
+- React 18 or 19.
+- `@asrjs/speech-recognition` 0.3 or later.
+
+A full example with file decoding, progress and native streaming is in [`examples/react`](https://github.com/asrjs/demos/tree/framework-examples/examples/react). Model loading, backends and transcript formats are documented in the [core library](https://github.com/asrjs/speech-recognition#readme).

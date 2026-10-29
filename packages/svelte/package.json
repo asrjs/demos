@@ -1,25 +1,52 @@
 {
   "name": "@asrjs/speech-recognition-svelte",
   "version": "0.1.0",
-  "description": "Svelte store adapter for @asrjs/speech-recognition",
+  "description": "Svelte bindings for @asrjs/speech-recognition: in-browser speech recognition state in your components.",
+  "keywords": [
+    "asr",
+    "speech-recognition",
+    "speech-to-text",
+    "transcription",
+    "webgpu",
+    "svelte",
+    "store"
+  ],
+  "homepage": "https://github.com/asrjs/demos/tree/framework-examples/packages/svelte#readme",
+  "bugs": {
+    "url": "https://github.com/asrjs/speech-recognition/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/asrjs/demos.git",
+    "directory": "packages/svelte"
+  },
+  "license": "MIT",
   "type": "module",
   "sideEffects": false,
-  "files": [
-    "dist",
-    "README.md"
-  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     }
   },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "check": "tsc -p tsconfig.json --noEmit"
   },
   "peerDependencies": {
-    "@asrjs/speech-recognition": ">=0.2.0 <0.3.0",
+    "@asrjs/speech-recognition": "^0.3.0",
     "svelte": ">=5.0.0 <6.0.0"
-  }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "Yunus Seyhan Dede"
 }

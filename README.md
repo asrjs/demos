@@ -14,8 +14,13 @@ Each binding subscribes to the same framework-neutral controller. Loading,
 transcription, streaming and resource ownership stay in the core library.
 The bindings add no model implementations or UI components.
 
-These packages are local development builds. They require the core checkout's
-new `/controller` entry point; the package names do not imply an npm release.
+Install from npm with the core package:
+
+```sh
+npm install @asrjs/speech-recognition @asrjs/speech-recognition-react   # or -svelte, -vue
+```
+
+The bindings require `@asrjs/speech-recognition` 0.3 or later.
 
 ## Run an example
 
