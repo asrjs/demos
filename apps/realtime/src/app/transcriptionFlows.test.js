@@ -13,6 +13,18 @@ vi.mock('@asrjs/speech-recognition/browser', async (importOriginal) => ({
   loadSpeechModelFromLocalEntries: mocks.loadSpeechModelFromLocalEntries,
 }));
 
+vi.mock('@asrjs/speech-recognition', async (importOriginal) => ({
+  ...await importOriginal(),
+  probeSpeechModelExecutionPlan: vi.fn(async () => ({
+    runtime: { webgpu: true, wasm: true },
+    plan: {
+      manifestVersion: '1', status: 'unverified',
+      encoderBackend: 'webgpu', decoderBackend: 'wasm',
+      encoderQuant: 'fp16', decoderQuant: 'int8',
+    },
+  })),
+}));
+
 vi.mock('../shared/modelLoader.js', () => ({
   loadHubDemoModel: mocks.loadHubDemoModel,
 }));
