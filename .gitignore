@@ -48,3 +48,6 @@ vendor/asrjs-speech-recognition-*.provenance.json
 !/.claude/
 /.claude/*
 !/.claude/skills/
+
+# Prebuilt Hugging Face Space export (scripts/export-hf-space.mjs).
+hf_export/

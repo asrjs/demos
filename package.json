@@ -21,7 +21,7 @@
     "build:apps": "npm run build:showcase && npm run build:playground && npm run build:realtime && npm run build:benchmark",
     "build:suite": "node scripts/build-suite.mjs",
     "preview:suite": "node scripts/serve-suite.mjs",
-    "test:suite": "node --test scripts/suite.test.mjs packages/demo-runtime/src/runtime.test.js packages/demo-runtime/src/model-loading.test.js vite.shared.test.js",
+    "test:suite": "node --test scripts/suite.test.mjs scripts/export-hf-space.test.mjs packages/demo-runtime/src/runtime.test.js packages/demo-runtime/src/model-loading.test.js vite.shared.test.js",
     "test:apps": "node node_modules/vitest/vitest.mjs run --config apps/realtime/vite.config.js packages/ui/src apps/realtime/src apps/benchmark/src apps/playground/src apps/realtime/scripts packages/demo-runtime/src/browser-runtime.test.js",
     "test": "npm run test:suite && npm run test:apps"
   },
