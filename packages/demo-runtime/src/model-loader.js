@@ -1,7 +1,7 @@
 import {
   buildSpeechModelLoadOptions, createSpeechPipeline, getSpeechModelDescriptor,
 } from '@asrjs/speech-recognition';
-import { assertDemoModelRuntimeBackend } from './model-loading.js';
+import { assertDemoModelRuntimeBackend, resolveDemoModelLoadingState } from './model-loading.js';
 
 function stableValue(value) {
   if (Array.isArray(value)) return value.map(stableValue);
@@ -22,7 +22,7 @@ export function getDemoModelCacheKey(request) {
 
 // Each application owns a pipeline. Queuing prevents overlapping progress
 // listeners from attributing another model's download to the current request.
-export function createDemoHubLoader({ createPipeline = createSpeechPipeline } = {}) {
+export function createDemoHubLoader({ createPipeline = createSpeechPipeline, resolveLoadingState = resolveDemoModelLoadingState } = {}) {
   let progressListener = null;
   let pending = Promise.resolve();
   let closed = false;
@@ -40,7 +40,18 @@ export function createDemoHubLoader({ createPipeline = createSpeechPipeline } = 
         if (descriptor.loading.supportsHubSource === false) {
           throw new Error('This model requires a local folder. Select Local folder before loading.');
         }
-        const request = buildDemoModelLoadRequest(options);
+        const plan = await resolveLoadingState({ ...options, source: 'huggingface' });
+        if (plan.executionPlan.status === 'unavailable') {
+          throw new Error(plan.executionPlan.error);
+        }
+        const request = buildDemoModelLoadRequest({
+          ...options,
+          runtime: plan.runtime,
+          encoderBackend: plan.encoderBackend,
+          decoderBackend: plan.decoderBackend,
+          encoderQuant: plan.encoderQuant,
+          decoderQuant: plan.decoderQuant,
+        });
         const cacheKey = getDemoModelCacheKey(request);
         const fromCache = pipeline.listLoadedModels().includes(cacheKey);
         progressListener = options.onProgress ?? null;
@@ -48,7 +59,7 @@ export function createDemoHubLoader({ createPipeline = createSpeechPipeline } = 
           const loaded = await pipeline.loadModel({ ...request, cacheKey });
           return {
             model: { ...loaded, kind: 'hub-pipeline', cacheKey, evict: () => pipeline.disposeModel(cacheKey) },
-            info: loaded.model.info, fromCache, cacheKey,
+            info: loaded.model.info, fromCache, cacheKey, executionPlan: plan.executionPlan,
           };
         } finally {
           progressListener = null;

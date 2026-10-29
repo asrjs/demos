@@ -43,5 +43,5 @@ __pycache__/
 # Local library builds; keep the package pinned by package-lock.json.
 vendor/asrjs-speech-recognition-*.tgz
 vendor/asrjs-speech-recognition-*.provenance.json
-!vendor/asrjs-speech-recognition-0.2.0-microphone-context-20261025.tgz
-!vendor/asrjs-speech-recognition-0.2.0-microphone-context-20261025.provenance.json
+!vendor/asrjs-speech-recognition-0.2.0-approved-profiles-v3-20261025.tgz
+!vendor/asrjs-speech-recognition-0.2.0-approved-profiles-v3-20261025.provenance.json

@@ -31,6 +31,7 @@ import { loadSettings, saveSettings } from './app/settingsStorage.js';
 import { useDemoTheme } from '@asrjs/demo-ui';
 import {
   getDemoModelLoadingState,
+  resolveDemoModelLoadingState,
   getDemoModelSourceOptions,
   resolveDemoModelSource,
   resolveProfilingSetting,
@@ -282,38 +283,37 @@ export default function App() {
     micWorkerClientRef.current = workerClient;
 
     try {
-      const commonLoadOptions = {
-        wasmPaths: new URL(import.meta.env.BASE_URL + 'ort/', window.location.href).href,
+      const loadingState = await resolveDemoModelLoadingState({
         modelId: selectedModel,
+        source: modelSource,
+        entries: localEntries,
+        backend,
         encoderBackend,
         decoderBackend,
         encoderQuant,
         decoderQuant,
+      });
+      const commonLoadOptions = {
+        wasmPaths: new URL(import.meta.env.BASE_URL + 'ort/', window.location.href).href,
+        modelId: selectedModel,
+        encoderBackend: loadingState.encoderBackend,
+        decoderBackend: loadingState.decoderBackend,
+        encoderQuant: loadingState.encoderQuant,
+        decoderQuant: loadingState.decoderQuant,
         preprocessorName: preprocessor,
         preprocessorBackend,
         backend,
         verbose: verboseLog,
         cpuThreads,
         enableProfiling,
+        runtime: loadingState.runtime,
       };
       let workerModelInfo = null;
       if (modelSource === MODEL_SOURCE_OPTIONS.LOCAL) {
-        const loadingState = getDemoModelLoadingState({
-          modelId: selectedModel,
-          source: modelSource,
-          entries: localEntries,
-          backend,
-          encoderBackend,
-          decoderBackend,
-          encoderQuant,
-          decoderQuant,
-        });
+        const localLoadOptions = { ...commonLoadOptions };
+        delete localLoadOptions.runtime;
         workerModelInfo = await workerClient.loadLocalModel({
-          ...commonLoadOptions,
-          encoderBackend: loadingState.encoderBackend,
-          decoderBackend: loadingState.decoderBackend,
-          encoderQuant: loadingState.encoderQuant,
-          decoderQuant: loadingState.decoderQuant,
+          ...localLoadOptions,
           entries: localEntries,
           tokenizerName: localTokenizerName,
         });
