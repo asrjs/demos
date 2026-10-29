@@ -1402,7 +1402,7 @@ export default function App() {
                         onClick={pickLocalModelFolder}
                         disabled={isLoading || isModelReady}
                         title="Browse local model folder"
-                        className="h-[38px] w-[38px] flex items-center justify-center rounded-lg bg-yellow-400 hover:bg-yellow-500 text-gray-900 border border-yellow-500 shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="h-[38px] w-[38px] flex items-center justify-center rounded-lg bg-yellow-400 hover:bg-yellow-500 text-gray-900 border border-yellow-500 shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <span className="material-icons-outlined text-lg">folder_open</span>
                       </button>
@@ -1411,7 +1411,7 @@ export default function App() {
                       <button
                         onClick={reconnectPersistedFolder}
                         disabled={isLoading || isModelReady}
-                        className="w-full bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-100 font-medium py-2 px-4 rounded-lg transition-all border border-gray-300 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-100 font-medium py-2 px-4 rounded-lg transition border border-gray-300 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Restore Saved Folder
                       </button>
@@ -1703,7 +1703,7 @@ export default function App() {
                         type="button"
                         onClick={() => setCanaryPnc((current) => !current)}
                         disabled={isLoading || isModelReady}
-                        className={`rounded-2xl border px-4 py-3 text-left transition-all ${
+                        className={`rounded-2xl border px-4 py-3 text-left transition ${
                           canaryPnc
                             ? 'border-emerald-300 bg-emerald-50 text-emerald-900 dark:border-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-100'
                             : 'border-gray-200 bg-white/80 text-gray-700 dark:border-gray-700 dark:bg-slate-900/50 dark:text-gray-200'
@@ -1717,7 +1717,7 @@ export default function App() {
                         type="button"
                         onClick={() => setCanaryTimestamps((current) => !current)}
                         disabled={isLoading || isModelReady}
-                        className={`rounded-2xl border px-4 py-3 text-left transition-all ${
+                        className={`rounded-2xl border px-4 py-3 text-left transition ${
                           canaryTimestamps
                             ? 'border-violet-300 bg-violet-50 text-violet-900 dark:border-violet-700 dark:bg-violet-950/40 dark:text-violet-100'
                             : 'border-gray-200 bg-white/80 text-gray-700 dark:border-gray-700 dark:bg-slate-900/50 dark:text-gray-200'
@@ -1764,13 +1764,13 @@ export default function App() {
                 <div className="flex flex-col gap-3 pt-2">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-700 dark:text-gray-300">Verbose</span>
-                    <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                    <div className="relative inline-block w-10 mr-2 align-middle select-none">
                       <input
                         type="checkbox"
                         checked={verboseLog}
                         onChange={e => setVerboseLog(e.target.checked)}
                         disabled={isLoading || isModelReady}
-                        className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300 dark:border-gray-600 checked:right-0"
+                        className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300 dark:border-gray-600"
                         id="verbose"
                       />
                       <label
@@ -1782,12 +1782,12 @@ export default function App() {
 
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-700 dark:text-gray-300">Log results</span>
-                    <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                    <div className="relative inline-block w-10 mr-2 align-middle select-none">
                       <input
                         type="checkbox"
                         checked={dumpDetail}
                         onChange={e => setDumpDetail(e.target.checked)}
-                        className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300 dark:border-gray-600 checked:right-0"
+                        className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300 dark:border-gray-600"
                         id="log"
                       />
                       <label
@@ -1799,12 +1799,12 @@ export default function App() {
 
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-700 dark:text-gray-300">Enable profiling</span>
-                    <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                    <div className="relative inline-block w-10 mr-2 align-middle select-none">
                       <input
                         type="checkbox"
                         checked={enableProfiling}
                         onChange={e => setEnableProfiling(e.target.checked)}
-                        className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300 dark:border-gray-600 checked:right-0"
+                        className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300 dark:border-gray-600"
                         id="profiling"
                       />
                       <label
@@ -1819,7 +1819,7 @@ export default function App() {
                 <button
                   onClick={loadModel}
                   disabled={isLoading || isModelReady || (modelSource === MODEL_SOURCE_OPTIONS.LOCAL && (!localEntries.length || !encoderQuantOptions.length || !decoderQuantOptions.length))}
-                  className="w-full bg-primary hover:bg-opacity-90 text-white font-medium py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-primary hover:bg-opacity-90 text-white font-medium py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="material-icons-outlined text-sm">bolt</span>
                   {isModelReady ? 'Model Loaded' : isLoading ? 'Loading…' : 'Load Model'}
@@ -1830,8 +1830,8 @@ export default function App() {
                   <div className="space-y-1">
                     <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1 overflow-hidden">
                       <div
-                        className="bg-primary h-full transition-all duration-300"
-                        style={{ width: `${progressPct}%` }}
+                        className="bg-primary h-full w-full origin-left transition-transform duration-200 ease-out"
+                        style={{ transform: `scaleX(${Math.min(100, Math.max(0, progressPct)) / 100})` }}
                       ></div>
                     </div>
                     <p className="text-xs text-gray-500 dark:text-gray-400">{progressText}</p>
@@ -1918,7 +1918,7 @@ export default function App() {
                       />
                       <button
                         onClick={isPlaying ? pauseAudio : playAudio}
-                        className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-white rounded-full w-[38px] h-[38px] flex items-center justify-center shadow-sm transition-all flex-shrink-0 group border border-gray-300 dark:border-gray-600"
+                        className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-white rounded-full w-[38px] h-[38px] flex items-center justify-center shadow-sm transition flex-shrink-0 group border border-gray-300 dark:border-gray-600"
                         title={isPlaying ? 'Pause' : 'Play Sample'}
                       >
                         <span className="material-icons-outlined text-lg text-primary group-hover:text-primary/80">
@@ -1929,7 +1929,7 @@ export default function App() {
                         <button
                           onClick={downloadCurrentSample}
                           disabled={isDownloadingSample || isLoadingSample || isTranscribing}
-                          className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-white rounded-full w-[38px] h-[38px] flex items-center justify-center shadow-sm transition-all flex-shrink-0 group border border-gray-300 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-white rounded-full w-[38px] h-[38px] flex items-center justify-center shadow-sm transition flex-shrink-0 group border border-gray-300 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
                           title={sampleDownload.sourceUrl ? `Download original sample: ${sampleDownload.filename}` : 'Download original sample'}
                         >
                           <span className="material-icons-outlined text-lg text-primary group-hover:text-primary/80">
@@ -1942,7 +1942,7 @@ export default function App() {
                   <button
                     onClick={loadRandomSample}
                     disabled={!isModelReady || isLoadingSample || isTranscribing || isDownloadingSample}
-                    className="bg-primary hover:bg-opacity-90 text-white font-medium py-2 px-4 rounded-lg whitespace-nowrap shadow-sm transition-all text-sm h-[38px] disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="bg-primary hover:bg-opacity-90 text-white font-medium py-2 px-4 rounded-lg whitespace-nowrap shadow-sm transition text-sm h-[38px] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isLoadingSample ? 'Loading…' : `Load ${getSpeechModelLanguageName(selectedLanguage)} Sample`}
                   </button>

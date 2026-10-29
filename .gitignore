@@ -45,3 +45,8 @@ vendor/asrjs-speech-recognition-*.tgz
 vendor/asrjs-speech-recognition-*.provenance.json
 !vendor/asrjs-speech-recognition-0.2.0-approved-profiles-v3-20261025.tgz
 !vendor/asrjs-speech-recognition-0.2.0-approved-profiles-v3-20261025.provenance.json
+
+# Share agent design skills with the project; other .claude files stay local.
+!/.claude/
+/.claude/*
+!/.claude/skills/
