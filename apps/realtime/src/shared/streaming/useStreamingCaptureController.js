@@ -77,6 +77,10 @@ export function useStreamingCaptureController({
       fireRedVadConfig: {
         wasmPaths: `${import.meta.env.BASE_URL}ort/`,
       },
+      // TEN-VAD is not bundled with the SDK; the app hosts its Web build.
+      tenVadConfig: {
+        assetBaseUrl: `${import.meta.env.BASE_URL}wasm/`,
+      },
       transcribe: (request) => {
         const next = transcribeRef.current;
         if (!next) {
