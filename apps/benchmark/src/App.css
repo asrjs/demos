@@ -233,7 +233,12 @@ pre,
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform var(--duration-press) var(--ease-out);
   white-space: nowrap;
 }
 
@@ -375,7 +380,12 @@ select:focus {
   font-size: 12.5px;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform var(--duration-press) var(--ease-out);
 }
 
 .btn:hover:not(:disabled) {
