@@ -20,7 +20,7 @@
     "url": "git+https://github.com/asrjs/demos.git",
     "directory": "packages/vue"
   },
-  "license": "LICENSE-PENDING",
+  "license": "MIT",
   "type": "module",
   "sideEffects": false,
   "exports": {
@@ -34,7 +34,8 @@
   "types": "./dist/index.d.ts",
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
@@ -46,5 +47,6 @@
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "author": "Yunus Seyhan Dede"
 }
