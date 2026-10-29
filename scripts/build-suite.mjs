@@ -68,7 +68,7 @@ async function promote(stage, dist, stamp) {
   const saved = [];
   await fs.mkdir(backup, { recursive: true });
   try {
-    for (const app of [...APPS, 'index.html', 'theme.css', 'suite.css', 'suite.js']) {
+    for (const app of [...APPS, 'index.html', 'theme.css', 'keet-fonts.css', 'fonts', 'suite.css', 'suite.js']) {
       const stagedPath = path.join(stage, app);
       const finalPath = path.join(dist, app);
       const backupPath = path.join(backup, app);
@@ -115,6 +115,9 @@ export async function buildSuite({ base = '/', outRoot = path.join(root, 'dist')
     }
     await fs.copyFile(path.join(root, 'scripts', 'suite-portal.html'), path.join(stage, 'index.html'));
     await fs.copyFile(path.join(root, 'packages', 'ui', 'src', 'theme.css'), path.join(stage, 'theme.css'));
+    // theme.css imports keet-fonts.css, which loads the self-hosted fonts.
+    await fs.copyFile(path.join(root, 'packages', 'ui', 'src', 'keet-fonts.css'), path.join(stage, 'keet-fonts.css'));
+    await fs.cp(path.join(root, 'packages', 'ui', 'src', 'fonts'), path.join(stage, 'fonts'), { recursive: true });
     await fs.copyFile(path.join(root, 'scripts', 'suite-portal.css'), path.join(stage, 'suite.css'));
     await fs.copyFile(path.join(root, 'scripts', 'suite-portal.js'), path.join(stage, 'suite.js'));
     await fs.mkdir(dist, { recursive: true });
