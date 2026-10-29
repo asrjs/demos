@@ -40,11 +40,9 @@ tmp/
 temp/
 __pycache__/
 
-# Local library builds; keep the package pinned by package-lock.json.
+# Local library builds for ad hoc testing; the apps install the SDK from npm.
 vendor/asrjs-speech-recognition-*.tgz
 vendor/asrjs-speech-recognition-*.provenance.json
-!vendor/asrjs-speech-recognition-0.2.0-approved-profiles-v3-20261025.tgz
-!vendor/asrjs-speech-recognition-0.2.0-approved-profiles-v3-20261025.provenance.json
 
 # Share agent design skills with the project; other .claude files stay local.
 !/.claude/

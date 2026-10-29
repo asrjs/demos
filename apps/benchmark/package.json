@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@asrjs/speech-recognition": "file:../../vendor/asrjs-speech-recognition-0.2.0-approved-profiles-v3-20261025.tgz",
+    "@asrjs/speech-recognition": "^0.3.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "@asrjs/demo-runtime": "1.0.0",

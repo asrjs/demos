@@ -4,5 +4,5 @@
   "private": true,
   "type": "module",
   "exports": { ".": "./src/index.js" },
-  "peerDependencies": { "@asrjs/speech-recognition": "^0.2.0" }
+  "peerDependencies": { "@asrjs/speech-recognition": "^0.3.0" }
 }

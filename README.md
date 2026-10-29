@@ -33,7 +33,7 @@ The historical applications and experiments are retained in [`references/`](refe
 
 ## Run locally
 
-Use Node.js 22 or newer with npm. The app manifests and lockfile pin a local speech-package archive under `vendor/`; that exact archive must exist before `npm ci`. Inspect an app's `package.json` for the current filename rather than substituting a different build. From this directory:
+Use Node.js 22 or newer with npm. The apps install `@asrjs/speech-recognition` from npm, pinned by the lockfile. From this directory:
 
 ```sh
 npm ci
