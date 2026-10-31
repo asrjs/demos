@@ -76,6 +76,7 @@ function sourceAliases(speechRecognitionRoot) {
 export function createAsrDemoViteConfig(appDir, options = {}) {
   const monorepoRoot = path.resolve(appDir, '../..');
   const env = options.env || process.env;
+  const isSuiteBuild = Boolean(env.ASRJS_SUITE_BASE);
   const sourceMode = env.ASRJS_SOURCE === 'npm' ? 'package' : (env.ASRJS_SOURCE || 'package');
   if (sourceMode !== 'package' && sourceMode !== 'source') {
     throw new Error(`ASRJS_SOURCE must be "package" or "source"; received "${sourceMode}".`);
@@ -92,14 +93,24 @@ export function createAsrDemoViteConfig(appDir, options = {}) {
     : 'npm-package';
 
   const defaultModelsDir = process.env.ASRJS_MODELS_DIR || 'N:/models';
+  let resolvedOutDir;
 
   return {
     plugins: [{
       name: 'asrjs-ort-assets',
+      configResolved(config) {
+        resolvedOutDir = path.resolve(config.root || appDir, config.build?.outDir || 'dist');
+      },
       async buildStart() {
+        if (isSuiteBuild) return;
         const requireFromLibrary = createRequire(path.join(speechRecognitionRoot, 'package.json'));
         const runtimeDist = path.dirname(requireFromLibrary.resolve('onnxruntime-web'));
         await copyOrtRuntimeAssets(runtimeDist, path.join(appDir, 'public', 'ort'));
+      },
+      async closeBundle() {
+        if (isSuiteBuild && resolvedOutDir) {
+          await fs.promises.rm(path.join(resolvedOutDir, 'ort'), { recursive: true, force: true });
+        }
       },
     }],
     worker: {

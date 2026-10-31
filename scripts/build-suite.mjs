@@ -2,9 +2,32 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { spawnSync } from 'node:child_process';
+import { createRequire } from 'node:module';
+import { copyOrtRuntimeAssets } from './ort-assets.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const APPS = Object.freeze(['showcase', 'playground', 'realtime', 'benchmark']);
+
+export function resolveOrtRuntimeDist(env = process.env) {
+  const sourceMode = env.ASRJS_SOURCE === 'npm' ? 'package' : (env.ASRJS_SOURCE || 'package');
+  if (sourceMode !== 'package' && sourceMode !== 'source') {
+    throw new Error(`ASRJS_SOURCE must be "package" or "source"; received "${sourceMode}".`);
+  }
+
+  let libraryRoot;
+  if (sourceMode === 'source') {
+    libraryRoot = path.resolve(
+      env.ASRJS_LIB_DIR || path.resolve(root, '../speech-recognition'),
+    );
+  } else {
+    const requireFromApp = createRequire(path.join(root, 'apps', 'showcase', 'package.json'));
+    const libraryEntry = requireFromApp.resolve('@asrjs/speech-recognition');
+    libraryRoot = path.resolve(path.dirname(libraryEntry), '..');
+  }
+
+  const requireFromLibrary = createRequire(path.join(libraryRoot, 'package.json'));
+  return path.dirname(requireFromLibrary.resolve('onnxruntime-web'));
+}
 
 export function normalizeBasePath(input = '/') {
   if (typeof input !== 'string' || !input.startsWith('/') || input.startsWith('//') || input.includes('//')) {
@@ -68,7 +91,7 @@ async function promote(stage, dist, stamp) {
   const saved = [];
   await fs.mkdir(backup, { recursive: true });
   try {
-    for (const app of [...APPS, 'index.html', 'theme.css', 'keet-fonts.css', 'fonts', 'suite.css', 'suite.js']) {
+    for (const app of [...APPS, 'ort', 'index.html', 'theme.css', 'keet-fonts.css', 'fonts', 'suite.css', 'suite.js']) {
       const stagedPath = path.join(stage, app);
       const finalPath = path.join(dist, app);
       const backupPath = path.join(backup, app);
@@ -104,10 +127,13 @@ export async function buildSuite({ base = '/', outRoot = path.join(root, 'dist')
   const stage = path.join(path.dirname(dist), `.asrjs-suite-stage-${process.pid}-${stamp}`);
   await fs.mkdir(stage, { recursive: false });
   try {
+    const runtimeDist = resolveOrtRuntimeDist(process.env);
+    await copyOrtRuntimeAssets(runtimeDist, path.join(stage, 'ort'));
     for (const app of APPS) {
       const output = path.join(stage, app);
       const appBase = `${normalizedBase}${app}/`;
       runBuild(app, output, appBase, normalizedBase);
+      await fs.rm(path.join(output, 'ort'), { recursive: true, force: true });
       const stat = await fs.stat(output);
       if (!stat.isDirectory() || !(await fs.stat(path.join(output, 'index.html')).catch(() => null))) {
         throw new Error(`${app} build did not produce an index.html.`);

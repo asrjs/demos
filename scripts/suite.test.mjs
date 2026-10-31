@@ -4,8 +4,9 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import http from 'node:http';
+import { fileURLToPath } from 'node:url';
 import { createSuiteServer } from './serve-suite.mjs';
-import { createBuildInvocation, normalizeBasePath } from './build-suite.mjs';
+import { APPS, createBuildInvocation, normalizeBasePath, resolveOrtRuntimeDist } from './build-suite.mjs';
 
 test('base paths normalize and reject traversal or URL syntax', () => {
   assert.equal(normalizeBasePath('/'), '/');
@@ -26,10 +27,12 @@ test('nested app bases remain distinct from the shared suite base', () => {
 async function withServer(run, base = '/') {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'asrjs-suite-test-'));
   await fs.mkdir(path.join(root, 'showcase'), { recursive: true });
+  await fs.mkdir(path.join(root, 'ort'), { recursive: true });
   await fs.writeFile(path.join(root, 'index.html'), '<main>portal</main>');
   await fs.writeFile(path.join(root, 'showcase', 'index.html'), '<main>showcase</main>');
   await fs.writeFile(path.join(root, 'showcase', 'engine.mjs'), 'export default 1;');
   await fs.writeFile(path.join(root, 'showcase', 'runtime.wasm'), Buffer.from([0, 97, 115, 109]));
+  await fs.writeFile(path.join(root, 'ort', 'ort-wasm-simd-threaded.wasm'), Buffer.from([0, 97, 115, 109]));
   const server = createSuiteServer({ root, base });
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   const address = server.address();
@@ -106,3 +109,62 @@ test('HEAD returns metadata without a body', async () => {
     assert.equal(response.body, '');
   });
 });
+
+test('static server serves root ort assets with isolation headers and wasm MIME type', async () => {
+  await withServer(async (origin) => {
+    const res = await rawGet(origin, '/ort/ort-wasm-simd-threaded.wasm');
+    assert.equal(res.status, 200);
+    assert.equal(res.headers['content-type'], 'application/wasm');
+    assert.equal(res.headers['cross-origin-opener-policy'], 'same-origin');
+    assert.equal(res.headers['cross-origin-embedder-policy'], 'require-corp');
+    assert.equal(res.headers['cross-origin-resource-policy'], 'same-origin');
+  });
+});
+
+test('static server serves nested base ort assets with isolation headers and wasm MIME type', async () => {
+  await withServer(async (origin) => {
+    const res = await rawGet(origin, '/nested/ort/ort-wasm-simd-threaded.wasm');
+    assert.equal(res.status, 200);
+    assert.equal(res.headers['content-type'], 'application/wasm');
+  }, '/nested/');
+});
+
+test('resolveOrtRuntimeDist resolves directory containing all 8 ORT assets', async () => {
+  const dist = resolveOrtRuntimeDist();
+  const entries = await fs.readdir(dist);
+  const ortFiles = entries.filter((name) =>
+    /^ort-wasm-simd-threaded(?:\.(?:asyncify|jsep|jspi))?\.(?:mjs|wasm)$/.test(name),
+  );
+  assert.equal(ortFiles.length, 8);
+});
+
+test('dist/ort contains 8 runtime assets and no app contains an ort subdirectory when dist is present', async () => {
+  const dist = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../dist');
+  try {
+    await fs.access(dist);
+  } catch {
+    return;
+  }
+  const distOrt = path.join(dist, 'ort');
+  try {
+    await fs.access(distOrt);
+  } catch {
+    return;
+  }
+  const ortFiles = (await fs.readdir(distOrt)).filter((name) =>
+    /^ort-wasm-simd-threaded(?:\.(?:asyncify|jsep|jspi))?\.(?:mjs|wasm)$/.test(name),
+  );
+  assert.equal(ortFiles.length, 8, 'Expected 8 ORT assets in dist/ort/');
+  for (const app of APPS) {
+    const appOrt = path.join(dist, app, 'ort');
+    let exists = false;
+    try {
+      await fs.access(appOrt);
+      exists = true;
+    } catch {
+      exists = false;
+    }
+    assert.equal(exists, false, `Expected ${appOrt} not to exist in suite build output`);
+  }
+});
+
