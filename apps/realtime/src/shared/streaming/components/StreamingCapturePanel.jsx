@@ -120,7 +120,7 @@ export function StreamingCapturePanel({
   return (
     <div className="panel-shell panel-shell--overflow workspace-main">
       <header className="workspace-main__head">
-        <h1 className="page-title">Capture</h1>
+        <h1 className="page-title">Private, on-device speech recognition in your browser</h1>
       </header>
 
       <div className="workspace-main__body">
@@ -162,10 +162,6 @@ export function StreamingCapturePanel({
                   <div className="waveform-toolbar waveform-toolbar--stacked mt-3">
                     <label className="waveform-toolbar__group waveform-toolbar__group--compact">
                       <span className="type-label-caps">{BROWSER_MONITOR_DISPLAY_CONTROL_DEFINITIONS.surface.label}</span>
-                      <span className="type-micro">
-                        {BROWSER_MONITOR_SURFACE_OPTIONS.find((option) => option.value === waveformDisplay.displayMode)?.note
-                          ?? BROWSER_MONITOR_DISPLAY_CONTROL_DEFINITIONS.surface.note}
-                      </span>
                       <select
                         value={waveformDisplay.displayMode}
                         onChange={(event) => waveformDisplay.setDisplayMode(event.target.value)}
@@ -178,10 +174,6 @@ export function StreamingCapturePanel({
                     </label>
                     <label className="waveform-toolbar__group waveform-toolbar__group--compact">
                       <span className="type-label-caps">{BROWSER_MONITOR_DISPLAY_CONTROL_DEFINITIONS.scale.label}</span>
-                      <span className="line-clamp-1 type-micro">
-                        {BROWSER_WAVEFORM_SCALE_OPTIONS.find((option) => option.value === waveformDisplay.scaleMode)?.note
-                          ?? BROWSER_MONITOR_DISPLAY_CONTROL_DEFINITIONS.scale.note}
-                      </span>
                       <select
                         value={waveformDisplay.scaleMode}
                         onChange={(event) => waveformDisplay.setScaleMode(event.target.value)}
@@ -195,7 +187,6 @@ export function StreamingCapturePanel({
                     </label>
                     <label className="waveform-toolbar__group waveform-toolbar__group--compact">
                       <span className="type-label-caps">{BROWSER_MONITOR_DISPLAY_CONTROL_DEFINITIONS.speechThreshold.label}</span>
-                      <span className="type-micro">{BROWSER_MONITOR_DISPLAY_CONTROL_DEFINITIONS.speechThreshold.note}</span>
                       <select
                         value={waveformDisplay.showSpeechThreshold ? 'on' : 'off'}
                         onChange={(event) => waveformDisplay.setShowSpeechThreshold(event.target.value === 'on')}
@@ -209,7 +200,6 @@ export function StreamingCapturePanel({
                     </label>
                     <label className="waveform-toolbar__group waveform-toolbar__group--compact">
                       <span className="type-label-caps">{BROWSER_MONITOR_DISPLAY_CONTROL_DEFINITIONS.tenVadThreshold.label}</span>
-                      <span className="type-mono-micro">{BROWSER_MONITOR_DISPLAY_CONTROL_DEFINITIONS.tenVadThreshold.note}</span>
                       <select
                         value={waveformDisplay.showTenVadThreshold ? 'on' : 'off'}
                         onChange={(event) => waveformDisplay.setShowTenVadThreshold(event.target.value === 'on')}
@@ -223,7 +213,6 @@ export function StreamingCapturePanel({
                     </label>
                     <label className="waveform-toolbar__group waveform-toolbar__group--compact">
                       <span className="type-label-caps">{BROWSER_MONITOR_DISPLAY_CONTROL_DEFINITIONS.preVadOverlay.label}</span>
-                      <span className="type-micro">{BROWSER_MONITOR_DISPLAY_CONTROL_DEFINITIONS.preVadOverlay.note}</span>
                       <select
                         value={waveformDisplay.showPreVadOverlay ? 'on' : 'off'}
                         onChange={(event) => waveformDisplay.setShowPreVadOverlay(event.target.value === 'on')}
@@ -242,7 +231,6 @@ export function StreamingCapturePanel({
                   <div className="tuning-group__head tuning-group__head--compact">
                     <div>
                       <div className="panel-title">{acceptanceGroup.title}</div>
-                      <div className="type-caption">{acceptanceGroup.description}</div>
                     </div>
                   </div>
 
@@ -260,7 +248,7 @@ export function StreamingCapturePanel({
                       </Field>
                     </div>
                     <div className="detector-card">
-                      <Field label="Acceptance preset" hint="Updates the final segment acceptance thresholds together.">
+                      <Field label="Acceptance preset">
                         <select
                           value={acceptancePresetId}
                           onChange={(event) => {
@@ -295,10 +283,7 @@ export function StreamingCapturePanel({
                   </div>
                   {acceptanceAdvancedGroup ? (
                     <div className="app-stack--sm mt-3">
-                      <div className="flex-row flex-row--between gap-2">
-                        <div className="type-caption">
-                          Adaptive noise-scaled acceptance controls.
-                        </div>
+                      <div className="flex-row flex-row--end gap-2">
                         <button
                           type="button"
                           className="compact-button-secondary compact-button--sm"
@@ -385,7 +370,6 @@ export function StreamingCapturePanel({
                 <div key={group.id} className="tuning-group">
                   <div className="tuning-group__head">
                     <div className="panel-title">{group.title}</div>
-                    <div className="type-caption">{group.description}</div>
                   </div>
                   <div className="tuning-sliders">
                     {group.controls.map((definition) => (
@@ -409,9 +393,6 @@ export function StreamingCapturePanel({
               <div className="widget-header widget-header--rail">
                 <div>
                   <h2 className="section-heading">Microphone</h2>
-                  <p className="section-subtitle">
-                    Start capture, switch mode, and send buffered speech.
-                  </p>
                   {microphone.error ? <p className="section-subtitle text-danger">{microphone.error}</p> : null}
                 </div>
               </div>

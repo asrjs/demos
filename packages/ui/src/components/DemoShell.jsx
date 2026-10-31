@@ -48,7 +48,7 @@ export function DemoShell({
         </div>
         <div className="asr-suite__tools">
           <button className="asr-suite__theme" type="button" onClick={toggleTheme} aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`} title="Change appearance">
-            <span aria-hidden="true">{theme === 'dark' ? '☼' : '◐'}</span><span className="asr-suite__theme-label">Appearance</span>
+            <span aria-hidden="true">{theme === 'dark' ? '☼' : '◐'}</span>
           </button>
         </div>
       </header>
@@ -64,7 +64,7 @@ export function DemoShell({
         </nav>
       ) : null}
       <main className="asr-suite__main">{children}</main>
-      <footer className="asr-suite__footer"><span>ASRJS</span><span>Library {version} · {source}</span></footer>
+      <footer className="asr-suite__footer"><span>ASRJS</span></footer>
     </div>
   );
 }

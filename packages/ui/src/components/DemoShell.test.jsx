@@ -15,9 +15,9 @@ describe('DemoShell', () => {
     );
     expect(html).toContain('href="/live/" aria-current="page"');
     expect(html).toContain('href="/transcribe/"');
-    expect(html).toContain('Library 0.2.0');
-    expect(html).toContain('npm-package');
     expect(html).toContain('Live capture');
+    expect(html).toContain('asr-suite__footer');
+    expect(html).not.toContain('asr-suite__theme-label');
   });
 
   it('keeps standalone deployment navigation free of dead sibling links', () => {

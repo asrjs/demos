@@ -595,11 +595,6 @@ export default function App() {
     ? 'Parakeet native JSON'
     : describeResponseFlavor(effectiveResponseFlavor);
   const currentDetailLabel = loadStrategy === LOAD_STRATEGIES.LEGACY ? 'native fields' : detail;
-  const currentContractSummary = loadStrategy === LOAD_STRATEGIES.UNIVERSAL
-    ? 'Loads models through their registered catalog source and artifact requirements.'
-    : loadStrategy === LOAD_STRATEGIES.ROOT
-    ? 'Parakeet Easy mode keeps loading simple and lets you inspect canonical output, native output, or both together.'
-    : 'Parakeet Native helper mode exposes the lower-level Parakeet response directly for debugging and parity checks.';
 
   const currentOptionsPreview = {
     strategy: loadStrategy,
@@ -1493,10 +1488,9 @@ export default function App() {
             <button type="button" onClick={() => focusSection('benchmark')} className={`demo-tab ${topTab === 'benchmark' ? 'demo-tab-active' : 'demo-tab-idle'}`}>Benchmark Lab</button>
           </div>
         </div>
-      <div className="demo-heading"><p className="demo-subtitle">Model workbench, output inspector and code generator.</p></div>
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,320px),minmax(0,1fr),minmax(0,400px)]">
           <aside className="space-y-4 min-w-0 xl:sticky xl:top-4 self-start">
-              <Panel title="Model Architecture & Loading Mode" subtitle="Choose catalog or Parakeet loading.">
+            <Panel title="Model Architecture & Loading Mode">
               <div className="grid gap-2">
                 <button
                   type="button"
@@ -1513,9 +1507,6 @@ export default function App() {
                   className={`mode-card ${loadStrategy === LOAD_STRATEGIES.ROOT ? 'mode-card-active-emerald' : 'mode-card-idle'}`}
                 >
                   <p className="font-medium">Parakeet Easy Mode</p>
-                  <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
-                    Uses <code className="font-mono">loadSpeechModel()</code> with Parakeet options and dual canonical/native envelope.
-                  </p>
                 </button>
                 <button
                   type="button"
@@ -1524,18 +1515,15 @@ export default function App() {
                   className={`mode-card ${loadStrategy === LOAD_STRATEGIES.LEGACY ? 'mode-card-active-amber' : 'mode-card-idle'}`}
                 >
                   <p className="font-medium">Parakeet Native Helper Mode</p>
-                  <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
-                    Uses the direct Parakeet helper with lower-level native response fields for parity verification.
-                  </p>
                 </button>
               </div>
             </Panel>
 
-            <Panel title="Model Setup" subtitle="Pick model, execution backend, and tuning parameters.">
+            <Panel title="Model Setup">
               <div className="space-y-4">
                 {loadStrategy === LOAD_STRATEGIES.UNIVERSAL ? (
                   <>
-                    <Field label="Catalog Model (Grouped by Family)">
+                    <Field label="Catalog Model">
                       <select
                         value={selectedCatalogModelId}
                         onChange={(event) => setSelectedCatalogModelId(event.target.value)}
@@ -1866,7 +1854,7 @@ export default function App() {
               </div>
             </Panel>
 
-            <Panel title="Transcription Options" subtitle="Controls language, detail level, and response format.">
+            <Panel title="Transcription Options">
               <div className="space-y-4">
                 <Field label="Language">
                   <select
@@ -1889,7 +1877,7 @@ export default function App() {
                       {DETAIL_LEVELS.map((value) => <option key={value} value={value}>{value}</option>)}
                     </select>
                   </Field>
-                  <Field label="Response flavor" hint={loadStrategy !== LOAD_STRATEGIES.LEGACY ? 'canonical supported' : 'locked to native'}>
+                  <Field label="Response flavor">
                     <select
                       value={effectiveResponseFlavor}
                       onChange={(event) => setResponseFlavor(event.target.value)}
@@ -1911,7 +1899,7 @@ export default function App() {
                       <option value={AUDIO_PREP_MODES.BROWSER_TARGET_RATE}>Browser target-rate AudioContext</option>
                     </select>
                   </Field>
-                  <Field label="Resampler" hint={audioPrepMode === AUDIO_PREP_MODES.NATIVE_LINEAR ? 'js path' : 'browser path'}>
+                  <Field label="Resampler">
                     <select
                       value={audioResamplerQuality}
                       onChange={(event) => setAudioResamplerQuality(event.target.value)}
@@ -1933,7 +1921,7 @@ export default function App() {
               </div>
             </Panel>
 
-            <Panel title="Status" subtitle="Live load and transcription state.">
+            <Panel title="Status">
               <div className="space-y-3">
                 <p className={`text-sm font-medium ${modelLoaded ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-600 dark:text-slate-400'}`}>
                   {status}
@@ -1971,7 +1959,7 @@ export default function App() {
           </aside>
 
           <section className="space-y-4 min-w-0" ref={transcribeSectionRef}>
-            <Panel title="Test & Transcribe Audio" subtitle="Upload an audio file, record from microphone, or use the bundled Harvard sentences sample.">
+            <Panel title="Test & Transcribe Audio">
               <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 16rem), 1fr))' }}>
                 <div className="space-y-3">
                   <div className="flex items-center justify-end gap-2">
@@ -2022,7 +2010,6 @@ export default function App() {
                   >
                     <div className="mb-2 text-[28px] text-[#688098]">☁</div>
                     <div>Drag & drop audio file here, or click to select</div>
-                    <div className="mt-1 text-[11px] text-slate-400">Supports .wav, .mp3, .ogg, .flac, .webm</div>
                     <div className="mt-3 font-medium text-slate-600 dark:text-slate-300">{audioLabel}</div>
                   </button>
                   <audio ref={audioPlayerRef} controls src={audioUrl} className="w-full" />
@@ -2072,13 +2059,6 @@ export default function App() {
                     <p className="mt-1 text-[13px] text-slate-600 dark:text-slate-400">
                       {loadStrategy === LOAD_STRATEGIES.LEGACY ? 'native Parakeet JSON' : '{ canonical, native }'}
                     </p>
-                    <p className="mt-2 text-[12px] leading-5 text-slate-600 dark:text-slate-400">
-                      {loadStrategy === LOAD_STRATEGIES.UNIVERSAL
-                        ? 'Catalog model output uses the shared transcript interface.'
-                        : loadStrategy === LOAD_STRATEGIES.ROOT
-                        ? 'Easy mode stays app-friendly while still letting you inspect canonical and native layers.'
-                        : 'Native helper mode keeps lower-level Parakeet fields visible for debugging.'}
-                    </p>
                   </div>
                   <div className="demo-soft-box">
                     <p className="metric-label">Selected options</p>
@@ -2088,7 +2068,7 @@ export default function App() {
               </div>
             </Panel>
 
-            <Panel title="Transcript & Word Alignment" subtitle="Canonical or native text output with interactive click-to-seek word timestamps.">
+            <Panel title="Transcript & Word Alignment">
               <div className="space-y-4">
                 <div className="demo-soft-box p-5">
                   <p className="asr-transcript-text">{transcript || 'No transcript yet. Load a model and click Transcribe or Stream Chunks.'}</p>
@@ -2096,7 +2076,7 @@ export default function App() {
                 {wordsList.length > 0 ? (
                   <div className="demo-soft-box">
                     <div className="flex items-center justify-between mb-2">
-                      <p className="metric-label">Word-Level Timestamps ({wordsList.length} words — click any word to seek audio)</p>
+                      <p className="metric-label">Word-Level Timestamps ({wordsList.length} words)</p>
                     </div>
                     <WordPills
                       words={wordsList}
@@ -2129,7 +2109,7 @@ export default function App() {
             </Panel>
 
             <div className="grid gap-4 2xl:grid-cols-[minmax(0,1.05fr),minmax(0,1fr)]">
-              <Panel title="Audio Preparation" subtitle="Browser-side decode, downmix, and sample-rate preparation before inference.">
+              <Panel title="Audio Preparation">
                 {audioPreparation ? (
                   <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
                     {[
@@ -2156,13 +2136,13 @@ export default function App() {
                   <p className="text-sm text-slate-500 dark:text-slate-400">No audio prepared yet.</p>
                 )}
               </Panel>
-              <Panel title="Latest Inference Metrics" subtitle="Normalized metrics from canonical or native output.">
+              <Panel title="Latest Inference Metrics">
                 <MetricGrid metrics={latestMetrics} />
               </Panel>
             </div>
 
             <div ref={benchmarkSectionRef}>
-              <Panel title="Benchmark Lab" subtitle="Repeat the same audio through the loaded model to inspect throughput, stability, and latency.">
+              <Panel title="Benchmark Lab">
                 {benchmarkSummary ? (
                   <div className="space-y-4">
                     <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
@@ -2206,7 +2186,7 @@ export default function App() {
                     </div>
                   </div>
                 ) : (
-                  <p className="text-sm text-slate-500 dark:text-slate-400">Run repeated inference to inspect stability, wall time, and model timings.</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">No benchmark runs yet.</p>
                 )}
               </Panel>
             </div>
@@ -2214,7 +2194,7 @@ export default function App() {
           </section>
 
           <aside className="space-y-4 min-w-0 xl:sticky xl:top-4 self-start">
-            <Panel title="Copyable Code Snippet" subtitle="Ready-to-run TypeScript/JavaScript code for your selected model, backend, and options.">
+            <Panel title="Copyable Code Snippet">
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
@@ -2266,7 +2246,7 @@ export default function App() {
                 </pre>
               </div>
             </Panel>
-            <Panel title="API Contract" subtitle={currentContractSummary}>
+            <Panel title="API Contract">
               <div className="space-y-3">
                 <div className="metric-cell">
                   <p className="metric-label">Current mode</p>
