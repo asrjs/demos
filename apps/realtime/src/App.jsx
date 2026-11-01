@@ -37,6 +37,7 @@ import {
   resolveProfilingSetting,
   prepareCapturedPcm,
   rebaseCapturedTranscriptTimes,
+  resolveDemoWasmPaths,
 } from '@asrjs/demo-runtime';
 import { createTranscriptionRecordFromResult } from './app/transcriptionRecord.js';
 import { buildTranscriptionOptions } from './app/transcriptionHelpers.js';
@@ -294,7 +295,7 @@ export default function App() {
         decoderQuant,
       });
       const commonLoadOptions = {
-        wasmPaths: new URL(import.meta.env.BASE_URL + 'ort/', window.location.href).href,
+        wasmPaths: resolveDemoWasmPaths(import.meta.env.BASE_URL),
         modelId: selectedModel,
         encoderBackend: loadingState.encoderBackend,
         decoderBackend: loadingState.decoderBackend,

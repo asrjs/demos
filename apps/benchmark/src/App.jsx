@@ -644,7 +644,41 @@ export default function App() {
           if (stopRef.current) break;
           stepCursor += 1;
           setProgress({ current: stepCursor, total: totalSteps, stage: `Warmup ${w + 1}/${warmups} · ${item.sampleKey}` });
-          await executeSingleTranscribe(decoded.pcm, durSec);
+          const startedAt = new Date().toISOString();
+          try {
+            const out = await executeSingleTranscribe(decoded.pcm, durSec);
+            collected.push({
+              id: `${batchId}-${i}-warmup-${w}`,
+              batchId,
+              startedAt,
+              finishedAt: new Date().toISOString(),
+              sampleKey: item.sampleKey,
+              sampleOrder: i + 1,
+              rowIndex: item.rowIndex,
+              repeatIndex: 0,
+              isWarmup: true,
+              phase: 'cold',
+              audioDurationSec: durSec,
+              transcription: out.text,
+              referenceText: item.referenceText,
+              exactMatchToFirst: true,
+              similarityToFirst: 1,
+              wer: null,
+              cer: null,
+              referenceSimilarity: null,
+              metrics: out.metrics,
+              rtfx: out.metrics.rtfx,
+              modelKey,
+              backend,
+              encoderQuant,
+              decoderQuant,
+              preprocessorBackend,
+              error: '',
+            });
+            setRuns([...collected]);
+          } catch {
+            // non-fatal warmup error
+          }
         }
 
         const effectiveRepeats = resolveEffectiveRepeatCount(repeatCount, durSec, {
@@ -665,6 +699,7 @@ export default function App() {
             stage: `Run ${r + 1}/${effectiveRepeats} · ${item.sampleKey}`,
           });
           const startedAt = new Date().toISOString();
+          const isCold = Math.ceil(warmups) === 0 && r === 0;
           try {
             const out = await executeSingleTranscribe(decoded.pcm, durSec);
             if (firstTranscript === null) firstTranscript = out.text;
@@ -679,6 +714,8 @@ export default function App() {
               sampleOrder: i + 1,
               rowIndex: item.rowIndex,
               repeatIndex: r + 1,
+              isWarmup: false,
+              phase: isCold ? 'cold' : 'warm',
               audioDurationSec: durSec,
               transcription: out.text,
               referenceText: item.referenceText,
@@ -706,6 +743,8 @@ export default function App() {
               sampleOrder: i + 1,
               rowIndex: item.rowIndex,
               repeatIndex: r + 1,
+              isWarmup: false,
+              phase: isCold ? 'cold' : 'warm',
               audioDurationSec: durSec,
               transcription: '',
               referenceText: item.referenceText,
@@ -778,6 +817,8 @@ export default function App() {
   function saveSnapshot() {
     if (!okRuns.length) return;
     const defaultLabel = `${modelKey} | ${backend} | e:${encoderQuant} d:${decoderQuant}`;
+    const coldRuns = okRuns.filter((r) => r.phase === 'cold' || r.isWarmup);
+    const warmRuns = okRuns.filter((r) => r.phase === 'warm' && !r.isWarmup);
     const snap = {
       id: `snap-${Date.now()}`,
       createdAt: new Date().toISOString(),
@@ -791,7 +832,13 @@ export default function App() {
         datasetSource: audioSourceMode === 'local-folder' ? 'Local Audio Folder' : datasetId,
       },
       hardware,
-      summary,
+      summary: {
+        ...summary,
+        coldInferenceMean: mean(coldRuns.map((r) => r.metrics?.total_ms).filter(Number.isFinite)),
+        warmInferenceMean: mean(warmRuns.map((r) => r.metrics?.total_ms).filter(Number.isFinite)),
+      },
+      coldRuns,
+      warmRuns,
       runs: okRuns.slice(0, 120),
     };
     setSnapshots((prev) => [snap, ...prev].slice(0, MAX_SNAPSHOTS));
@@ -805,19 +852,24 @@ export default function App() {
     const reader = new FileReader();
     reader.onload = (ev) => {
       try {
-        const data = JSON.parse(String(ev.target?.result || '{}'));
-        const importedRuns = Array.isArray(data.runs) ? data.runs : [];
-        const snap = {
-          id: `import-${Date.now()}`,
-          createdAt: data.generatedAt || new Date().toISOString(),
-          label: data.label || file.name.replace(/\.json$/i, ''),
-          settings: data.settings || { modelKey: data.modelId || 'imported', backend: data.backendId || '-' },
-          hardware: data.hardware || hardware,
-          summary: data.summary || summary,
-          runs: importedRuns.slice(0, 120),
-        };
-        setSnapshots((prev) => [snap, ...prev].slice(0, MAX_SNAPSHOTS));
-        setBenchStatus(`Imported snapshot from ${file.name}`);
+        const parsed = JSON.parse(String(ev.target?.result || '{}'));
+        const items = Array.isArray(parsed) ? parsed : [parsed];
+        const newSnaps = items.map((data, idx) => {
+          const importedRuns = Array.isArray(data.runs) ? data.runs : [];
+          return {
+            id: data.id || `import-${Date.now()}-${idx}`,
+            createdAt: data.createdAt || data.generatedAt || new Date().toISOString(),
+            label: data.label || file.name.replace(/\.json$/i, ''),
+            settings: data.settings || { modelKey: data.modelId || 'imported', backend: data.backendId || '-' },
+            hardware: data.hardware || hardware,
+            summary: data.summary || summary,
+            coldRuns: Array.isArray(data.coldRuns) ? data.coldRuns : importedRuns.filter((r) => r.phase === 'cold' || r.isWarmup),
+            warmRuns: Array.isArray(data.warmRuns) ? data.warmRuns : importedRuns.filter((r) => r.phase === 'warm' && !r.isWarmup),
+            runs: importedRuns.slice(0, 120),
+          };
+        });
+        setSnapshots((prev) => [...newSnaps, ...prev].slice(0, MAX_SNAPSHOTS));
+        setBenchStatus(`Imported ${newSnaps.length} snapshot(s) from ${file.name}`);
       } catch (err) {
         setErrorText(`Failed to import JSON: ${err?.message || String(err)}`);
       }
@@ -900,7 +952,6 @@ export default function App() {
             <section className="console-card">
               <div className="card-header">
                 <h2 className="card-title">1. Model &amp; Runtime</h2>
-                <span className="mono status-note">{isParakeetLegacy ? 'Parakeet Preset' : 'Universal Catalog'}</span>
               </div>
               <div className="form-stack">
                 {modelSourceOptions.length > 1 ? (
@@ -1328,9 +1379,6 @@ export default function App() {
             <div className="sweetspot-banner">
               <div>
                 <strong>Effective RTFx Sweet-Spot Window: {sweetSpot.label}</strong>
-                <div className="status-note">
-                  With {windowOverlapSec}s overlap on a 60m stream, {sweetSpot.label} achieves peak effective throughput ({sweetSpot.effectiveRtfx}x RTFx, {sweetSpot.overheadPct}% overlap overhead).
-                </div>
               </div>
               <span className="mono" style={{ fontSize: 18, fontWeight: 800 }}>
                 Peak {sweetSpot.effectiveRtfx}x RTFx
@@ -1352,17 +1400,14 @@ export default function App() {
             <div className="kpi-card">
               <div className="kpi-label">Preprocess</div>
               <div className="kpi-value">{fmtMs(summary.preprocessMean)}</div>
-              <div className="kpi-sub">Audio &rarr; Mel features</div>
             </div>
             <div className="kpi-card">
               <div className="kpi-label">Encode Latency</div>
               <div className="kpi-value">{fmtMs(summary.encodeMean)}</div>
-              <div className="kpi-sub">Acoustic encoder</div>
             </div>
             <div className="kpi-card">
               <div className="kpi-label">Decode Latency</div>
               <div className="kpi-value">{fmtMs(summary.decodeMean)}</div>
-              <div className="kpi-sub">&sigma; = {fmtMs(summary.decodeStd)}</div>
             </div>
             <div className="kpi-card">
               <div className="kpi-label">Repeatability</div>
@@ -1590,6 +1635,14 @@ export default function App() {
                 <button
                   type="button"
                   className="btn btn-sm"
+                  onClick={() => downloadText(`asrjs-benchmark-receipt-${Date.now()}.json`, JSON.stringify(snapshots, null, 2), 'application/json')}
+                  disabled={!snapshots.length}
+                >
+                  Export JSON
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-sm"
                   onClick={() => downloadText(`asrjs-leaderboard-${Date.now()}.md`, runsToMarkdownLeaderboard(snapshots), 'text/markdown')}
                   disabled={!snapshots.length}
                 >
@@ -1679,7 +1732,6 @@ export default function App() {
               <div className="table-panel-head">
                 <h3>Multi-Configuration Pivot Table</h3>
                 <div className="btn-row">
-                  <span className="status-note">Group by:</span>
                   {PIVOT_DIMENSIONS.map((d) => (
                     <button
                       key={d.key}
@@ -1743,6 +1795,40 @@ export default function App() {
               <button
                 type="button"
                 className="btn btn-sm"
+                onClick={() => {
+                  const coldRuns = okRuns.filter((r) => r.phase === 'cold' || r.isWarmup);
+                  const warmRuns = okRuns.filter((r) => r.phase === 'warm' && !r.isWarmup);
+                  const payload = snapshots.length > 0 ? snapshots : (runs.length > 0 ? [{
+                    id: `snap-${Date.now()}`,
+                    createdAt: new Date().toISOString(),
+                    label: `${modelKey} | ${backend} | e:${encoderQuant} d:${decoderQuant}`,
+                    settings: {
+                      modelKey,
+                      backend,
+                      encoderQuant,
+                      decoderQuant,
+                      preprocessorBackend,
+                      datasetSource: audioSourceMode === 'local-folder' ? 'Local Audio Folder' : datasetId,
+                    },
+                    hardware,
+                    summary: {
+                      ...summary,
+                      coldInferenceMean: mean(coldRuns.map((r) => r.metrics?.total_ms).filter(Number.isFinite)),
+                      warmInferenceMean: mean(warmRuns.map((r) => r.metrics?.total_ms).filter(Number.isFinite)),
+                    },
+                    coldRuns,
+                    warmRuns,
+                    runs: okRuns.slice(0, 120),
+                  }] : []);
+                  downloadText(`asrjs-benchmark-receipt-${Date.now()}.json`, JSON.stringify(payload, null, 2), 'application/json');
+                }}
+                disabled={!snapshots.length && !runs.length}
+              >
+                Export JSON
+              </button>
+              <button
+                type="button"
+                className="btn btn-sm"
                 onClick={() => downloadText(`asrjs-runs-${Date.now()}.csv`, benchmarkRunRecordsToCsv(runs), 'text/csv')}
                 disabled={!runs.length}
               >
@@ -1755,6 +1841,19 @@ export default function App() {
                 disabled={!lifecycleRecords.length}
               >
                 Download Lifecycle CSV
+              </button>
+              <button
+                type="button"
+                className="btn btn-sm"
+                onClick={() => downloadText(`asrjs-leaderboard-${Date.now()}.md`, runsToMarkdownLeaderboard(snapshots.length ? snapshots : (runs.length ? [{
+                  id: `snap-${Date.now()}`,
+                  label: `${modelKey} | ${backend}`,
+                  settings: { modelKey, backend, encoderQuant, decoderQuant },
+                  summary,
+                }] : [])), 'text/markdown')}
+                disabled={!snapshots.length && !runs.length}
+              >
+                Export Markdown
               </button>
             </div>
           </div>
@@ -1780,7 +1879,7 @@ export default function App() {
                   runs.map((r) => (
                     <tr key={r.id}>
                       <td className="mono">{r.sampleKey}</td>
-                      <td>#{r.repeatIndex}</td>
+                      <td>{r.isWarmup ? 'warmup' : `#${r.repeatIndex}`}</td>
                       <td className="mono">{formatSeconds(r.audioDurationSec)}</td>
                       <td className="mono">{fmtMs(r.metrics?.preprocess_ms)}</td>
                       <td className="mono">{fmtMs(r.metrics?.encode_ms)}</td>

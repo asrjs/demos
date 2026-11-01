@@ -396,9 +396,6 @@ export default function App() {
   const preprocessorBackendOptions = getDescriptorPreprocessorBackendOptions(selectedModel);
   const defaultPreprocessorName = getDescriptorDefaultPreprocessorName(selectedModel);
   const defaultPreprocessorBackend = getDescriptorDefaultPreprocessorBackend(selectedModel);
-  const hostedModelUsesJsFrontend =
-    modelSource === MODEL_SOURCE_OPTIONS.HUGGINGFACE &&
-    defaultPreprocessorBackend === 'js';
   const supportsCanaryPrompting = modelConfig?.capabilities?.supportsPromptControls === true;
   const effectiveCanaryTargetLanguage =
     canaryTask === 'asr' ? selectedLanguage : canaryTargetLanguage;
@@ -1416,16 +1413,6 @@ export default function App() {
                         Restore Saved Folder
                       </button>
                     )}
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {localEntries.length
-                        ? `Selected ${localEntries.length} files${localFolderName ? ` from "${localFolderName}"` : ''}.`
-                        : 'Pick a folder containing encoder/decoder ONNX files and tokenizer text. Optional nemo*.onnx frontend files are detected automatically when present.'}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {localHandlePersistenceSupported
-                        ? 'Folder access can be persisted in this browser (you may be asked permission on revisit).'
-                        : 'This browser cannot persist folder access for local models. User must reselect folder on next visit.'}
-                    </p>
                     {localEntries.length > 0 && (
                       <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
                         <p>Encoder dtypes: {localDetectedArtifacts.encoder.length ? localDetectedArtifacts.encoder.join(', ') : 'none'}</p>
@@ -1623,35 +1610,14 @@ export default function App() {
                         </span>
                       </div>
                     )}
-                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                      {preprocessorBackend === 'js'
-                        ? 'Shared pure-JS NeMo frontend. This is the expected path for hosted RNNT models and for local folders without nemo*.onnx frontend assets.'
-                        : 'Optional ONNX frontend. Use this only when the selected repo or local folder actually includes a compatible nemo*.onnx asset.'}
-                    </p>
-                    {hostedModelUsesJsFrontend && (
-                      <p className="text-xs text-amber-700 dark:text-amber-300 mt-2">
-                        This hosted model is configured for the shared JS frontend by default. Separate nemo80/nemo128 ONNX preprocessors are optional, not required.
-                      </p>
-                    )}
                   </div>
                 ) : null}
 
                 {supportsCanaryPrompting && (
                   <div className="rounded-2xl border border-sky-200 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.18),transparent_55%),linear-gradient(135deg,rgba(14,165,233,0.08),rgba(59,130,246,0.03))] p-4 dark:border-sky-900/60 dark:bg-[radial-gradient(circle_at_top_left,rgba(12,74,110,0.62),transparent_55%),linear-gradient(135deg,rgba(8,47,73,0.72),rgba(15,23,42,0.4))]">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-                          Canary Prompt Controls
-                        </h3>
-                        <p className="mt-1 text-xs leading-relaxed text-gray-600 dark:text-gray-300">
-                          Source language follows the test sample or uploaded audio language. Target language, task,
-                          timestamps, and punctuation are injected as decoder prompt tokens.
-                        </p>
-                      </div>
-                      <span className="rounded-full border border-sky-300/70 bg-white/70 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-sky-700 shadow-sm dark:border-sky-700 dark:bg-sky-950/50 dark:text-sky-200">
-                        canary2
-                      </span>
-                    </div>
+                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+                      Canary Prompt Controls
+                    </h3>
 
                     <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                       <div>
@@ -1965,7 +1931,6 @@ export default function App() {
                 <p className="text-gray-500 dark:text-gray-400 font-medium">
                   Drag & drop audio file here, or click to select
                 </p>
-                <p className="text-xs text-gray-400 mt-1">Supports .wav, .mp3, .ogg</p>
               </div>
             </div>
 

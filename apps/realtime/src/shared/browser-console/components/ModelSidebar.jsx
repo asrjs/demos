@@ -119,9 +119,6 @@ export function ModelSidebar({ app, hidden = false }) {
         <div className="app-stack--sm">
           <div className="demo-soft-box">
             <div className="font-semibold type-body-lg">{activeModelLabel}</div>
-            <div className="mt-1 type-caption">
-              {modelSource === MODEL_SOURCE_OPTIONS.LOCAL ? 'Local assets' : `Revision ${modelRevision}`}
-            </div>
           </div>
           <button onClick={loadModel} disabled={isLoading || isModelReady || (modelSource === MODEL_SOURCE_OPTIONS.LOCAL && (!localEntries.length || !encoderQuantOptions.length || !decoderQuantOptions.length))} type="button" className="compact-button-dark compact-button--block">
             {isModelReady ? 'Model Loaded' : isLoading ? 'Loading…' : 'Load Model'}
@@ -253,12 +250,6 @@ export function ModelSidebar({ app, hidden = false }) {
               </div>
             </div>
           ) : null}
-
-          {modelConfig?.description ? (
-            <div className="demo-soft-box type-caption text-ink" title={modelConfig.description}>
-              {modelConfig.displayName}
-            </div>
-          ) : null}
         </div>
       </Widget>
 
@@ -343,14 +334,12 @@ export function ModelSidebar({ app, hidden = false }) {
                   </div>
                 </Field>
               ) : null}
-              {hostedModelUsesJsFrontend ? <div className="type-caption">JS default</div> : null}
             </>
           ) : null}
           {supportsCanaryPrompting ? (
             <div className="demo-soft-box app-stack--xs">
               <div className="flex-row flex-row--between gap-2">
                 <div className="panel-title">Canary</div>
-                <span className="type-mono-micro">canary2</span>
               </div>
               <div className="grid-2">
                 <Field label="Task">
@@ -381,7 +370,6 @@ export function ModelSidebar({ app, hidden = false }) {
                   Timestamps {canaryTimestamps ? 'On' : 'Off'}
                 </button>
               </div>
-              <div className="type-caption">{selectedLanguageName} {'->'} {effectiveTargetLanguageName}</div>
             </div>
           ) : null}
 

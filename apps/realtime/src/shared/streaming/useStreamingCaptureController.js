@@ -6,6 +6,7 @@ import {
   STREAMING_TIMELINE_CHUNK_MS,
 } from '@asrjs/speech-recognition/browser';
 import { listStreamingPresets } from '@asrjs/speech-recognition/realtime';
+import { resolveDemoWasmPaths } from '@asrjs/demo-runtime';
 import { usePersistentStreamingSettings } from './usePersistentStreamingSettings.js';
 
 const INITIAL_CONTROLLER_STATE = {
@@ -75,7 +76,7 @@ export function useStreamingCaptureController({
       config: resolvedConfig,
       micMode,
       fireRedVadConfig: {
-        wasmPaths: `${import.meta.env.BASE_URL}ort/`,
+        wasmPaths: resolveDemoWasmPaths(import.meta.env.BASE_URL),
       },
       // TEN-VAD is not bundled with the SDK; the app hosts its Web build.
       tenVadConfig: {

@@ -104,7 +104,6 @@ export function SignalMeter({
       <div className="widget-header widget-header--rail">
         <div>
           <h2 className="section-heading">Detector readout</h2>
-          <p className="section-subtitle">Live rough-gate state, adaptive noise floor, and final segment energy metrics.</p>
         </div>
       </div>
       <div className="signal-meter__grid">
@@ -136,7 +135,6 @@ export function SignalMeter({
         <Line
           label={formatVadBackendLabel(effectiveGate?.vadBackend)}
           value={formatFixed(effectiveTenVad?.probability)}
-          note="diagnostic only"
         />
         <Line
           label="filter"
