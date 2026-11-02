@@ -1019,7 +1019,8 @@ html.dark .text-warn {
 }
 
 @media (min-width: 960px) {
-  .waveform-toolbar {
+  /* Stacked toolbars keep two columns so labels and values stay readable. */
+  .waveform-toolbar:not(.waveform-toolbar--stacked) {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     align-items: end;
@@ -1051,6 +1052,7 @@ html.dark .text-warn {
 }
 
 .waveform-toolbar__group--compact .compact-control {
+  width: 100%;
   min-height: 34px;
   padding-top: 0.35rem;
   padding-bottom: 0.35rem;
@@ -1069,13 +1071,17 @@ html.dark .text-warn {
 
 @media (min-width: 1280px) {
   .waveform-workbench {
-    grid-template-columns: minmax(0, 1.6fr) minmax(300px, 0.72fr);
+    grid-template-columns: minmax(0, 1.5fr) minmax(330px, 0.8fr);
   }
 }
 
 .waveform-workbench__main,
 .waveform-workbench__side {
   min-width: 0;
+}
+/* The side rail is ~330px: two-up acceptance fields collapse to one column. */
+.waveform-workbench__side .grid-2-loose--tight {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .demo-upload-zone {

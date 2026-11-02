@@ -51,7 +51,7 @@ import {
   transcribeUploadedFileFlow,
 } from './app/transcriptionFlows.js';
 import { disposeHubDemoPipeline } from './shared/modelLoader.js';
-import { DEMO_MODELS, MODEL_OPTIONS } from './shared/modelCatalog.js';
+import { DEMO_MODELS, MODEL_OPTIONS, getDemoModelOptionsForSource } from './shared/modelCatalog.js';
 import { useStreamingCaptureController } from './shared/streaming/useStreamingCaptureController.js';
 import { useStreamingMonitor } from './shared/streaming/useStreamingMonitor.js';
 import { BrowserConsoleLayout } from './BrowserConsoleLayout.jsx';
@@ -660,10 +660,14 @@ export default function App() {
   }, [selectedModel, modelSource]);
 
   useEffect(() => {
-    const resolved = resolveDemoModelSource(selectedModel, modelSource);
-    if (resolved && resolved !== modelSource) {
-      setModelSource(resolved);
-      setStatus(`Using ${resolved} source for this model.`);
+    const options = getDemoModelOptionsForSource(modelSource);
+    if (!options.length) {
+      const resolved = resolveDemoModelSource(selectedModel, modelSource);
+      if (resolved && resolved !== modelSource) setModelSource(resolved);
+      return;
+    }
+    if (!options.some((option) => option.key === selectedModel)) {
+      setSelectedModel(options[0].key);
     }
   }, [modelSource, selectedModel]);
 

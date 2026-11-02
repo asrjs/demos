@@ -44,7 +44,7 @@ export function BrowserConsoleTopbar({
           aria-expanded={!modelSidebarCollapsed}
           title={modelSidebarCollapsed ? 'Show model setup sidebar' : 'Hide model setup sidebar'}
         >
-          <span className="material-icons-outlined icon-md">tune</span>
+          <span aria-hidden="true" className="material-icons-outlined icon-md">tune</span>
         </button>
       </div>
 

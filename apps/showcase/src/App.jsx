@@ -1,4 +1,4 @@
-import { DEMO_MODELS, MODEL_OPTIONS, getCanonicalRevision, getDescriptorEncoderQuantOptions, getDescriptorDecoderQuantOptions, getDescriptorDefaultEncoderQuant, getDescriptorDefaultDecoderQuant, getDescriptorEncoderBackendOptions, getDescriptorDecoderBackendOptions, getDescriptorPreprocessorBackendOptions, getDescriptorDefaultPreprocessorName, getDescriptorDefaultPreprocessorBackend, resolvePreprocessorBackendForSource } from "@asrjs/demo-runtime";
+import { DEMO_MODELS, MODEL_OPTIONS, getDemoModelOptionsForSource, getCanonicalRevision, getDescriptorEncoderQuantOptions, getDescriptorDecoderQuantOptions, getDescriptorDefaultEncoderQuant, getDescriptorDefaultDecoderQuant, getDescriptorEncoderBackendOptions, getDescriptorDecoderBackendOptions, getDescriptorPreprocessorBackendOptions, getDescriptorDefaultPreprocessorName, getDescriptorDefaultPreprocessorBackend, resolvePreprocessorBackendForSource } from "@asrjs/demo-runtime";
 import { resolveProfilingSetting } from '@asrjs/demo-runtime';
 import React, { useState, useRef, useEffect } from 'react';
 import { getDemoModelSourceOptions, resolveDemoModelSource, getDemoModelLoadingState, loadDemoLocalModel, matchesWarmupResult } from '@asrjs/demo-runtime';
@@ -384,6 +384,7 @@ export default function App() {
       : Math.max(1, maxCores - 2)
   );
   const modelRef = useRef(null);
+  const compileLabelTimerRef = useRef(null);
   const fileInputRef = useRef(null);
   const modelFolderInputRef = useRef(null);
   const audioRef = useRef(null);
@@ -403,6 +404,10 @@ export default function App() {
     supportsCanaryPrompting &&
     canaryTask !== 'asr' &&
     effectiveCanaryTargetLanguage !== selectedLanguage;
+
+  useEffect(() => () => {
+    if (compileLabelTimerRef.current) clearTimeout(compileLabelTimerRef.current);
+  }, []);
 
   // Get available languages for test samples
   const testLanguageOptions = Object.entries(SPEECH_DATASETS)
@@ -429,8 +434,17 @@ export default function App() {
   }, [selectedModel, modelSource]);
 
   useEffect(() => {
-    const nextSource = resolveDemoModelSource(selectedModel, modelSource);
-    if (nextSource !== modelSource) setModelSource(nextSource);
+    // Never switch the source under the user: only offer models that the
+    // selected source can load, and move the selection when it cannot.
+    const options = getDemoModelOptionsForSource(modelSource);
+    if (!options.length) {
+      const nextSource = resolveDemoModelSource(selectedModel, modelSource);
+      if (nextSource !== modelSource) setModelSource(nextSource);
+      return;
+    }
+    if (!options.some((option) => option.key === selectedModel)) {
+      setSelectedModel(options[0].key);
+    }
   }, [modelSource, selectedModel]);
 
   useEffect(() => {
@@ -528,13 +542,7 @@ export default function App() {
   // Inspect selected repo+branch files and filter quantization options accordingly.
   useEffect(() => {
     if (modelSource !== MODEL_SOURCE_OPTIONS.HUGGINGFACE) return;
-    if (!supportsSplitQuantization) {
-      setEncoderQuantOptions(['fp32']);
-      setDecoderQuantOptions(['fp32']);
-      setEncoderQuant('fp32');
-      setDecoderQuant('fp32');
-      return () => {};
-    }
+    if (!supportsSplitQuantization) return;
 
     let cancelled = false;
     const revision = modelRevision || getCanonicalRevision(selectedModel);
@@ -1082,8 +1090,26 @@ export default function App() {
         console.log('[LocalFolder] Model sessions created from local artifacts');
       } else {
         console.log('[Hub] Starting model load from HuggingFace');
+        // 0.3.x reports session creation before the asset downloads finish, so
+        // the phase name alone cannot distinguish downloading from compiling.
+        const cancelCompilingLabel = () => {
+          if (compileLabelTimerRef.current) {
+            clearTimeout(compileLabelTimerRef.current);
+            compileLabelTimerRef.current = null;
+          }
+        };
+        const scheduleCompilingLabel = (message) => {
+          cancelCompilingLabel();
+          compileLabelTimerRef.current = setTimeout(() => {
+            setStatus('Compiling model…');
+            setProgressPct(null);
+            setProgressText(message || 'Compiling model…');
+          }, 1500);
+        };
         const progressCallback = (event) => {
           if (event.phase === 'asset:download') {
+            cancelCompilingLabel();
+            setStatus('Downloading model…');
             const pct = event.percent ?? (event.total > 0 ? Math.round((event.loaded / event.total) * 100) : 0);
             setProgressText(event.file ? `${event.file}: ${pct}%` : event.message || 'Downloading model assets');
             setProgressPct(pct);
@@ -1100,18 +1126,25 @@ export default function App() {
             setProgressPct(null);
             return;
           }
-          if (event.phase === 'model-load:start' || event.phase === 'session-create:start') {
-            setStatus('Compiling model…');
-            setProgressPct(null);
-            setProgressText(event.message || 'Compiling model…');
+          if (event.phase === 'model-load:start') {
+            // Model-load starts before the (large) encoder finishes downloading.
+            setStatus('Downloading model…');
+            setProgressText(event.message || 'Loading model artifacts…');
+            return;
+          }
+          if (event.phase === 'session-create:start') {
+            scheduleCompilingLabel(event.message);
+            setProgressText(event.message || 'Preparing model…');
             return;
           }
           if (event.phase === 'model-load:complete' || event.phase === 'session-create:complete') {
+            cancelCompilingLabel();
             setProgressText(event.message || 'Model compile step complete.');
             setProgressPct(null);
             return;
           }
           if (event.phase === 'ready') {
+            cancelCompilingLabel();
             setProgressText(event.message || 'Model runtime ready.');
             setProgressPct(null);
             return;
@@ -1212,6 +1245,10 @@ export default function App() {
       setLoadedFromCache(false);
       await releaseCurrentModel({ evictHub: true });
     } finally {
+      if (compileLabelTimerRef.current) {
+        clearTimeout(compileLabelTimerRef.current);
+        compileLabelTimerRef.current = null;
+      }
       setIsModelLoading(false);
     }
   }
@@ -1348,7 +1385,7 @@ export default function App() {
                         <option key={source} value={source}>{source === 'local' ? 'Local folder' : 'Hugging Face'}</option>
                       ))}
                     </select>
-                    <span className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
+                    <span aria-hidden="true" className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
                       expand_more
                     </span>
                   </div>
@@ -1365,13 +1402,13 @@ export default function App() {
                           disabled={isLoading || isModelReady}
                           className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-primary focus:border-primary dark:text-white appearance-none"
                         >
-                          {MODEL_OPTIONS.map(opt => (
+                          {getDemoModelOptionsForSource(modelSource).map(opt => (
                             <option key={opt.key} value={opt.key}>
                               {opt.displayName}
                             </option>
                           ))}
                         </select>
-                        <span className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
+                        <span aria-hidden="true" className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
                           expand_more
                         </span>
                       </div>
@@ -1401,7 +1438,7 @@ export default function App() {
                         title="Browse local model folder"
                         className="h-[38px] w-[38px] flex items-center justify-center rounded-lg bg-yellow-400 hover:bg-yellow-500 text-gray-900 border border-yellow-500 shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        <span className="material-icons-outlined text-lg">folder_open</span>
+                        <span aria-hidden="true" className="material-icons-outlined text-lg">folder_open</span>
                       </button>
                     </div>
                     {localHandlePersistenceSupported && hasPersistedLocalHandle && needsLocalHandleReconnect && (
@@ -1440,7 +1477,7 @@ export default function App() {
                         <option value="webgpu-hybrid">WebGPU</option>
                         <option value="wasm">WASM</option>
                       </select>
-                      <span className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
+                      <span aria-hidden="true" className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
                         expand_more
                       </span>
                     </div>
@@ -1461,7 +1498,7 @@ export default function App() {
                           <option key={option} value={option}>{option}</option>
                         ))}
                       </select>
-                      <span className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
+                      <span aria-hidden="true" className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
                         expand_more
                       </span>
                     </div>
@@ -1482,7 +1519,7 @@ export default function App() {
                           <option key={option} value={option}>{option}</option>
                         ))}
                       </select>
-                      <span className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
+                      <span aria-hidden="true" className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
                         expand_more
                       </span>
                     </div>
@@ -1533,7 +1570,7 @@ export default function App() {
                             <option key={quant} value={quant}>{quant}</option>
                           ))}
                         </select>
-                        <span className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
+                        <span aria-hidden="true" className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
                           expand_more
                         </span>
                       </div>
@@ -1554,7 +1591,7 @@ export default function App() {
                             <option key={quant} value={quant}>{quant}</option>
                           ))}
                         </select>
-                        <span className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
+                        <span aria-hidden="true" className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
                           expand_more
                         </span>
                       </div>
@@ -1589,7 +1626,7 @@ export default function App() {
                           </option>
                         )}
                       </select>
-                      <span className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
+                      <span aria-hidden="true" className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
                         expand_more
                       </span>
                     </div>
@@ -1605,7 +1642,7 @@ export default function App() {
                             <option key={name} value={name}>{name}.onnx</option>
                           ))}
                         </select>
-                        <span className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
+                        <span aria-hidden="true" className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
                           expand_more
                         </span>
                       </div>
@@ -1634,7 +1671,7 @@ export default function App() {
                             <option value="asr">ASR</option>
                             <option value="translation">Speech Translation</option>
                           </select>
-                          <span className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
+                          <span aria-hidden="true" className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
                             expand_more
                           </span>
                         </div>
@@ -1657,7 +1694,7 @@ export default function App() {
                               </option>
                             ))}
                           </select>
-                          <span className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
+                          <span aria-hidden="true" className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
                             expand_more
                           </span>
                         </div>
@@ -1719,7 +1756,7 @@ export default function App() {
                           <option key={name} value={name}>{name}</option>
                         ))}
                       </select>
-                      <span className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
+                      <span aria-hidden="true" className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
                         expand_more
                       </span>
                     </div>
@@ -1787,7 +1824,7 @@ export default function App() {
                   disabled={isLoading || isModelReady || (modelSource === MODEL_SOURCE_OPTIONS.LOCAL && (!localEntries.length || !encoderQuantOptions.length || !decoderQuantOptions.length))}
                   className="w-full bg-primary hover:bg-opacity-90 text-white font-medium py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <span className="material-icons-outlined text-sm">bolt</span>
+                  <span aria-hidden="true" className="material-icons-outlined text-sm">bolt</span>
                   {isModelReady ? 'Model Loaded' : isLoading ? 'Loading…' : 'Load Model'}
                 </button>
 
@@ -1817,7 +1854,7 @@ export default function App() {
               </span>
               {modelSource === MODEL_SOURCE_OPTIONS.HUGGINGFACE && loadedFromCache && isModelReady && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
-                  <span className="material-icons-outlined text-xs">cached</span>
+                  <span aria-hidden="true" className="material-icons-outlined text-xs">cached</span>
                   Loaded from cache
                 </span>
               )}
@@ -1829,7 +1866,7 @@ export default function App() {
                 ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
                 : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
                 }`}>
-                <span className="material-icons-outlined text-xs">
+                <span aria-hidden="true" className="material-icons-outlined text-xs">
                   {threadingStatus.sab ? 'check_circle' : 'warning'}
                 </span>
                 {threadingStatus.sab
@@ -1866,7 +1903,7 @@ export default function App() {
                         </option>
                       ))}
                     </select>
-                    <span className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
+                    <span aria-hidden="true" className="material-icons-outlined absolute right-2 top-2 text-gray-400 pointer-events-none text-lg">
                       expand_more
                     </span>
                   </div>
@@ -1887,7 +1924,7 @@ export default function App() {
                         className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-white rounded-full w-[38px] h-[38px] flex items-center justify-center shadow-sm transition flex-shrink-0 group border border-gray-300 dark:border-gray-600"
                         title={isPlaying ? 'Pause' : 'Play Sample'}
                       >
-                        <span className="material-icons-outlined text-lg text-primary group-hover:text-primary/80">
+                        <span aria-hidden="true" className="material-icons-outlined text-lg text-primary group-hover:text-primary/80">
                           {isPlaying ? 'pause' : 'play_arrow'}
                         </span>
                       </button>
@@ -1898,7 +1935,7 @@ export default function App() {
                           className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-white rounded-full w-[38px] h-[38px] flex items-center justify-center shadow-sm transition flex-shrink-0 group border border-gray-300 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
                           title={sampleDownload.sourceUrl ? `Download original sample: ${sampleDownload.filename}` : 'Download original sample'}
                         >
-                          <span className="material-icons-outlined text-lg text-primary group-hover:text-primary/80">
+                          <span aria-hidden="true" className="material-icons-outlined text-lg text-primary group-hover:text-primary/80">
                             download
                           </span>
                         </button>
@@ -1925,7 +1962,7 @@ export default function App() {
                   disabled={!isModelReady || isTranscribing}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
                 />
-                <span className="material-icons-outlined text-4xl text-gray-400 group-hover:text-primary mb-2 transition-colors">
+                <span aria-hidden="true" className="material-icons-outlined text-4xl text-gray-400 group-hover:text-primary mb-2 transition-colors">
                   cloud_upload
                 </span>
                 <p className="text-gray-500 dark:text-gray-400 font-medium">
@@ -1952,7 +1989,7 @@ export default function App() {
                         onClick={() => copyToClipboard(text)}
                         className="flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded border border-gray-200 dark:border-gray-700 transition-colors"
                       >
-                        <span className="material-icons-outlined text-xs">content_copy</span>
+                        <span aria-hidden="true" className="material-icons-outlined text-xs">content_copy</span>
                         Copy
                       </button>
                     )}
@@ -2009,7 +2046,7 @@ export default function App() {
                         onClick={() => copyToClipboard(referenceText)}
                         className="flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded border border-gray-200 dark:border-gray-700 transition-colors"
                       >
-                        <span className="material-icons-outlined text-xs">content_copy</span>
+                        <span aria-hidden="true" className="material-icons-outlined text-xs">content_copy</span>
                         Copy
                       </button>
                     )}

@@ -119,14 +119,8 @@ export function StreamingCapturePanel({
 
   return (
     <div className="panel-shell panel-shell--overflow workspace-main">
-      <header className="workspace-main__head">
-        <h1 className="page-title">Private, on-device speech recognition in your browser</h1>
-      </header>
-
       <div className="workspace-main__body">
         <section className="app-rail-section app-rail-section--flush-top">
-          <div className="widget-header widget-header--rail">
-          </div>
 
           <div className="waveform-workbench">
             <div className="waveform-workbench__main">

@@ -15,7 +15,7 @@
 
 .toggle-checkbox:checked {
   transform: translateX(100%);
-  border-color: #10b981;
+  border-color: var(--demo-brand);
 }
 
 .toggle-label {
@@ -23,7 +23,7 @@
 }
 
 .toggle-checkbox:checked + .toggle-label {
-  background-color: #10b981;
+  background-color: var(--demo-brand);
 }
 
 /* Remove native select arrow so custom expand_more icon is the only one */
@@ -60,7 +60,7 @@ body {
 }
 
 .dark ::-webkit-scrollbar-track {
-  background: #1f2937;
+  background: var(--demo-panel-soft);
 }
 
 .dark ::-webkit-scrollbar-thumb {
@@ -69,7 +69,7 @@ body {
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: #6b7280;
+  background: var(--demo-border);
 }
 
 /* Waveform animation */
@@ -100,7 +100,7 @@ body {
 /* File input styling */
 input[type="file"]::file-selector-button {
   padding: 0.5rem 1rem;
-  background: #10b981;
+  background: var(--demo-brand);
   color: white;
   border: none;
   border-radius: 0.5rem;
@@ -110,5 +110,5 @@ input[type="file"]::file-selector-button {
 }
 
 input[type="file"]::file-selector-button:hover {
-  background: #059669;
+  background: var(--demo-brand-dark);
 }

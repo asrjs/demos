@@ -233,6 +233,8 @@ export function WaveformCanvas({
   showFooterMetrics = true,
 }) {
   const canvasRef = useRef(null);
+  const wrapRef = useRef(null);
+  const [wrapWidth, setWrapWidth] = useState(0);
   const frameRef = useRef(0);
   const workerRef = useRef(null);
   const offscreenActiveRef = useRef(false);
@@ -384,10 +386,24 @@ export function WaveformCanvas({
   }, []);
 
   useEffect(() => {
+    const element = wrapRef.current;
+    if (!element || typeof ResizeObserver === 'undefined') return undefined;
+    const observer = new ResizeObserver(([entry]) => {
+      setWrapWidth(Math.max(0, Math.floor((entry?.contentRect.width ?? 0) - 16)));
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || !plot?.pointCount) return undefined;
 
-    const width = Math.max(1, Math.round(plot.pointCount));
+    const naturalWidth = Math.max(1, Math.round(plot.pointCount));
+    // Draw at the space the card actually gives us; a wider bitmap would be
+    // cropped and its right-edge labels would disappear behind a scrollbar.
+    const width = wrapWidth > 0 ? Math.min(naturalWidth, wrapWidth) : naturalWidth;
+    canvas.style.width = `${width}px`;
     const height = WAVEFORM_CANVAS_HEIGHT;
     const dpr = Math.min(window.devicePixelRatio || 1, WAVEFORM_CANVAS_MAX_DPR);
     canvas.style.height = `${height}px`;
@@ -446,7 +462,7 @@ export function WaveformCanvas({
         window.cancelAnimationFrame(frameRef.current);
       }
     };
-  }, [absoluteSpeechFloorDbfs, foregroundNoiseFloorDbfs, onsetThresholdDbfs, paintMode, plot, renderFrame, scaleMode, showPreVadOverlay, showSpeechThreshold, showTenVadThreshold, speechThresholdDbfs]);
+  }, [absoluteSpeechFloorDbfs, foregroundNoiseFloorDbfs, onsetThresholdDbfs, paintMode, plot, renderFrame, scaleMode, showPreVadOverlay, showSpeechThreshold, showTenVadThreshold, speechThresholdDbfs, wrapWidth]);
 
   const bufferLabel = plot
     ? `${Math.max(0, plot.livePointIndex + 1)}/${plot.pointCount} pad ${plot.padPoints}`
@@ -480,7 +496,7 @@ export function WaveformCanvas({
   ];
 
   return (
-    <div className="streaming-waveform-wrap">
+    <div className="streaming-waveform-wrap" ref={wrapRef}>
       <div className="waveform-strip-head">
         <span className="waveform-strip-head__title">Waveform</span>
         <span className="waveform-strip-head__state min-w-0 truncate">
@@ -490,7 +506,7 @@ export function WaveformCanvas({
       <canvas
         ref={canvasRef}
         height={WAVEFORM_CANVAS_HEIGHT}
-        style={{ width: `${Math.max(1, plot?.pointCount ?? 1)}px`, height: `${WAVEFORM_CANVAS_HEIGHT}px` }}
+        style={{ width: `${wrapWidth > 0 ? Math.min(Math.max(1, plot?.pointCount ?? 1), wrapWidth) : Math.max(1, plot?.pointCount ?? 1)}px`, height: `${WAVEFORM_CANVAS_HEIGHT}px` }}
         className="streaming-waveform-canvas"
       />
       {showFooterMetrics ? <WaveformMetricsStrip rows={[metricsCaptureRow, metricsDetectorRow]} /> : null}

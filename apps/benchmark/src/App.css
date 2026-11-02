@@ -155,7 +155,7 @@ pre,
 }
 
 .suite-pill--active {
-  background: #5d7387;
+  background: var(--demo-brand);
   color: #ffffff;
 }
 
@@ -248,7 +248,7 @@ pre,
 }
 
 .tab-btn--active {
-  background: #5d7387;
+  background: var(--demo-brand);
   color: #ffffff;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
@@ -399,13 +399,13 @@ select:focus {
 }
 
 .btn-primary {
-  background: #5d7387;
-  border-color: #5d7387;
+  background: var(--demo-brand);
+  border-color: var(--demo-brand);
   color: #ffffff;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #4b6073;
+  background: var(--demo-brand-dark);
 }
 
 .btn-accent {
@@ -447,7 +447,7 @@ select:focus {
 }
 
 .mode-switch-btn--active {
-  background: #5d7387;
+  background: var(--demo-brand);
   color: #ffffff;
 }
 
@@ -470,7 +470,7 @@ select:focus {
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #5d7387, var(--accent));
+  background: linear-gradient(90deg, var(--demo-brand), var(--accent));
   transition: width 0.2s ease;
 }
 

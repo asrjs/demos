@@ -58,7 +58,7 @@ export function HistoryPanel({ app }) {
                     title={trans.clipFilename ? `Download ${trans.clipFilename}` : 'Download clip'}
                     aria-label={trans.clipFilename ? `Download ${trans.clipFilename}` : 'Download clip'}
                   >
-                    <span className="material-icons-outlined icon-sm">download</span>
+                    <span aria-hidden="true" className="material-icons-outlined icon-sm">download</span>
                   </a>
                 </div>
               </div>

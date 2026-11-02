@@ -60,6 +60,23 @@ if (typeof window === 'undefined') {
 
 } else {
     (() => {
+        // The suite registers this worker once at the site root so it covers
+        // sibling directories such as /demos/ort/. Older per-app registrations
+        // keep a narrower scope and would keep controlling the page, leaving
+        // those sibling requests unintercepted. Drop any other copy once.
+        const currentScriptUrl = window.document.currentScript?.src;
+        if (currentScriptUrl) {
+            navigator.serviceWorker?.getRegistrations?.().then((registrations) => {
+                const stale = registrations.filter((registration) => {
+                    const scriptUrl = (registration.active || registration.waiting || registration.installing)?.scriptURL;
+                    return Boolean(scriptUrl?.endsWith('/coi-serviceworker.js')) && scriptUrl !== currentScriptUrl;
+                });
+                if (stale.length === 0) return;
+                Promise.all(stale.map((registration) => registration.unregister()))
+                    .then(() => window.location.reload());
+            }).catch(() => {});
+        }
+
         const reloadedBySelf = window.sessionStorage.getItem("coiReloadedBySelf");
         window.sessionStorage.removeItem("coiReloadedBySelf");
         const coepDegrading = (reloadedBySelf == "coepdegrade");

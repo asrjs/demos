@@ -6,7 +6,13 @@ import path from 'node:path';
 import http from 'node:http';
 import { fileURLToPath } from 'node:url';
 import { createSuiteServer } from './serve-suite.mjs';
-import { APPS, createBuildInvocation, normalizeBasePath, resolveOrtRuntimeDist } from './build-suite.mjs';
+import {
+  APPS,
+  createBuildInvocation,
+  normalizeBasePath,
+  resolveOrtRuntimeDist,
+  rewriteIsolationWorkerSrc,
+} from './build-suite.mjs';
 
 test('base paths normalize and reject traversal or URL syntax', () => {
   assert.equal(normalizeBasePath('/'), '/');
@@ -168,3 +174,12 @@ test('dist/ort contains 8 runtime assets and no app contains an ort subdirectory
   }
 });
 
+
+test('suite pages load one isolation worker from the suite root', () => {
+  const built = '<script type="module" crossorigin src="./assets/index-abc.js"></script><script src="./coi-serviceworker.js"></script>';
+  const rewritten = rewriteIsolationWorkerSrc(built);
+  assert.ok(rewritten.includes('src="../coi-serviceworker.js"'));
+  assert.ok(!rewritten.includes('src="./coi-serviceworker.js"'));
+  assert.equal(rewritten.match(/coi-serviceworker\.js/g)?.length, 1);
+  assert.equal(rewriteIsolationWorkerSrc('<html></html>'), '<html></html>');
+});

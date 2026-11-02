@@ -20,13 +20,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check out the pinned speech runtime
+        uses: actions/checkout@v4
+        with:
+          repository: asrjs/speech-recognition
+          ref: d0a6baf32a687a1b8a94c3ab36fb089c1cd8d577
+          path: .asrjs-core
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22.x
           cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            .asrjs-core/package-lock.json
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Build the pinned speech runtime
+        run: |
+          npm ci --prefix .asrjs-core
+          npm run build --prefix .asrjs-core
 
       - name: Compute the Pages base path
         shell: bash
@@ -39,9 +54,11 @@ jobs:
             echo "SUITE_BASE=/${REPO}/" >> "$GITHUB_ENV"
           fi
 
-      # Pages cannot send COOP/COEP headers; each app keeps coi-serviceworker.js
-      # so WASM threads get cross-origin isolation.
+      # The suite-root worker isolates all apps and their shared WASM assets.
       - name: Build the four apps and the portal
+        env:
+          ASRJS_SOURCE: source
+          ASRJS_LIB_DIR: ${{ github.workspace }}/.asrjs-core
         run: node scripts/build-suite.mjs --base="$SUITE_BASE"
 
       - uses: actions/configure-pages@v5

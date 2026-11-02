@@ -9,6 +9,7 @@ import {
 import {
   createDemoHubLoader,
   getDemoModelLoadingState,
+  getDemoModelOptionsForSource,
   getDemoModelSourceOptions,
   loadDemoLocalModel,
   resolveDemoModelSource,
@@ -307,8 +308,15 @@ export default function App() {
   const decoderQuantOptions = loadingState.decoderQuantOptions;
 
   useEffect(() => {
-    const nextSource = resolveDemoModelSource(modelKey, modelSource);
-    if (nextSource && nextSource !== modelSource) setModelSource(nextSource);
+    const options = getDemoModelOptionsForSource(modelSource);
+    if (!options.length) {
+      const nextSource = resolveDemoModelSource(modelKey, modelSource);
+      if (nextSource && nextSource !== modelSource) setModelSource(nextSource);
+      return;
+    }
+    if (!options.some((option) => option.key === modelKey)) {
+      setModelKey(options[0].key);
+    }
   }, [modelKey, modelSource]);
 
   useEffect(() => {
@@ -775,8 +783,10 @@ export default function App() {
     }
   }
 
-  // Compute summary metrics across current runs
-  const okRuns = useMemo(() => runs.filter((r) => !r.error && r.metrics), [runs]);
+  // Compute summary metrics across current runs. Warmups are recorded for the
+  // audit trail but never enter measured statistics, buckets or the sweet spot.
+  const validRuns = useMemo(() => runs.filter((r) => !r.error && r.metrics), [runs]);
+  const okRuns = useMemo(() => validRuns.filter((r) => !r.isWarmup), [validRuns]);
   const summary = useMemo(() => {
     const totals = okRuns.map((r) => r.metrics?.total_ms).filter(Number.isFinite);
     const preprocs = okRuns.map((r) => r.metrics?.preprocess_ms).filter(Number.isFinite);
@@ -791,7 +801,8 @@ export default function App() {
     return {
       runCount: runs.length,
       okCount: okRuns.length,
-      errorCount: runs.length - okRuns.length,
+      warmupCount: validRuns.length - okRuns.length,
+      errorCount: runs.length - validRuns.length,
       totalMean: mean(totals),
       totalP90: percentile(totals, 90),
       preprocessMean: mean(preprocs),
@@ -806,7 +817,7 @@ export default function App() {
       referenceSimilarityMean: mean(refSims),
       werMean: mean(wers),
     };
-  }, [runs, okRuns]);
+  }, [runs, okRuns, validRuns]);
 
   const durationBuckets = useMemo(
     () => summarizeBenchmarkBuckets(okRuns, 10, windowOverlapSec),
@@ -815,10 +826,10 @@ export default function App() {
   const sweetSpot = useMemo(() => findSweetSpotBucket(durationBuckets), [durationBuckets]);
 
   function saveSnapshot() {
-    if (!okRuns.length) return;
+    if (!validRuns.length) return;
     const defaultLabel = `${modelKey} | ${backend} | e:${encoderQuant} d:${decoderQuant}`;
-    const coldRuns = okRuns.filter((r) => r.phase === 'cold' || r.isWarmup);
-    const warmRuns = okRuns.filter((r) => r.phase === 'warm' && !r.isWarmup);
+    const coldRuns = validRuns.filter((r) => r.phase === 'cold' || r.isWarmup);
+    const warmRuns = validRuns.filter((r) => r.phase === 'warm' && !r.isWarmup);
     const snap = {
       id: `snap-${Date.now()}`,
       createdAt: new Date().toISOString(),
@@ -839,7 +850,7 @@ export default function App() {
       },
       coldRuns,
       warmRuns,
-      runs: okRuns.slice(0, 120),
+      runs: validRuns.slice(0, 120),
     };
     setSnapshots((prev) => [snap, ...prev].slice(0, MAX_SNAPSHOTS));
     setSnapshotName('');
@@ -924,11 +935,11 @@ export default function App() {
       {/* ═══ 5-TAB NAVIGATION ═══ */}
       <nav className="tabs-bar">
         {[
-          { id: 'benchmark', label: '⚙ Benchmark Setup' },
-          { id: 'overview', label: '📊 Overview & Sweet-Spot', count: okRuns.length },
-          { id: 'charts', label: '📈 Interactive Charts', count: okRuns.length ? 8 : 0 },
-          { id: 'compare', label: '⚖ Compare & Pivot', count: snapshots.length },
-          { id: 'data', label: '🗂 Run Data & Export', count: runs.length },
+          { id: 'benchmark', label: 'Benchmark Setup' },
+          { id: 'overview', label: 'Overview & Sweet-Spot', count: okRuns.length },
+          { id: 'charts', label: 'Interactive Charts', count: okRuns.length ? 8 : 0 },
+          { id: 'compare', label: 'Compare & Pivot', count: snapshots.length },
+          { id: 'data', label: 'Run Data & Export', count: runs.length },
         ].map((t) => (
           <button
             key={t.id}
@@ -993,11 +1004,13 @@ export default function App() {
                   >
                     {Object.entries(groupedCatalog).map(([groupLabel, items]) => (
                       <optgroup key={groupLabel} label={groupLabel}>
-                        {items.map((m) => (
-                          <option key={m.modelId} value={m.modelId}>
-                            {m.displayName || m.label || m.modelId}
-                          </option>
-                        ))}
+                        {items
+                          .filter((m) => getDemoModelSourceOptions(m.modelId).includes(modelSource))
+                          .map((m) => (
+                            <option key={m.modelId} value={m.modelId}>
+                              {m.displayName || m.label || m.modelId}
+                            </option>
+                          ))}
                       </optgroup>
                     ))}
                   </select>
@@ -1278,7 +1291,7 @@ export default function App() {
                     onClick={runBenchmark}
                     disabled={isRunning || isLoadingModel || !isModelReady}
                   >
-                    {isRunning ? 'Running Benchmark...' : '▶ Start Benchmark'}
+                    {isRunning ? 'Running Benchmark...' : 'Start Benchmark'}
                   </button>
                   <button
                     type="button"
@@ -1298,7 +1311,7 @@ export default function App() {
                     onChange={(e) => setSnapshotName(e.target.value)}
                     disabled={isRunning}
                   />
-                  <button type="button" className="btn" onClick={saveSnapshot} disabled={!okRuns.length || isRunning}>
+                  <button type="button" className="btn" onClick={saveSnapshot} disabled={!validRuns.length || isRunning}>
                     Save Snapshot
                   </button>
                 </div>
@@ -1422,7 +1435,7 @@ export default function App() {
             <div className="kpi-card">
               <div className="kpi-label">Valid / Total Runs</div>
               <div className="kpi-value">{summary.okCount} / {summary.runCount}</div>
-              <div className="kpi-sub">Errors: {summary.errorCount}</div>
+              <div className="kpi-sub">Errors: {summary.errorCount} · Warmups: {summary.warmupCount}</div>
             </div>
           </div>
 

@@ -62,3 +62,9 @@ npm run dev:realtime
 ```
 
 Unset `ASRJS_SOURCE` to return to the installed package. Source and package provenance are shown by the suite at runtime. For dependency direction, theme conventions and app responsibilities, see [suite conventions](docs/suite-apps.md).
+
+## GitHub Pages
+
+The Pages workflow checks out and builds the speech-runtime commit pinned in [deploy-pages.yml](.github/workflows/deploy-pages.yml), then builds the suite in source mode. This deploys the pinned runtime fixes without waiting for an npm release. Update that commit pin when deploying a newer runtime.
+
+The suite-root isolation worker covers all four apps and their shared ONNX Runtime assets. App-local worker registrations migrate to the suite-root scope on reload.

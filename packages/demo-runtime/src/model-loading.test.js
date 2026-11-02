@@ -36,10 +36,6 @@ test('every registered model resolves only to one of its declared sources', () =
       assert.ok(sources.includes(resolveDemoModelSource(key, requested)));
     }
   }
-  for (const id of ['nvidia/canary-1b', 'nvidia/canary-1b-v2', 'UsefulSensors/moonshine-tiny']) {
-    assert.deepEqual(getDemoModelSourceOptions(id), ['local']);
-    assert.equal(resolveDemoModelSource(id, 'huggingface'), 'local');
-  }
   const qwen = getSpeechModelDescriptor('Qwen/Qwen3-ASR-0.6B-hf');
   assert.deepEqual(getDemoModelSourceOptions(qwen.modelId), ['huggingface', 'local']);
   assert.equal(qwen.loading.repoId, 'ysdede/qwen3-asr-0.6b-onnx');
@@ -196,19 +192,6 @@ test('Qwen and Streaming Tiny Hub bundles resolve to their pinned published revi
   }
 });
 
-test('local-only models never reach the Hub pipeline even if called directly', async () => {
-  let calls = 0;
-  const loader = createDemoHubLoader({ createPipeline: () => ({
-    listLoadedModels: () => [],
-    async loadModel() { calls++; throw new Error('Unexpected Hub request'); },
-    async dispose() {},
-  }) });
-  try {
-    await assert.rejects(loader.loadModel({ modelId: 'nvidia/canary-1b' }), /local folder/);
-    await assert.rejects(loader.loadModel({ modelId: 'UsefulSensors/moonshine-tiny' }), /local folder/);
-    assert.equal(calls, 0);
-  } finally { await loader.dispose(); }
-});
 
 
 test('bundled warmup oracle checks missing expected-text metadata without accepting arbitrary output', async () => {

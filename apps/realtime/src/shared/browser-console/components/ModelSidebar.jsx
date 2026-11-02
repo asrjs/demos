@@ -1,5 +1,6 @@
 import React from 'react';
 import { Field, ToggleRow, Widget } from '../../ui/PanelPrimitives.jsx';
+import { getDemoModelOptionsForSource } from '@asrjs/demo-runtime';
 
 export function ModelSidebar({ app, hidden = false }) {
   const {
@@ -25,7 +26,6 @@ export function ModelSidebar({ app, hidden = false }) {
     handleModelSourceChange,
     selectedModel,
     handleModelChange,
-    MODEL_OPTIONS,
     modelFolderInputRef,
     handleLocalFolderInput,
     localFolderName,
@@ -145,7 +145,7 @@ export function ModelSidebar({ app, hidden = false }) {
                   <select value={selectedLanguage} onChange={(e) => handleLanguageChange(e.target.value)} disabled={!isModelReady} className="compact-control">
                     {testLanguageOptions.map((lang) => <option key={lang.code} value={lang.code}>{lang.displayName}</option>)}
                   </select>
-                  <span className="material-icons-outlined select-wrap__chevron icon-sm">expand_more</span>
+                  <span aria-hidden="true" className="material-icons-outlined select-wrap__chevron icon-sm">expand_more</span>
                 </div>
               </Field>
               <div className="flex-row flex-row--wrap gap-2">
@@ -159,11 +159,11 @@ export function ModelSidebar({ app, hidden = false }) {
                       onPlay={() => app.setIsPlaying(true)}
                     />
                     <button type="button" onClick={isPlaying ? pauseAudio : playAudio} className="compact-button-secondary compact-button--icon" title={isPlaying ? 'Pause sample' : 'Play sample'}>
-                      <span className="material-icons-outlined icon-sm">{isPlaying ? 'pause' : 'play_arrow'}</span>
+                      <span aria-hidden="true" className="material-icons-outlined icon-sm">{isPlaying ? 'pause' : 'play_arrow'}</span>
                     </button>
                     {sampleDownload ? (
                       <button type="button" onClick={downloadCurrentSample} disabled={isDownloadingSample || isLoadingSample || isTranscribing} className="compact-button-secondary compact-button--icon" title={sampleDownload.sourceUrl ? `Download original sample: ${sampleDownload.filename}` : 'Download original sample'}>
-                        <span className="material-icons-outlined icon-sm">download</span>
+                        <span aria-hidden="true" className="material-icons-outlined icon-sm">download</span>
                       </button>
                     ) : null}
                   </>
@@ -177,7 +177,7 @@ export function ModelSidebar({ app, hidden = false }) {
 
           <label className="demo-upload-zone" title="Upload .wav, .mp3, or .ogg">
             <input ref={fileInputRef} type="file" accept="audio/*" onChange={transcribeFile} disabled={!isModelReady || isTranscribing} className="hidden" />
-            <span className="material-icons-outlined icon-lg">upload_file</span>
+            <span aria-hidden="true" className="material-icons-outlined icon-lg">upload_file</span>
             <div className="upload-zone-title">Drop or click to transcribe</div>
           </label>
         </div>
@@ -197,7 +197,7 @@ export function ModelSidebar({ app, hidden = false }) {
                   <option key={source} value={source}>{source === MODEL_SOURCE_OPTIONS.LOCAL ? 'Local folder' : 'Hugging Face'}</option>
                 ))}
               </select>
-              <span className="material-icons-outlined select-wrap__chevron icon-sm">expand_more</span>
+              <span aria-hidden="true" className="material-icons-outlined select-wrap__chevron icon-sm">expand_more</span>
             </div>
           </Field>
 
@@ -209,11 +209,11 @@ export function ModelSidebar({ app, hidden = false }) {
                 disabled={isLoading || isModelReady}
                 className="compact-control"
               >
-                {MODEL_OPTIONS.map((opt) => (
+                {getDemoModelOptionsForSource(modelSource).map((opt) => (
                   <option key={opt.key} value={opt.key}>{opt.displayName}</option>
                 ))}
               </select>
-              <span className="material-icons-outlined select-wrap__chevron icon-sm">expand_more</span>
+              <span aria-hidden="true" className="material-icons-outlined select-wrap__chevron icon-sm">expand_more</span>
             </div>
           </Field>
 
@@ -232,7 +232,7 @@ export function ModelSidebar({ app, hidden = false }) {
                 <div className="flex-row gap-2">
                   <div className="compact-control compact-control--truncate flex-1">{localFolderName || 'No folder selected'}</div>
                   <button type="button" onClick={pickLocalModelFolder} disabled={isLoading || isModelReady} className="compact-button-secondary compact-button--icon" title="Pick folder">
-                    <span className="material-icons-outlined icon-sm">folder_open</span>
+                    <span aria-hidden="true" className="material-icons-outlined icon-sm">folder_open</span>
                   </button>
                 </div>
               </Field>
@@ -261,7 +261,7 @@ export function ModelSidebar({ app, hidden = false }) {
                 <option value="webgpu-hybrid">WebGPU</option>
                 <option value="wasm">WASM</option>
               </select>
-              <span className="material-icons-outlined select-wrap__chevron icon-sm">expand_more</span>
+              <span aria-hidden="true" className="material-icons-outlined select-wrap__chevron icon-sm">expand_more</span>
             </div>
           </Field>
           <div className="grid-2">
@@ -270,7 +270,7 @@ export function ModelSidebar({ app, hidden = false }) {
                 <select value={encoderBackend} onChange={(e) => setEncoderBackend(e.target.value)} disabled={isLoading || isModelReady} className="compact-control">
                   {encoderBackendOptions.map((option) => <option key={option} value={option}>{option}</option>)}
                 </select>
-                <span className="material-icons-outlined select-wrap__chevron icon-sm">expand_more</span>
+                <span aria-hidden="true" className="material-icons-outlined select-wrap__chevron icon-sm">expand_more</span>
               </div>
             </Field>
             <Field label="Decoder">
@@ -278,7 +278,7 @@ export function ModelSidebar({ app, hidden = false }) {
                 <select value={decoderBackend} onChange={(e) => setDecoderBackend(e.target.value)} disabled={isLoading || isModelReady} className="compact-control">
                   {decoderBackendOptions.map((option) => <option key={option} value={option}>{option}</option>)}
                 </select>
-                <span className="material-icons-outlined select-wrap__chevron icon-sm">expand_more</span>
+                <span aria-hidden="true" className="material-icons-outlined select-wrap__chevron icon-sm">expand_more</span>
               </div>
             </Field>
             <Field label="Threads">
@@ -295,7 +295,7 @@ export function ModelSidebar({ app, hidden = false }) {
                   <select value={encoderQuant} onChange={(e) => setEncoderQuant(e.target.value)} disabled={isLoading || isModelReady} className="compact-control">
                     {encoderQuantOptions.map((quant) => <option key={quant} value={quant}>{quant}</option>)}
                   </select>
-                  <span className="material-icons-outlined select-wrap__chevron icon-sm">expand_more</span>
+                  <span aria-hidden="true" className="material-icons-outlined select-wrap__chevron icon-sm">expand_more</span>
                 </div>
               </Field>
               <Field label="Decoder quant">
@@ -303,7 +303,7 @@ export function ModelSidebar({ app, hidden = false }) {
                   <select value={decoderQuant} onChange={(e) => setDecoderQuant(e.target.value)} disabled={isLoading || isModelReady} className="compact-control">
                     {decoderQuantOptions.map((quant) => <option key={quant} value={quant}>{quant}</option>)}
                   </select>
-                  <span className="material-icons-outlined select-wrap__chevron icon-sm">expand_more</span>
+                  <span aria-hidden="true" className="material-icons-outlined select-wrap__chevron icon-sm">expand_more</span>
                 </div>
               </Field>
             </div>
@@ -321,7 +321,7 @@ export function ModelSidebar({ app, hidden = false }) {
                     {preprocessorBackendOptions.includes('js') ? <option value="js">JS frontend</option> : null}
                     {preprocessorBackendOptions.includes('onnx') ? <option value="onnx" disabled={modelSource === MODEL_SOURCE_OPTIONS.LOCAL && localPreprocessorOptions.length === 0}>ONNX frontend</option> : null}
                   </select>
-                  <span className="material-icons-outlined select-wrap__chevron icon-sm">expand_more</span>
+                  <span aria-hidden="true" className="material-icons-outlined select-wrap__chevron icon-sm">expand_more</span>
                 </div>
               </Field>
               {modelSource === MODEL_SOURCE_OPTIONS.LOCAL && preprocessorBackend === 'onnx' && localPreprocessorOptions.length > 0 ? (
@@ -330,7 +330,7 @@ export function ModelSidebar({ app, hidden = false }) {
                     <select value={preprocessor} onChange={(e) => setPreprocessor(e.target.value)} disabled={isLoading || isModelReady} className="compact-control">
                       {localPreprocessorOptions.map((name) => <option key={name} value={name}>{name}.onnx</option>)}
                     </select>
-                    <span className="material-icons-outlined select-wrap__chevron icon-sm">expand_more</span>
+                    <span aria-hidden="true" className="material-icons-outlined select-wrap__chevron icon-sm">expand_more</span>
                   </div>
                 </Field>
               ) : null}
@@ -348,7 +348,7 @@ export function ModelSidebar({ app, hidden = false }) {
                       <option value="asr">ASR</option>
                       <option value="translation">Speech Translation</option>
                     </select>
-                    <span className="material-icons-outlined select-wrap__chevron icon-sm">expand_more</span>
+                    <span aria-hidden="true" className="material-icons-outlined select-wrap__chevron icon-sm">expand_more</span>
                   </div>
                 </Field>
                 <Field label="Target">
@@ -358,7 +358,7 @@ export function ModelSidebar({ app, hidden = false }) {
                         <option key={languageCode} value={languageCode}>{app.getBuiltInModelLanguageName(languageCode)}</option>
                       ))}
                     </select>
-                    <span className="material-icons-outlined select-wrap__chevron icon-sm">expand_more</span>
+                    <span aria-hidden="true" className="material-icons-outlined select-wrap__chevron icon-sm">expand_more</span>
                   </div>
                 </Field>
               </div>
@@ -379,7 +379,7 @@ export function ModelSidebar({ app, hidden = false }) {
                 <select value={localTokenizerName} onChange={(e) => setLocalTokenizerName(e.target.value)} disabled={isLoading || isModelReady} className="compact-control">
                   {localTokenizerOptions.map((name) => <option key={name} value={name}>{name}</option>)}
                 </select>
-                <span className="material-icons-outlined select-wrap__chevron icon-sm">expand_more</span>
+                <span aria-hidden="true" className="material-icons-outlined select-wrap__chevron icon-sm">expand_more</span>
               </div>
             </Field>
           ) : null}

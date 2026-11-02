@@ -18,6 +18,7 @@ import {
   createDemoHubLoader,
   getDemoModelLoadingState,
   getDemoModelLanguageOptions,
+  getDemoModelOptionsForSource,
   resolveDemoLanguage,
   getDemoModelSourceOptions,
   resolveDemoModelSource,
@@ -551,7 +552,7 @@ export default function App() {
   const [topTab, setTopTab] = useState('transcribe');
   const hubLoaderRef = useRef(null);
 
-  const modelOptions = useMemo(() => Object.entries(MODELS).map(([key, config]) => ({ key, config })), []);
+  const modelOptions = useMemo(() => getDemoModelOptionsForSource(modelSource), [modelSource]);
   const selectedModelConfig = MODELS[selectedModel] || MODELS['parakeet-tdt-0.6b-v2'];
   const defaultWeights = getParakeetDefaultWeightSetup(selectedModel, backend);
   const recommendedSettings = useMemo(
@@ -1488,7 +1489,7 @@ export default function App() {
             <button type="button" onClick={() => focusSection('benchmark')} className={`demo-tab ${topTab === 'benchmark' ? 'demo-tab-active' : 'demo-tab-idle'}`}>Benchmark Lab</button>
           </div>
         </div>
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,320px),minmax(0,1fr),minmax(0,400px)]">
+        <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,290px),minmax(0,1fr),minmax(0,360px)]">
           <aside className="space-y-4 min-w-0 xl:sticky xl:top-4 self-start">
             <Panel title="Model Architecture & Loading Mode">
               <div className="grid gap-2">
@@ -1687,13 +1688,10 @@ export default function App() {
                         disabled={isLoadingModel || modelLoaded}
                         className="compact-control"
                       >
-                        {modelOptions.map(({ key, config }) => (
-                          <option key={key} value={key}>{config.displayName}</option>
+                        {modelOptions.map((option) => (
+                          <option key={option.key} value={option.key}>{option.displayName}</option>
                         ))}
                       </select>
-                      <p className="mt-1.5 text-[11px] text-slate-500 dark:text-slate-400">
-                        {selectedModelConfig.repoId} • {selectedModelConfig.languages.map((lang) => LANGUAGE_NAMES[lang] || lang).join(', ')}
-                      </p>
                     </Field>
                     {modelSource === MODEL_SOURCE_OPTIONS.LOCAL ? (
                       <>
@@ -1983,7 +1981,7 @@ export default function App() {
                       }}
                       className="compact-button-dark"
                     >
-                      ▶ Sample
+                      Sample
                     </button>
                   </div>
                   <input

@@ -29,6 +29,16 @@ export function resolveOrtRuntimeDist(env = process.env) {
   return path.dirname(requireFromLibrary.resolve('onnxruntime-web'));
 }
 
+// Suite pages live under {base}{app}/ while the shared ORT assets live under
+// {base}ort/. A per-app service worker cannot cover that directory, so the
+// suite ships one worker at the suite root and every app loads it from there.
+const ISOLATION_WORKER = 'coi-serviceworker.js';
+const ISOLATION_SCRIPT_TAG = /(<script\b[^>]*\bsrc=["'])([^"']*coi-serviceworker\.js)(["'])/i;
+
+export function rewriteIsolationWorkerSrc(html) {
+  return html.replace(ISOLATION_SCRIPT_TAG, `$1../${ISOLATION_WORKER}$3`);
+}
+
 export function normalizeBasePath(input = '/') {
   if (typeof input !== 'string' || !input.startsWith('/') || input.startsWith('//') || input.includes('//')) {
     throw new Error('Base path must be an absolute URL path such as / or /nested/.');
@@ -91,7 +101,7 @@ async function promote(stage, dist, stamp) {
   const saved = [];
   await fs.mkdir(backup, { recursive: true });
   try {
-    for (const app of [...APPS, 'ort', 'index.html', 'theme.css', 'keet-fonts.css', 'fonts', 'suite.css', 'suite.js']) {
+    for (const app of [...APPS, 'ort', ISOLATION_WORKER, 'index.html', 'theme.css', 'keet-fonts.css', 'fonts', 'suite.css', 'suite.js']) {
       const stagedPath = path.join(stage, app);
       const finalPath = path.join(dist, app);
       const backupPath = path.join(backup, app);
@@ -134,11 +144,26 @@ export async function buildSuite({ base = '/', outRoot = path.join(root, 'dist')
       const appBase = `${normalizedBase}${app}/`;
       runBuild(app, output, appBase, normalizedBase);
       await fs.rm(path.join(output, 'ort'), { recursive: true, force: true });
+      // Vite still emits hashed ORT wasm copies next to the app bundle; the
+      // runtime loads them from the shared root, so drop the duplicates.
+      const assetsDir = path.join(output, 'assets');
+      for (const name of await fs.readdir(assetsDir).catch(() => [])) {
+        if (/^ort-wasm-.+\.(?:wasm|mjs)$/.test(name)) {
+          await fs.rm(path.join(assetsDir, name), { force: true });
+        }
+      }
+      const appHtmlPath = path.join(output, 'index.html');
+      const appHtml = await fs.readFile(appHtmlPath, 'utf8');
+      await fs.writeFile(appHtmlPath, rewriteIsolationWorkerSrc(appHtml));
       const stat = await fs.stat(output);
       if (!stat.isDirectory() || !(await fs.stat(path.join(output, 'index.html')).catch(() => null))) {
         throw new Error(`${app} build did not produce an index.html.`);
       }
     }
+    await fs.copyFile(
+      path.join(root, 'apps', 'showcase', 'public', ISOLATION_WORKER),
+      path.join(stage, ISOLATION_WORKER),
+    );
     await fs.copyFile(path.join(root, 'scripts', 'suite-portal.html'), path.join(stage, 'index.html'));
     await fs.copyFile(path.join(root, 'packages', 'ui', 'src', 'theme.css'), path.join(stage, 'theme.css'));
     // theme.css imports keet-fonts.css, which loads the self-hosted fonts.

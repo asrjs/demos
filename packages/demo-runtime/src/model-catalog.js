@@ -13,6 +13,11 @@ export const DEMO_MODELS = Object.fromEntries(
 
 export const MODEL_OPTIONS = listSpeechModelOptions().filter((option) => getDemoModelSourceOptions(option.key).length > 0);
 
+/** Model choices that the selected source can actually load. */
+export function getDemoModelOptionsForSource(source = 'huggingface') {
+  return MODEL_OPTIONS.filter((option) => getDemoModelSourceOptions(option.key).includes(source));
+}
+
 export function getDemoModelConfig(modelId) {
   return getSpeechModelDescriptor(modelId);
 }
